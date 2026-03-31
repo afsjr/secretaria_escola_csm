@@ -4,6 +4,7 @@ import { DirectoryView } from './directory'
 import { DocumentsView } from './documents'
 import { SecretariaView } from './secretaria'
 import { AcademicoView } from './academico'
+import { MatrizView } from './matriz'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 
@@ -37,6 +38,10 @@ export async function DashboardView(session, subPath = '/') {
         <a href="#/dashboard/colegas" class="nav-item ${subPath === '/colegas' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Colegas
+        </a>
+        <a href="#/dashboard/matriz" class="nav-item ${subPath === '/matriz' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+          Matriz Curricular
         </a>
         ${isAdmin ? `
           <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
@@ -88,6 +93,8 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await SecretariaView())
   } else if (subPath === '/academico') {
     contentArea.appendChild(await AcademicoView(profile))
+  } else if (subPath === '/matriz') {
+    contentArea.appendChild(await MatrizView())
   } else {
     // Default Home with dynamic statistics (Phase 4 suggestion)
     const { data: allProfiles } = await supabase.from('perfis').select('id', { count: 'exact' })

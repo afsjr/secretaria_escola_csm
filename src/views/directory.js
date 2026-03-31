@@ -20,8 +20,7 @@ export async function DirectoryView() {
             ${p.nome_completo ? p.nome_completo.charAt(0).toUpperCase() : '?'}
           </div>
           <div>
-            <div style="font-weight: 600; font-size: 1rem;">${p.nome_completo}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">${p.email}</div>
+            <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${p.nome_completo}</div>
             <span class="badge" style="font-size: 0.6rem;">${p.perfil}</span>
           </div>
         </div>

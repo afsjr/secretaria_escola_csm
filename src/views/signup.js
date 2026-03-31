@@ -22,6 +22,16 @@ export function SignupView() {
         </div>
         
         <div class="form-group">
+          <label class="label">CPF</label>
+          <input type="text" id="cpf" class="input" placeholder="000.000.000-00" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="label">Telefone / WhatsApp</label>
+          <input type="text" id="telefone" class="input" placeholder="(00) 00000-0000" required>
+        </div>
+        
+        <div class="form-group">
           <label class="label">Senha</label>
           <input type="password" id="password" class="input" placeholder="mínimo 6 caracteres" minlength="6" required>
         </div>
@@ -43,8 +53,10 @@ export function SignupView() {
     const email = form.querySelector('#email').value
     const password = form.querySelector('#password').value
     const nomeCompleto = form.querySelector('#nomeCompleto').value
+    const cpf = form.querySelector('#cpf').value
+    const telefone = form.querySelector('#telefone').value
     
-    const { error } = await registerUser({ email, password, nomeCompleto })
+    const { error } = await registerUser({ email, password, nomeCompleto, cpf, telefone })
     
     if (error) {
       toast.error('Erro no cadastro: ' + error.message)

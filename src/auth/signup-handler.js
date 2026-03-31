@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
  * 1. Creates a user in Supabase Auth.
  * 2. If successful, inserts a record into the 'perfis' table.
  */
-export async function registerUser({ email, password, nomeCompleto }) {
+export async function registerUser({ email, password, nomeCompleto, cpf, telefone }) {
   // Step 1: Signup in Supabase Auth
   const { data, error: authError } = await supabase.auth.signUp({
     email,
@@ -31,6 +31,8 @@ export async function registerUser({ email, password, nomeCompleto }) {
         id: user.id,
         nome_completo: nomeCompleto,
         email: email,
+        cpf: cpf,
+        telefone: telefone,
         perfil: 'aluno'
       }
     ])

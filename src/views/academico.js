@@ -36,9 +36,11 @@ const modulos = [
   }
 ]
 
-export async function AcademicoView() {
+export async function AcademicoView(profile) {
   const container = document.createElement('div')
   container.className = 'academico-view animate-in'
+  
+  const isAdmin = profile?.perfil?.toLowerCase() === 'admin'
 
   // Fetch profiles to select a student
   const { data: profiles, error } = await getAllProfiles()
@@ -50,10 +52,11 @@ export async function AcademicoView() {
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
-      <h1 style="font-size: 2rem; color: var(--text-main);">Controle Acadêmico</h1>
-      <p>Gerencie as notas e presenças dos alunos por módulo. (Ambiente do Professor/Gestor)</p>
+      <h1 style="font-size: 2rem; color: var(--text-main);">${isAdmin ? 'Controle Acadêmico' : 'Boletim Escolar'}</h1>
+      <p>${isAdmin ? 'Gerencie as notas e presenças dos alunos por módulo. (Ambiente do Professor/Gestor)' : 'Espelho das suas notas e presenças. (Apenas Leitura)'}</p>
     </header>
 
+    ${isAdmin ? `
     <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
       <div style="display: flex; gap: 1rem; align-items: flex-end;">
         <div class="form-group" style="flex: 1; margin: 0;">
@@ -66,8 +69,9 @@ export async function AcademicoView() {
         <button id="load-student-btn" class="btn btn-primary" disabled>Carregar Diário</button>
       </div>
     </div>
+    ` : ''}
 
-    <div id="boletim-container" style="display: none;">
+    <div id="boletim-container" style="${isAdmin ? 'display: none;' : 'display: block;'}">
       ${modulos.map(modulo => `
         <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 2rem;">
           <div style="background: var(--primary); padding: 1rem; color: white;">
@@ -106,9 +110,11 @@ export async function AcademicoView() {
         </div>
       `).join('')}
       
+      ${isAdmin ? `
       <div style="display: flex; justify-content: flex-end; margin-bottom: 3rem;">
         <button id="save-grades-btn" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Salvar Registros</button>
       </div>
+      ` : ''}
     </div>
   `
 
@@ -118,19 +124,31 @@ export async function AcademicoView() {
   const boletimContainer = container.querySelector('#boletim-container')
   const saveBtn = container.querySelector('#save-grades-btn')
 
-  select.addEventListener('change', () => {
-    loadBtn.disabled = !select.value
-  })
+  if (isAdmin) {
+    select.addEventListener('change', () => {
+      loadBtn.disabled = !select.value
+    })
 
-  loadBtn.addEventListener('click', () => {
-    boletimContainer.style.display = 'block'
-    toast.success('Diário carregado para ' + select.options[select.selectedIndex].text)
-  })
+    loadBtn.addEventListener('click', () => {
+      boletimContainer.style.display = 'block'
+      toast.success('Diário carregado para ' + select.options[select.selectedIndex].text)
+    })
 
-  saveBtn.addEventListener('click', () => {
-    toast.success('Notas e presenças salvas com sucesso!')
-    // Here you would normally send the data to Supabase
-  })
+    saveBtn.addEventListener('click', () => {
+      toast.success('Notas e presenças salvas com sucesso!')
+      // Here you would normally send the data to Supabase
+    })
+  }
+
+  // Disable inputs if not admin
+  const allInputs = container.querySelectorAll('input')
+  if (!isAdmin) {
+    allInputs.forEach(input => {
+      input.disabled = true
+      input.style.background = '#f9fafb'
+      input.style.cursor = 'not-allowed'
+    })
+  }
 
   // Simple average calculator
   const rows = container.querySelectorAll('tbody tr')

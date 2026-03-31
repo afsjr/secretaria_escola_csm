@@ -192,16 +192,27 @@ export async function GestaoTurmasView() {
     const botoesRemover = tabelaAlunos.querySelectorAll('.btn-remover')
     botoesRemover.forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        if (!confirm('Deseja realmente apagar o registro deste aluno dessa turma? Isso não pode ser desfeito.')) return
+        e.preventDefault()
+        e.stopPropagation()
+        const matId = e.currentTarget.getAttribute('data-matricula-id')
         
-        const matId = btn.getAttribute('data-matricula-id')
-        btn.textContent = '⏱'
+        if (!window.confirm('Certeza absoluta? Apagar a matrícula excluirá também todas as notas vinculadas a ela (se houver). Pressione OK para prosseguir.')) return
         
-        const { error } = await AcademicService.excluirMatricula(matId)
-        if (error) { toast.error('Falha ao remover: ' + error.message) }
-        else {
-          toast.success('Aluno removido da turma com sucesso.')
-          loadTurmaAlunos(turmaId) // reload list
+        btn.textContent = '...'
+        btn.disabled = true
+        
+        try {
+          const { error } = await AcademicService.excluirMatricula(matId)
+          if (error) { 
+            throw error
+          }
+          toast.success('Matrícula evaporada com sucesso.')
+          loadTurmaAlunos(turmaId)
+        } catch (err) {
+          console.error("Erro ao deletar matrícula:", err)
+          toast.error('Falha: ' + err.message)
+          btn.textContent = 'X'
+          btn.disabled = false
         }
       })
     })

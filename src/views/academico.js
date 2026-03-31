@@ -60,8 +60,8 @@ export async function AcademicoView(profile) {
     <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
       <div style="display: flex; gap: 1rem; align-items: flex-end;">
         <div class="form-group" style="flex: 1; margin: 0;">
-          <label class="label">Selecione o Aluno:</label>
-          <select id="aluno-select" class="input">
+          <label class="label" for="aluno-select">Selecione o Aluno:</label>
+          <select id="aluno-select" name="aluno_select" class="input">
             <option value="">-- Escolha um aluno --</option>
             ${students.map(s => `<option value="${s.id}">${s.nome_completo} (${s.email})</option>`).join('')}
           </select>
@@ -72,7 +72,7 @@ export async function AcademicoView(profile) {
     ` : ''}
 
     <div id="boletim-container" style="${isAdmin ? 'display: none;' : 'display: block;'}">
-      ${modulos.map(modulo => `
+      ${modulos.map((modulo, mIdx) => `
         <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 2rem;">
           <div style="background: var(--primary); padding: 1rem; color: white;">
             <h3 style="margin: 0; font-size: 1.2rem;">${modulo.nome}</h3>
@@ -92,18 +92,21 @@ export async function AcademicoView(profile) {
                 </tr>
               </thead>
               <tbody>
-                ${modulo.disciplinas.map(disciplina => `
+                ${modulo.disciplinas.map((disciplina, dIdx) => {
+                  const safeDisc = disciplina.replace(/[^a-zA-Z]/g, '').toLowerCase()
+                  const prefix = `mod${mIdx}_disc${dIdx}_${safeDisc}`
+                  return `
                   <tr style="border-top: 1px solid var(--secondary);">
                     <td style="padding: 1rem; font-weight: 500; font-size: 0.9rem;">${disciplina}</td>
-                    <td style="padding: 0.5rem;"><input type="number" min="0" class="input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0"></td>
-                    <td style="padding: 0.5rem;"><input type="number" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
-                    <td style="padding: 0.5rem;"><input type="number" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
-                    <td style="padding: 0.5rem;"><input type="number" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
+                    <td style="padding: 0.5rem;"><input type="number" id="faltas_${prefix}" name="faltas_${prefix}" aria-label="Faltas em ${disciplina}" min="0" class="input faltas-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0"></td>
+                    <td style="padding: 0.5rem;"><input type="number" id="n1_${prefix}" name="n1_${prefix}" aria-label="Nota 1 em ${disciplina}" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
+                    <td style="padding: 0.5rem;"><input type="number" id="n2_${prefix}" name="n2_${prefix}" aria-label="Nota 2 em ${disciplina}" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
+                    <td style="padding: 0.5rem;"><input type="number" id="n3_${prefix}" name="n3_${prefix}" aria-label="Nota 3 em ${disciplina}" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
                     <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f9fafb;" class="media-teoria">-</td>
-                    <td style="padding: 0.5rem;"><input type="number" min="0" max="10" step="0.1" class="input rec-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
+                    <td style="padding: 0.5rem;"><input type="number" id="rec_${prefix}" name="rec_${prefix}" aria-label="Nota de Recuperação em ${disciplina}" min="0" max="10" step="0.1" class="input rec-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
                     <td style="padding: 0.5rem; text-align: center; font-weight: bold; color: var(--primary);" class="media-final">-</td>
                   </tr>
-                `).join('')}
+                `}).join('')}
               </tbody>
             </table>
           </div>

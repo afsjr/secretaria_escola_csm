@@ -108,11 +108,19 @@ export const AcademicService = {
 
   // Excluir permanentemente uma matrícula (em caso de erro da secretaria)
   async excluirMatricula(matricula_id) {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('matriculas')
       .delete()
       .eq('id', matricula_id)
+      .select()
       
-    return { error }
+    if (error) return { error }
+    
+    // Se o banco executou 'com sucesso', mas não apagou nada, geralmente é trava de segurança/RLS
+    if (data && data.length === 0) {
+      return { error: { message: 'Operação barrada pelo Banco de Dados. Você pode não ter permissão ou o aluno possui notas atreladas.' } }
+    }
+    
+    return { error: null }
   }
 }

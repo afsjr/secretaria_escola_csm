@@ -160,9 +160,9 @@ export async function GestaoTurmasView() {
           </label>
         </td>
         <td style="padding: 1rem; text-align: right; display: flex; gap: 5px; justify-content: flex-end;">
-          <button class="btn btn-primary btn-salvar-status" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; flex: 1;">Salvar</button>
-          <button class="btn btn-remover" data-matricula-id="${m.id}" title="Desfazer matrícula errada" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer;">
-            X
+          <button type="button" class="btn btn-primary btn-salvar-status" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; flex: 1;">Salvar</button>
+          <button type="button" class="btn btn-remover" data-matricula-id="${m.id}" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer;">
+            X Excluir
           </button>
         </td>
       </tr>

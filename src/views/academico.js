@@ -42,6 +42,10 @@ export async function AcademicoView() {
 
   // Fetch profiles to select a student
   const { data: profiles, error } = await getAllProfiles()
+  if (error) {
+    console.error('Erro ao buscar perfis:', error)
+    toast.error('Erro de conexão com o banco de dados. Verifique a tabela "perfis".')
+  }
   const students = profiles?.filter(p => !p.perfil || p.perfil.toLowerCase() !== 'admin') || []
 
   container.innerHTML = `

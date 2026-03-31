@@ -42,7 +42,7 @@ export async function AcademicoView() {
 
   // Fetch profiles to select a student
   const { data: profiles, error } = await getAllProfiles()
-  const students = profiles?.filter(p => p.perfil === 'aluno') || []
+  const students = profiles?.filter(p => !p.perfil || p.perfil.toLowerCase() !== 'admin') || []
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">

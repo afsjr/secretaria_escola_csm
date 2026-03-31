@@ -12,28 +12,28 @@ export function SignupView() {
       
       <form id="signup-form">
         <div class="form-group">
-          <label class="label">Nome Completo</label>
-          <input type="text" id="nomeCompleto" class="input" placeholder="João Silva" required>
+          <label class="label" for="nomeCompleto">Nome Completo</label>
+          <input type="text" id="nomeCompleto" name="nomeCompleto" autocomplete="name" class="input" placeholder="João Silva" required>
         </div>
         
         <div class="form-group">
-          <label class="label">E-mail</label>
-          <input type="email" id="email" class="input" placeholder="seu@email.com" required>
+          <label class="label" for="email">E-mail</label>
+          <input type="email" id="email" name="email" autocomplete="email" class="input" placeholder="seu@email.com" required>
         </div>
         
         <div class="form-group">
-          <label class="label">CPF</label>
-          <input type="text" id="cpf" class="input" placeholder="000.000.000-00" required>
+          <label class="label" for="cpf">CPF</label>
+          <input type="text" id="cpf" name="cpf" class="input" placeholder="000.000.000-00" required>
         </div>
         
         <div class="form-group">
-          <label class="label">Telefone / WhatsApp</label>
-          <input type="text" id="telefone" class="input" placeholder="(00) 00000-0000" required>
+          <label class="label" for="telefone">Telefone / WhatsApp</label>
+          <input type="text" id="telefone" name="telefone" autocomplete="tel" class="input" placeholder="(00) 00000-0000" required>
         </div>
         
         <div class="form-group">
-          <label class="label">Senha</label>
-          <input type="password" id="password" class="input" placeholder="mínimo 6 caracteres" minlength="6" required>
+          <label class="label" for="password">Senha</label>
+          <input type="password" id="password" name="password" autocomplete="new-password" class="input" placeholder="mínimo 6 caracteres" minlength="6" required>
         </div>
         
         <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar</button>

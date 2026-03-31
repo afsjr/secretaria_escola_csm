@@ -25,12 +25,12 @@ export async function GestaoTurmasView() {
           <h3 style="margin-bottom: 1rem;">Abrir Nova Turma</h3>
           <form id="form-nova-turma">
             <div class="form-group">
-              <label class="label">Nome da Turma</label>
-              <input type="text" id="turma-nome" class="input" placeholder="Ex: Tec. Enfermagem 12A" required>
+              <label class="label" for="turma-nome">Nome da Turma</label>
+              <input type="text" id="turma-nome" name="turma_nome" class="input" placeholder="Ex: Tec. Enfermagem 12A" required>
             </div>
             <div class="form-group">
-              <label class="label">Período Letivo</label>
-              <input type="text" id="turma-periodo" class="input" placeholder="Ex: 2026.1" required>
+              <label class="label" for="turma-periodo">Período Letivo</label>
+              <input type="text" id="turma-periodo" name="turma_periodo" class="input" placeholder="Ex: 2026.1" required>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar Turma</button>
           </form>
@@ -62,7 +62,8 @@ export async function GestaoTurmasView() {
           <h4 style="margin-bottom: 15px;">Matricular Aluno Existente</h4>
           <div style="display: flex; gap: 10px; align-items: flex-end;">
             <div class="form-group" style="flex: 1; margin: 0;">
-              <select id="aluno-select" class="input">
+              <label for="aluno-select" style="display: none;">Escolha o Aluno</label>
+              <select id="aluno-select" name="aluno_select" class="input">
                 <option value="">-- Escolha um Aluno --</option>
                 ${alunos?.map(a => `<option value="${a.id}">${a.nome_completo} (${a.cpf || 'Sem CPF'})</option>`).join('')}
               </select>
@@ -142,7 +143,8 @@ export async function GestaoTurmasView() {
           <div style="font-size: 0.75rem; color: var(--text-muted);">${m.perfis?.email || ''}</div>
         </td>
         <td style="padding: 1rem;">
-          <select class="input status-aluno-select" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" data-bloqueio="${m.perfis.bloqueio_financeiro}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${m.status_aluno==='ativo' ? '#dcfce7' : '#f3f4f6'};">
+          <label for="status-select-${m.id}" style="display:none;">Status Acadêmico</label>
+          <select id="status-select-${m.id}" name="status_aluno" class="input status-aluno-select" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" data-bloqueio="${m.perfis.bloqueio_financeiro}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${m.status_aluno==='ativo' ? '#dcfce7' : '#f3f4f6'};">
             <option value="ativo" ${m.status_aluno === 'ativo' ? 'selected' : ''}>Ativo Regular</option>
             <option value="trancado" ${m.status_aluno === 'trancado' ? 'selected' : ''}>Trancado / Inativo</option>
             <option value="evadido" ${m.status_aluno === 'evadido' ? 'selected' : ''}>Evadido</option>
@@ -150,8 +152,8 @@ export async function GestaoTurmasView() {
           </select>
         </td>
         <td style="padding: 1rem;">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" class="financeiro-checkbox" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" data-status="${m.status_aluno}" ${m.perfis.bloqueio_financeiro ? 'checked' : ''}>
+          <label for="block-${m.id}" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="block-${m.id}" name="block_aluno" class="financeiro-checkbox" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" data-status="${m.status_aluno}" ${m.perfis.bloqueio_financeiro ? 'checked' : ''}>
             <span style="font-size: 0.8rem; font-weight: 600; color: ${m.perfis.bloqueio_financeiro ? '#dc2626' : '#22c55e'}">
               ${m.perfis.bloqueio_financeiro ? 'INADIMPLENTE' : 'Ok'}
             </span>

@@ -12,13 +12,13 @@ export function LoginView() {
       
       <form id="login-form">
         <div class="form-group">
-          <label class="label">E-mail</label>
-          <input type="email" id="email" class="input" placeholder="seu@email.com" required>
+          <label class="label" for="email">E-mail</label>
+          <input type="email" id="email" name="email" autocomplete="email" class="input" placeholder="seu@email.com" required>
         </div>
         
         <div class="form-group">
-          <label class="label">Senha</label>
-          <input type="password" id="password" class="input" placeholder="********" required>
+          <label class="label" for="password">Senha</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" class="input" placeholder="********" required>
         </div>
         
         <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>

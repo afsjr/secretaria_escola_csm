@@ -61,3 +61,6 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
   router()
 })
+
+// Initialize the app
+router()

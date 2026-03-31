@@ -1,8 +1,10 @@
-import { logout, getUserProfile } from '../auth/session'
+import { logout, getUserProfile, getAllProfiles } from '../auth/session'
 import { ProfileView } from './profile'
 import { DirectoryView } from './directory'
 import { DocumentsView } from './documents'
 import { SecretariaView } from './secretaria'
+import { DocumentsService } from '../lib/documents-service'
+import { supabase } from '../lib/supabase'
 
 export async function DashboardView(session, subPath = '/') {
   const container = document.createElement('div')
@@ -81,7 +83,7 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await SecretariaView())
   } else {
     // Default Home with dynamic statistics (Phase 4 suggestion)
-    const { data: allProfiles } = await DocumentsService.supabase.from('perfis').select('id', { count: 'exact' })
+    const { data: allProfiles } = await supabase.from('perfis').select('id', { count: 'exact' })
     const { data: myDocs } = await DocumentsService.getMyRequests(profile.id)
     const pendingCount = myDocs?.filter(d => d.status === 'pendente').length || 0
 

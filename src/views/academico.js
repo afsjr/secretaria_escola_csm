@@ -1,4 +1,5 @@
 import { getAllProfiles } from '../auth/session'
+import { AcademicService } from '../lib/academic-service'
 import { toast } from '../lib/toast'
 
 const modulos = [
@@ -96,7 +97,7 @@ export async function AcademicoView(profile) {
                   const safeDisc = disciplina.replace(/[^a-zA-Z]/g, '').toLowerCase()
                   const prefix = `mod${mIdx}_disc${dIdx}_${safeDisc}`
                   return `
-                  <tr style="border-top: 1px solid var(--secondary);">
+                  <tr class="disciplina-row" data-disciplina="${disciplina}" style="border-top: 1px solid var(--secondary);">
                     <td style="padding: 1rem; font-weight: 500; font-size: 0.9rem;">${disciplina}</td>
                     <td style="padding: 0.5rem;"><input type="number" id="faltas_${prefix}" name="faltas_${prefix}" aria-label="Faltas em ${disciplina}" min="0" class="input faltas-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0"></td>
                     <td style="padding: 0.5rem;"><input type="number" id="n1_${prefix}" name="n1_${prefix}" aria-label="Nota 1 em ${disciplina}" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
@@ -127,20 +128,77 @@ export async function AcademicoView(profile) {
   const boletimContainer = container.querySelector('#boletim-container')
   const saveBtn = container.querySelector('#save-grades-btn')
 
+  async function refreshGradesUI(alunoId) {
+    if (!alunoId) return
+    const { data, error } = await AcademicService.getBoletim(alunoId)
+    if (error) { toast.error('Falha na rede ao puxar notas: ' + error.message); return }
+
+    // Clear ghost values
+    container.querySelectorAll('.disciplina-row input').forEach(i => i.value = '')
+
+    if (data && data.length > 0) {
+      data.forEach(dbRow => {
+        const row = container.querySelector(`tr[data-disciplina="${dbRow.disciplina}"]`)
+        if (row) {
+          row.querySelector('.faltas-input').value = dbRow.faltas || ''
+          row.querySelectorAll('.nota-input')[0].value = dbRow.n1 || ''
+          row.querySelectorAll('.nota-input')[1].value = dbRow.n2 || ''
+          row.querySelectorAll('.nota-input')[2].value = dbRow.n3 || ''
+          const recInput = row.querySelector('.rec-input')
+          if(recInput) recInput.value = dbRow.rec || ''
+        }
+      })
+    }
+
+    // Force recalculation events manually since setting .value doesn't trigger 'input'
+    const ev = new Event('input')
+    container.querySelectorAll('.nota-input').forEach(i => i.dispatchEvent(ev))
+    container.querySelectorAll('.rec-input').forEach(i => i.dispatchEvent(ev))
+  }
+
   if (isAdmin) {
     select.addEventListener('change', () => {
       loadBtn.disabled = !select.value
     })
 
-    loadBtn.addEventListener('click', () => {
+    loadBtn.addEventListener('click', async () => {
       boletimContainer.style.display = 'block'
-      toast.success('Diário carregado para ' + select.options[select.selectedIndex].text)
+      toast.success('Baixando Diário Oficial do Servidor...')
+      loadBtn.textContent = 'Carregando...'
+      await refreshGradesUI(select.value)
+      loadBtn.textContent = 'Carregar Diário'
     })
 
-    saveBtn.addEventListener('click', () => {
-      toast.success('Notas e presenças salvas com sucesso!')
-      // Here you would normally send the data to Supabase
+    saveBtn.addEventListener('click', async () => {
+      const alunoId = select.value
+      if (!alunoId) { toast.error('Escolha um aluno!'); return }
+
+      saveBtn.disabled = true; saveBtn.textContent = 'Salvando Nuvem...'
+
+      // Collect data from rows
+      const arrayNotas = []
+      container.querySelectorAll('.disciplina-row').forEach(row => {
+        const disciplina = row.getAttribute('data-disciplina')
+        const faltas = row.querySelector('.faltas-input').value
+        const n1 = row.querySelectorAll('.nota-input')[0].value
+        const n2 = row.querySelectorAll('.nota-input')[1].value
+        const n3 = row.querySelectorAll('.nota-input')[2].value
+        const rec = row.querySelector('.rec-input').value
+        
+        // We push everything up so missing entries are registered safely
+        arrayNotas.push({ disciplina, faltas, n1, n2, n3, rec })
+      })
+
+      const { error } = await AcademicService.saveBoletim(alunoId, arrayNotas)
+      
+      if (error) { toast.error('Falha de Segurança (Erro ao salvar): ' + error.message) }
+      else { toast.success('Boletim lacrado e salvo com sucesso!') }
+
+      saveBtn.disabled = false; saveBtn.textContent = 'Salvar Registros'
     })
+  } else {
+    // Aluno logado: auto-carrega boletim dele mesmo
+    refreshGradesUI(profile.id)
   }
 
   // Disable inputs if not admin

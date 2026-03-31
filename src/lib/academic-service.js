@@ -122,5 +122,39 @@ export const AcademicService = {
     }
     
     return { error: null }
+  },
+
+  // === BOLETIM ===
+
+  // Puxar as notas reais preenchidas de um aluno específico
+  async getBoletim(aluno_id) {
+    const { data, error } = await supabase
+      .from('boletim')
+      .select('*')
+      .eq('aluno_id', aluno_id)
+      
+    return { data, error }
+  },
+
+  // Salvar a grade inteira de disciplinas no banco do aluno
+  async saveBoletim(aluno_id, notasArray) {
+    // Array deve ser no modelo: [{ disciplina: 'Anatomia e Fisiologia Humana', faltas: 2, n1: 7.5, n2: 8, n3: 0, rec: 0 }, ...]
+    
+    const payload = notasArray.map(item => ({
+      aluno_id,
+      disciplina: item.disciplina,
+      faltas: parseFloat(item.faltas) || 0,
+      n1: parseFloat(item.n1) || 0,
+      n2: parseFloat(item.n2) || 0,
+      n3: parseFloat(item.n3) || 0,
+      rec: parseFloat(item.rec) || 0
+    }))
+
+    // upsert = update if exists, insert Se novo (precisa da constraint 'aluno_id, disciplina' que acabamos de criar)
+    const { error } = await supabase
+      .from('boletim')
+      .upsert(payload, { onConflict: 'aluno_id, disciplina' })
+      
+    return { error }
   }
 }

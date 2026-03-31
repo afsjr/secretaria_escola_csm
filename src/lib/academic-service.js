@@ -43,7 +43,26 @@ export const AcademicService = {
 
   // Matricular aluno numa turma
   async matricularAluno(aluno_id, turma_id) {
-    // 1. O código cria a matrícula
+    // 0. Validação de Regra de Negócio: O aluno já está ativo em alguma turma?
+    const { data: matriculasAtivas, error: checkError } = await supabase
+      .from('matriculas')
+      .select('id, turmas(nome)')
+      .eq('aluno_id', aluno_id)
+      .eq('status_aluno', 'ativo')
+
+    if (checkError) return { error: checkError }
+
+    // Se encontrou alguma matrícula ativa, bloqueia a inserção
+    if (matriculasAtivas && matriculasAtivas.length > 0) {
+      const nomeTurmaAtual = matriculasAtivas[0].turmas?.nome || 'outra turma'
+      return { 
+        error: { 
+          message: `Este estudante já possui uma matrícula ativa na turma "${nomeTurmaAtual}". Por favor, altere o status dele para Trancado, Concluído ou Evadido na turma antiga antes de enturmá-lo novamente.` 
+        } 
+      }
+    }
+
+    // 1. O código cria a matrícula se não houver bloqueios
     const { data, error } = await supabase
       .from('matriculas')
       .insert([{ aluno_id, turma_id, status_aluno: 'ativo' }])

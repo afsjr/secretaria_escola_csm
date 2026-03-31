@@ -104,5 +104,15 @@ export const AcademicService = {
       .select()
 
     return { data, error: errorMatricula }
+  },
+
+  // Excluir permanentemente uma matrícula (em caso de erro da secretaria)
+  async excluirMatricula(matricula_id) {
+    const { error } = await supabase
+      .from('matriculas')
+      .delete()
+      .eq('id', matricula_id)
+      
+    return { error }
   }
 }

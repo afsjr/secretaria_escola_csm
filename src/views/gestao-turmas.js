@@ -157,8 +157,11 @@ export async function GestaoTurmasView() {
             </span>
           </label>
         </td>
-        <td style="padding: 1rem; text-align: right;">
-          <button class="btn btn-primary btn-salvar-status" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" style="font-size: 0.7rem; padding: 0.4rem 0.8rem;">Salvar Aluno</button>
+        <td style="padding: 1rem; text-align: right; display: flex; gap: 5px; justify-content: flex-end;">
+          <button class="btn btn-primary btn-salvar-status" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; flex: 1;">Salvar</button>
+          <button class="btn btn-remover" data-matricula-id="${m.id}" title="Desfazer matrícula errada" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer;">
+            X
+          </button>
         </td>
       </tr>
     `).join('')
@@ -179,6 +182,24 @@ export async function GestaoTurmasView() {
         else { 
           toast.success('Perfil atualizado!')
           loadTurmaAlunos(turmaId) // reload view safely
+        }
+      })
+    })
+
+    // Events for "Remover Matrícula" inner buttons
+    const botoesRemover = tabelaAlunos.querySelectorAll('.btn-remover')
+    botoesRemover.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        if (!confirm('Deseja realmente apagar o registro deste aluno dessa turma? Isso não pode ser desfeito.')) return
+        
+        const matId = btn.getAttribute('data-matricula-id')
+        btn.textContent = '⏱'
+        
+        const { error } = await AcademicService.excluirMatricula(matId)
+        if (error) { toast.error('Falha ao remover: ' + error.message) }
+        else {
+          toast.success('Aluno removido da turma com sucesso.')
+          loadTurmaAlunos(turmaId) // reload list
         }
       })
     })

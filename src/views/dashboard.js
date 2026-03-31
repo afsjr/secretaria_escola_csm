@@ -3,6 +3,7 @@ import { ProfileView } from './profile'
 import { DirectoryView } from './directory'
 import { DocumentsView } from './documents'
 import { SecretariaView } from './secretaria'
+import { AcademicoView } from './academico'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 
@@ -41,6 +42,10 @@ export async function DashboardView(session, subPath = '/') {
           <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9m3 3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             Painel Secretaria
+          </a>
+          <a href="#/dashboard/academico" class="nav-item ${subPath === '/academico' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Controle Acadêmico
           </a>
         ` : ''}
         <a href="#/dashboard/perfil" class="nav-item ${subPath === '/perfil' ? 'active' : ''}" style="text-decoration: none; color: inherit; margin-top: auto;">
@@ -81,6 +86,8 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await DocumentsView(profile))
   } else if (subPath === '/secretaria' && isAdmin) {
     contentArea.appendChild(await SecretariaView())
+  } else if (subPath === '/academico' && isAdmin) {
+    contentArea.appendChild(await AcademicoView())
   } else {
     // Default Home with dynamic statistics (Phase 4 suggestion)
     const { data: allProfiles } = await supabase.from('perfis').select('id', { count: 'exact' })

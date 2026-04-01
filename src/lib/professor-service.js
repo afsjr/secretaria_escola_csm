@@ -226,5 +226,67 @@ export const ProfessorService = {
       .order('perfis(nome_completo)', { ascending: true })
     
     return { data, error }
+  },
+
+  // Buscar turmas do professor (através das disciplinas)
+  async getTurmasDoProfessor(professorId) {
+    // Primeiro buscar as disciplinas do professor
+    const { data: disciplinas, error: errorDisciplinas } = await supabase
+      .from('disciplinas')
+      .select(`
+        id, nome, modulo, turma_id,
+        turmas(id, nome, periodo)
+      `)
+      .eq('professor_id', professorId)
+      .not('turma_id', 'is', null)
+    
+    if (errorDisciplinas) return { data: null, error: errorDisciplinas }
+    
+    // Extrair turmas únicas
+    const turmasMap = new Map()
+    disciplinas.forEach(d => {
+      if (d.turmas && !turmasMap.has(d.turmas.id)) {
+        turmasMap.set(d.turmas.id, {
+          ...d.turmas,
+          disciplinas: []
+        })
+      }
+      if (d.turmas) {
+        turmasMap.get(d.turmas.id).disciplinas.push({
+          id: d.id,
+          nome: d.nome,
+          modulo: d.modulo
+        })
+      }
+    })
+    
+    const turmas = Array.from(turmasMap.values())
+    return { data: turmas, error: null }
+  },
+
+  // Buscar disciplinas de uma turma específica para um professor
+  async getDisciplinasPorTurma(professorId, turmaId) {
+    const { data, error } = await supabase
+      .from('disciplinas')
+      .select(`
+        id, nome, modulo
+      `)
+      .eq('professor_id', professorId)
+      .eq('turma_id', turmaId)
+      .order('modulo', { ascending: true })
+      .order('nome', { ascending: true })
+    
+    return { data, error }
+  },
+
+  // Contar alunos matriculados em uma turma
+  async contarAlunosTurma(turmaId) {
+    const { count, error } = await supabase
+      .from('matriculas')
+      .select('*', { count: 'exact', head: true })
+      .eq('turma_id', turmaId)
+      .eq('status_aluno', 'ativo')
+    
+    return { count: count || 0, error }
   }
 }

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || ''
 
 // Handle case where only project ID is provided
 if (supabaseUrl && !supabaseUrl.startsWith('http')) {
@@ -23,7 +24,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-// CONFIGURAÇÃO SEGURA: Só tenta criar se as URLs existirem, senão exporta uma versão nula para evitar crash.
+// Client padrão (usuário)
 export const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : { auth: { getSession: async () => ({ data: { session: null } }), onAuthStateChange: () => ({ data: { subscription: null } }) } }
+
+// Client admin (Service Role) - para operações administrativas
+export const supabaseAdmin = (supabaseUrl && supabaseServiceKey)
+  ? createClient(supabaseUrl, supabaseServiceKey, { 
+      auth: { 
+        autoRefreshToken: false,
+        persistSession: false
+      } 
+    })
+  : null

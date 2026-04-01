@@ -6,6 +6,7 @@ import { SecretariaView } from './secretaria'
 import { GestaoTurmasView } from './gestao-turmas'
 import { AcademicoView } from './academico'
 import { MatrizView } from './matriz'
+import { ProfessorView } from './professor'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 
@@ -19,6 +20,7 @@ export async function DashboardView(session, subPath = '/') {
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
   const isAdmin = userRole === 'admin' || userRole === 'secretaria'
+  const isProfessor = userRole === 'professor'
 
   container.innerHTML = `
     <aside class="sidebar">
@@ -56,8 +58,14 @@ export async function DashboardView(session, subPath = '/') {
         ` : ''}
         <a href="#/dashboard/academico" class="nav-item ${subPath === '/academico' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-          ${isAdmin ? 'Controle Acadêmico' : 'Boletim Escolar'}
+          ${isAdmin ? 'Controle Acadêmico' : isProfessor ? 'Notas e Aulas' : 'Boletim Escolar'}
         </a>
+        ${isProfessor ? `
+          <a href="#/dashboard/professor" class="nav-item ${subPath === '/professor' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Painel do Professor
+          </a>
+        ` : ''}
         <a href="#/dashboard/perfil" class="nav-item ${subPath === '/perfil' ? 'active' : ''}" style="text-decoration: none; color: inherit; margin-top: auto;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Meus Dados
@@ -102,6 +110,8 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await AcademicoView(profile))
   } else if (subPath === '/matriz') {
     contentArea.appendChild(await MatrizView())
+  } else if (subPath === '/professor' && isProfessor) {
+    contentArea.appendChild(await ProfessorView(profile))
   } else {
     // Default Home with dynamic statistics (Phase 4 suggestion)
     const { data: allProfiles } = await supabase.from('perfis').select('id', { count: 'exact' })

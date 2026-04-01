@@ -1,5 +1,6 @@
 import { DocumentsService } from '../lib/documents-service'
 import { AdminService } from '../lib/admin-service'
+import { ProfessorService } from '../lib/professor-service'
 import { toast } from '../lib/toast'
 
 // Helper para prevenir XSS
@@ -21,6 +22,8 @@ export async function SecretariaView() {
   const { data: requests, error } = await DocumentsService.getAllOpenRequests()
   const { data: turmas } = await AdminService.getTurmas()
   const { data: alunos, error: errorAlunos } = await AdminService.listAlunos()
+  const { data: professores, error: errorProfessores } = await ProfessorService.getProfessores()
+  const { data: disciplinas, error: errorDisciplinas } = await ProfessorService.getAllDisciplinas()
 
   if (errorAlunos) toast.error('Erro ao carregar alunos: ' + errorAlunos.message)
 
@@ -158,6 +161,143 @@ export async function SecretariaView() {
     `
   }
 
+  const renderCadastroProfessor = () => `
+    <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto;">
+      <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Cadastrar Novo Professor</h3>
+      <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Crie uma nova conta de professor no sistema. O professor poderá fazer login imediatamente após o cadastro.</p>
+      
+      <form id="form-cadastro-professor">
+        <div class="form-group">
+          <label class="label" for="professor-nome">Nome Completo *</label>
+          <input type="text" id="professor-nome" name="professor_nome" class="input" placeholder="Maria Silva" required>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="professor-email">E-mail *</label>
+          <input type="email" id="professor-email" name="professor_email" class="input" placeholder="maria@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="professor-cpf">CPF</label>
+          <input type="text" id="professor-cpf" name="professor_cpf" class="input" placeholder="000.000.000-00">
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="professor-telefone">Telefone / WhatsApp</label>
+          <input type="text" id="professor-telefone" name="professor_telefone" class="input" placeholder="(00) 00000-0000">
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="professor-senha">Senha * (mínimo 6 caracteres)</label>
+          <input type="password" id="professor-senha" name="professor_senha" class="input" placeholder="******" minlength="6" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-cadastrar-professor" style="width: 100%;">Cadastrar Professor</button>
+      </form>
+    </div>
+  `
+
+  const renderGerenciarProfessores = () => {
+    if (errorProfessores) return `<p class="error-text">Erro ao carregar professores.</p>`
+    
+    return `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Lista de Professores -->
+        <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+          <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Professores Cadastrados</h3>
+          
+          ${!professores || professores.length === 0 ? '<p style="color: var(--text-muted);">Nenhum professor cadastrado.</p>' : `
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${professores.map(p => `
+                    <tr>
+                      <td>
+                        <div class="fw-600 text-main">${escapeHTML(p.nome_completo)}</div>
+                      </td>
+                      <td>${escapeHTML(p.email)}</td>
+                      <td>
+                        <button class="btn btn-primary btn-sm btn-vincular-disciplinas" data-id="${p.id}" data-nome="${escapeHTML(p.nome_completo)}">Vincular Disciplinas</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+
+        <!-- Disciplinas -->
+        <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+          <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Disciplinas do Curso</h3>
+          
+          ${!disciplinas || disciplinas.length === 0 ? '<p style="color: var(--text-muted);">Nenhuma disciplina cadastrada.</p>' : `
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Disciplina</th>
+                    <th>Módulo</th>
+                    <th>Professor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${disciplinas.map(d => `
+                    <tr>
+                      <td>${escapeHTML(d.nome)}</td>
+                      <td>${escapeHTML(d.modulo)}</td>
+                      <td>
+                        ${d.perfis?.nome_completo ? `<span class="badge badge-success">${escapeHTML(d.perfis.nome_completo)}</span>` : '<span class="badge badge-warning">Sem professor</span>'}
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      </div>
+
+      <!-- Modal de Vinculação -->
+      <div id="modal-vincular-disciplinas" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; color: var(--text-main);">Vincular Disciplinas ao Professor</h3>
+            <button id="btn-fechar-modal-vincular" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+          </div>
+          
+          <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">Selecione as disciplinas que o professor <strong id="nome-professor-vincular"></strong> irá ministrar:</p>
+          
+          <form id="form-vincular-disciplinas">
+            <input type="hidden" id="professor-id-vincular" name="professor_id">
+            
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--secondary); border-radius: 8px; padding: 1rem;">
+              ${disciplinas ? disciplinas.map(d => `
+                <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; cursor: pointer; ${d.professor_id ? 'background: #fef3c7;' : ''}">
+                  <input type="checkbox" name="disciplinas" value="${d.id}" ${d.professor_id ? 'checked' : ''}>
+                  <span>${escapeHTML(d.nome)} (${escapeHTML(d.modulo)})</span>
+                  ${d.perfis?.nome_completo ? `<span style="color: var(--text-muted); font-size: 0.8rem;"> - ${escapeHTML(d.perfis.nome_completo)}</span>` : ''}
+                </label>
+              `).join('') : ''}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+              <button type="button" id="btn-cancelar-vincular" class="btn" style="flex: 1; background: var(--secondary); color: var(--text-main);">Cancelar</button>
+              <button type="submit" class="btn btn-primary" id="btn-salvar-vincular" style="flex: 1;">Salvar Vinculação</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `
+  }
+
   const renderCadastroAluno = () => `
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto;">
       <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Cadastrar Novo Aluno</h3>
@@ -211,9 +351,11 @@ export async function SecretariaView() {
     </header>
 
     <div class="tabs-container">
-      <button class="tab-btn active" data-tab="solicitacoes">Solicitações de Documentos</button>
+      <button class="tab-btn active" data-tab="solicitacoes">Solicitações</button>
       <button class="tab-btn" data-tab="cadastro">Cadastrar Aluno</button>
       <button class="tab-btn" data-tab="gerenciar">Gerenciar Alunos</button>
+      <button class="tab-btn" data-tab="cadastro-professor">Cadastrar Professor</button>
+      <button class="tab-btn" data-tab="gerenciar-professores">Gerenciar Professores</button>
     </div>
 
     <div id="tab-solicitacoes" class="tab-content">
@@ -226,6 +368,14 @@ export async function SecretariaView() {
 
     <div id="tab-gerenciar" class="tab-content" style="display: none;">
       ${renderGerenciarAlunos()}
+    </div>
+
+    <div id="tab-cadastro-professor" class="tab-content" style="display: none;">
+      ${renderCadastroProfessor()}
+    </div>
+
+    <div id="tab-gerenciar-professores" class="tab-content" style="display: none;">
+      ${renderGerenciarProfessores()}
     </div>
   `
 
@@ -346,6 +496,152 @@ export async function SecretariaView() {
     btnCadastrar.disabled = false
     btnCadastrar.textContent = 'Cadastrar Aluno'
   })
+
+  // Lógica de cadastro de professor
+  const formCadastroProfessor = container.querySelector('#form-cadastro-professor')
+  const btnCadastrarProfessor = container.querySelector('#btn-cadastrar-professor')
+
+  formCadastroProfessor.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const nomeCompleto = container.querySelector('#professor-nome').value.trim()
+    const email = container.querySelector('#professor-email').value.trim()
+    const cpf = container.querySelector('#professor-cpf').value.trim()
+    const telefone = container.querySelector('#professor-telefone').value.trim()
+    const senha = container.querySelector('#professor-senha').value
+
+    if (!nomeCompleto || !email || !senha) {
+      toast.error('Preencha os campos obrigatórios.')
+      return
+    }
+
+    if (senha.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres.')
+      return
+    }
+
+    btnCadastrarProfessor.disabled = true
+    btnCadastrarProfessor.textContent = 'Cadastrando...'
+
+    // Criar usuário
+    const { data, error } = await AdminService.createUserByAdmin({
+      email,
+      password: senha,
+      nomeCompleto,
+      cpf,
+      telefone,
+      perfil: 'professor'
+    })
+
+    if (error) {
+      toast.error('Erro ao cadastrar: ' + error.message)
+      btnCadastrarProfessor.disabled = false
+      btnCadastrarProfessor.textContent = 'Cadastrar Professor'
+      return
+    }
+
+    toast.success('Professor cadastrado com sucesso!')
+
+    // Limpar formulário
+    formCadastroProfessor.reset()
+    btnCadastrarProfessor.disabled = false
+    btnCadastrarProfessor.textContent = 'Cadastrar Professor'
+  })
+
+  // Lógica de vinculação de disciplinas
+  const btnsVincular = container.querySelectorAll('.btn-vincular-disciplinas')
+  const modalVincular = container.querySelector('#modal-vincular-disciplinas')
+  const btnFecharModalVincular = container.querySelector('#btn-fechar-modal-vincular')
+  const btnCancelarVincular = container.querySelector('#btn-cancelar-vincular')
+  const formVincular = container.querySelector('#form-vincular-disciplinas')
+  const btnSalvarVincular = container.querySelector('#btn-salvar-vincular')
+
+  btnsVincular.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const professorId = btn.getAttribute('data-id')
+      const professorNome = btn.getAttribute('data-nome')
+      
+      container.querySelector('#professor-id-vincular').value = professorId
+      container.querySelector('#nome-professor-vincular').textContent = professorNome
+      
+      // Reset checkboxes
+      container.querySelectorAll('input[name="disciplinas"]').forEach(cb => {
+        cb.checked = false
+      })
+      
+      // Check disciplines already linked to this professor
+      if (disciplinas) {
+        disciplinas.forEach(d => {
+          if (d.professor_id === professorId) {
+            const cb = container.querySelector(`input[name="disciplinas"][value="${d.id}"]`)
+            if (cb) cb.checked = true
+          }
+        })
+      }
+      
+      modalVincular.style.display = 'flex'
+    })
+  })
+
+  if (btnFecharModalVincular) {
+    btnFecharModalVincular.addEventListener('click', () => {
+      modalVincular.style.display = 'none'
+    })
+  }
+
+  if (btnCancelarVincular) {
+    btnCancelarVincular.addEventListener('click', () => {
+      modalVincular.style.display = 'none'
+    })
+  }
+
+  if (modalVincular) {
+    modalVincular.addEventListener('click', (e) => {
+      if (e.target === modalVincular) {
+        modalVincular.style.display = 'none'
+      }
+    })
+  }
+
+  if (formVincular) {
+    formVincular.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      
+      const professorId = container.querySelector('#professor-id-vincular').value
+      const checkboxes = container.querySelectorAll('input[name="disciplinas"]:checked')
+      const disciplinasIds = Array.from(checkboxes).map(cb => cb.value)
+      
+      btnSalvarVincular.disabled = true
+      btnSalvarVincular.textContent = 'Salvando...'
+      
+      // Primeiro desvincular todas as disciplinas deste professor
+      if (disciplinas) {
+        for (const d of disciplinas) {
+          if (d.professor_id === professorId) {
+            await ProfessorService.desvincularProfessorDisciplina(d.id)
+          }
+        }
+      }
+      
+      // Depois vincular as selecionadas
+      if (disciplinasIds.length > 0) {
+        const { error } = await ProfessorService.vincularProfessorDisciplinas(professorId, disciplinasIds)
+        
+        if (error) {
+          toast.error('Erro ao vincular disciplinas: ' + error.message)
+          btnSalvarVincular.disabled = false
+          btnSalvarVincular.textContent = 'Salvar Vinculação'
+          return
+        }
+      }
+      
+      toast.success('Disciplinas vinculadas com sucesso!')
+      modalVincular.style.display = 'none'
+      
+      btnSalvarVincular.disabled = false
+      btnSalvarVincular.textContent = 'Salvar Vinculação'
+    })
+  }
 
   // Lógica de busca/filtro de alunos
   const buscaAlunoInput = container.querySelector('#busca-aluno')

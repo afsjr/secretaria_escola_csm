@@ -18,7 +18,7 @@ export async function DashboardView(session, subPath = '/') {
   
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
-  const isAdmin = userRole === 'admin'
+  const isAdmin = userRole === 'admin' || userRole === 'secretaria'
 
   container.innerHTML = `
     <aside class="sidebar">

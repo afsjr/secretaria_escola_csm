@@ -118,5 +118,45 @@ export const AdminService = {
       .order('nome_completo', { ascending: true })
 
     return { data, error }
+  },
+
+  async getAlunoById(alunoId) {
+    const client = supabaseAdmin || supabase
+    
+    if (!client) {
+      return { data: null, error: { message: 'Cliente Supabase não disponível' } }
+    }
+
+    const { data, error } = await client
+      .from('perfis')
+      .select('*')
+      .eq('id', alunoId)
+      .eq('perfil', 'aluno')
+      .single()
+
+    return { data, error }
+  },
+
+  async updateAluno(alunoId, updates) {
+    const client = supabaseAdmin || supabase
+    
+    if (!client) {
+      return { data: null, error: { message: 'Cliente Supabase não disponível' } }
+    }
+
+    // Validar que não estamos mudando perfil
+    delete updates.perfil
+    delete updates.email
+    delete updates.id
+
+    const { data, error } = await client
+      .from('perfis')
+      .update(updates)
+      .eq('id', alunoId)
+      .eq('perfil', 'aluno')
+      .select()
+      .single()
+
+    return { data, error }
   }
 }

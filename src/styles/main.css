@@ -1,17 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Colors - Modern Navy/Slate Palette */
-  --primary: hsl(222, 60%, 45%);
-  --primary-hover: hsl(222, 60%, 35%);
+  /* Colors - CSM Palette (Deep Navy / Gold Accent) */
+  --primary: hsl(218, 54%, 20%); /* CSM Deep Navy */
+  --primary-hover: hsl(218, 54%, 15%);
   --secondary: hsl(210, 40%, 96%);
-  --accent: hsl(262, 70%, 50%);
-  --text-main: hsl(222, 47%, 11%);
+  --accent: hsl(45, 93%, 47%); /* CSM Gold/Yellow Accent */
+  --text-main: hsl(222, 47%, 13%);
   --text-muted: hsl(215, 16%, 47%);
   --bg-app: hsl(210, 40%, 98%);
   --white: #ffffff;
   --danger: hsl(0, 84%, 60%);
   --success: hsl(142, 71%, 45%);
+  --warning-bg: #FEF3C7;
+  --warning-text: #92400E;
+  --success-bg: #D1FAE5;
+  --success-text: #065F46;
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -112,6 +116,11 @@ p { color: var(--text-muted); }
   background-color: var(--primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+.btn-sm {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
 }
 
 /* Forms */
@@ -286,6 +295,62 @@ p { color: var(--text-muted); }
   font-weight: 600;
   text-transform: uppercase;
   background: var(--secondary);
+}
+
+.badge-warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+/* Utilities used in Views */
+.bg-white { background-color: var(--white); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.mt-4 { margin-top: 1.5rem; }
+.fw-600 { font-weight: 600; }
+.text-main { color: var(--text-main); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 0.85rem; }
+.error-text { color: var(--danger); }
+
+.view-header {
+  margin-bottom: 2rem;
+}
+.view-header .title {
+  font-size: 2rem;
+  color: var(--text-main);
+}
+.view-header .subtitle {
+  color: var(--text-muted);
+}
+
+/* Responsive Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.data-table thead {
+  background: var(--secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+.data-table th {
+  padding: 1.25rem;
+}
+.data-table td {
+  padding: 1.25rem;
+  border-top: 1px solid var(--secondary);
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Toast System (Simple CSS-based) */

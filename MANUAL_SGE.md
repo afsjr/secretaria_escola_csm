@@ -2,7 +2,7 @@
 
 **Sistema de Gestão Escolar (CSM)**
 
-Versão: 2.1 (Atualizado em: 01/04/2026)
+Versão: 2.2 (Atualizado em: 01/04/2026)
 
 ---
 
@@ -19,6 +19,7 @@ O SGE foi concebido para eliminar o volume de papel, proteger os dados com cript
 | 1.0 | - | Versão inicial |
 | 2.0 | 01/04/2026 | Revisão geral - adicionado item LGPD, atualizado status acadêmico, ajustado manual do professor |
 | 2.1 | 01/04/2026 | Atualização após análise de código - ajustado funcionalidades implementadas vs manual original |
+| 2.2 | 01/04/2026 | Adicionado cadastro de alunos via Admin, opção "Outros" em documentos, atualização de CPF/telefone no perfil |
 
 ---
 
@@ -33,11 +34,13 @@ Como aluno, sua visão no SGE é simplificada e protegida. Você não pode visua
 Onde você atualiza suas informações pessoais. Os campos disponíveis são:
 
 - **Nome Completo**: Editável. Importante para certificados.
+- **CPF**: Editável. Necessário para documentos oficiais.
+- **Telefone / WhatsApp**: Editável. Para comunicação da escola.
 - **E-mail**: Campo somente leitura (vinculado ao login).
 - **Perfil de Acesso**: Exibido automaticamente (aluno/admin).
-- **Foto de Perfil**: Funcionalidade em desenvolvimento (preview disponível na sidebar).
+- **Avatar**: Exibido com inicial do nome (funcionalidade de foto em desenvolvimento).
 
-> ⚠️ **Importante**: Todos os certificados dependem da veracidade dos dados. Em caso de erro no CPF ou nome, entre em contato com a secretaria.
+> ⚠️ **Importante**: Todos os certificados dependem da veracidade dos dados. Mantenha seus dados atualizados.
 
 ### 1.2 Aba "Colegas"
 
@@ -55,7 +58,9 @@ Precisa de um Atestado de Matrícula, Histórico Escolar ou passe livre da prefe
    - Declaração de Matrícula
    - Histórico Acadêmico
    - Atestado de Frequência
-3. Clique em "Solicitar"
+   - **Outros** (permite especificar outro tipo de documento)
+3. Se selecionar "Outros", descreva o documento desejado no campo de texto
+4. Clique em "Solicitar"
 
 **Fluxo do Pedido**:
 - O pedido vai direto em tempo real para o balcão virtual da secretaria.
@@ -125,6 +130,28 @@ O campo "Faltas" permite registro do número de ausências por disciplina.
 Administrando o coração financeiro e acadêmico da instituição com precisão.
 
 O SGE dá ferramentas de bloqueio sumário e permissões fortes ao perfil de **"Admin/Secretaria"**. O seu manuseio deve ser cauteloso pois dita a base de dados de todos.
+
+### 3.0 Cadastrar Novo Aluno
+
+O painel da secretaria permite cadastrar novos alunos diretamente no sistema, sem necessidade do aluno fazer seu próprio cadastro.
+
+1. Acesse **Painel da Secretaria**
+2. Clique na aba **"Cadastrar Aluno"**
+3. Preencha os campos:
+   - **Nome Completo** (obrigatório)
+   - **E-mail** (obrigatório) - será usado para login
+   - **CPF** (opcional)
+   - **Telefone/WhatsApp** (opcional)
+   - **Senha** (obrigatório, mínimo 6 caracteres)
+   - **Turma** (opcional) - selecione para matricular automaticamente
+4. Clique em **"Cadastrar Aluno"**
+
+O sistema cria automaticamente:
+- Conta no Supabase Auth (usuário pode fazer login imediatamente)
+- Registro na tabela de perfis com perfil "aluno"
+- Matrícula na turma selecionada (se informada)
+
+> ⚠️ **Importante**: O admin deve guardar a senha criada e comunicar ao aluno. O aluno pode alterar sua senha depois.
 
 ### 3.1 Painel da Secretaria (Solicitações de Documentos)
 
@@ -207,9 +234,20 @@ A Secretaria pode:
 Para configurar o sistema do zero, crie um arquivo `.env` na raiz do projeto com:
 
 ```env
-VITE_SUPABASE_URL=sua_url_supabase
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
 VITE_SUPABASE_ANON_KEY=sua_chave_anonima
+VITE_SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role  # Opcional - apenas para Admin
 ```
+
+### 4.2 Variáveis para Deploy (GitHub Pages)
+
+Ao fazer deploy no GitHub Pages, adicione as seguintes secrets em **Settings → Secrets and variables → Actions**:
+
+| Nome da Secret | Descrição |
+|----------------|-----------|
+| `VITE_SUPABASE_URL` | URL do projeto Supabase |
+| `VITE_SUPABASE_ANON_KEY` | Chave pública (Anon Key) |
+| `VITE_SUPABASE_SERVICE_ROLE_KEY` | Chave de serviço (para功能 de cadastro admin) |
 
 ### 4.2 Estrutura do Banco de Dados (Supabase)
 
@@ -260,4 +298,4 @@ Em caso de dúvidas ou problemas não descritos neste manual, entre em contato c
 
 **Documento aprovado e redigido para CSM Gestão Escolar**
 
-*Última atualização: 01/04/2026 - Versão 2.1*
+*Última atualização: 01/04/2026 - Versão 2.2*

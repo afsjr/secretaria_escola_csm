@@ -2,7 +2,7 @@
 
 **Sistema de Gestão Escolar (CSM)**
 
-Versão: 2.2 (Atualizado em: 01/04/2026)
+Versão: 2.3 (Atualizado em: 01/04/2026)
 
 ---
 
@@ -20,6 +20,7 @@ O SGE foi concebido para eliminar o volume de papel, proteger os dados com cript
 | 2.0 | 01/04/2026 | Revisão geral - adicionado item LGPD, atualizado status acadêmico, ajustado manual do professor |
 | 2.1 | 01/04/2026 | Atualização após análise de código - ajustado funcionalidades implementadas vs manual original |
 | 2.2 | 01/04/2026 | Adicionado cadastro de alunos via Admin, opção "Outros" em documentos, atualização de CPF/telefone no perfil |
+| 2.3 | 01/04/2026 | Correções de login/auth, timeout de sessão, design responsivo, remoção CSP headers |
 
 ---
 

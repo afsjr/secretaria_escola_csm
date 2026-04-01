@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase'
 import { LoginView } from './views/login'
 import { SignupView } from './views/signup'
 import { DashboardView } from './views/dashboard'
+import { HomeView } from './views/home'
 
 const app = document.querySelector('#app')
 
@@ -35,6 +36,8 @@ async function router() {
       app.appendChild(LoginView())
     } else if (path === '#/signup') {
       app.appendChild(SignupView())
+    } else if (path === '#/home') {
+      app.appendChild(HomeView())
     } else if (path.startsWith('#/dashboard')) {
       // Pass the subpath to the DashboardView
       const subPath = path.replace('#/dashboard', '') || '/'

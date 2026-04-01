@@ -44,11 +44,41 @@ export const ProfessorService = {
     return { data, error }
   },
 
+  // Vincular professor + turma a disciplinas
+  async vincularProfessorDisciplinasTurma(professorId, vinculacoes) {
+    // vinculacoes = [{ disciplinaId, turmaId }, ...]
+    const results = []
+    const errors = []
+    
+    for (const v of vinculacoes) {
+      const { data, error } = await supabase
+        .from('disciplinas')
+        .update({ 
+          professor_id: professorId,
+          turma_id: v.turmaId || null
+        })
+        .eq('id', v.disciplinaId)
+        .select()
+      
+      if (error) {
+        errors.push(error)
+      } else {
+        results.push(data)
+      }
+    }
+    
+    if (errors.length > 0) {
+      return { data: null, error: errors[0] }
+    }
+    
+    return { data: results, error: null }
+  },
+
   // Desvincular professor de uma disciplina
   async desvincularProfessorDisciplina(disciplinaId) {
     const { data, error } = await supabase
       .from('disciplinas')
-      .update({ professor_id: null })
+      .update({ professor_id: null, turma_id: null })
       .eq('id', disciplinaId)
       .select()
     

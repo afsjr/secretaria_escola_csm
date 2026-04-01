@@ -267,25 +267,51 @@ export async function SecretariaView() {
 
       <!-- Modal de Vinculação -->
       <div id="modal-vincular-disciplinas" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h3 style="margin: 0; color: var(--text-main);">Vincular Disciplinas ao Professor</h3>
+            <h3 style="margin: 0; color: var(--text-main);">Vincular Disciplinas e Turmas ao Professor</h3>
             <button id="btn-fechar-modal-vincular" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
           </div>
           
-          <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">Selecione as disciplinas que o professor <strong id="nome-professor-vincular"></strong> irá ministrar:</p>
+          <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">Selecione as disciplinas que o professor <strong id="nome-professor-vincular"></strong> irá ministrar e vincule a cada turma:</p>
           
           <form id="form-vincular-disciplinas">
             <input type="hidden" id="professor-id-vincular" name="professor_id">
             
-            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--secondary); border-radius: 8px; padding: 1rem;">
-              ${disciplinas ? disciplinas.map(d => `
-                <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; cursor: pointer; ${d.professor_id ? 'background: #fef3c7;' : ''}">
-                  <input type="checkbox" name="disciplinas" value="${d.id}" ${d.professor_id ? 'checked' : ''}>
-                  <span>${escapeHTML(d.nome)} (${escapeHTML(d.modulo)})</span>
-                  ${d.perfis?.nome_completo ? `<span style="color: var(--text-muted); font-size: 0.8rem;"> - ${escapeHTML(d.perfis.nome_completo)}</span>` : ''}
-                </label>
-              `).join('') : ''}
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--secondary); border-radius: 8px; padding: 1rem;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: var(--secondary); font-size: 0.8rem; text-transform: uppercase;">
+                  <tr>
+                    <th style="padding: 0.75rem; text-align: left;">Selecionar</th>
+                    <th style="padding: 0.75rem; text-align: left;">Disciplina</th>
+                    <th style="padding: 0.75rem; text-align: left;">Módulo</th>
+                    <th style="padding: 0.75rem; text-align: left;">Turma</th>
+                    <th style="padding: 0.75rem; text-align: left;">Professor Atual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${disciplinas ? disciplinas.map(d => `
+                    <tr class="disciplina-row" data-id="${d.id}" style="border-bottom: 1px solid var(--secondary);">
+                      <td style="padding: 0.75rem;">
+                        <input type="checkbox" name="disciplinas" value="${d.id}" ${d.professor_id ? 'checked' : ''} class="disciplina-checkbox">
+                      </td>
+                      <td style="padding: 0.75rem; font-weight: 500;">${escapeHTML(d.nome)}</td>
+                      <td style="padding: 0.75rem; color: var(--text-muted);">${escapeHTML(d.modulo)}</td>
+                      <td style="padding: 0.75rem;">
+                        <select name="turma_${d.id}" class="input turma-select" style="padding: 0.3rem; font-size: 0.8rem; width: 100%;">
+                          <option value="">-- Sem Turma --</option>
+                          ${turmas && turmas.length > 0 ? turmas.map(t => `
+                            <option value="${t.id}" ${d.turma_id === t.id ? 'selected' : ''}>${escapeHTML(t.nome)} (${escapeHTML(t.periodo)})</option>
+                          `).join('') : ''}
+                        </select>
+                      </td>
+                      <td style="padding: 0.75rem;">
+                        ${d.perfis?.nome_completo ? `<span class="badge badge-success" style="font-size: 0.75rem;">${escapeHTML(d.perfis.nome_completo)}</span>` : '<span style="color: var(--text-muted); font-size: 0.8rem;">—</span>'}
+                      </td>
+                    </tr>
+                  `).join('') : ''}
+                </tbody>
+              </table>
             </div>
 
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -609,7 +635,15 @@ export async function SecretariaView() {
       
       const professorId = container.querySelector('#professor-id-vincular').value
       const checkboxes = container.querySelectorAll('input[name="disciplinas"]:checked')
-      const disciplinasIds = Array.from(checkboxes).map(cb => cb.value)
+      
+      // Coletar vinculações (disciplina + turma)
+      const vinculacoes = []
+      checkboxes.forEach(cb => {
+        const disciplinaId = cb.value
+        const turmaSelect = container.querySelector(`select[name="turma_${disciplinaId}"]`)
+        const turmaId = turmaSelect ? turmaSelect.value : null
+        vinculacoes.push({ disciplinaId, turmaId })
+      })
       
       btnSalvarVincular.disabled = true
       btnSalvarVincular.textContent = 'Salvando...'
@@ -623,9 +657,9 @@ export async function SecretariaView() {
         }
       }
       
-      // Depois vincular as selecionadas
-      if (disciplinasIds.length > 0) {
-        const { error } = await ProfessorService.vincularProfessorDisciplinas(professorId, disciplinasIds)
+      // Depois vincular as selecionadas com suas turmas
+      if (vinculacoes.length > 0) {
+        const { error } = await ProfessorService.vincularProfessorDisciplinasTurma(professorId, vinculacoes)
         
         if (error) {
           toast.error('Erro ao vincular disciplinas: ' + error.message)
@@ -635,7 +669,7 @@ export async function SecretariaView() {
         }
       }
       
-      toast.success('Disciplinas vinculadas com sucesso!')
+      toast.success('Disciplinas e turmas vinculadas com sucesso!')
       modalVincular.style.display = 'none'
       
       btnSalvarVincular.disabled = false

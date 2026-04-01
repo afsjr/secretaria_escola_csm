@@ -12,20 +12,37 @@ export function ProfileView(profile) {
     </header>
 
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px;">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 2.5rem; color: white; margin-bottom: 1rem;">
+          ${profile.nome_completo ? profile.nome_completo.charAt(0).toUpperCase() : '?'}
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Foto de perfil em desenvolvimento</p>
+      </div>
+
       <form id="profile-form">
         <div class="form-group">
-          <label class="label">Nome Completo</label>
-          <input type="text" id="nome-completo" class="input" value="${profile.nome_completo}" required>
+          <label class="label" for="nome-completo">Nome Completo</label>
+          <input type="text" id="nome-completo" name="nome_completo" class="input" value="${profile.nome_completo || ''}" required>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="cpf">CPF</label>
+          <input type="text" id="cpf" name="cpf" class="input" value="${profile.cpf || ''}" placeholder="000.000.000-00">
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="telefone">Telefone / WhatsApp</label>
+          <input type="text" id="telefone" name="telefone" class="input" value="${profile.telefone || ''}" placeholder="(00) 00000-0000">
         </div>
         
         <div class="form-group">
           <label class="label">E-mail (Inalterável)</label>
-          <input type="text" class="input" value="${profile.email}" disabled style="background: var(--secondary);">
+          <input type="text" class="input" value="${profile.email || ''}" disabled style="background: var(--secondary);">
         </div>
         
         <div class="form-group">
           <label class="label">Perfil de Acesso</label>
-          <span class="badge" style="background: var(--primary); color: white;">${profile.perfil}</span>
+          <span class="badge" style="background: var(--primary); color: white;">${profile.perfil || 'aluno'}</span>
         </div>
         
         <button type="submit" class="btn btn-primary" id="save-btn">Salvar Alterações</button>
@@ -39,11 +56,17 @@ export function ProfileView(profile) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
     const newName = form.querySelector('#nome-completo').value
+    const newCpf = form.querySelector('#cpf').value
+    const newTelefone = form.querySelector('#telefone').value
     
     saveBtn.disabled = true
     saveBtn.textContent = 'Salvando...'
 
-    const { error } = await updateUserProfile(profile.id, { nome_completo: newName })
+    const { error } = await updateUserProfile(profile.id, { 
+      nome_completo: newName,
+      cpf: newCpf,
+      telefone: newTelefone
+    })
 
     if (error) {
       toast.error('Erro ao salvar: ' + error.message)

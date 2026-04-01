@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,10 +25,13 @@ jobs:
         run: npm install
 
       - name: Construir Projeto (Build) 🏗️
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          echo "🔧 Configurando variáveis de ambiente..."
+          echo "VITE_SUPABASE_URL=https://cfybsocrydeziibonvbd.supabase.co" >> $GITHUB_ENV
+          echo "VITE_SUPABASE_ANON_KEY=sb_publishable_5M8bVwEUPdg1zVx6Nfxg6Q_veLFM0_t" >> $GITHUB_ENV
+          echo "🔨 Executando build..."
+          npm run build
+          echo "✅ Build concluído!"
 
       - name: Publicar (Deploy) 🚀
         uses: JamesIves/github-pages-deploy-action@v4

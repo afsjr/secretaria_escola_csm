@@ -23,7 +23,9 @@ export async function DocumentsView(profile) {
           <tbody>
             ${requests?.map(r => `
               <tr style="border-top: 1px solid var(--secondary);">
-                <td style="padding: 1rem; font-weight: 500;">${r.tipo}</td>
+                <td style="padding: 1rem; font-weight: 500;">
+                  ${r.tipo.startsWith('Outros:') ? `<span>Outros</span><br><small style="color: var(--text-muted);">${r.tipo.replace('Outros: ', '')}</small>` : r.tipo}
+                </td>
                 <td style="padding: 1rem; font-size: 0.9rem;">${new Date(r.criado_em).toLocaleDateString('pt-BR')}</td>
                 <td style="padding: 1rem;">
                   <span class="badge" style="background: ${r.status === 'pendente' ? '#FEF3C7' : '#D1FAE5'}; color: ${r.status === 'pendente' ? '#92400E' : '#065F46'};">
@@ -56,12 +58,17 @@ export async function DocumentsView(profile) {
       <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 400px; box-shadow: var(--shadow-lg);">
         <h2 style="margin-bottom: 1.5rem;">Solicitar Documento</h2>
         <div class="form-group">
-          <label class="label">Escolha o tipo:</label>
+          <label class="label" for="doc-type">Escolha o tipo:</label>
           <select id="doc-type" class="input">
             <option value="Declaração de Matrícula">Declaração de Matrícula</option>
             <option value="Histórico Acadêmico">Histórico Acadêmico</option>
             <option value="Atestado de Frequência">Atestado de Frequência</option>
+            <option value="Outros">Outros</option>
           </select>
+        </div>
+        <div class="form-group" id="descricao-outros-group" style="display: none;">
+          <label class="label" for="doc-descricao">Descreva o documento:</label>
+          <textarea id="doc-descricao" class="input" rows="3" placeholder="Descreva com detalhes o documento ou solicitação desejada..."></textarea>
         </div>
         <div style="display: flex; gap: 1rem; margin-top: 2rem;">
           <button id="cancel-btn" class="btn" style="flex: 1; background: var(--secondary);">Cancelar</button>
@@ -76,12 +83,42 @@ export async function DocumentsView(profile) {
   const openBtn = container.querySelector('#open-request-btn')
   const cancelBtn = container.querySelector('#cancel-btn')
   const confirmBtn = container.querySelector('#confirm-btn')
+  const docTypeSelect = container.querySelector('#doc-type')
+  const descricaoGroup = container.querySelector('#descricao-outros-group')
+  const descricaoInput = container.querySelector('#doc-descricao')
 
-  openBtn.onclick = () => modal.style.display = 'flex'
+  // Mostrar campo de descrição quando selecionar "Outros"
+  docTypeSelect.addEventListener('change', () => {
+    if (docTypeSelect.value === 'Outros') {
+      descricaoGroup.style.display = 'block'
+      descricaoInput.setAttribute('required', 'true')
+    } else {
+      descricaoGroup.style.display = 'none'
+      descricaoInput.removeAttribute('required')
+      descricaoInput.value = ''
+    }
+  })
+
+  openBtn.onclick = () => {
+    modal.style.display = 'flex'
+    docTypeSelect.value = 'Declaração de Matrícula'
+    descricaoGroup.style.display = 'none'
+    descricaoInput.value = ''
+  }
   cancelBtn.onclick = () => modal.style.display = 'none'
 
   confirmBtn.onclick = async () => {
-    const type = container.querySelector('#doc-type').value
+    let type = docTypeSelect.value
+    const descricao = descricaoInput.value.trim()
+    
+    // Se for "Outros", combinar tipo + descrição
+    if (type === 'Outros' && descricao) {
+      type = `Outros: ${descricao}`
+    } else if (type === 'Outros' && !descricao) {
+      toast.error('Por favor, descreva o documento desejado.')
+      return
+    }
+    
     confirmBtn.disabled = true
     confirmBtn.textContent = 'Enviando...'
 

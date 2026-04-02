@@ -1,8 +1,8 @@
-# Manual Completo do Sistema de Gestão Escolar (SGE)
+   # Manual Completo do Sistema de Gestão Escolar (SGE)
 
 ## CSM - Colégio Santa Mônica
 
-**Versão: 4.0**
+**Versão: 3.0**
 **Última Atualização: 01/04/2026**
 
 ---
@@ -16,11 +16,9 @@
 5. [Manual da Secretaria](#5-manual-da-secretaria)
 6. [Manual do Administrador](#6-manual-do-administrador)
 7. [Tabela de Perfis e Permissões](#7-tabela-de-perfis-e-permissões)
-8. [Geração de Documentos PDF](#8-geração-de-documentos-pdf)
-9. [Suporte a Múltiplos Cursos](#9-suporte-a-múltiplos-cursos)
-10. [Glossário do Sistema](#10-glossário-do-sistema)
-11. [Solução de Problemas](#11-solução-de-problemas)
-12. [Suporte Técnico](#12-suporte-técnico)
+8. [Glossário do Sistema](#8-glossário-do-sistema)
+9. [Solução de Problemas](#9-solução-de-problemas)
+10. [Suporte Técnico](#10-suporte-técnico)
 
 ---
 
@@ -37,9 +35,6 @@ O Sistema de Gestão Escolar (SGE) é uma plataforma digital desenvolvida para o
 - ✅ **Registra aulas** ministradas pelos professores
 - ✅ **Gerencia solicitações** de documentos
 - ✅ **Controla bloqueios** financeiros de alunos
-- ✅ **Gera documentos PDF** (boletins, declarações, históricos)
-- ✅ **Suporta múltiplos cursos** (Enfermagem, Instrumentação, etc.)
-- ✅ **Imprime boletins** diretamente do sistema
 
 ### Como o Sistema Funciona?
 
@@ -318,13 +313,12 @@ Conteúdo: Introdução à Anatomia Humana - Sistema Esquelético
 
 1. Faça login com e-mail de secretaria/admin
 2. No menu lateral, clique em **"Painel da Secretaria"**
-3. Você verá o painel com 6 abas:
-   - **Solicitações**: Pedidos de documentos (com botão Gerar PDF)
+3. Você verá o painel com 5 abas:
+   - **Solicitações**: Pedidos de documentos
    - **Cadastrar Aluno**: Criar novas contas de alunos
    - **Gerenciar Alunos**: Visualizar e editar alunos
    - **Cadastrar Professor**: Criar novas contas de professores
    - **Gerenciar Professores**: Vincular professores a disciplinas
-   - **Gerenciar Cursos**: Cadastrar e gerenciar cursos
 
 ### 5.2 Processando Solicitações de Documentos
 
@@ -337,21 +331,11 @@ Quando um aluno solicita um documento, ele aparece nesta aba.
    - Nome do aluno
    - Tipo de documento solicitado
    - Status (Pendente ou Concluído)
-3. **Clique em "Gerar PDF"** para gerar o documento automaticamente
-4. O PDF será baixado automaticamente para seu computador
-5. **Imprima o documento** e entregue ao aluno
-6. Clique no botão **"Concluir"** para finalizar o pedido
+3. **Imprima o documento** solicitado
+4. **Entregue o documento** ao aluno
+5. Clique no botão **"Concluir"** para finalizar o pedido
 
-> 💡 **Dica**: O botão "Gerar PDF" cria automaticamente o documento com o cabeçalho do Colégio Santa Mônica - Limoeiro/PE.
-
-**Tipos de documentos suportados:**
-
-| Tipo | O que gera |
-|------|------------|
-| **Declaração de Matrícula** | PDF com dados do aluno e turma |
-| **Histórico Acadêmico** | PDF com todas as notas e situação |
-| **Atestado de Frequência** | PDF com dados de frequência |
-| **Outros** | PDF genérico com dados do aluno |
+> 💡 **Dica**: O status muda automaticamente para "Concluído" quando você clica no botão.
 
 ### 5.3 Cadastrando Novos Alunos
 
@@ -523,91 +507,7 @@ O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as
 
 ---
 
-## 8. Geração de Documentos PDF
-
-### O que são os Documentos PDF?
-
-O sistema agora gera automaticamente documentos PDF profissionais com o cabeçalho oficial do Colégio Santa Mônica - Limoeiro/PE.
-
-### 8.1 Boletim Escolar em PDF
-
-**Quem pode usar:** Aluno, Professor, Secretaria, Admin
-
-**Como gerar:**
-
-1. Acesse **"Boletim Escolar"** (aluno) ou **"Controle Acadêmico"** (admin)
-2. Carregue as notas do aluno
-3. Clique no botão **"Imprimir Boletim"**
-4. O PDF será baixado automaticamente
-
-**O que o boletim contém:**
-
-- Cabeçalho oficial do Colégio Santa Mônica
-- Dados do aluno (nome, CPF, curso, turma)
-- Notas organizadas por módulo
-- Cálculos automáticos (média teoria, média final)
-- Situação de cada disciplina (Aprovado/Reprovado)
-- Assinatura do diretor/secretário
-
-### 8.2 Declaração de Matrícula em PDF
-
-**Quem pode usar:** Secretaria, Admin
-
-**Como gerar:**
-
-1. Acesse o **"Painel da Secretaria"** → **"Solicitações"**
-2. Encontre o pedido de "Declaração de Matrícula"
-3. Clique em **"Gerar PDF"**
-4. O documento será baixado automaticamente
-
-### 8.3 Histórico Acadêmico em PDF
-
-**Quem pode usar:** Secretaria, Admin
-
-**Como gerar:**
-
-1. Acesse o **"Painel da Secretaria"** → **"Solicitações"**
-2. Encontre o pedido de "Histórico Acadêmico"
-3. Clique em **"Gerar PDF"**
-4. O documento será baixado automaticamente
-
----
-
-## 9. Suporte a Múltiplos Cursos
-
-### O que é o Suporte a Múltiplos Cursos?
-
-O sistema agora suporta diferentes cursos além do Técnico em Enfermagem, como Instrumentação Cirúrgica e outros cursos livres.
-
-### 9.1 Cadastrando um Novo Curso
-
-**Quem pode usar:** Secretaria, Admin
-
-**Como cadastrar:**
-
-1. Acesse o **"Painel da Secretaria"** → **"Gerenciar Cursos"**
-2. Preencha o formulário:
-   - **Nome do Curso**: Ex: "Técnico em Enfermagem"
-   - **Descrição**: Breve descrição do curso
-3. Clique em **"Cadastrar Curso"**
-
-### 9.2 Criando Turmas por Curso
-
-1. Acesse **"Gestão de Turmas"**
-2. Selecione o **curso** no campo dropdown
-3. Preencha o nome da turma e período
-4. Clique em **"Registrar Turma"**
-
-### 9.3 Visualizando Matriz por Curso
-
-A **"Matriz Curricular"** agora mostra as disciplinas organizadas por curso:
-
-1. Acesse **"Matriz Curricular"** no menu lateral
-2. Você verá seções para cada curso cadastrado
-
----
-
-## 10. Glossário do Sistema
+## 8. Glossário do Sistema
 
 ### Termos Utilizados no Sistema
 
@@ -731,7 +631,6 @@ Em caso de dúvidas ou problemas não descritos neste manual:
 | 2.2 | 01/04/2026 | Adicionado cadastro de alunos via Admin |
 | 2.3 | 01/04/2026 | Correções de login/auth, timeout de sessão |
 | **3.0** | **01/04/2026** | **Manual completo reescrito com todos os perfis** |
-| **4.0** | **01/04/2026** | **Adicionado: Geração de PDF, Suporte a Múltiplos Cursos, Imprimir Boletim** |
 
 ---
 
@@ -764,7 +663,7 @@ Em caso de dúvidas ou problemas não descritos neste manual:
 ---
 
 **Documento aprovado pela Diretoria do CSM**
-**Limoeiro/PE, 01 de abril de 2026**
+**Santa Mônica, 01 de abril de 2026**
 
 *Manual de Treinamento - Sistema de Gestão Escolar*
-*Versão 4.0*
+*Versão 3.0*

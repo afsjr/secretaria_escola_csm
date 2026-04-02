@@ -1,6 +1,6 @@
 # Manual Completo do Sistema de Gestão Escolar (SGE)
 
-## CSM - Colégio São Miguel
+## CSM - Colégio Santa Mônica
 
 **Versão: 3.0**
 **Última Atualização: 01/04/2026**
@@ -26,7 +26,7 @@
 
 ### O que é o SGE?
 
-O Sistema de Gestão Escolar (SGE) é uma plataforma digital desenvolvida para o Colégio São Miguel (CSM) que permite gerenciar todas as atividades acadêmicas de forma organizada e segura.
+O Sistema de Gestão Escolar (SGE) é uma plataforma digital desenvolvida para o Colégio Santa Mônica (CSM) que permite gerenciar todas as atividades acadêmicas de forma organizada e segura.
 
 ### O que o Sistema Faz?
 
@@ -514,7 +514,7 @@ O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as
 | Termo | Significado |
 |-------|-------------|
 | **SGE** | Sistema de Gestão Escolar |
-| **CSM** | Colégio São Miguel |
+| **CSM** | Colégio Santa Mônica |
 | **Perfil** | Tipo de acesso do usuário (aluno, professor, secretaria, admin) |
 | **Turma** | Grupo de alunos que frequentam as mesmas aulas |
 | **Matrícula** | Vínculo de um aluno a uma turma |
@@ -663,7 +663,7 @@ Em caso de dúvidas ou problemas não descritos neste manual:
 ---
 
 **Documento aprovado pela Diretoria do CSM**
-**São Miguel, 01 de abril de 2026**
+**Santa Mônica, 01 de abril de 2026**
 
 *Manual de Treinamento - Sistema de Gestão Escolar*
 *Versão 3.0*

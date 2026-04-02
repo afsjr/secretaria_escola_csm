@@ -520,36 +520,72 @@ export async function SecretariaView() {
       btn.textContent = 'Gerando...'
 
       try {
-        // Buscar dados do aluno
-        const { data: alunoData } = await AdminService.getAlunoById(userId)
-        if (!alunoData) {
-          toast.error('Aluno não encontrado')
+        // Buscar dados do usuário (qualquer perfil)
+        const { data: userData } = await AdminService.getUserById(userId)
+        if (!userData) {
+          toast.error('Usuário não encontrado')
+          btn.disabled = false
+          btn.textContent = 'Gerar PDF'
           return
         }
 
-        // Buscar matrícula do aluno
-        const { data: matriculas } = await supabase
-          .from('matriculas')
-          .select(`
-            *,
-            turmas(id, nome, periodo, cursos(id, nome))
-          `)
-          .eq('aluno_id', userId)
-          .eq('status_aluno', 'ativo')
-          .limit(1)
-          .single()
+        // Buscar matrícula apenas se for aluno
+        let turmaInfo = null
+        if (userData.perfil === 'aluno') {
+          const { data: matriculas } = await supabase
+            .from('matriculas')
+            .select(`
+              *,
+              turmas(id, nome, periodo, cursos(id, nome))
+            `)
+            .eq('aluno_id', userId)
+            .eq('status_aluno', 'ativo')
+            .limit(1)
+            .maybeSingle()
 
-        const turmaInfo = matriculas?.turmas ? {
-          turma_nome: matriculas.turmas.nome,
-          periodo: matriculas.turmas.periodo,
-          curso_nome: matriculas.turmas.cursos?.nome || 'Técnico em Enfermagem'
-        } : null
+          if (matriculas?.turmas) {
+            turmaInfo = {
+              turma_nome: matriculas.turmas.nome,
+              periodo: matriculas.turmas.periodo,
+              curso_nome: matriculas.turmas.cursos?.nome || 'N/A'
+            }
+          }
+        }
 
+        // Gerar PDF baseado no tipo de documento e perfil
         if (tipo.includes('Declaração de Matrícula')) {
-          const doc = PDFService.generateDeclaracaoPDF(alunoData, turmaInfo)
-          PDFService.downloadPDF(doc, `declaracao_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          if (userData.perfil === 'aluno') {
+            if (!turmaInfo) {
+              toast.error('Aluno não possui matrícula ativa')
+              btn.disabled = false
+              btn.textContent = 'Gerar PDF'
+              return
+            }
+            const doc = PDFService.generateDeclaracaoPDF(userData, turmaInfo)
+            PDFService.downloadPDF(doc, `declaracao_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          } else {
+            // Admin/Professor → Declaração de Vínculo
+            const doc = PDFService.generateDeclaracaoVinculoPDF(userData)
+            PDFService.downloadPDF(doc, `declaracao_vinculo_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          }
           toast.success('PDF gerado com sucesso!')
+          
         } else if (tipo.includes('Histórico Acadêmico') || tipo.includes('Boletim')) {
+          // Histórico só para alunos
+          if (userData.perfil !== 'aluno') {
+            toast.error('Histórico acadêmico disponível apenas para alunos')
+            btn.disabled = false
+            btn.textContent = 'Gerar PDF'
+            return
+          }
+          
+          if (!turmaInfo) {
+            toast.error('Aluno não possui matrícula ativa')
+            btn.disabled = false
+            btn.textContent = 'Gerar PDF'
+            return
+          }
+          
           const { data: notas } = await AcademicService.getBoletim(userId)
           
           // Buscar módulos das disciplinas
@@ -562,13 +598,26 @@ export async function SecretariaView() {
             return { ...n, modulo: disc?.modulo || 'I Módulo' }
           }) || notas || []
 
-          const doc = PDFService.generateHistoricoPDF(alunoData, notasComModulo, turmaInfo)
+          const doc = PDFService.generateHistoricoPDF(userData, notasComModulo, turmaInfo)
           PDFService.downloadPDF(doc, `historico_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           toast.success('PDF gerado com sucesso!')
+          
         } else {
-          // Para outros tipos, gerar declaração genérica
-          const doc = PDFService.generateDeclaracaoPDF(alunoData, turmaInfo)
-          PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          // Outros tipos de documento
+          if (userData.perfil === 'aluno') {
+            if (!turmaInfo) {
+              toast.error('Aluno não possui matrícula ativa')
+              btn.disabled = false
+              btn.textContent = 'Gerar PDF'
+              return
+            }
+            const doc = PDFService.generateDeclaracaoPDF(userData, turmaInfo)
+            PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          } else {
+            // Admin/Professor/Secretaria → Declaração de Vínculo
+            const doc = PDFService.generateDeclaracaoVinculoPDF(userData)
+            PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          }
           toast.success('PDF gerado com sucesso!')
         }
       } catch (err) {

@@ -137,6 +137,22 @@ export const AdminService = {
     return { data, error }
   },
 
+  async getUserById(userId) {
+    const client = supabaseAdmin || supabase
+    
+    if (!client) {
+      return { data: null, error: { message: 'Cliente Supabase não disponível' } }
+    }
+
+    const { data, error } = await client
+      .from('perfis')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle()
+
+    return { data, error }
+  },
+
   async updateAluno(alunoId, updates) {
     const client = supabaseAdmin || supabase
     

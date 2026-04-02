@@ -227,6 +227,85 @@ export const PDFService = {
   },
 
   // =====================================================
+  // DECLARAÇÃO DE VÍNCULO (Employment Declaration)
+  // Para Admin/Professor
+  // =====================================================
+  generateDeclaracaoVinculoPDF(userData) {
+    const doc = new jsPDF('portrait', 'mm', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const marginLeft = 25
+    const marginRight = 25
+    const contentWidth = pageWidth - marginLeft - marginRight
+
+    // --- Header ---
+    doc.setFillColor(30, 58, 95)
+    doc.rect(0, 0, pageWidth, 35, 'F')
+    
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text('COLÉGIO SANTA MÔNICA', pageWidth / 2, 15, { align: 'center' })
+    
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Limoeiro/PE - CNPJ: XX.XXX.XXX/0001-XX', pageWidth / 2, 21, { align: 'center' })
+    doc.text('Rua Principal, 123 - Centro - CEP: 55700-000', pageWidth / 2, 26, { align: 'center' })
+    doc.text('Tel: (81) 3621-XXXX | secretaria@csm.edu.br', pageWidth / 2, 31, { align: 'center' })
+
+    // --- Title ---
+    doc.setTextColor(30, 58, 95)
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    doc.text('DECLARAÇÃO DE VÍNCULO', pageWidth / 2, 55, { align: 'center' })
+
+    // --- Body Text ---
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+
+    const nome = userData.nome_completo || 'N/A'
+    const cpf = userData.cpf || 'N/A'
+    const perfil = userData.perfil
+    const funcao = perfil === 'professor' ? 'docente' : 
+                   perfil === 'secretaria' ? 'funcionário(a) da secretaria acadêmica' :
+                   'funcionário(a) administrativo(a)'
+    
+    const dataAtual = new Date().toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    })
+
+    const texto = `Declaramos, para os devidos fins, que ${nome}, CPF: ${cpf}, exerce a função de ${funcao} junto ao Colégio Santa Mônica, instituição de ensino técnica localizada em Limoeiro/PE.`
+
+    const splitText = doc.splitTextToSize(texto, contentWidth)
+    doc.text(splitText, marginLeft, 75)
+
+    // Segundo parágrafo
+    const texto2 = 'Esta declaração é emitida a pedido do(a) interessado(a) para fins de comprovação de vínculo empregatício.'
+    const splitText2 = doc.splitTextToSize(texto2, contentWidth)
+    doc.text(splitText2, marginLeft, 100)
+
+    doc.text(`Limoeiro/PE, ${dataAtual}.`, marginLeft, 130)
+
+    // --- Signature ---
+    const sigY = 160
+    doc.line(pageWidth / 2 - 50, sigY, pageWidth / 2 + 50, sigY)
+    doc.setFontSize(10)
+    doc.text('Diretor(a)', pageWidth / 2, sigY + 5, { align: 'center' })
+    doc.text('Colégio Santa Mônica - Limoeiro/PE', pageWidth / 2, sigY + 10, { align: 'center' })
+
+    // --- Stamp Area ---
+    doc.setDrawColor(150)
+    doc.roundedRect(pageWidth / 2 - 25, sigY + 20, 50, 30, 3, 3, 'S')
+    doc.setFontSize(7)
+    doc.setTextColor(150, 150, 150)
+    doc.text('LOCAL DO CARIMBO', pageWidth / 2, sigY + 37, { align: 'center' })
+
+    return doc
+  },
+
+  // =====================================================
   // HISTÓRICO ACADÊMICO (Academic Transcript)
   // =====================================================
   generateHistoricoPDF(alunoData, notasData, turmaInfo) {

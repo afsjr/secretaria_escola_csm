@@ -1,5 +1,5 @@
-import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 export const PDFService = {
 
@@ -85,7 +85,7 @@ export const PDFService = {
         ]
       })
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: currentY,
         head: [['Disciplina', 'Faltas', 'N1', 'N2', 'N3', 'Média', 'Rec.', 'Final', 'Situação']],
         body: tableData,
@@ -296,7 +296,7 @@ export const PDFService = {
       })
     })
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: currentY,
       head: [['Módulo', 'Disciplina', 'N1', 'N2', 'N3', 'Rec', 'Média', 'Faltas', 'Sit.']],
       body: allNotas,

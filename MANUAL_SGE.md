@@ -1,14 +1,623 @@
-# Manual de Operação e Treinamento do SGE
+# Manual Completo do Sistema de Gestão Escolar (SGE)
 
-**Sistema de Gestão Escolar (CSM)**
+## CSM - Colégio São Miguel
 
-Versão: 2.3 (Atualizado em: 01/04/2026)
+**Versão: 3.0**
+**Última Atualização: 01/04/2026**
 
 ---
 
-Bem-vindo ao Manual Oficial de Operação do Sistema de Gestão Escolar (SGE) da CSM. Este documento foi elaborado para guiar Alunos, Professores, Secretaria e Administração no uso correto e eficiente de todas as ferramentas da nossa plataforma unificada.
+## 📖 Índice
 
-O SGE foi concebido para eliminar o volume de papel, proteger os dados com criptografia na nuvem (Supabase) e desenhar um Espelho Acadêmico em tempo real para todos os envolvidos. Por favor, leia com atenção a sessão pertencente ao seu cargo.
+1. [Introdução ao Sistema](#1-introdução-ao-sistema)
+2. [Acesso ao Sistema](#2-acesso-ao-sistema)
+3. [Manual do Aluno](#3-manual-do-aluno)
+4. [Manual do Professor](#4-manual-do-professor)
+5. [Manual da Secretaria](#5-manual-da-secretaria)
+6. [Manual do Administrador](#6-manual-do-administrador)
+7. [Tabela de Perfis e Permissões](#7-tabela-de-perfis-e-permissões)
+8. [Glossário do Sistema](#8-glossário-do-sistema)
+9. [Solução de Problemas](#9-solução-de-problemas)
+10. [Suporte Técnico](#10-suporte-técnico)
+
+---
+
+## 1. Introdução ao Sistema
+
+### O que é o SGE?
+
+O Sistema de Gestão Escolar (SGE) é uma plataforma digital desenvolvida para o Colégio São Miguel (CSM) que permite gerenciar todas as atividades acadêmicas de forma organizada e segura.
+
+### O que o Sistema Faz?
+
+- ✅ **Gerencia matrículas** de alunos em turmas
+- ✅ **Controla notas** e frequências dos alunos
+- ✅ **Registra aulas** ministradas pelos professores
+- ✅ **Gerencia solicitações** de documentos
+- ✅ **Controla bloqueios** financeiros de alunos
+
+### Como o Sistema Funciona?
+
+O SGE funciona na nuvem (internet), o que significa que você pode acessar de qualquer computador ou celular com internet. Seus dados ficam protegidos no servidor seguro do Supabase.
+
+### Perfis de Acesso
+
+O sistema possui **4 perfis de acesso diferentes**, cada um com permissões específicas:
+
+| Perfil | Descrição | O que faz |
+|--------|-----------|-----------|
+| **Aluno** | Estudante | Visualiza notas, solicita documentos |
+| **Professor** | Docente | Lança notas, registra aulas |
+| **Secretaria** | Funcionário | Gerencia turmas, cadastra pessoas |
+| **Admin** | Administrador | Acesso total ao sistema |
+
+---
+
+## 2. Acesso ao Sistema
+
+### Como Acessar?
+
+1. Abra o navegador (Chrome, Firefox, Edge)
+2. Digite o endereço: **https://afsjr.github.io/secretaria_escola_csm/**
+3. Clique em "Entrar" no menu lateral
+
+### Tela de Login
+
+Na tela de login, você deve informar:
+
+1. **E-mail**: Seu endereço de e-mail cadastrado
+2. **Senha**: Sua senha de acesso
+
+> ⚠️ **Importante**: Se você esqueceu a senha, entre em contato com a secretaria para que ela possa cadastrar uma nova senha para você.
+
+### Primeiro Acesso
+
+No primeiro acesso, o sistema pedirá para você completar seu cadastro:
+
+1. Preencha seus dados pessoais (nome, CPF, telefone)
+2. Clique em "Salvar"
+3. Pronto! Você já pode usar o sistema
+
+---
+
+## 3. Manual do Aluno
+
+### O que o Aluno Pode Fazer?
+
+| Função | Descrição |
+|--------|-----------|
+| ✅ Visualizar suas notas | Acompanhar o boletim escolar |
+| ✅ Ver sua frequência | Quantas faltas tem em cada disciplina |
+| ✅ Solicitar documentos | Pedir declarações, atestados, etc. |
+| ✅ Editar seus dados | Atualizar nome, CPF, telefone |
+| ✅ Ver colegas | Visualizar lista de colegas de classe |
+
+### 3.1 Visualizando o Boletim Escolar
+
+O boletim mostra suas notas e frequências organizadas por módulo.
+
+**Como visualizar:**
+
+1. No menu lateral, clique em **"Boletim Escolar"**
+2. O sistema mostrará todas as suas notas organizadas por módulo:
+   - **I Módulo**: Primeiro semestre
+   - **II Módulo**: Segundo semestre
+   - **III Módulo**: Terceiro semestre
+
+**O que você verá no boletim:**
+
+| Campo | Descrição |
+|-------|-----------|
+| Disciplina | Nome da matéria |
+| Faltas | Quantidade de faltas |
+| N1 | Primeira nota |
+| N2 | Segunda nota |
+| N3 | Terceira nota |
+| Média Teoria | Média das 3 notas (calculada automaticamente) |
+| Rec. | Nota de recuperação |
+| Média Final | Nota final (calculada automaticamente) |
+
+**Interpretação das cores:**
+
+- 🟢 **Verde**: Aprovado (nota ≥ 7.0)
+- 🔴 **Vermelho**: Reprovado (nota < 7.0)
+
+### 3.2 Solicitando Documentos
+
+Você pode solicitar documentos como declarações, atestados e históricos.
+
+**Como solicitar:**
+
+1. No menu lateral, clique em **"Documentos"**
+2. Clique em **"+ Nova Solicitação"**
+3. Escolha o tipo de documento:
+   - Declaração de Matrícula
+   - Histórico Acadêmico
+   - Atestado de Frequência
+   - Outros (descreva qual documento precisa)
+4. Clique em **"Solicitar"**
+
+**Acompanhando seu pedido:**
+
+- **Pendente** (amarelo): A secretaria ainda não processou
+- **Concluído** (verde): O documento está pronto para retirada
+
+### 3.3 Editando Seus Dados
+
+É importante manter seus dados atualizados no sistema.
+
+**Como editar:**
+
+1. No menu lateral, clique em **"Meus Dados"**
+2. Altere os campos desejados:
+   - **Nome Completo**: Seu nome completo
+   - **CPF**: Seu número de CPF
+   - **Telefone/WhatsApp**: Seu número para contato
+3. Clique em **"Salvar Alterações"**
+
+> ⚠️ **Importante**: O e-mail não pode ser alterado, pois é usado para login. Para mudar o e-mail, entre em contato com a secretaria.
+
+### 3.4 Visualizando Colegas
+
+Você pode ver a lista de colegas cadastrados no sistema.
+
+**Como visualizar:**
+
+1. No menu lateral, clique em **"Colegas"**
+2. A lista mostrará o nome de todos os colegas
+
+> 🔒 **Privacidade**: Por questões de segurança, você verá apenas os nomes. E-mails e telefones não são exibidos para proteger a privacidade de todos.
+
+### 3.5 Matriz Curricular
+
+A matriz curricular mostra todas as disciplinas do curso.
+
+**Como visualizar:**
+
+1. No menu lateral, clique em **"Matriz Curricular"**
+2. Você verá todas as disciplinas organizadas por módulo
+3. Cada disciplina mostra:
+   - Nome da matéria
+   - Carga horária
+   - Competências esperadas
+
+---
+
+## 4. Manual do Professor
+
+### O que o Professor Pode Fazer?
+
+| Função | Descrição |
+|--------|-----------|
+| ✅ Visualizar suas disciplinas | Ver quais matérias leciona |
+| ✅ Lançar notas | Registrar notas dos alunos |
+| ✅ Registrar aulas | Anotar o conteúdo de cada aula |
+| ✅ Ver alunos da turma | Lista de alunos por disciplina |
+| ✅ Solicitar documentos | Pedir declarações para si |
+
+### 4.1 Acessando o Painel do Professor
+
+**Como acessar:**
+
+1. Faça login com seu e-mail de professor
+2. No menu lateral, clique em **"Painel do Professor"**
+3. Você verá o painel com 3 abas:
+   - **Minhas Disciplinas**: Lista de matérias que você leciona
+   - **Lançar Notas**: Para registrar notas dos alunos
+   - **Registro de Aulas**: Para anotar o conteúdo das aulas
+
+### 4.2 Visualizando Minhas Disciplinas
+
+Esta aba mostra todas as disciplinas que você leciona, organizadas por período.
+
+**O que você verá:**
+
+- **Período**: 2026.1, 2026.2, etc.
+- **Disciplina**: Nome da matéria
+- **Módulo**: I, II ou III Módulo
+- **Turma**: Nome da turma vinculada
+- **Alunos**: Quantidade de alunos na turma
+
+**Botões disponíveis:**
+
+- **Notas**: Leva para a aba de lançamento de notas
+- **Aulas**: Leva para a aba de registro de aulas
+
+### 4.3 Lançando Notas dos Alunos
+
+Esta é a função principal do professor. Aqui você registra as notas e frequências dos alunos.
+
+**Como lançar notas:**
+
+1. Clique na aba **"Lançar Notas"**
+2. No campo **"Selecione a Disciplina"**, escolha a matéria
+3. O sistema mostrará todos os alunos da turma automaticamente
+4. Para cada aluno, preencha:
+   - **Faltas**: Quantidade de ausências (ex: 2)
+   - **N1**: Primeira nota (ex: 8.5)
+   - **N2**: Segunda nota (ex: 7.0)
+   - **N3**: Terceira nota (ex: 9.0)
+   - **Rec.**: Nota de recuperação (se necessário)
+
+**Campos calculados automaticamente:**
+
+- **Média Teoria**: (N1 + N2 + N3) / 3
+- **Média Final**: (Média Teoria + Recuperação) / 2 (se houver recuperação)
+
+**Salvando as notas:**
+
+- **Botão "Salvar"** (em cada linha): Salva apenas a nota daquele aluno
+- **Botão "Salvar Todas as Notas"**: Salva todas as notas de uma vez
+
+> 💡 **Dica**: Use o botão "Salvar Todas as Notas" para economizar tempo quando terminar de preencher todas as notas da turma.
+
+**Interpretação das cores:**
+
+- 🟢 **Verde**: Média ≥ 7.0 (Aprovado)
+- 🔴 **Vermelho**: Média < 7.0 (Reprovado ou em recuperação)
+
+### 4.4 Registrando Aulas
+
+O registro de aulas serve para documentar o conteúdo ministrado em cada aula.
+
+**Como registrar uma aula:**
+
+1. Clique na aba **"Registro de Aulas"**
+2. No campo **"Selecione a Disciplina"**, escolha a matéria
+3. Preencha o formulário:
+   - **Data**: Data da aula (já vem preenchida com a data de hoje)
+   - **Conteúdo Ministrado**: Descreva o que foi ensinado
+4. Clique em **"Registrar"**
+
+**Visualizando o histórico:**
+
+Abaixo do formulário, você verá todas as aulas já registradas para essa disciplina:
+- Data da aula
+- Conteúdo ministrado
+- Botão "Remover" (para excluir registros incorretos)
+
+**Exemplo de registro:**
+
+```
+Data: 01/04/2026
+Conteúdo: Introdução à Anatomia Humana - Sistema Esquelético
+```
+
+### 4.5 Dicas para Professores
+
+1. **Registre as notas o mais rápido possível** após as provas
+2. **Anote o conteúdo de cada aula** para manter um histórico organizado
+3. **Verifique as faltas** antes de salvar, pois afetam a aprovação dos alunos
+4. **Use a recuperação** apenas para alunos com média abaixo de 7.0
+
+---
+
+## 5. Manual da Secretaria
+
+### O que a Secretaria Pode Fazer?
+
+| Função | Descrição |
+|--------|-----------|
+| ✅ Cadastrar alunos | Criar contas para novos estudantes |
+| ✅ Cadastrar professores | Criar contas para novos docentes |
+| ✅ Gerenciar turmas | Criar e organizar turmas |
+| ✅ Matricular alunos | Vincular alunos a turmas |
+| ✅ Gerenciar professores | Vincular professores a disciplinas e turmas |
+| ✅ Processar documentos | Atender solicitações de documentos |
+| ✅ Gerenciar alunos | Editar dados dos alunos |
+| ✅ Controlar notas | Lançar notas para qualquer aluno |
+
+### 5.1 Acessando o Painel da Secretaria
+
+**Como acessar:**
+
+1. Faça login com e-mail de secretaria/admin
+2. No menu lateral, clique em **"Painel da Secretaria"**
+3. Você verá o painel com 5 abas:
+   - **Solicitações**: Pedidos de documentos
+   - **Cadastrar Aluno**: Criar novas contas de alunos
+   - **Gerenciar Alunos**: Visualizar e editar alunos
+   - **Cadastrar Professor**: Criar novas contas de professores
+   - **Gerenciar Professores**: Vincular professores a disciplinas
+
+### 5.2 Processando Solicitações de Documentos
+
+Quando um aluno solicita um documento, ele aparece nesta aba.
+
+**Como processar:**
+
+1. Na aba **"Solicitações"**, você verá a lista de pedidos
+2. Para cada pedido, você verá:
+   - Nome do aluno
+   - Tipo de documento solicitado
+   - Status (Pendente ou Concluído)
+3. **Imprima o documento** solicitado
+4. **Entregue o documento** ao aluno
+5. Clique no botão **"Concluir"** para finalizar o pedido
+
+> 💡 **Dica**: O status muda automaticamente para "Concluído" quando você clica no botão.
+
+### 5.3 Cadastrando Novos Alunos
+
+Quando um novo aluno chega à escola, você precisa cadastrá-lo no sistema.
+
+**Como cadastrar:**
+
+1. Na aba **"Cadastrar Aluno"**, preencha:
+   - **Nome Completo**: Nome completo do aluno
+   - **E-mail**: E-mail que será usado para login
+   - **CPF**: Número do CPF (opcional)
+   - **Telefone/WhatsApp**: Número para contato (opcional)
+   - **Senha**: Senha de acesso (mínimo 6 caracteres)
+   - **Turma**: Selecione uma turma para matricular (opcional)
+2. Clique em **"Cadastrar Aluno"**
+
+> ⚠️ **Importante**: Guarde a senha criada e informe ao aluno. Ele poderá alterar depois.
+
+### 5.4 Gerenciando Alunos
+
+Esta aba permite visualizar e editar dados dos alunos cadastrados.
+
+**Como usar:**
+
+1. Na aba **"Gerenciar Alunos"**, você verá a lista de todos os alunos
+2. Use o campo de **busca** para encontrar alunos por nome ou CPF
+3. Para editar um aluno:
+   - Clique no botão **"Editar"** ao lado do nome
+   - Altere os dados desejados (nome, CPF, telefone)
+   - Clique em **"Salvar Alterações"**
+
+### 5.5 Cadastrando Novos Professores
+
+Quando um novo professor chega à escola, você precisa cadastrá-lo no sistema.
+
+**Como cadastrar:**
+
+1. Na aba **"Cadastrar Professor"**, preencha:
+   - **Nome Completo**: Nome completo do professor
+   - **E-mail**: E-mail que será usado para login
+   - **CPF**: Número do CPF (opcional)
+   - **Telefone/WhatsApp**: Número para contato (opcional)
+   - **Senha**: Senha de acesso (mínimo 6 caracteres)
+2. Clique em **"Cadastrar Professor"**
+
+### 5.6 Gerenciando Professores
+
+Esta aba permite vincular professores às disciplinas e turmas.
+
+**Como vincular:**
+
+1. Na aba **"Gerenciar Professores"**, você verá a lista de professores
+2. Clique no botão **"Vincular Disciplinas"** ao lado do nome do professor
+3. No modal que aparece, você verá uma tabela com todas as disciplinas
+4. Para cada disciplina:
+   - Marque a caixa de seleção **"Selecionar"**
+   - Escolha a **turma** no campo dropdown
+5. Clique em **"Salvar Vinculação"**
+
+> 💡 **Dica**: Você pode vincular um professor a várias disciplinas de uma vez.
+
+**Exemplo de vinculação:**
+
+| Selecionar | Disciplina | Módulo | Turma | Professor Atual |
+|------------|------------|--------|-------|-----------------|
+| [x] | Anatomia e Fisiologia | I Módulo | Turma 2026.1 | — |
+| [x] | Ética Profissional | I Módulo | Turma 2026.1 | — |
+| [ ] | Farmacologia | II Módulo | Turma 2026.2 | — |
+
+### 5.7 Gestão de Turmas
+
+Esta é a área mais importante para a organização da escola.
+
+**Criando uma nova turma:**
+
+1. No menu lateral, clique em **"Gestão de Turmas"**
+2. Preencha o campo **"Nome da Turma"** (ex: Técnico Enfermagem Manhã - 10A)
+3. Preencha o campo **"Período Letivo"** (ex: 2026.1)
+4. Clique em **"Registrar Turma"**
+
+**Matriculando alunos em uma turma:**
+
+1. Clique na turma desejada na lista à esquerda
+2. No campo **"Matricular Aluno Existente"**, selecione o aluno
+3. Clique em **"Adicionar à Turma"**
+
+**Gerenciando status dos alunos:**
+
+Para cada aluno na turma, você pode alterar:
+
+| Status | Quando usar |
+|--------|-------------|
+| **Ativo** | Aluno regular, frequentando aulas |
+| **Trancado** | Aluno trancou a matrícula temporariamente |
+| **Evadido** | Aluno abandonou o curso |
+| **Concluído** | Aluno formado com sucesso |
+
+**Bloqueio financeiro:**
+
+- Marque a caixa **"Bloqueio Financeiro"** para alunos inadimplentes
+- Isso impede a emissão de documentos e participação em estágios
+
+> ⚠️ **Importante**: NUNCA exclua um aluno da turma! Sempre altere o status para "Trancado" ou "Evadido" para preservar o histórico.
+
+### 5.8 Controle Acadêmico
+
+A secretaria tem acesso total ao boletim de qualquer aluno.
+
+**Como lançar notas:**
+
+1. No menu lateral, clique em **"Controle Acadêmico"**
+2. Selecione o aluno no campo dropdown
+3. Clique em **"Carregar Diário"**
+4. Preencha as notas e frequências
+5. Clique em **"Salvar Registros"**
+
+> 💡 **Dica**: Use esta função para corrigir notas lançadas incorretamente pelos professores.
+
+---
+
+## 6. Manual do Administrador
+
+### O que o Administrador Pode Fazer?
+
+O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as funções exclusivas de administração do sistema.
+
+| Função | Descrição |
+|--------|-----------|
+| ✅ Tudo da Secretaria | Todas as funções listadas no capítulo 5 |
+| ✅ Gerenciar usuários | Criar, editar e excluir contas |
+| ✅ Configurar sistema | Ajustar configurações gerais |
+| ✅ Visualizar logs | Acompanhar atividades do sistema |
+
+---
+
+## 7. Tabela de Perfis e Permissões
+
+### Resumo de Permissões por Perfil
+
+| Funcionalidade | Aluno | Professor | Secretaria | Admin |
+|----------------|-------|-----------|------------|-------|
+| **Visualizar boletim** | Apenas o seu | Seus alunos | Todos | Todos |
+| **Lançar notas** | ❌ | ✅ | ✅ | ✅ |
+| **Registrar aulas** | ❌ | ✅ | ❌ | ❌ |
+| **Solicitar documentos** | ✅ | ✅ | ❌ | ❌ |
+| **Processar documentos** | ❌ | ❌ | ✅ | ✅ |
+| **Cadastrar alunos** | ❌ | ❌ | ✅ | ✅ |
+| **Cadastrar professores** | ❌ | ❌ | ✅ | ✅ |
+| **Gerenciar turmas** | ❌ | ❌ | ✅ | ✅ |
+| **Vincular disciplinas** | ❌ | ❌ | ✅ | ✅ |
+| **Editar dados próprios** | ✅ | ✅ | ✅ | ✅ |
+| **Editar dados de outros** | ❌ | ❌ | ✅ | ✅ |
+
+### Menu por Perfil
+
+| Menu | Aluno | Professor | Secretaria | Admin |
+|------|-------|-----------|------------|-------|
+| Início | ✅ | ✅ | ✅ | ✅ |
+| Documentos | ✅ | ✅ | ❌ | ❌ |
+| Colegas | ✅ | ✅ | ✅ | ✅ |
+| Matriz Curricular | ✅ | ✅ | ✅ | ✅ |
+| Boletim Escolar | ✅ | ❌ | ❌ | ❌ |
+| Meus Dados | ✅ | ✅ | ✅ | ✅ |
+| Painel do Professor | ❌ | ✅ | ❌ | ❌ |
+| Notas e Aulas | ❌ | ✅ | ❌ | ❌ |
+| Controle Acadêmico | ❌ | ❌ | ✅ | ✅ |
+| Painel da Secretaria | ❌ | ❌ | ✅ | ✅ |
+| Gestão de Turmas | ❌ | ❌ | ✅ | ✅ |
+
+---
+
+## 8. Glossário do Sistema
+
+### Termos Utilizados no Sistema
+
+| Termo | Significado |
+|-------|-------------|
+| **SGE** | Sistema de Gestão Escolar |
+| **CSM** | Colégio São Miguel |
+| **Perfil** | Tipo de acesso do usuário (aluno, professor, secretaria, admin) |
+| **Turma** | Grupo de alunos que frequentam as mesmas aulas |
+| **Matrícula** | Vínculo de um aluno a uma turma |
+| **Boletim** | Documento com notas e frequências do aluno |
+| **Disciplina** | Matéria do curso (ex: Anatomia, Farmacologia) |
+| **Módulo** | Divisão do curso (I, II, III Módulo) |
+| **Período** | Semestre letivo (ex: 2026.1, 2026.2) |
+| **Faltas** | Quantidade de ausências do aluno |
+| **Média Teoria** | Média das 3 notas (N1, N2, N3) |
+| **Recuperação** | Nota para alunos com média abaixo de 7.0 |
+| **Média Final** | Nota final considerando recuperação |
+| **Bloqueio Financeiro** | Impedimento por inadimplência |
+| **LGPD** | Lei Geral de Proteção de Dados |
+
+---
+
+## 9. Solução de Problemas
+
+### Problemas Comuns e Soluções
+
+#### 9.1 Não consigo fazer login
+
+**Possíveis causas:**
+- E-mail incorreto
+- Senha incorreta
+- Usuário não cadastrado
+
+**Solução:**
+1. Verifique se o e-mail está correto (sem espaços)
+2. Verifique se a senha está correta (atenção a letras maiúsculas)
+3. Se persistir, entre em contato com a secretaria
+
+#### 9.2 Não aparecem notas no boletim
+
+**Possíveis causas:**
+- Professor ainda não lançou as notas
+- Aluno não está matriculado em nenhuma turma
+
+**Solução:**
+1. Verifique com o professor se as notas foram lançadas
+2. Confirme com a secretaria se você está matriculado na turma correta
+
+#### 9.3 Não consigo solicitar documentos
+
+**Possíveis causas:**
+- Bloqueio financeiro ativo
+- Sistema temporariamente indisponível
+
+**Solução:**
+1. Verifique se há pendências financeiras na secretaria
+2. Tente novamente em alguns minutos
+
+#### 9.4 Professor não vê suas disciplinas
+
+**Possíveis causas:**
+- Professor não vinculado às disciplinas
+- Disciplinas não vinculadas a turmas
+
+**Solução:**
+1. A secretaria deve vincular o professor às disciplinas
+2. As disciplinas devem estar vinculadas a turmas
+
+#### 9.5 Erro ao registrar aula
+
+**Possíveis causas:**
+- Problema no banco de dados
+- Campos obrigatórios não preenchidos
+
+**Solução:**
+1. Preencha todos os campos obrigatórios
+2. Se o erro persistir, contate o suporte técnico
+
+#### 9.6 Erro ao salvar notas
+
+**Possíveis causas:**
+- Notas com valores inválidos (maiores que 10)
+- Problema de conexão com a internet
+
+**Solução:**
+1. Verifique se as notas estão entre 0 e 10
+2. Verifique sua conexão com a internet
+3. Tente salvar novamente
+
+---
+
+## 10. Suporte Técnico
+
+### Como Obter Ajuda
+
+Em caso de dúvidas ou problemas não descritos neste manual:
+
+1. **Primeiro**: Consulte este manual
+2. **Segundo**: Pergunte a um colega que já usa o sistema
+3. **Terceiro**: Entre em contato com a secretaria do CSM
+
+### Contatos
+
+| Tipo de Ajuda | Contato |
+|---------------|---------|
+| Dúvidas sobre cadastros | Secretaria do CSM |
+| Dúvidas sobre notas | Professor da disciplina |
+| Problemas técnicos | Suporte Técnico |
+| Solicitação de documentos | Secretaria do CSM |
 
 ---
 
@@ -17,286 +626,44 @@ O SGE foi concebido para eliminar o volume de papel, proteger os dados com cript
 | Versão | Data | Alterações |
 |--------|------|-------------|
 | 1.0 | - | Versão inicial |
-| 2.0 | 01/04/2026 | Revisão geral - adicionado item LGPD, atualizado status acadêmico, ajustado manual do professor |
-| 2.1 | 01/04/2026 | Atualização após análise de código - ajustado funcionalidades implementadas vs manual original |
-| 2.2 | 01/04/2026 | Adicionado cadastro de alunos via Admin, opção "Outros" em documentos, atualização de CPF/telefone no perfil |
-| 2.3 | 01/04/2026 | Correções de login/auth, timeout de sessão, design responsivo, remoção CSP headers |
+| 2.0 | 01/04/2026 | Revisão geral - adicionado item LGPD, atualizado status acadêmico |
+| 2.1 | 01/04/2026 | Atualização após análise de código |
+| 2.2 | 01/04/2026 | Adicionado cadastro de alunos via Admin |
+| 2.3 | 01/04/2026 | Correções de login/auth, timeout de sessão |
+| **3.0** | **01/04/2026** | **Manual completo reescrito com todos os perfis** |
 
 ---
 
-## 👩‍🎓 1. Manual do Aluno
+## 📝 Observações Importantes
 
-O seu portal de acompanhamento acadêmico pessoal.
+### Segurança dos Dados
 
-Como aluno, sua visão no SGE é simplificada e protegida. Você não pode visualizar notas, avisos financeiros ou pendências de outros alunos.
+- Todos os dados são criptografados no servidor
+- Cada usuário acessa apenas seus próprios dados
+- A secretaria tem acesso total para gestão
+- Professores acessam apenas suas disciplinas
 
-### 1.1 Página "Meus Dados" (Perfil)
+### Boas Práticas
 
-Onde você atualiza suas informações pessoais. Os campos disponíveis são:
+1. **Mantenha seus dados atualizados** no sistema
+2. **Não compartilhe sua senha** com outras pessoas
+3. **Faça logout** ao usar computadores compartilhados
+4. **Registre suas aulas** regularmente (professores)
+5. **Lance notas** o mais rápido possível (professores)
 
-- **Nome Completo**: Editável. Importante para certificados.
-- **CPF**: Editável. Necessário para documentos oficiais.
-- **Telefone / WhatsApp**: Editável. Para comunicação da escola.
-- **E-mail**: Campo somente leitura (vinculado ao login).
-- **Perfil de Acesso**: Exibido automaticamente (aluno/admin).
-- **Avatar**: Exibido com inicial do nome (funcionalidade de foto em desenvolvimento).
+### Responsabilidades
 
-> ⚠️ **Importante**: Todos os certificados dependem da veracidade dos dados. Mantenha seus dados atualizados.
-
-### 1.2 Aba "Colegas"
-
-Um diretório seguro mostrando os nomes e iniciais (avatar) de todos os usuários do sistema.
-
-- **LGPD Compliance**: E-mails e telefones de outras pessoas NÃO são exibidos para proteger a privacidade.
-- Você visualiza: Nome completo e perfil (aluno/admin).
-
-### 1.3 Solicitação de Documentos
-
-Precisa de um Atestado de Matrícula, Histórico Escolar ou passe livre da prefeitura?
-
-1. Clique em "+ Nova Solicitação"
-2. Escolha o tipo de documento:
-   - Declaração de Matrícula
-   - Histórico Acadêmico
-   - Atestado de Frequência
-   - **Outros** (permite especificar outro tipo de documento)
-3. Se selecionar "Outros", descreva o documento desejado no campo de texto
-4. Clique em "Solicitar"
-
-**Fluxo do Pedido**:
-- O pedido vai direto em tempo real para o balcão virtual da secretaria.
-- Status inicial: **Pendente** (amarelo)
-- Quando a secretary imprimir e entregar: Status muda para **Concluído** (verde)
-
-### 1.4 Boletim Escolar
-
-Um espelho online 24h.
-
-- Tela de **apenas leitura** para o aluno
-- Organizado por **Módulo** (I, II, III)
-- Cada módulo contém as disciplinas соответственные
-- Você acompanha:
-  - Presenças (faltas)
-  - 3 notas por disciplina (baterias de ciclo contínuo)
-  - Média Teoria (média das 3 notas)
-  - Nota de Recuperação
-  - Média Final (média entre teoria e recuperação)
-
-> 📊 O sistema calcula automaticamente as médias. Se a média final ficar abaixo de 7.0, aparecerá em vermelho.
-
-### 1.5 Matriz Curricular
-
-Um quadro orientativo contendo:
-- Todas as disciplinas do curso
-- Descrições e competências esperadas
-- Carga horária teórica e de estágio
-- Trilha formativa do Técnico em Enfermagem
-
-Ideal para se planejar ao longo do curso.
+| Perfil | Responsabilidade |
+|--------|------------------|
+| **Aluno** | Manter dados atualizados, acompanhar notas |
+| **Professor** | Lançar notas, registrar aulas, acompanhar alunos |
+| **Secretaria** | Gerenciar cadastros, processar documentos, organizar turmas |
+| **Admin** | Supervisionar sistema, dar suporte aos usuários |
 
 ---
 
-## 👨‍🏫 2. Manual dos Professores
-
-O Portal de Lançamento de Presenças e Desempenho.
-
-> **Nota Importante**: No momento, o SGE não possui um perfil separado de "Professor". O lançamento de notas é feito através do perfil **Admin** (Secretaria/Gestão). Os professores devem solicitar à секретария o lançamento de notas no sistema.
-
-### 2.1 Acesso ao Controle Acadêmico
-
-Acesse: Menu lateral > "Controle Acadêmico" (ou "Boletim Escolar" para professores)
-
-### 2.2 Funcionalidades
-
-- **Seleção de Aluno**: Escolha o aluno no menu suspenso para carregar seu boletim.
-- **Lançamento de Notas**: Preencha as médias das avaliações formativas e somativas.
-- **Cálculo Automático**: O formulário faz a matemática automaticamente na hora.
-
-### 2.3 Estrutura do Boletim
-
-Cada lacuna ("1ª Nota", "2ª Nota", "3ª Nota") serve como uma bateria de ciclo contínuo de desempenho.
-
-- O professor digita (Ex: 8.5)
-- O sistema calcula a **Média Teoria** automaticamente
-- Se a média da Teoria ficar vermelha (< 7.0), o sistema permitirá lançamento na aba **Recuperação** para corrigir a **Média Final**
-
-### 2.4 Presenças (Faltas)
-
-O campo "Faltas" permite registro do número de ausências por disciplina.
-
----
-
-## 💻 3. Manual da Secretaria e Gestão Central
-
-Administrando o coração financeiro e acadêmico da instituição com precisão.
-
-O SGE dá ferramentas de bloqueio sumário e permissões fortes ao perfil de **"Admin/Secretaria"**. O seu manuseio deve ser cauteloso pois dita a base de dados de todos.
-
-### 3.0 Cadastrar Novo Aluno
-
-O painel da secretaria permite cadastrar novos alunos diretamente no sistema, sem necessidade do aluno fazer seu próprio cadastro.
-
-1. Acesse **Painel da Secretaria**
-2. Clique na aba **"Cadastrar Aluno"**
-3. Preencha os campos:
-   - **Nome Completo** (obrigatório)
-   - **E-mail** (obrigatório) - será usado para login
-   - **CPF** (opcional)
-   - **Telefone/WhatsApp** (opcional)
-   - **Senha** (obrigatório, mínimo 6 caracteres)
-   - **Turma** (opcional) - selecione para matricular automaticamente
-4. Clique em **"Cadastrar Aluno"**
-
-O sistema cria automaticamente:
-- Conta no Supabase Auth (usuário pode fazer login imediatamente)
-- Registro na tabela de perfis com perfil "aluno"
-- Matrícula na turma selecionada (se informada)
-
-> ⚠️ **Importante**: O admin deve guardar a senha criada e comunicar ao aluno. O aluno pode alterar sua senha depois.
-
-### 3.1 Painel da Secretaria (Solicitações de Documentos)
-
-Aqui mora a **"Fila de Atendimento Digital"**.
-
-1. Todos os pedidos (ofícios, declarações) dos estudantes aparecem nesta tela.
-2. Imprima o documento, recolha as assinaturas físicas.
-3. Clique no botão azul **"Concluir"** quando entregar o papel na mão do aluno.
-4. O status mudará para concluído, limpando a fila.
-
-**Tabela de Solicitações**:
-| Campo | Descrição |
-|-------|------------|
-| Aluno | Nome e e-mail do solicitante |
-| Documento | Tipo solicitado |
-| Status | Pendente (amarelo) / Concluído (verde) |
-| Ações | Botão "Concluir" para finalizar |
-
-### 3.2 Gestão de Turmas e Matrículas (O Motor Genuíno)
-
-Esta é a base estrutural de toda a escola. É aqui que você amarra a logística.
-
-#### 3.2.1 Abrir Turmas Novas
-
-1. Preencha "Nome da Turma" (Ex: Técnico Enfermagem Manhã - 10A)
-2. Preencha o "Período Letivo" (Ex: 2026.1)
-3. Clique em "Registrar Turma"
-4. A turma aparecerá na lista lateral com status "aberta" ou "fechada"
-
-#### 3.2.2 Moldar a Caderneta Oficial
-
-1. Selecione a turma criada no lado esquerdo
-2. No menu suspenso "Matricular Aluno Existente", escolha um aluno
-3. Clique em "Adicionar à Turma"
-4. O aluno aparecerá na tabela da direita
-
-#### 3.2.3 A Regra Sagrada do "Status Acadêmico"
-
-> ⚠️ **IMPORTANTE**: Quando um aluno tranca a faculdade, abandona, é transferido ou repete o ano...
-
-**NÃO** clique no botão vermelho "X Excluir"!
-
-- O botão **X Excluir** deve ser usado **apenas** quando você enturmar a pessoa errada sem querer e precisar desfazer o erro na hora.
-- Se excluir, o histórico acadêmico inteiro dele **evaporará** (perderá todas as notas).
-
-**O correto** para alunos que desistem é:
-1. Alterar o menu "Status" de **Ativo** para **Trancado** ou **Evadido** ou **Concluído**
-2. Clicar em **"Salvar"**
-
-Essa ação o retira da frente do professor no dia a dia, mas o mantém registrado e gravado no histórico financeiro da escola.
-
-#### 3.2.4 A Caixa Oculta de Inadimplência (Bloqueio Financeiro)
-
-Na linha do aluno existe uma caixa de seleção que mostra:
-
-- **Ok** (verde): Aluno regular
-- **INADIMPLENTE** (vermelho): Aluno com pendências financeiras
-
-Ao marcar a caixa, a secretaria alerta o sistema que o fulano está devendo. Essa alavanca:
-
-- Bloqueia a emissão de atestados
-- Proíbe o aluno de ingressar nos Estágios Práticos Externos
-- Permanece até o aluno ir à Tesouraria e quitar o acordo
-
-### 3.3 Controle Acadêmico (Manipulador Máximo)
-
-Além do professor, você tem acesso irrestrito ao "Boletim" no modo **edição**.
-
-A Secretaria pode:
-- Auditar notas de qualquer aluno
-- Adulterar notas por ordem judicial ou trâmites acadêmicos
-- Recalcular as médias quando o professor errar e perder o prazo
-
----
-
-## 🔧 4. Configuração Técnica
-
-### 4.1 Variáveis de Ambiente
-
-Para configurar o sistema do zero, crie um arquivo `.env` na raiz do projeto com:
-
-```env
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua_chave_anonima
-VITE_SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role  # Opcional - apenas para Admin
-```
-
-### 4.2 Variáveis para Deploy (GitHub Pages)
-
-Ao fazer deploy no GitHub Pages, adicione as seguintes secrets em **Settings → Secrets and variables → Actions**:
-
-| Nome da Secret | Descrição |
-|----------------|-----------|
-| `VITE_SUPABASE_URL` | URL do projeto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Chave pública (Anon Key) |
-| `VITE_SUPABASE_SERVICE_ROLE_KEY` | Chave de serviço (para功能 de cadastro admin) |
-
-### 4.2 Estrutura do Banco de Dados (Supabase)
-
-O sistema utiliza as seguintes tabelas:
-
-| Tabela | Descrição |
-|--------|------------|
-| `perfis` | Usuários (nome, email, perfil, CPF, telefone) |
-| `turmas` | Turmas (nome, período, status_ingresso) |
-| `matriculas` | Vínculo aluno-turma (status_aluno) |
-| `boletim` | Notas e presenças por aluno/disciplina |
-| `solicitacoes` | Pedidos de documentos |
-
-### 4.3 Perfis de Acesso
-
-| Perfil | Descrição |
-|--------|------------|
-| `admin` | Acesso total (Secretaria, Gestão) |
-| `aluno` | Acesso restrito (somente seus dados) |
-
----
-
-## 🆘 5. Solução de Problemas
-
-### 5.1 "Erro de acesso" no login
-- Verifique se o e-mail e senha estão corretos
-- Confirme que o usuário está cadastrado no sistema
-
-### 5.2 "Erro ao carregar turmas"
-- Verifique a conexão com a internet
-- Confirme que a tabela `turmas` existe no Supabase
-
-### 5.3 Não consigo matricular aluno
-- Verifique se o aluno já está ativo em outra turma (regra de negócio)
-- O sistema impede dupla-matrícula ativa
-
-### 5.4 Notas não aparecem no boletim
-- Confirme que o aluno está matriculado em uma turma
-- Verifique se há registros na tabela `boletim`
-
----
-
-## 📞 Suporte
-
-Em caso de dúvidas ou problemas não descritos neste manual, entre em contato com o administrador do sistema ou abra uma issue no repositório do projeto.
-
----
-
-**Documento aprovado e redigido para CSM Gestão Escolar**
-
-*Última atualização: 01/04/2026 - Versão 2.2*
+**Documento aprovado pela Diretoria do CSM**
+**São Miguel, 01 de abril de 2026**
+
+*Manual de Treinamento - Sistema de Gestão Escolar*
+*Versão 3.0*

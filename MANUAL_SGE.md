@@ -2,8 +2,8 @@
 
 ## CSM - Colégio Santa Mônica
 
-**Versão: 3.0**
-**Última Atualização: 01/04/2026**
+**Versão: 4.0**
+**Última Atualização: 02/04/2026**
 
 ---
 
@@ -16,9 +16,11 @@
 5. [Manual da Secretaria](#5-manual-da-secretaria)
 6. [Manual do Administrador](#6-manual-do-administrador)
 7. [Tabela de Perfis e Permissões](#7-tabela-de-perfis-e-permissões)
-8. [Glossário do Sistema](#8-glossário-do-sistema)
-9. [Solução de Problemas](#9-solução-de-problemas)
-10. [Suporte Técnico](#10-suporte-técnico)
+8. [Geração de Documentos PDF](#8-geração-de-documentos-pdf)
+9. [Suporte a Múltiplos Cursos](#9-suporte-a-múltiplos-cursos)
+10. [Glossário do Sistema](#10-glossário-do-sistema)
+11. [Solução de Problemas](#11-solução-de-problemas)
+12. [Suporte Técnico](#12-suporte-técnico)
 
 ---
 
@@ -35,6 +37,8 @@ O Sistema de Gestão Escolar (SGE) é uma plataforma digital desenvolvida para o
 - ✅ **Registra aulas** ministradas pelos professores
 - ✅ **Gerencia solicitações** de documentos
 - ✅ **Controla bloqueios** financeiros de alunos
+- ✅ **Gera documentos PDF** para todos os perfis (alunos, professores, admins)
+- ✅ **Suporta múltiplos cursos** (Enfermagem, Instrumentação Cirúrgica, etc.)
 
 ### Como o Sistema Funciona?
 
@@ -88,6 +92,7 @@ No primeiro acesso, o sistema pedirá para você completar seu cadastro:
 |--------|-----------|
 | ✅ Visualizar suas notas | Acompanhar o boletim escolar |
 | ✅ Ver sua frequência | Quantas faltas tem em cada disciplina |
+| ✅ Imprimir boletim em PDF | Gerar documento oficial do boletim |
 | ✅ Solicitar documentos | Pedir declarações, atestados, etc. |
 | ✅ Editar seus dados | Atualizar nome, CPF, telefone |
 | ✅ Ver colegas | Visualizar lista de colegas de classe |
@@ -122,7 +127,29 @@ O boletim mostra suas notas e frequências organizadas por módulo.
 - 🟢 **Verde**: Aprovado (nota ≥ 7.0)
 - 🔴 **Vermelho**: Reprovado (nota < 7.0)
 
-### 3.2 Solicitando Documentos
+### 3.2 Imprimindo o Boletim em PDF
+
+Você pode gerar um PDF oficial do seu boletim para imprimir ou guardar.
+
+**Como imprimir:**
+
+1. Acesse **"Boletim Escolar"** no menu lateral
+2. Visualize suas notas
+3. Clique no botão **"Imprimir Boletim"** (ícone de impressora)
+4. O PDF será baixado automaticamente para seu computador
+
+**O que o PDF contém:**
+
+- Cabeçalho oficial do Colégio Santa Mônica - Limoeiro/PE
+- Seus dados pessoais (nome, CPF)
+- Curso e turma de matrícula
+- Notas organizadas por módulo
+- Cálculos automáticos (média teoria, média final)
+- Situação de cada disciplina (Aprovado/Reprovado)
+
+> 💡 **Dica**: Use o PDF para guardar uma cópia das suas notas ou para apresentar a pais/responsáveis.
+
+### 3.3 Solicitando Documentos
 
 Você pode solicitar documentos como declarações, atestados e históricos.
 
@@ -142,7 +169,17 @@ Você pode solicitar documentos como declarações, atestados e históricos.
 - **Pendente** (amarelo): A secretaria ainda não processou
 - **Concluído** (verde): O documento está pronto para retirada
 
-### 3.3 Editando Seus Dados
+**O que acontece quando você solicita:**
+
+1. O pedido é registrado no sistema
+2. A secretaria vê o pedido no Painel da Secretaria
+3. A secretaria gera o PDF do documento automaticamente
+4. O documento é impresso e entregue a você
+5. O status muda para "Concluído"
+
+> 💡 **Dica**: A secretaria pode gerar o PDF do seu documento com apenas um clique. O documento já vem com o cabeçalho oficial do Colégio Santa Mônica - Limoeiro/PE.
+
+### 3.4 Editando Seus Dados
 
 É importante manter seus dados atualizados no sistema.
 
@@ -193,7 +230,7 @@ A matriz curricular mostra todas as disciplinas do curso.
 | ✅ Lançar notas | Registrar notas dos alunos |
 | ✅ Registrar aulas | Anotar o conteúdo de cada aula |
 | ✅ Ver alunos da turma | Lista de alunos por disciplina |
-| ✅ Solicitar documentos | Pedir declarações para si |
+| ✅ Solicitar documentos | Pedir declarações de vínculo para si |
 
 ### 4.1 Acessando o Painel do Professor
 
@@ -322,20 +359,31 @@ Conteúdo: Introdução à Anatomia Humana - Sistema Esquelético
 
 ### 5.2 Processando Solicitações de Documentos
 
-Quando um aluno solicita um documento, ele aparece nesta aba.
+Quando um usuário (aluno, professor ou administrador) solicita um documento, ele aparece nesta aba.
 
 **Como processar:**
 
 1. Na aba **"Solicitações"**, você verá a lista de pedidos
 2. Para cada pedido, você verá:
-   - Nome do aluno
+   - Nome do solicitante
    - Tipo de documento solicitado
    - Status (Pendente ou Concluído)
-3. **Imprima o documento** solicitado
-4. **Entregue o documento** ao aluno
-5. Clique no botão **"Concluir"** para finalizar o pedido
+3. Clique no botão **"Gerar PDF"** para criar o documento automaticamente
+4. O PDF será baixado automaticamente para seu computador
+5. **Imprima o documento** e entregue ao solicitante
+6. Clique no botão **"Concluir"** para finalizar o pedido
 
-> 💡 **Dica**: O status muda automaticamente para "Concluído" quando você clica no botão.
+**Tipos de documentos suportados:**
+
+| Solicitante | Tipo de Documento | O que é gerado |
+|-------------|-------------------|----------------|
+| **Aluno** | Declaração de Matrícula | PDF com dados do curso e turma |
+| **Aluno** | Histórico Acadêmico | PDF com todas as notas e situação |
+| **Professor** | Declaração de Vínculo | PDF com função docente |
+| **Admin** | Declaração de Vínculo | PDF com função administrativa |
+| **Secretaria** | Declaração de Vínculo | PDF com função na secretaria |
+
+> 💡 **Dica**: O sistema gera automaticamente o PDF correto baseado no perfil do solicitante. Alunos recebem documentos acadêmicos, enquanto funcionários recebem declarações de vínculo.
 
 ### 5.3 Cadastrando Novos Alunos
 
@@ -482,9 +530,11 @@ O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as
 | **Registrar aulas** | ❌ | ✅ | ❌ | ❌ |
 | **Solicitar documentos** | ✅ | ✅ | ❌ | ❌ |
 | **Processar documentos** | ❌ | ❌ | ✅ | ✅ |
+| **Gerar PDF de documentos** | ❌ | ❌ | ✅ | ✅ |
 | **Cadastrar alunos** | ❌ | ❌ | ✅ | ✅ |
 | **Cadastrar professores** | ❌ | ❌ | ✅ | ✅ |
 | **Gerenciar turmas** | ❌ | ❌ | ✅ | ✅ |
+| **Gerenciar cursos** | ❌ | ❌ | ✅ | ✅ |
 | **Vincular disciplinas** | ❌ | ❌ | ✅ | ✅ |
 | **Editar dados próprios** | ✅ | ✅ | ✅ | ✅ |
 | **Editar dados de outros** | ❌ | ❌ | ✅ | ✅ |
@@ -504,10 +554,98 @@ O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as
 | Controle Acadêmico | ❌ | ❌ | ✅ | ✅ |
 | Painel da Secretaria | ❌ | ❌ | ✅ | ✅ |
 | Gestão de Turmas | ❌ | ❌ | ✅ | ✅ |
+| Gerenciar Cursos | ❌ | ❌ | ✅ | ✅ |
 
 ---
 
-## 8. Glossário do Sistema
+## 8. Geração de Documentos PDF
+
+### O que são os Documentos PDF?
+
+O sistema gera automaticamente documentos PDF profissionais com o cabeçalho oficial do Colégio Santa Mônica - Limoeiro/PE.
+
+### 8.1 Tipos de Documentos por Perfil
+
+#### Para Alunos
+| Tipo de Documento | Descrição |
+|-------------------|-----------|
+| **Declaração de Matrícula** | Comprova que o aluno está matriculado no curso |
+| **Histórico Acadêmico** | Lista todas as notas e situação acadêmica |
+| **Boletim Escolar** | Notas por módulo com cálculos automáticos |
+
+#### Para Professores, Admins e Secretaria
+| Tipo de Documento | Descrição |
+|-------------------|-----------|
+| **Declaração de Vínculo** | Comprova o vínculo empregatício com a escola |
+| **Atestado de Trabalho** | Comprova a função exercida na instituição |
+
+### 8.2 Como Gerar PDF na Secretaria
+
+**Para a secretaria processar solicitações de documentos:**
+
+1. Acesse o **Painel da Secretaria** → **Solicitações**
+2. Encontre o pedido na lista
+3. Clique no botão **"Gerar PDF"**
+4. O documento será baixado automaticamente
+5. Imprima e entregue ao solicitante
+6. Clique em **"Concluir"** para finalizar
+
+**O sistema gera automaticamente o documento correto:**
+- Se o solicitante é **aluno** → Gera documento acadêmico
+- Se o solicitante é **funcionário** → Gera declaração de vínculo
+
+### 8.3 Como o Aluno Gera seu Boletim
+
+1. Acesse **Boletim Escolar** no menu lateral
+2. Visualize suas notas
+3. Clique no botão **"Imprimir Boletim"**
+4. O PDF será baixado automaticamente
+
+### 8.4 Dicas para Documentos PDF
+
+1. **Verifique os dados** antes de gerar o PDF
+2. **Imprima em papel timbrado** para documentos oficiais
+3. **Carimbe e assine** os documentos antes de entregar
+4. **Guarde uma cópia** digital dos documentos gerados
+
+---
+
+## 9. Suporte a Múltiplos Cursos
+
+### O que é o Suporte a Múltiplos Cursos?
+
+O sistema suporta diferentes cursos além do Técnico em Enfermagem, como Instrumentação Cirúrgica e outros cursos livres.
+
+### 9.1 Cadastrando um Novo Curso
+
+**Quem pode usar:** Secretaria, Admin
+
+**Como cadastrar:**
+
+1. Acesse o **"Painel da Secretaria"** → **"Gerenciar Cursos"**
+2. Preencha o formulário:
+   - **Nome do Curso**: Ex: "Técnico em Enfermagem"
+   - **Descrição**: Breve descrição do curso
+3. Clique em **"Cadastrar Curso"**
+
+### 9.2 Criando Turmas por Curso
+
+1. Acesse **"Gestão de Turmas"**
+2. Selecione o **curso** no campo dropdown
+3. Preencha o nome da turma e período
+4. Clique em **"Registrar Turma"**
+
+### 9.3 Visualizando Matriz por Curso
+
+A **"Matriz Curricular"** mostra as disciplinas organizadas por curso:
+
+1. Acesse **"Matriz Curricular"** no menu lateral
+2. Você verá seções para cada curso cadastrado
+3. Cada seção mostra os módulos e disciplinas do curso
+
+---
+
+## 10. Glossário do Sistema
 
 ### Termos Utilizados no Sistema
 
@@ -527,6 +665,10 @@ O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as
 | **Recuperação** | Nota para alunos com média abaixo de 7.0 |
 | **Média Final** | Nota final considerando recuperação |
 | **Bloqueio Financeiro** | Impedimento por inadimplência |
+| **PDF** | Portable Document Format - formato de documento digital |
+| **Declaração de Vínculo** | Documento que comprova o vínculo empregatício com a escola |
+| **Declaração de Matrícula** | Documento que comprova a matrícula do aluno no curso |
+| **Histórico Acadêmico** | Documento com todas as notas e situação acadêmica do aluno |
 | **LGPD** | Lei Geral de Proteção de Dados |
 
 ---
@@ -598,6 +740,30 @@ O administrador tem acesso a **todas as funcionalidades** da secretaria, mais as
 2. Verifique sua conexão com a internet
 3. Tente salvar novamente
 
+#### 9.7 Erro ao gerar PDF de documento
+
+**Possíveis causas:**
+- Aluno não possui matrícula ativa
+- Professor/Admin não possui dados cadastrados corretamente
+- Problema de conexão com a internet
+
+**Solução:**
+1. Para alunos: Verifique se o aluno está matriculado em uma turma
+2. Para funcionários: Verifique se o perfil está cadastrado corretamente
+3. Verifique sua conexão com a internet
+4. Tente novamente em alguns minutos
+
+#### 9.8 PDF não é baixado automaticamente
+
+**Possíveis causas:**
+- Bloqueador de pop-ups do navegador
+- Configurações de download do navegador
+
+**Solução:**
+1. Verifique se o navegador está bloqueando pop-ups
+2. Verifique a pasta de downloads do seu computador
+3. Tente usar outro navegador (Chrome, Firefox, Edge)
+
 ---
 
 ## 10. Suporte Técnico
@@ -630,7 +796,8 @@ Em caso de dúvidas ou problemas não descritos neste manual:
 | 2.1 | 01/04/2026 | Atualização após análise de código |
 | 2.2 | 01/04/2026 | Adicionado cadastro de alunos via Admin |
 | 2.3 | 01/04/2026 | Correções de login/auth, timeout de sessão |
-| **3.0** | **01/04/2026** | **Manual completo reescrito com todos os perfis** |
+| 3.0 | 01/04/2026 | Manual completo reescrito com todos os perfis |
+| **4.0** | **02/04/2026** | **Adicionado: Geração de PDF para todos os perfis, Suporte a Múltiplos Cursos** |
 
 ---
 
@@ -655,15 +822,15 @@ Em caso de dúvidas ou problemas não descritos neste manual:
 
 | Perfil | Responsabilidade |
 |--------|------------------|
-| **Aluno** | Manter dados atualizados, acompanhar notas |
-| **Professor** | Lançar notas, registrar aulas, acompanhar alunos |
-| **Secretaria** | Gerenciar cadastros, processar documentos, organizar turmas |
-| **Admin** | Supervisionar sistema, dar suporte aos usuários |
+| **Aluno** | Manter dados atualizados, acompanhar notas, solicitar documentos quando necessário |
+| **Professor** | Lançar notas, registrar aulas, acompanhar alunos, solicitar declarações de vínculo |
+| **Secretaria** | Gerenciar cadastros, processar documentos, gerar PDFs, organizar turmas e cursos |
+| **Admin** | Supervisionar sistema, dar suporte aos usuários, gerenciar cursos |
 
 ---
 
 **Documento aprovado pela Diretoria do CSM**
-**Santa Mônica, 01 de abril de 2026**
+**Limoeiro/PE, 02 de abril de 2026**
 
 *Manual de Treinamento - Sistema de Gestão Escolar*
-*Versão 3.0*
+*Versão 4.0*

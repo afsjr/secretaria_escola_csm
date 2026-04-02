@@ -1,8 +1,12 @@
 import { getAllProfiles } from '../auth/session'
 import { AcademicService } from '../lib/academic-service'
+import { CourseService } from '../lib/course-service'
+import { PDFService } from '../lib/pdf-service'
+import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
 
-const modulos = [
+// Disciplinas hardcoded como fallback (caso não existam no banco)
+const modulosFallback = [
   {
     nome: 'I Módulo',
     disciplinas: [
@@ -51,6 +55,30 @@ export async function AcademicoView(profile) {
   }
   const students = profiles?.filter(p => !p.perfil || p.perfil.toLowerCase() !== 'admin') || []
 
+  // Fetch disciplinas from database
+  let modulosFromDB = null
+  try {
+    const { data: allDisciplinas } = await CourseService.getDisciplinasDoCurso(null)
+    if (allDisciplinas && allDisciplinas.length > 0) {
+      // Group by modulo
+      const grouped = {}
+      allDisciplinas.forEach(d => {
+        const modulo = d.modulo || 'Sem Módulo'
+        if (!grouped[modulo]) grouped[modulo] = []
+        grouped[modulo].push(d.nome)
+      })
+      
+      modulosFromDB = Object.keys(grouped).map(nome => ({
+        nome,
+        disciplinas: grouped[nome]
+      }))
+    }
+  } catch (err) {
+    console.warn('Erro ao carregar disciplinas do banco, usando fallback:', err)
+  }
+
+  const modulos = modulosFromDB || modulosFallback
+
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
       <h1 style="font-size: 2rem; color: var(--text-main);">${isAdmin ? 'Controle Acadêmico' : 'Boletim Escolar'}</h1>
@@ -73,6 +101,13 @@ export async function AcademicoView(profile) {
     ` : ''}
 
     <div id="boletim-container" style="${isAdmin ? 'display: none;' : 'display: block;'}">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem; gap: 0.5rem;">
+        <button id="print-boletim-btn" class="btn btn-primary" style="display: ${isAdmin ? 'none' : 'flex'}; align-items: center; gap: 0.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir Boletim
+        </button>
+      </div>
+
       ${modulos.map((modulo, mIdx) => `
         <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 2rem;">
           <div style="background: var(--primary); padding: 1rem; color: white;">
@@ -97,7 +132,7 @@ export async function AcademicoView(profile) {
                   const safeDisc = disciplina.replace(/[^a-zA-Z]/g, '').toLowerCase()
                   const prefix = `mod${mIdx}_disc${dIdx}_${safeDisc}`
                   return `
-                  <tr class="disciplina-row" data-disciplina="${disciplina}" style="border-top: 1px solid var(--secondary);">
+                  <tr class="disciplina-row" data-disciplina="${disciplina}" data-modulo="${modulo.nome}" style="border-top: 1px solid var(--secondary);">
                     <td style="padding: 1rem; font-weight: 500; font-size: 0.9rem;">${disciplina}</td>
                     <td style="padding: 0.5rem;"><input type="number" id="faltas_${prefix}" name="faltas_${prefix}" aria-label="Faltas em ${disciplina}" min="0" class="input faltas-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0"></td>
                     <td style="padding: 0.5rem;"><input type="number" id="n1_${prefix}" name="n1_${prefix}" aria-label="Nota 1 em ${disciplina}" min="0" max="10" step="0.1" class="input nota-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
@@ -127,6 +162,90 @@ export async function AcademicoView(profile) {
   const loadBtn = container.querySelector('#load-student-btn')
   const boletimContainer = container.querySelector('#boletim-container')
   const saveBtn = container.querySelector('#save-grades-btn')
+  const printBtn = container.querySelector('#print-boletim-btn')
+
+  // =====================================================
+  // IMPRIMIR BOLETIM (PDF)
+  // =====================================================
+  if (printBtn) {
+    printBtn.addEventListener('click', async () => {
+      printBtn.disabled = true
+      printBtn.textContent = 'Gerando PDF...'
+
+      try {
+        const alunoId = isAdmin ? select.value : profile.id
+        if (!alunoId) {
+          toast.error('Selecione um aluno primeiro.')
+          return
+        }
+
+        // Buscar dados do aluno
+        const { data: alunoData } = await supabase
+          .from('perfis')
+          .select('*')
+          .eq('id', alunoId)
+          .single()
+
+        // Buscar matrícula e turma
+        const { data: matricula } = await supabase
+          .from('matriculas')
+          .select(`
+            *,
+            turmas(id, nome, periodo, cursos(id, nome))
+          `)
+          .eq('aluno_id', alunoId)
+          .eq('status_aluno', 'ativo')
+          .limit(1)
+          .single()
+
+        const turmaInfo = matricula?.turmas ? {
+          turma_nome: matricula.turmas.nome,
+          periodo: matricula.turmas.periodo,
+          curso_nome: matricula.turmas.cursos?.nome || 'Técnico em Enfermagem'
+        } : null
+
+        // Coletar notas da tela
+        const notasData = []
+        container.querySelectorAll('.disciplina-row').forEach(row => {
+          const disciplina = row.getAttribute('data-disciplina')
+          const modulo = row.getAttribute('data-modulo')
+          const faltas = row.querySelector('.faltas-input').value
+          const n1 = row.querySelectorAll('.nota-input')[0].value
+          const n2 = row.querySelectorAll('.nota-input')[1].value
+          const n3 = row.querySelectorAll('.nota-input')[2].value
+          const rec = row.querySelector('.rec-input').value
+
+          notasData.push({
+            disciplina,
+            modulo,
+            faltas: parseFloat(faltas) || 0,
+            n1: parseFloat(n1) || 0,
+            n2: parseFloat(n2) || 0,
+            n3: parseFloat(n3) || 0,
+            rec: parseFloat(rec) || 0
+          })
+        })
+
+        if (notasData.length === 0) {
+          toast.error('Nenhuma nota encontrada para gerar o boletim.')
+          return
+        }
+
+        const doc = PDFService.generateBoletimPDF(alunoData, notasData, turmaInfo)
+        PDFService.downloadPDF(doc, `boletim_${(alunoData.nome_completo || 'aluno').replace(/\s+/g, '_')}.pdf`)
+        toast.success('Boletim gerado com sucesso!')
+      } catch (err) {
+        console.error('Erro ao gerar boletim:', err)
+        toast.error('Erro ao gerar PDF: ' + err.message)
+      }
+
+      printBtn.disabled = false
+      printBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir Boletim
+      `
+    })
+  }
 
   async function refreshGradesUI(alunoId) {
     if (!alunoId) return
@@ -154,6 +273,11 @@ export async function AcademicoView(profile) {
     const ev = new Event('input')
     container.querySelectorAll('.nota-input').forEach(i => i.dispatchEvent(ev))
     container.querySelectorAll('.rec-input').forEach(i => i.dispatchEvent(ev))
+
+    // Show print button for admin after loading
+    if (isAdmin && printBtn) {
+      printBtn.style.display = 'flex'
+    }
   }
 
   if (isAdmin) {
@@ -175,7 +299,6 @@ export async function AcademicoView(profile) {
 
       saveBtn.disabled = true; saveBtn.textContent = 'Salvando Nuvem...'
 
-      // Collect data from rows
       const arrayNotas = []
       container.querySelectorAll('.disciplina-row').forEach(row => {
         const disciplina = row.getAttribute('data-disciplina')
@@ -185,7 +308,6 @@ export async function AcademicoView(profile) {
         const n3 = row.querySelectorAll('.nota-input')[2].value
         const rec = row.querySelector('.rec-input').value
         
-        // We push everything up so missing entries are registered safely
         arrayNotas.push({ disciplina, faltas, n1, n2, n3, rec })
       })
 
@@ -242,7 +364,6 @@ export async function AcademicoView(profile) {
 
       const recVal = parseFloat(recInput.value)
       if (!isNaN(recVal) && mediaTeoria !== null) {
-        // If recovery grade exists, final is average of recovery and theory (this is just mock logic, can be adapted)
         const final = (mediaTeoria + recVal) / 2
         mediaFinalCell.textContent = final.toFixed(1)
         mediaFinalCell.style.color = final >= 7 ? 'var(--success)' : 'var(--danger)'

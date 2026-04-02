@@ -1,6 +1,10 @@
 import { DocumentsService } from '../lib/documents-service'
 import { AdminService } from '../lib/admin-service'
 import { ProfessorService } from '../lib/professor-service'
+import { CourseService } from '../lib/course-service'
+import { PDFService } from '../lib/pdf-service'
+import { AcademicService } from '../lib/academic-service'
+import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
 
 // Helper para prevenir XSS
@@ -24,6 +28,7 @@ export async function SecretariaView() {
   const { data: alunos, error: errorAlunos } = await AdminService.listAlunos()
   const { data: professores, error: errorProfessores } = await ProfessorService.getProfessores()
   const { data: disciplinas, error: errorDisciplinas } = await ProfessorService.getAllDisciplinas()
+  const { data: cursos, error: errorCursos } = await CourseService.getCursos()
 
   if (errorAlunos) toast.error('Erro ao carregar alunos: ' + errorAlunos.message)
 
@@ -56,9 +61,14 @@ export async function SecretariaView() {
                   </span>
                 </td>
                 <td class="action-cell">
-                  ${r.status === 'pendente' ? `
-                    <button class="btn btn-primary btn-sm approve-btn" data-id="${r.id}">Concluir</button>
-                  ` : '<span class="text-muted">---</span>'}
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary btn-sm generate-pdf-btn" data-id="${r.user_id}" data-tipo="${escapeHTML(r.tipo)}" data-nome="${escapeHTML(r.perfis?.nome_completo || '')}">
+                      Gerar PDF
+                    </button>
+                    ${r.status === 'pendente' ? `
+                      <button class="btn btn-primary btn-sm approve-btn" data-id="${r.id}" style="background: var(--success);">Concluir</button>
+                    ` : ''}
+                  </div>
                 </td>
               </tr>
             `).join('')}
@@ -370,6 +380,74 @@ export async function SecretariaView() {
     </div>
   `
 
+  const renderGerenciarCursos = () => {
+    return `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Formulário de Novo Curso -->
+        <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+          <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Cadastrar Novo Curso</h3>
+          <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Cadastre cursos como Técnico em Enfermagem, Instrumentação Cirúrgica, ou cursos livres.</p>
+          
+          <form id="form-cadastro-curso">
+            <div class="form-group">
+              <label class="label" for="curso-nome">Nome do Curso *</label>
+              <input type="text" id="curso-nome" name="curso_nome" class="input" placeholder="Ex: Técnico em Enfermagem" required>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="curso-descricao">Descrição</label>
+              <textarea id="curso-descricao" name="curso_descricao" class="input" rows="3" placeholder="Descreva brevemente o curso..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="btn-cadastrar-curso" style="width: 100%;">Cadastrar Curso</button>
+          </form>
+        </div>
+
+        <!-- Lista de Cursos -->
+        <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+          <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Cursos Cadastrados</h3>
+          
+          ${errorCursos ? `<p class="error-text">Erro ao carregar cursos.</p>` : ''}
+          ${!cursos || cursos.length === 0 ? '<p style="color: var(--text-muted);">Nenhum curso cadastrado.</p>' : `
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Curso</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${cursos.map(c => `
+                    <tr class="curso-row" data-id="${c.id}">
+                      <td>
+                        <div class="fw-600 text-main">${escapeHTML(c.nome)}</div>
+                        <div class="text-sm text-muted">${escapeHTML(c.descricao || '')}</div>
+                      </td>
+                      <td>
+                        <span class="badge ${c.ativo ? 'badge-success' : 'badge-warning'}">
+                          ${c.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </td>
+                      <td>
+                        ${c.ativo ? `
+                          <button class="btn btn-sm btn-desativar-curso" data-id="${c.id}" style="background: var(--danger); color: white;">Desativar</button>
+                        ` : `
+                          <button class="btn btn-sm btn-reativar-curso" data-id="${c.id}" style="background: var(--success); color: white;">Reativar</button>
+                        `}
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      </div>
+    `
+  }
+
   container.innerHTML = `
     <header class="view-header">
       <h1 class="title">Painel da Secretaria</h1>
@@ -382,6 +460,7 @@ export async function SecretariaView() {
       <button class="tab-btn" data-tab="gerenciar">Gerenciar Alunos</button>
       <button class="tab-btn" data-tab="cadastro-professor">Cadastrar Professor</button>
       <button class="tab-btn" data-tab="gerenciar-professores">Gerenciar Professores</button>
+      <button class="tab-btn" data-tab="gerenciar-cursos">Gerenciar Cursos</button>
     </div>
 
     <div id="tab-solicitacoes" class="tab-content">
@@ -403,6 +482,10 @@ export async function SecretariaView() {
     <div id="tab-gerenciar-professores" class="tab-content" style="display: none;">
       ${renderGerenciarProfessores()}
     </div>
+
+    <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;">
+      ${renderGerenciarCursos()}
+    </div>
   `
 
   // Lógica das tabs
@@ -413,13 +496,9 @@ export async function SecretariaView() {
     btn.addEventListener('click', () => {
       const tab = btn.getAttribute('data-tab')
       
-      // Atualizar botões
-      tabBtns.forEach(b => {
-        b.classList.remove('active')
-      })
+      tabBtns.forEach(b => b.classList.remove('active'))
       btn.classList.add('active')
       
-      // Mostrar conteúdo
       tabContents.forEach(content => {
         content.style.display = 'none'
       })
@@ -427,7 +506,84 @@ export async function SecretariaView() {
     })
   })
 
-  // Lógica de aprovação de documentos
+  // =====================================================
+  // GERAR PDF DE DOCUMENTOS
+  // =====================================================
+  const generatePdfBtns = container.querySelectorAll('.generate-pdf-btn')
+  generatePdfBtns.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userId = btn.getAttribute('data-id')
+      const tipo = btn.getAttribute('data-tipo')
+      const nomeAluno = btn.getAttribute('data-nome')
+      
+      btn.disabled = true
+      btn.textContent = 'Gerando...'
+
+      try {
+        // Buscar dados do aluno
+        const { data: alunoData } = await AdminService.getAlunoById(userId)
+        if (!alunoData) {
+          toast.error('Aluno não encontrado')
+          return
+        }
+
+        // Buscar matrícula do aluno
+        const { data: matriculas } = await supabase
+          .from('matriculas')
+          .select(`
+            *,
+            turmas(id, nome, periodo, cursos(id, nome))
+          `)
+          .eq('aluno_id', userId)
+          .eq('status_aluno', 'ativo')
+          .limit(1)
+          .single()
+
+        const turmaInfo = matriculas?.turmas ? {
+          turma_nome: matriculas.turmas.nome,
+          periodo: matriculas.turmas.periodo,
+          curso_nome: matriculas.turmas.cursos?.nome || 'Técnico em Enfermagem'
+        } : null
+
+        if (tipo.includes('Declaração de Matrícula')) {
+          const doc = PDFService.generateDeclaracaoPDF(alunoData, turmaInfo)
+          PDFService.downloadPDF(doc, `declaracao_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          toast.success('PDF gerado com sucesso!')
+        } else if (tipo.includes('Histórico Acadêmico') || tipo.includes('Boletim')) {
+          const { data: notas } = await AcademicService.getBoletim(userId)
+          
+          // Buscar módulos das disciplinas
+          const { data: disciplinasCurso } = await CourseService.getDisciplinasDoCurso(
+            turmaInfo?.curso_id || matriculas?.turmas?.cursos?.id
+          )
+          
+          const notasComModulo = notas?.map(n => {
+            const disc = disciplinasCurso?.find(d => d.nome === n.disciplina)
+            return { ...n, modulo: disc?.modulo || 'I Módulo' }
+          }) || notas || []
+
+          const doc = PDFService.generateHistoricoPDF(alunoData, notasComModulo, turmaInfo)
+          PDFService.downloadPDF(doc, `historico_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          toast.success('PDF gerado com sucesso!')
+        } else {
+          // Para outros tipos, gerar declaração genérica
+          const doc = PDFService.generateDeclaracaoPDF(alunoData, turmaInfo)
+          PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+          toast.success('PDF gerado com sucesso!')
+        }
+      } catch (err) {
+        console.error('Erro ao gerar PDF:', err)
+        toast.error('Erro ao gerar PDF: ' + err.message)
+      }
+
+      btn.disabled = false
+      btn.textContent = 'Gerar PDF'
+    })
+  })
+
+  // =====================================================
+  // APROVAÇÃO DE DOCUMENTOS
+  // =====================================================
   const approveBtns = container.querySelectorAll('.approve-btn')
   approveBtns.forEach(btn => {
     btn.onclick = async () => {
@@ -460,7 +616,9 @@ export async function SecretariaView() {
     }
   })
 
-  // Lógica de cadastro de aluno
+  // =====================================================
+  // CADASTRO DE ALUNO
+  // =====================================================
   const formCadastro = container.querySelector('#form-cadastro-aluno')
   const btnCadastrar = container.querySelector('#btn-cadastrar')
 
@@ -487,7 +645,6 @@ export async function SecretariaView() {
     btnCadastrar.disabled = true
     btnCadastrar.textContent = 'Cadastrando...'
 
-    // Criar usuário
     const { data, error } = await AdminService.createUserByAdmin({
       email,
       password: senha,
@@ -504,7 +661,6 @@ export async function SecretariaView() {
       return
     }
 
-    // Se seleccionou turma, matricular
     if (turmaId && data?.userId) {
       const { error: erroMatricula } = await AdminService.matricularAluno(data.userId, turmaId)
       
@@ -517,13 +673,14 @@ export async function SecretariaView() {
       toast.success('Aluno cadastrado com sucesso!')
     }
 
-    // Limpar formulário
     formCadastro.reset()
     btnCadastrar.disabled = false
     btnCadastrar.textContent = 'Cadastrar Aluno'
   })
 
-  // Lógica de cadastro de professor
+  // =====================================================
+  // CADASTRO DE PROFESSOR
+  // =====================================================
   const formCadastroProfessor = container.querySelector('#form-cadastro-professor')
   const btnCadastrarProfessor = container.querySelector('#btn-cadastrar-professor')
 
@@ -549,7 +706,6 @@ export async function SecretariaView() {
     btnCadastrarProfessor.disabled = true
     btnCadastrarProfessor.textContent = 'Cadastrando...'
 
-    // Criar usuário
     const { data, error } = await AdminService.createUserByAdmin({
       email,
       password: senha,
@@ -568,13 +724,14 @@ export async function SecretariaView() {
 
     toast.success('Professor cadastrado com sucesso!')
 
-    // Limpar formulário
     formCadastroProfessor.reset()
     btnCadastrarProfessor.disabled = false
     btnCadastrarProfessor.textContent = 'Cadastrar Professor'
   })
 
-  // Lógica de vinculação de disciplinas
+  // =====================================================
+  // VINCULAÇÃO DE DISCIPLINAS
+  // =====================================================
   const btnsVincular = container.querySelectorAll('.btn-vincular-disciplinas')
   const modalVincular = container.querySelector('#modal-vincular-disciplinas')
   const btnFecharModalVincular = container.querySelector('#btn-fechar-modal-vincular')
@@ -590,12 +747,10 @@ export async function SecretariaView() {
       container.querySelector('#professor-id-vincular').value = professorId
       container.querySelector('#nome-professor-vincular').textContent = professorNome
       
-      // Reset checkboxes
       container.querySelectorAll('input[name="disciplinas"]').forEach(cb => {
         cb.checked = false
       })
       
-      // Check disciplines already linked to this professor
       if (disciplinas) {
         disciplinas.forEach(d => {
           if (d.professor_id === professorId) {
@@ -636,7 +791,6 @@ export async function SecretariaView() {
       const professorId = container.querySelector('#professor-id-vincular').value
       const checkboxes = container.querySelectorAll('input[name="disciplinas"]:checked')
       
-      // Coletar vinculações (disciplina + turma)
       const vinculacoes = []
       checkboxes.forEach(cb => {
         const disciplinaId = cb.value
@@ -648,7 +802,6 @@ export async function SecretariaView() {
       btnSalvarVincular.disabled = true
       btnSalvarVincular.textContent = 'Salvando...'
       
-      // Primeiro desvincular todas as disciplinas deste professor
       if (disciplinas) {
         for (const d of disciplinas) {
           if (d.professor_id === professorId) {
@@ -657,7 +810,6 @@ export async function SecretariaView() {
         }
       }
       
-      // Depois vincular as selecionadas com suas turmas
       if (vinculacoes.length > 0) {
         const { error } = await ProfessorService.vincularProfessorDisciplinasTurma(professorId, vinculacoes)
         
@@ -677,7 +829,9 @@ export async function SecretariaView() {
     })
   }
 
-  // Lógica de busca/filtro de alunos
+  // =====================================================
+  // BUSCA/FILTRO DE ALUNOS
+  // =====================================================
   const buscaAlunoInput = container.querySelector('#busca-aluno')
   if (buscaAlunoInput) {
     buscaAlunoInput.addEventListener('input', () => {
@@ -697,7 +851,9 @@ export async function SecretariaView() {
     })
   }
 
-  // Lógica de edição de aluno
+  // =====================================================
+  // EDIÇÃO DE ALUNO
+  // =====================================================
   const btnsEditar = container.querySelectorAll('.btn-editar-aluno')
   const modalEditar = container.querySelector('#modal-editar-aluno')
   const btnFecharModal = container.querySelector('#btn-fechar-modal')
@@ -727,7 +883,6 @@ export async function SecretariaView() {
         return
       }
       
-      // Preencher modal
       container.querySelector('#edit-aluno-id').value = aluno.id
       container.querySelector('#edit-nome').value = aluno.nome_completo || ''
       container.querySelector('#edit-cpf').value = aluno.cpf || ''
@@ -735,12 +890,10 @@ export async function SecretariaView() {
       container.querySelector('#edit-email').value = aluno.email || ''
       container.querySelector('#edit-perfil').value = aluno.perfil || 'aluno'
       
-      // Mostrar modal
       modalEditar.style.display = 'flex'
     })
   })
 
-  // Fechar modal
   if (btnFecharModal) {
     btnFecharModal.addEventListener('click', () => {
       modalEditar.style.display = 'none'
@@ -753,7 +906,6 @@ export async function SecretariaView() {
     })
   }
 
-  // Fechar modal clicando fora
   if (modalEditar) {
     modalEditar.addEventListener('click', (e) => {
       if (e.target === modalEditar) {
@@ -762,7 +914,6 @@ export async function SecretariaView() {
     })
   }
 
-  // Salvar edição
   if (formEditar) {
     formEditar.addEventListener('submit', async (e) => {
       e.preventDefault()
@@ -795,7 +946,6 @@ export async function SecretariaView() {
       
       toast.success('Dados do aluno atualizados com sucesso!')
       
-      // Atualizar linha na tabela
       const row = container.querySelector(`.aluno-row[data-id="${alunoId}"]`)
       if (row) {
         row.querySelector('td:first-child .fw-600').textContent = nomeCompleto
@@ -805,13 +955,99 @@ export async function SecretariaView() {
         row.querySelector('td:nth-child(4)').textContent = telefone || '-'
       }
       
-      // Fechar modal
       modalEditar.style.display = 'none'
       
       btnSaveEdit.disabled = false
       btnSaveEdit.textContent = 'Salvar Alterações'
     })
   }
+
+  // =====================================================
+  // GERENCIAMENTO DE CURSOS
+  // =====================================================
+  const formCadastroCurso = container.querySelector('#form-cadastro-curso')
+  const btnCadastrarCurso = container.querySelector('#btn-cadastrar-curso')
+
+  if (formCadastroCurso) {
+    formCadastroCurso.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const nome = container.querySelector('#curso-nome').value.trim()
+      const descricao = container.querySelector('#curso-descricao').value.trim()
+
+      if (!nome) {
+        toast.error('O nome do curso é obrigatório.')
+        return
+      }
+
+      btnCadastrarCurso.disabled = true
+      btnCadastrarCurso.textContent = 'Cadastrando...'
+
+      const { data, error } = await CourseService.createCurso({ nome, descricao })
+
+      if (error) {
+        toast.error('Erro ao cadastrar curso: ' + error.message)
+        btnCadastrarCurso.disabled = false
+        btnCadastrarCurso.textContent = 'Cadastrar Curso'
+        return
+      }
+
+      toast.success('Curso cadastrado com sucesso!')
+      formCadastroCurso.reset()
+      btnCadastrarCurso.disabled = false
+      btnCadastrarCurso.textContent = 'Cadastrar Curso'
+
+      // Reload page to show new course
+      window.location.hash = '#/dashboard'
+      setTimeout(() => window.location.hash = '#/dashboard/secretaria', 10)
+    })
+  }
+
+  // Desativar curso
+  const btnsDesativarCurso = container.querySelectorAll('.btn-desativar-curso')
+  btnsDesativarCurso.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const cursoId = btn.getAttribute('data-id')
+      btn.disabled = true
+      btn.textContent = '...'
+
+      const { error } = await CourseService.desativarCurso(cursoId)
+
+      if (error) {
+        toast.error('Erro ao desativar curso: ' + error.message)
+        btn.disabled = false
+        btn.textContent = 'Desativar'
+        return
+      }
+
+      toast.success('Curso desativado!')
+      window.location.hash = '#/dashboard'
+      setTimeout(() => window.location.hash = '#/dashboard/secretaria', 10)
+    })
+  })
+
+  // Reativar curso
+  const btnsReativarCurso = container.querySelectorAll('.btn-reativar-curso')
+  btnsReativarCurso.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const cursoId = btn.getAttribute('data-id')
+      btn.disabled = true
+      btn.textContent = '...'
+
+      const { error } = await CourseService.reativarCurso(cursoId)
+
+      if (error) {
+        toast.error('Erro ao reativar curso: ' + error.message)
+        btn.disabled = false
+        btn.textContent = 'Reativar'
+        return
+      }
+
+      toast.success('Curso reativado!')
+      window.location.hash = '#/dashboard'
+      setTimeout(() => window.location.hash = '#/dashboard/secretaria', 10)
+    })
+  })
 
   return container
 }

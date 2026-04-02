@@ -1,6 +1,6 @@
 -- =====================================================
 -- SCHEMA DO SISTEMA DE GESTÃO ESCOLAR CSM
--- Versão: 2.0 - Atualizado em 2026-04-01
+-- Versão: 3.0 - Atualizado em 2026-04-01
 -- =====================================================
 -- Este arquivo documenta a estrutura final do banco de dados
 -- Para migrações, use o arquivo migration.sql
@@ -8,6 +8,15 @@
 -- =====================================================
 -- TABELAS PRINCIPAIS
 -- =====================================================
+
+-- Tabela de cursos (suporte a múltiplos cursos)
+CREATE TABLE IF NOT EXISTS cursos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome TEXT NOT NULL,
+    descricao TEXT,
+    ativo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
 -- Tabela de perfis (usuários do sistema)
 CREATE TABLE IF NOT EXISTS perfis (
@@ -27,6 +36,7 @@ CREATE TABLE IF NOT EXISTS turmas (
     nome TEXT NOT NULL,
     periodo TEXT NOT NULL,
     status_ingresso TEXT DEFAULT 'aberta', -- 'aberta', 'fechada'
+    curso_id UUID REFERENCES cursos(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -73,6 +83,7 @@ CREATE TABLE IF NOT EXISTS disciplinas (
     modulo TEXT, -- 'I Módulo', 'II Módulo', 'III Módulo'
     turma_id UUID REFERENCES turmas(id) ON DELETE CASCADE,
     professor_id UUID REFERENCES perfis(id) ON DELETE SET NULL,
+    curso_id UUID REFERENCES cursos(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -90,6 +101,9 @@ CREATE TABLE IF NOT EXISTS aulas (
 -- ÍNDICES PARA PERFORMANCE
 -- =====================================================
 
+CREATE INDEX IF NOT EXISTS idx_cursos_ativo ON cursos(ativo);
+CREATE INDEX IF NOT EXISTS idx_turmas_curso ON turmas(curso_id);
+CREATE INDEX IF NOT EXISTS idx_disciplinas_curso ON disciplinas(curso_id);
 CREATE INDEX IF NOT EXISTS idx_matriculas_aluno ON matriculas(aluno_id);
 CREATE INDEX IF NOT EXISTS idx_matriculas_turma ON matriculas(turma_id);
 CREATE INDEX IF NOT EXISTS idx_matriculas_status ON matriculas(status_aluno);

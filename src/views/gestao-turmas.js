@@ -1,4 +1,5 @@
 import { AcademicService } from '../lib/academic-service'
+import { CourseService } from '../lib/course-service'
 import { toast } from '../lib/toast'
 
 export async function GestaoTurmasView() {
@@ -8,6 +9,7 @@ export async function GestaoTurmasView() {
   // Fetch initial data
   const { data: turmas, error: errorTurmas } = await AcademicService.getTurmas()
   const { data: alunos, error: errorAlunos } = await AcademicService.getAlunos()
+  const { data: cursos, error: errorCursos } = await CourseService.getCursosAtivos()
 
   if (errorTurmas) toast.error('Erro ao carregar turmas: ' + errorTurmas.message)
 
@@ -24,6 +26,15 @@ export async function GestaoTurmasView() {
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 2rem; border-top: 4px solid var(--primary);">
           <h3 style="margin-bottom: 1rem;">Abrir Nova Turma</h3>
           <form id="form-nova-turma">
+            <div class="form-group">
+              <label class="label" for="turma-curso">Curso *</label>
+              <select id="turma-curso" name="turma_curso" class="input" required>
+                <option value="">-- Selecione o Curso --</option>
+                ${cursos && cursos.length > 0 ? cursos.map(c => `
+                  <option value="${c.id}">${c.nome}</option>
+                `).join('') : '<option value="">Nenhum curso cadastrado</option>'}
+              </select>
+            </div>
             <div class="form-group">
               <label class="label" for="turma-nome">Nome da Turma</label>
               <input type="text" id="turma-nome" name="turma_nome" class="input" placeholder="Ex: Tec. Enfermagem 12A" required>
@@ -102,13 +113,23 @@ export async function GestaoTurmasView() {
     e.preventDefault()
     const nome = container.querySelector('#turma-nome').value
     const periodo = container.querySelector('#turma-periodo').value
+    const cursoId = container.querySelector('#turma-curso').value
     const btn = formNovaTurma.querySelector('button')
     
-    btn.disabled = true; btn.textContent = 'Salvando...'
-    const { error } = await AcademicService.createTurma({ nome, periodo: periodo.trim() })
+    if (!cursoId) {
+      toast.error('Selecione um curso para a turma!')
+      return
+    }
     
-    if (error) { toast.error('Erro: ' + error.message); btn.disabled = false; btn.textContent = 'Registrar Turma' } 
+    btn.disabled = true; btn.textContent = 'Salvando...'
+    const { data: turmaData, error } = await AcademicService.createTurma({ nome, periodo: periodo.trim() })
+    
+    if (error) { toast.error('Erro: ' + error.message); btn.disabled = false; btn.textContent = 'Registrar Turma' }
     else {
+      // Vincular turma ao curso
+      if (turmaData?.id && cursoId) {
+        await CourseService.vincularTurmaAoCurso(turmaData.id, cursoId)
+      }
       toast.success('Turma criada com sucesso!')
       setTimeout(() => { window.location.reload() }, 1000)
     }

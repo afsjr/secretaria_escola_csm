@@ -474,5 +474,107 @@ SELECT
     'aulas' as tabela, COUNT(*) as registros FROM aulas;
 
 -- =====================================================
+-- 9. TABELA CURSOS (Suporte a Múltiplos Cursos)
+-- =====================================================
+
+-- Criar tabela de cursos
+CREATE TABLE IF NOT EXISTS cursos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome TEXT NOT NULL,
+    descricao TEXT,
+    ativo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Adicionar coluna 'curso_id' na tabela turmas
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'turmas' AND column_name = 'curso_id'
+    ) THEN
+        ALTER TABLE turmas ADD COLUMN curso_id UUID REFERENCES cursos(id) ON DELETE SET NULL;
+        RAISE NOTICE 'Coluna curso_id adicionada à tabela turmas';
+    ELSE
+        RAISE NOTICE 'Coluna curso_id já existe na tabela turmas';
+    END IF;
+END
+$$;
+
+-- Adicionar coluna 'curso_id' na tabela disciplinas
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'disciplinas' AND column_name = 'curso_id'
+    ) THEN
+        ALTER TABLE disciplinas ADD COLUMN curso_id UUID REFERENCES cursos(id) ON DELETE SET NULL;
+        RAISE NOTICE 'Coluna curso_id adicionada à tabela disciplinas';
+    ELSE
+        RAISE NOTICE 'Coluna curso_id já existe na tabela disciplinas';
+    END IF;
+END
+$$;
+
+-- Índices para cursos
+CREATE INDEX IF NOT EXISTS idx_cursos_ativo ON cursos(ativo);
+CREATE INDEX IF NOT EXISTS idx_turmas_curso ON turmas(curso_id);
+CREATE INDEX IF NOT EXISTS idx_disciplinas_curso ON disciplinas(curso_id);
+
+-- =====================================================
+-- 10. INSERIR CURSO PADRÃO (Técnico em Enfermagem)
+-- =====================================================
+
+DO $$
+DECLARE
+    count_cursos INTEGER;
+    enfermagem_id UUID;
+BEGIN
+    SELECT COUNT(*) INTO count_cursos FROM cursos;
+    
+    IF count_cursos = 0 THEN
+        -- Criar curso de Enfermagem
+        INSERT INTO cursos (nome, descricao) 
+        VALUES ('Técnico em Enfermagem', 'Curso técnico em enfermagem com foco em saúde pública e hospitalar.')
+        RETURNING id INTO enfermagem_id;
+        
+        RAISE NOTICE 'Curso Técnico em Enfermagem criado com ID: %', enfermagem_id;
+        
+        -- Atualizar turmas existentes para vincular ao curso (se houver)
+        UPDATE turmas SET curso_id = enfermagem_id WHERE curso_id IS NULL;
+        
+        -- Atualizar disciplinas existentes para vincular ao curso (se houver)
+        UPDATE disciplinas SET curso_id = enfermagem_id WHERE curso_id IS NULL;
+        
+        RAISE NOTICE 'Turmas e disciplinas existentes vinculadas ao curso de Enfermagem';
+    ELSE
+        RAISE NOTICE 'Já existem cursos cadastrados (% registros encontrados)', count_cursos;
+    END IF;
+END
+$$;
+
+-- =====================================================
+-- 11. INSERIR OUTROS CURSOS PADRÃO
+-- =====================================================
+
+DO $$
+DECLARE
+    count_cursos INTEGER;
+    instrumentacao_id UUID;
+BEGIN
+    -- Verificar se já existe Instrumentação Cirúrgica
+    SELECT COUNT(*) INTO count_cursos FROM cursos WHERE nome = 'Instrumentação Cirúrgica';
+    
+    IF count_cursos = 0 THEN
+        INSERT INTO cursos (nome, descricao) 
+        VALUES ('Instrumentação Cirúrgica', 'Curso técnico em instrumentação cirúrgica com foco em centro cirúrgico e materiais.')
+        RETURNING id INTO instrumentacao_id;
+        
+        RAISE NOTICE 'Curso Instrumentação Cirúrgica criado com ID: %', instrumentacao_id;
+    END IF;
+END
+$$;
+
+-- =====================================================
 -- FIM DA MIGRAÇÃO
 -- =====================================================

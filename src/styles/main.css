@@ -684,3 +684,170 @@ p { color: var(--text-muted); }
     text-align: left;
   }
 }
+
+/* =====================================================
+   PRINT STYLES - Estilos para Impressão
+   ===================================================== */
+
+@media print {
+  /* Esconder elementos não imprimíveis */
+  .sidebar,
+  .tabs-container,
+  .btn,
+  .modal,
+  .toast-container,
+  .loading-overlay {
+    display: none !important;
+  }
+
+  /* Layout de impressão */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  .dashboard-layout {
+    display: block !important;
+  }
+
+  .main-content {
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Header do documento */
+  .print-header {
+    text-align: center;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .print-header h1 {
+    color: var(--primary);
+    font-size: 18pt;
+    margin-bottom: 0.5rem;
+  }
+
+  .print-header p {
+    color: #666;
+    font-size: 10pt;
+  }
+
+  /* Tabelas de impressão */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 10pt;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Evitar quebra de página dentro de elementos */
+  .discipline-card,
+  .boletim-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Links */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
+  /* Badges */
+  .badge {
+    border: 1px solid #ccc;
+    padding: 2px 6px;
+    font-size: 9pt;
+  }
+
+  .badge-success {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .badge-warning {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Inputs desabilitados no boletim */
+  input {
+    border: none !important;
+    background: transparent !important;
+    font-size: 10pt;
+  }
+
+  input:disabled {
+    background: #f9fafb !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Rodapé de impressão */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8pt;
+    color: #999;
+    border-top: 1px solid #ccc;
+    padding-top: 0.5rem;
+  }
+
+  /* Quebra de página */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Margens de impressão */
+  @page {
+    margin: 2cm;
+    size: A4;
+  }
+
+  /* Esconder scrollbar */
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Ajustar cores de fundo */
+  div[style*="background: var(--primary)"] {
+    background-color: #1e3a5f !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  div[style*="background: var(--accent)"] {
+    background-color: #d4a520 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Evitar cores claras demais no print */
+  .media-teoria, .media-final {
+    font-weight: bold !important;
+  }
+}

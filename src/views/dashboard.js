@@ -9,6 +9,7 @@ import { MatrizView } from './matriz'
 import { ProfessorView } from './professor'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
+import { escapeHTML, createBadge } from '../lib/security'
 
 export async function DashboardView(session, subPath = '/') {
   const container = document.createElement('div')
@@ -16,7 +17,7 @@ export async function DashboardView(session, subPath = '/') {
 
   // Fetch profile data
   const { data: profile, error } = await getUserProfile(session.user.id)
-  
+
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
   const isAdmin = userRole === 'admin' || userRole === 'secretaria'
@@ -28,7 +29,7 @@ export async function DashboardView(session, subPath = '/') {
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
         <span>Secretaria CSM</span>
       </div>
-      
+
       <nav style="flex: 1;">
         <a href="#/dashboard" class="nav-item ${subPath === '/' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -75,11 +76,11 @@ export async function DashboardView(session, subPath = '/') {
       <div class="sidebar-user">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
           <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: white;">
-            ${userName.charAt(0).toUpperCase()}
+            ${escapeHTML(userName.charAt(0).toUpperCase())}
           </div>
           <div>
-            <div class="user-name">${userName}</div>
-            <div class="user-role">${userRole}</div>
+            <div class="user-name">${escapeHTML(userName)}</div>
+            <div class="user-role">${createBadge(userRole)}</div>
           </div>
         </div>
         <button id="logout-btn" class="btn" style="background: rgba(255,255,255,0.1); color: white; width: 100%; font-size: 0.8rem; padding: 0.5rem;">
@@ -94,7 +95,7 @@ export async function DashboardView(session, subPath = '/') {
   `
 
   const contentArea = container.querySelector('#dashboard-content')
-  
+
   // Internal view router (Phase 3 expanded)
   if (subPath === '/perfil') {
     contentArea.appendChild(ProfileView(profile))
@@ -118,10 +119,13 @@ export async function DashboardView(session, subPath = '/') {
     const { data: myDocs } = await DocumentsService.getMyRequests(profile.id)
     const pendingCount = myDocs?.filter(d => d.status === 'pendente').length || 0
 
+    const firstName = escapeHTML(userName.split(' ')[0])
+    const pendingColor = pendingCount > 0 ? 'var(--danger)' : 'var(--success)'
+
     contentArea.innerHTML = `
       <div class="animate-in">
         <header style="margin-bottom: 2rem;">
-          <h1 style="font-size: 2.2rem; color: var(--text-main);">Olá, ${userName.split(' ')[0]} 👋</h1>
+          <h1 style="font-size: 2.2rem; color: var(--text-main);">Olá, ${firstName} 👋</h1>
           <p>Visão geral do seu portal de estudante na CSM.</p>
         </header>
 
@@ -130,10 +134,10 @@ export async function DashboardView(session, subPath = '/') {
             <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px;">Colegas Registrados</div>
             <div style="font-size: 2rem; font-weight: 700;">${allProfiles?.length || 0}</div>
           </div>
-          
+
           <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 5px solid var(--accent);">
             <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px;">Documentos Pendentes</div>
-            <div style="font-size: 2rem; font-weight: 700; color: ${pendingCount > 0 ? 'var(--danger)' : 'var(--success)'}">${pendingCount}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${pendingColor}">${pendingCount}</div>
           </div>
 
           <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, var(--white) 0%, var(--secondary) 100%);">

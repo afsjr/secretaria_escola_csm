@@ -1,6 +1,7 @@
 import { AcademicService } from '../lib/academic-service'
 import { CourseService } from '../lib/course-service'
 import { toast } from '../lib/toast'
+import { escapeHTML, createOption } from '../lib/security'
 
 export async function GestaoTurmasView() {
   const container = document.createElement('div')
@@ -13,6 +14,29 @@ export async function GestaoTurmasView() {
 
   if (errorTurmas) toast.error('Erro ao carregar turmas: ' + errorTurmas.message)
 
+  const cursosOptions = cursos && cursos.length > 0
+    ? cursos.map(c => createOption(c.id, c.nome)).join('')
+    : '<option value="">Nenhum curso cadastrado</option>'
+
+  const turmasList = !turmas || turmas.length === 0
+    ? '<p style="color:var(--text-muted);font-size:0.8rem;">Nenhuma turma registrada.</p>'
+    : turmas?.map(t => {
+      const statusBg = t.status_ingresso === 'aberta' ? '#dcfce7' : '#fee2e2'
+      const statusColor = t.status_ingresso === 'aberta' ? '#166534' : '#991b1b'
+      return `
+          <li style="padding: 1rem; border: 1px solid var(--secondary); border-radius: 6px; cursor: pointer; transition: 0.2s;" class="turma-item" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}">
+            <div style="font-weight: 600; color: var(--primary);">${escapeHTML(t.nome)} <span style="font-size:0.7rem; color:gray; font-weight:normal;">(${escapeHTML(t.periodo)})</span></div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">
+              <span class="badge" style="background: ${statusBg}; color: ${statusColor};">${escapeHTML(t.status_ingresso)}</span>
+            </div>
+          </li>
+        `
+    }).join('')
+
+  const alunosOptions = alunos?.map(a =>
+    createOption(a.id, `${a.nome_completo} (${a.cpf || 'Sem CPF'})`)
+  ).join('') || ''
+
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
       <h1 style="font-size: 2rem; color: var(--text-main);">Gestão de Turmas e Matrículas</h1>
@@ -20,7 +44,7 @@ export async function GestaoTurmasView() {
     </header>
 
     <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-      
+
       <!-- Lado Esquerdo: Criar Turma e Lista de Turmas -->
       <div>
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 2rem; border-top: 4px solid var(--primary);">
@@ -30,9 +54,7 @@ export async function GestaoTurmasView() {
               <label class="label" for="turma-curso">Curso *</label>
               <select id="turma-curso" name="turma_curso" class="input" required>
                 <option value="">-- Selecione o Curso --</option>
-                ${cursos && cursos.length > 0 ? cursos.map(c => `
-                  <option value="${c.id}">${c.nome}</option>
-                `).join('') : '<option value="">Nenhum curso cadastrado</option>'}
+                ${cursosOptions}
               </select>
             </div>
             <div class="form-group">
@@ -50,15 +72,7 @@ export async function GestaoTurmasView() {
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
           <h3 style="margin-bottom: 1rem;">Turmas Ativas</h3>
           <ul id="lista-turmas" style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-            ${!turmas || turmas.length === 0 ? '<p style="color:var(--text-muted);font-size:0.8rem;">Nenhuma turma registrada.</p>' : ''}
-            ${turmas?.map(t => `
-              <li style="padding: 1rem; border: 1px solid var(--secondary); border-radius: 6px; cursor: pointer; transition: 0.2s;" class="turma-item" data-id="${t.id}" data-nome="${t.nome}">
-                <div style="font-weight: 600; color: var(--primary);">${t.nome} <span style="font-size:0.7rem; color:gray; font-weight:normal;">(${t.periodo})</span></div>
-                <div style="font-size: 0.8rem; margin-top: 5px;">
-                  <span class="badge" style="background: ${t.status_ingresso === 'aberta' ? '#dcfce7' : '#fee2e2'}; color: ${t.status_ingresso === 'aberta' ? '#166534' : '#991b1b'};">${t.status_ingresso}</span>
-                </div>
-              </li>
-            `).join('')}
+            ${turmasList}
           </ul>
         </div>
       </div>
@@ -76,7 +90,7 @@ export async function GestaoTurmasView() {
               <label for="aluno-select" style="display: none;">Escolha o Aluno</label>
               <select id="aluno-select" name="aluno_select" class="input">
                 <option value="">-- Escolha um Aluno --</option>
-                ${alunos?.map(a => `<option value="${a.id}">${a.nome_completo} (${a.cpf || 'Sem CPF'})</option>`).join('')}
+                ${alunosOptions}
               </select>
             </div>
             <button id="btn-matricular" class="btn btn-primary">Adicionar à Turma</button>
@@ -115,15 +129,15 @@ export async function GestaoTurmasView() {
     const periodo = container.querySelector('#turma-periodo').value
     const cursoId = container.querySelector('#turma-curso').value
     const btn = formNovaTurma.querySelector('button')
-    
+
     if (!cursoId) {
       toast.error('Selecione um curso para a turma!')
       return
     }
-    
+
     btn.disabled = true; btn.textContent = 'Salvando...'
     const { data: turmaData, error } = await AcademicService.createTurma({ nome, periodo: periodo.trim() })
-    
+
     if (error) { toast.error('Erro: ' + error.message); btn.disabled = false; btn.textContent = 'Registrar Turma' }
     else {
       // Vincular turma ao curso
@@ -146,9 +160,9 @@ export async function GestaoTurmasView() {
   async function loadTurmaAlunos(turmaId) {
     tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center;">Carregando Caderneta...</td></tr>'
     const { data: matriculas, error } = await AcademicService.getAlunosDaTurma(turmaId)
-    
+
     if (error) {
-      tabelaAlunos.innerHTML = `<tr><td colspan="4" style="color:red; padding: 1rem;">Erro: ${error.message}</td></tr>`
+      tabelaAlunos.innerHTML = `<tr><td colspan="4" style="color:red; padding: 1rem;">Erro: ${escapeHTML(error.message)}</td></tr>`
       return
     }
 
@@ -157,37 +171,48 @@ export async function GestaoTurmasView() {
       return
     }
 
-    tabelaAlunos.innerHTML = matriculas.map(m => `
-      <tr style="border-top: 1px solid var(--secondary);">
-        <td style="padding: 1rem;">
-          <div style="font-weight: 600;">${m.perfis?.nome_completo || 'Aluno Desconhecido'}</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">${m.perfis?.email || ''}</div>
-        </td>
-        <td style="padding: 1rem;">
-          <label for="status-select-${m.id}" style="display:none;">Status Acadêmico</label>
-          <select id="status-select-${m.id}" name="status_aluno" class="input status-aluno-select" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" data-bloqueio="${m.perfis.bloqueio_financeiro}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${m.status_aluno==='ativo' ? '#dcfce7' : '#f3f4f6'};">
-            <option value="ativo" ${m.status_aluno === 'ativo' ? 'selected' : ''}>Ativo Regular</option>
-            <option value="trancado" ${m.status_aluno === 'trancado' ? 'selected' : ''}>Trancado / Inativo</option>
-            <option value="evadido" ${m.status_aluno === 'evadido' ? 'selected' : ''}>Evadido</option>
-            <option value="concluido" ${m.status_aluno === 'concluido' ? 'selected' : ''}>Concluído</option>
-          </select>
-        </td>
-        <td style="padding: 1rem;">
-          <label for="block-${m.id}" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="checkbox" id="block-${m.id}" name="block_aluno" class="financeiro-checkbox" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" data-status="${m.status_aluno}" ${m.perfis.bloqueio_financeiro ? 'checked' : ''}>
-            <span style="font-size: 0.8rem; font-weight: 600; color: ${m.perfis.bloqueio_financeiro ? '#dc2626' : '#22c55e'}">
-              ${m.perfis.bloqueio_financeiro ? 'INADIMPLENTE' : 'Ok'}
-            </span>
-          </label>
-        </td>
-        <td style="padding: 1rem; text-align: right; display: flex; gap: 5px; justify-content: flex-end;">
-          <button type="button" class="btn btn-primary btn-salvar-status" data-matricula-id="${m.id}" data-aluno-id="${m.perfis.id}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; flex: 1;">Salvar</button>
-          <button type="button" class="btn btn-remover" data-matricula-id="${m.id}" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer;">
-            X Excluir
-          </button>
-        </td>
-      </tr>
-    `).join('')
+    tabelaAlunos.innerHTML = matriculas.map(m => {
+      const nomeAluno = escapeHTML(m.perfis?.nome_completo || 'Aluno Desconhecido')
+      const emailAluno = escapeHTML(m.perfis?.email || '')
+      const matriculaId = escapeHTML(m.id)
+      const alunoId = escapeHTML(m.perfis.id)
+      const statusBg = m.status_aluno === 'ativo' ? '#dcfce7' : '#f3f4f6'
+      const bloqueioColor = m.perfis.bloqueio_financeiro ? '#dc2626' : '#22c55e'
+      const bloqueioText = m.perfis.bloqueio_financeiro ? 'INADIMPLENTE' : 'Ok'
+      const checkedAttr = m.perfis.bloqueio_financeiro ? 'checked' : ''
+
+      return `
+        <tr style="border-top: 1px solid var(--secondary);">
+          <td style="padding: 1rem;">
+            <div style="font-weight: 600;">${nomeAluno}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${emailAluno}</div>
+          </td>
+          <td style="padding: 1rem;">
+            <label for="status-select-${matriculaId}" style="display:none;">Status Acadêmico</label>
+            <select id="status-select-${matriculaId}" name="status_aluno" class="input status-aluno-select" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" data-bloqueio="${m.perfis.bloqueio_financeiro}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${statusBg};">
+              ${createOption('ativo', 'Ativo Regular', m.status_aluno === 'ativo')}
+              ${createOption('trancado', 'Trancado / Inativo', m.status_aluno === 'trancado')}
+              ${createOption('evadido', 'Evadido', m.status_aluno === 'evadido')}
+              ${createOption('concluido', 'Concluído', m.status_aluno === 'concluido')}
+            </select>
+          </td>
+          <td style="padding: 1rem;">
+            <label for="block-${matriculaId}" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="block-${matriculaId}" name="block_aluno" class="financeiro-checkbox" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" data-status="${escapeHTML(m.status_aluno)}" ${checkedAttr}>
+              <span style="font-size: 0.8rem; font-weight: 600; color: ${bloqueioColor}">
+                ${bloqueioText}
+              </span>
+            </label>
+          </td>
+          <td style="padding: 1rem; text-align: right; display: flex; gap: 5px; justify-content: flex-end;">
+            <button type="button" class="btn btn-primary btn-salvar-status" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; flex: 1;">Salvar</button>
+            <button type="button" class="btn btn-remover" data-matricula-id="${matriculaId}" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer;">
+              X Excluir
+            </button>
+          </td>
+        </tr>
+      `
+    }).join('')
 
     // Events for "Salvar Aluno" inner buttons
     const botoesSalvarStatus = tabelaAlunos.querySelectorAll('.btn-salvar-status')
@@ -201,8 +226,8 @@ export async function GestaoTurmasView() {
 
         btn.textContent = '...'
         const { error } = await AcademicService.atualizarStatusAdministrativo(alunoId, matId, statusSelect, isBloqueado)
-        if(error) { toast.error('Falhou: ' + error.message) } 
-        else { 
+        if (error) { toast.error('Falhou: ' + error.message) }
+        else {
           toast.success('Perfil atualizado!')
           loadTurmaAlunos(turmaId) // reload view safely
         }
@@ -216,15 +241,15 @@ export async function GestaoTurmasView() {
         e.preventDefault()
         e.stopPropagation()
         const matId = e.currentTarget.getAttribute('data-matricula-id')
-        
+
         if (!window.confirm('Certeza absoluta? Apagar a matrícula excluirá também todas as notas vinculadas a ela (se houver). Pressione OK para prosseguir.')) return
-        
+
         btn.textContent = '...'
         btn.disabled = true
-        
+
         try {
           const { error } = await AcademicService.excluirMatricula(matId)
-          if (error) { 
+          if (error) {
             throw error
           }
           toast.success('Matrícula evaporada com sucesso.')
@@ -248,7 +273,7 @@ export async function GestaoTurmasView() {
       selectedTurmaId = el.getAttribute('data-id')
       tituloTurma.textContent = 'Turma: ' + el.getAttribute('data-nome')
       painelMatriculas.style.display = 'block'
-      
+
       loadTurmaAlunos(selectedTurmaId)
     })
   })
@@ -261,14 +286,14 @@ export async function GestaoTurmasView() {
     if (!selectedTurmaId) { toast.error('Selecione uma turma primeiro!'); return }
 
     btnMatricular.disabled = true; btnMatricular.textContent = 'Matriculando...'
-    
+
     // Simplificando: Assumimos que a constraint do banco deixa criar múltiplas pra permitir "Dependência". 
     // Em Produção, checaríamos se ele já não está ativo *nesta mesma* turma antes.
     const { error } = await AcademicService.matricularAluno(alunoId, selectedTurmaId)
-    
-    if (error) { 
+
+    if (error) {
       // Erro 23505 = unique_violation, caso decidamos futuramente colocar unique constraint
-      toast.error('O aluno não pôde ser matriculado: ' + error.message) 
+      toast.error('O aluno não pôde ser matriculado: ' + error.message)
     } else {
       toast.success('Aluno inserido no diário da turma!')
       alunoSelect.value = ''

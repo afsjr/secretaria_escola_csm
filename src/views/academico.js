@@ -4,6 +4,7 @@ import { CourseService } from '../lib/course-service'
 import { PDFService } from '../lib/pdf-service'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
+import { escapeHTML, createOption } from '../lib/security'
 
 // Disciplinas hardcoded como fallback (caso não existam no banco)
 const modulosFallback = [
@@ -44,7 +45,7 @@ const modulosFallback = [
 export async function AcademicoView(profile) {
   const container = document.createElement('div')
   container.className = 'academico-view animate-in'
-  
+
   const isAdmin = profile?.perfil?.toLowerCase() === 'admin'
 
   // Fetch profiles to select a student
@@ -67,7 +68,7 @@ export async function AcademicoView(profile) {
         if (!grouped[modulo]) grouped[modulo] = []
         grouped[modulo].push(d.nome)
       })
-      
+
       modulosFromDB = Object.keys(grouped).map(nome => ({
         nome,
         disciplinas: grouped[nome]
@@ -92,7 +93,7 @@ export async function AcademicoView(profile) {
           <label class="label" for="aluno-select">Selecione o Aluno:</label>
           <select id="aluno-select" name="aluno_select" class="input">
             <option value="">-- Escolha um aluno --</option>
-            ${students.map(s => `<option value="${s.id}">${s.nome_completo} (${s.email})</option>`).join('')}
+            ${students.map(s => createOption(s.id, `${s.nome_completo} (${s.email})`)).join('')}
           </select>
         </div>
         <button id="load-student-btn" class="btn btn-primary" disabled>Carregar Diário</button>
@@ -129,9 +130,9 @@ export async function AcademicoView(profile) {
               </thead>
               <tbody>
                 ${modulo.disciplinas.map((disciplina, dIdx) => {
-                  const safeDisc = disciplina.replace(/[^a-zA-Z]/g, '').toLowerCase()
-                  const prefix = `mod${mIdx}_disc${dIdx}_${safeDisc}`
-                  return `
+    const safeDisc = disciplina.replace(/[^a-zA-Z]/g, '').toLowerCase()
+    const prefix = `mod${mIdx}_disc${dIdx}_${safeDisc}`
+    return `
                   <tr class="disciplina-row" data-disciplina="${disciplina}" data-modulo="${modulo.nome}" style="border-top: 1px solid var(--secondary);">
                     <td style="padding: 1rem; font-weight: 500; font-size: 0.9rem;">${disciplina}</td>
                     <td style="padding: 0.5rem;"><input type="number" id="faltas_${prefix}" name="faltas_${prefix}" aria-label="Faltas em ${disciplina}" min="0" class="input faltas-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0"></td>
@@ -264,7 +265,7 @@ export async function AcademicoView(profile) {
           row.querySelectorAll('.nota-input')[1].value = dbRow.n2 || ''
           row.querySelectorAll('.nota-input')[2].value = dbRow.n3 || ''
           const recInput = row.querySelector('.rec-input')
-          if(recInput) recInput.value = dbRow.rec || ''
+          if (recInput) recInput.value = dbRow.rec || ''
         }
       })
     }
@@ -307,12 +308,12 @@ export async function AcademicoView(profile) {
         const n2 = row.querySelectorAll('.nota-input')[1].value
         const n3 = row.querySelectorAll('.nota-input')[2].value
         const rec = row.querySelector('.rec-input').value
-        
+
         arrayNotas.push({ disciplina, faltas, n1, n2, n3, rec })
       })
 
       const { error } = await AcademicService.saveBoletim(alunoId, arrayNotas)
-      
+
       if (error) { toast.error('Falha de Segurança (Erro ao salvar): ' + error.message) }
       else { toast.success('Boletim lacrado e salvo com sucesso!') }
 
@@ -351,9 +352,9 @@ export async function AcademicoView(profile) {
           count++
         }
       })
-      
+
       let mediaTeoria = count > 0 ? (sum / count) : null
-      
+
       if (mediaTeoria !== null) {
         mediaTeoriaCell.textContent = mediaTeoria.toFixed(1)
         mediaTeoriaCell.style.color = mediaTeoria >= 7 ? 'var(--success)' : 'var(--danger)'

@@ -1,10 +1,29 @@
 import { getAllProfiles } from '../auth/session'
+import { escapeHTML, createBadge } from '../lib/security'
 
 export async function DirectoryView() {
   const container = document.createElement('div')
   container.className = 'directory-view animate-in'
 
   const { data: profiles, error } = await getAllProfiles()
+
+  const profilesHTML = error
+    ? `<p style="color:red">Erro ao carregar lista: ${escapeHTML(error.message)}</p>`
+    : profiles?.map(p => {
+      const initials = p.nome_completo ? escapeHTML(p.nome_completo.charAt(0).toUpperCase()) : '?'
+      const nome = escapeHTML(p.nome_completo)
+      const perfilBadge = createBadge(p.perfil || 'aluno')
+
+      return `
+          <div class="profile-card">
+            <div class="avatar-circle">${initials}</div>
+            <div>
+              <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${nome}</div>
+              ${perfilBadge}
+            </div>
+          </div>
+        `
+    }).join('')
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
@@ -13,18 +32,7 @@ export async function DirectoryView() {
     </header>
 
     <div id="profiles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-      ${error ? `<p style="color:red">Erro ao carregar lista: ${error.message}</p>` : ''}
-      ${profiles?.map(p => `
-        <div class="profile-card">
-          <div class="avatar-circle">
-            ${p.nome_completo ? p.nome_completo.charAt(0).toUpperCase() : '?'}
-          </div>
-          <div>
-            <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${p.nome_completo}</div>
-            <span class="badge" style="font-size: 0.6rem;">${p.perfil}</span>
-          </div>
-        </div>
-      `).join('')}
+      ${profilesHTML}
     </div>
   `
 

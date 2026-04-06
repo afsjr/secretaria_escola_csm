@@ -5,6 +5,19 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: '/secretaria_escola_csm/',
   build: {
-    outDir: 'dist',
+    outDir: 'dist'
   },
+  server: {
+    // Configurar headers de segurança para dev server
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block'
+    }
+  },
+  // Prevenir vazamento de variáveis de ambiente sensíveis
+  define: {
+    // Garantir que variáveis não-VITE_ não sejam expostas
+    'process.env': {}
+  }
 })

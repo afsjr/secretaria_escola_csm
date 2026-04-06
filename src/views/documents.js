@@ -1,5 +1,6 @@
 import { DocumentsService } from '../lib/documents-service'
 import { toast } from '../lib/toast'
+import { escapeHTML } from '../lib/security'
 
 export async function DocumentsView(profile) {
   const container = document.createElement('div')
@@ -10,6 +11,7 @@ export async function DocumentsView(profile) {
 
   const renderRequests = () => {
     if (requests?.length === 0) return '<p>Você ainda não possui solicitações de documentos.</p>'
+
     return `
       <div style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); overflow: hidden; margin-top: 2rem;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -21,19 +23,23 @@ export async function DocumentsView(profile) {
             </tr>
           </thead>
           <tbody>
-            ${requests?.map(r => `
-              <tr style="border-top: 1px solid var(--secondary);">
-                <td style="padding: 1rem; font-weight: 500;">
-                  ${r.tipo.startsWith('Outros:') ? `<span>Outros</span><br><small style="color: var(--text-muted);">${r.tipo.replace('Outros: ', '')}</small>` : r.tipo}
-                </td>
-                <td style="padding: 1rem; font-size: 0.9rem;">${new Date(r.criado_em).toLocaleDateString('pt-BR')}</td>
-                <td style="padding: 1rem;">
-                  <span class="badge" style="background: ${r.status === 'pendente' ? '#FEF3C7' : '#D1FAE5'}; color: ${r.status === 'pendente' ? '#92400E' : '#065F46'};">
-                    ${r.status}
-                  </span>
-                </td>
-              </tr>
-            `).join('')}
+            ${requests?.map(r => {
+      const tipoDisplay = r.tipo?.startsWith('Outros:')
+        ? `<span>Outros</span><br><small style="color: var(--text-muted);">${escapeHTML(r.tipo.replace('Outros: ', ''))}</small>`
+        : escapeHTML(r.tipo)
+      const dataFormatada = new Date(r.criado_em).toLocaleDateString('pt-BR')
+      const statusBg = r.status === 'pendente' ? '#FEF3C7' : '#D1FAE5'
+      const statusColor = r.status === 'pendente' ? '#92400E' : '#065F46'
+      const statusBadge = `<span class="badge" style="background: ${statusBg}; color: ${statusColor};">${escapeHTML(r.status)}</span>`
+
+      return `
+                <tr style="border-top: 1px solid var(--secondary);">
+                  <td style="padding: 1rem; font-weight: 500;">${tipoDisplay}</td>
+                  <td style="padding: 1rem; font-size: 0.9rem;">${dataFormatada}</td>
+                  <td style="padding: 1rem;">${statusBadge}</td>
+                </tr>
+              `
+    }).join('') || ''}
           </tbody>
         </table>
       </div>
@@ -110,7 +116,7 @@ export async function DocumentsView(profile) {
   confirmBtn.onclick = async () => {
     let type = docTypeSelect.value
     const descricao = descricaoInput.value.trim()
-    
+
     // Se for "Outros", combinar tipo + descrição
     if (type === 'Outros' && descricao) {
       type = `Outros: ${descricao}`
@@ -118,7 +124,7 @@ export async function DocumentsView(profile) {
       toast.error('Por favor, descreva o documento desejado.')
       return
     }
-    
+
     confirmBtn.disabled = true
     confirmBtn.textContent = 'Enviando...'
 

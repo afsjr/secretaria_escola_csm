@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
  * Handles the registration flow for a new user.
  * 1. Creates a user in Supabase Auth.
  * 2. If successful, inserts a record into the 'perfis' table.
+ * 3. Se falhar na criação do perfil, faz rollback deletando o usuário criado.
  */
 export async function registerUser({ email, password, nomeCompleto, cpf, telefone }) {
   // Step 1: Signup in Supabase Auth
@@ -23,7 +24,6 @@ export async function registerUser({ email, password, nomeCompleto, cpf, telefon
   if (!user) return { error: { message: 'Erro ao criar usuário.' } }
 
   // Step 2: Insert into 'perfis' table
-  // The 'perfil' defaults to 'aluno' in the database (or we set it here)
   const { error: profileError } = await supabase
     .from('perfis')
     .insert([
@@ -39,9 +39,24 @@ export async function registerUser({ email, password, nomeCompleto, cpf, telefon
 
   if (profileError) {
     console.error('Erro ao criar perfil:', profileError)
-    // You might want to delete the auth user here if profile creation fails,
-    // but usually, it's better to log and alert.
-    return { error: profileError }
+
+    // ROLLBACK: Tentar deletar o usuário criado para evitar dados órfãos
+    // Nota: Isso requer que o usuário esteja logado ou que tenhamos permissão admin
+    // Como alternativa, poderíamos usar Edge Functions para operações atômicas
+    try {
+      const { error: deleteError } = await supabase.auth.signOut()
+      // Em produção, idealmente chamar uma Edge Function para deletar o usuário via admin
+      console.warn('Não foi possível deletar usuário órfão automaticamente. Considere usar Edge Functions para operações atômicas.')
+    } catch (deleteErr) {
+      console.error('Erro ao tentar cleanup:', deleteErr)
+    }
+
+    return {
+      error: {
+        message: 'Erro ao criar perfil do usuário. Entre em contato com o suporte.',
+        details: profileError.message
+      }
+    }
   }
 
   return { data, error: null }

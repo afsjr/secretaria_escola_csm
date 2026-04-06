@@ -2,6 +2,8 @@
  * Simple Toast Utility
  * Shows professional floating alerts in the bottom-right corner.
  */
+import { escapeHTML } from './security'
+
 export const toast = {
   container: null,
 
@@ -14,15 +16,17 @@ export const toast = {
 
   show(message, type = 'info', duration = 3000) {
     this.init()
-    
+
     const el = document.createElement('div')
     el.className = `toast ${type}`
-    el.innerHTML = `
-      <div class="toast-content">${message}</div>
-    `
-    
+    // Usar textContent para prevenir XSS
+    const contentDiv = document.createElement('div')
+    contentDiv.className = 'toast-content'
+    contentDiv.textContent = message
+    el.appendChild(contentDiv)
+
     this.container.appendChild(el)
-    
+
     // Auto-remove
     setTimeout(() => {
       el.style.opacity = '0'

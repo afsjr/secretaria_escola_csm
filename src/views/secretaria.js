@@ -6,6 +6,8 @@ import { PDFService } from '../lib/pdf-service'
 import { AcademicService } from '../lib/academic-service'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
+import { StudentDetailsView } from './student-details'
+import { ProfessorDetailsView } from './professor-details'
 
 // Helper para prevenir XSS
 const escapeHTML = (str) => {
@@ -35,7 +37,7 @@ export async function SecretariaView() {
   const renderRequests = () => {
     if (error) return `<p class="error-text">Erro ao carregar solicitações.</p>`
     if (!requests || requests.length === 0) return '<p>Não há solicitações pendentes no momento.</p>'
-    
+
     return `
       <div class="table-responsive bg-white rounded-lg shadow-sm mt-4">
         <table class="data-table">
@@ -81,7 +83,7 @@ export async function SecretariaView() {
   const renderGerenciarAlunos = () => {
     if (errorAlunos) return `<p class="error-text">Erro ao carregar alunos.</p>`
     if (!alunos || alunos.length === 0) return '<p>Não há alunos cadastrados no momento.</p>'
-    
+
     return `
       <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -115,8 +117,9 @@ export async function SecretariaView() {
                       ${aluno.bloqueio_financeiro ? 'Bloqueado' : 'Ativo'}
                     </span>
                   </td>
-                  <td>
-                    <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}">Editar</button>
+                  <td style="display: flex; gap: 0.3rem;">
+                    <button class="btn btn-sm btn-ver-ficha" data-id="${aluno.id}" style="background: var(--primary); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Ficha</button>
+                    <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">Editar</button>
                   </td>
                 </tr>
               `).join('')}
@@ -209,7 +212,7 @@ export async function SecretariaView() {
 
   const renderGerenciarProfessores = () => {
     if (errorProfessores) return `<p class="error-text">Erro ao carregar professores.</p>`
-    
+
     return `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
         <!-- Lista de Professores -->
@@ -233,8 +236,9 @@ export async function SecretariaView() {
                         <div class="fw-600 text-main">${escapeHTML(p.nome_completo)}</div>
                       </td>
                       <td>${escapeHTML(p.email)}</td>
-                      <td>
-                        <button class="btn btn-primary btn-sm btn-vincular-disciplinas" data-id="${p.id}" data-nome="${escapeHTML(p.nome_completo)}">Vincular Disciplinas</button>
+                      <td style="display: flex; gap: 0.3rem;">
+                        <button class="btn btn-sm btn-ver-ficha-prof" data-id="${p.id}" style="background: var(--primary); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Ficha</button>
+                        <button class="btn btn-primary btn-sm btn-vincular-disciplinas" data-id="${p.id}" data-nome="${escapeHTML(p.nome_completo)}" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">Vincular Disciplinas</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -495,10 +499,10 @@ export async function SecretariaView() {
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.getAttribute('data-tab')
-      
+
       tabBtns.forEach(b => b.classList.remove('active'))
       btn.classList.add('active')
-      
+
       tabContents.forEach(content => {
         content.style.display = 'none'
       })
@@ -515,7 +519,7 @@ export async function SecretariaView() {
       const userId = btn.getAttribute('data-id')
       const tipo = btn.getAttribute('data-tipo')
       const nomeAluno = btn.getAttribute('data-nome')
-      
+
       btn.disabled = true
       btn.textContent = 'Gerando...'
 
@@ -569,7 +573,7 @@ export async function SecretariaView() {
             PDFService.downloadPDF(doc, `declaracao_vinculo_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           }
           toast.success('PDF gerado com sucesso!')
-          
+
         } else if (tipo.includes('Histórico Acadêmico') || tipo.includes('Boletim')) {
           // Histórico só para alunos
           if (userData.perfil !== 'aluno') {
@@ -578,21 +582,21 @@ export async function SecretariaView() {
             btn.textContent = 'Gerar PDF'
             return
           }
-          
+
           if (!turmaInfo) {
             toast.error('Aluno não possui matrícula ativa')
             btn.disabled = false
             btn.textContent = 'Gerar PDF'
             return
           }
-          
+
           const { data: notas } = await AcademicService.getBoletim(userId)
-          
+
           // Buscar módulos das disciplinas
           const { data: disciplinasCurso } = await CourseService.getDisciplinasDoCurso(
             turmaInfo?.curso_id || matriculas?.turmas?.cursos?.id
           )
-          
+
           const notasComModulo = notas?.map(n => {
             const disc = disciplinasCurso?.find(d => d.nome === n.disciplina)
             return { ...n, modulo: disc?.modulo || 'I Módulo' }
@@ -601,7 +605,7 @@ export async function SecretariaView() {
           const doc = PDFService.generateHistoricoPDF(userData, notasComModulo, turmaInfo)
           PDFService.downloadPDF(doc, `historico_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           toast.success('PDF gerado com sucesso!')
-          
+
         } else {
           // Outros tipos de documento
           if (userData.perfil === 'aluno') {
@@ -648,12 +652,12 @@ export async function SecretariaView() {
         btn.textContent = 'Concluir'
       } else {
         toast.success('Documento concluído com sucesso!')
-        
+
         const row = container.querySelector(`#req-row-${id}`)
         if (row) {
           const statusCell = row.querySelector('.status-cell')
           const actionCell = row.querySelector('.action-cell')
-          
+
           if (statusCell) {
             statusCell.innerHTML = `<span class="badge badge-success">concluído</span>`
           }
@@ -712,7 +716,7 @@ export async function SecretariaView() {
 
     if (turmaId && data?.userId) {
       const { error: erroMatricula } = await AdminService.matricularAluno(data.userId, turmaId)
-      
+
       if (erroMatricula) {
         toast.warning('Aluno cadastrado, mas houve erro ao matricular na turma: ' + erroMatricula.message)
       } else {
@@ -779,6 +783,31 @@ export async function SecretariaView() {
   })
 
   // =====================================================
+  // VER FICHA DO PROFESSOR
+  // =====================================================
+  const btnsVerFichaProf = container.querySelectorAll('.btn-ver-ficha-prof')
+  btnsVerFichaProf.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const professorId = btn.getAttribute('data-id')
+
+      btn.disabled = true
+      btn.textContent = '...'
+
+      try {
+        const detailsView = await ProfessorDetailsView(professorId)
+        container.innerHTML = ''
+        container.appendChild(detailsView)
+      } catch (err) {
+        console.error('Erro ao carregar ficha do professor:', err)
+        toast.error('Erro ao carregar ficha do professor')
+      }
+
+      btn.disabled = false
+      btn.textContent = 'Ficha'
+    })
+  })
+
+  // =====================================================
   // VINCULAÇÃO DE DISCIPLINAS
   // =====================================================
   const btnsVincular = container.querySelectorAll('.btn-vincular-disciplinas')
@@ -792,14 +821,14 @@ export async function SecretariaView() {
     btn.addEventListener('click', () => {
       const professorId = btn.getAttribute('data-id')
       const professorNome = btn.getAttribute('data-nome')
-      
+
       container.querySelector('#professor-id-vincular').value = professorId
       container.querySelector('#nome-professor-vincular').textContent = professorNome
-      
+
       container.querySelectorAll('input[name="disciplinas"]').forEach(cb => {
         cb.checked = false
       })
-      
+
       if (disciplinas) {
         disciplinas.forEach(d => {
           if (d.professor_id === professorId) {
@@ -808,7 +837,7 @@ export async function SecretariaView() {
           }
         })
       }
-      
+
       modalVincular.style.display = 'flex'
     })
   })
@@ -836,10 +865,10 @@ export async function SecretariaView() {
   if (formVincular) {
     formVincular.addEventListener('submit', async (e) => {
       e.preventDefault()
-      
+
       const professorId = container.querySelector('#professor-id-vincular').value
       const checkboxes = container.querySelectorAll('input[name="disciplinas"]:checked')
-      
+
       const vinculacoes = []
       checkboxes.forEach(cb => {
         const disciplinaId = cb.value
@@ -847,10 +876,10 @@ export async function SecretariaView() {
         const turmaId = turmaSelect ? turmaSelect.value : null
         vinculacoes.push({ disciplinaId, turmaId })
       })
-      
+
       btnSalvarVincular.disabled = true
       btnSalvarVincular.textContent = 'Salvando...'
-      
+
       if (disciplinas) {
         for (const d of disciplinas) {
           if (d.professor_id === professorId) {
@@ -858,10 +887,10 @@ export async function SecretariaView() {
           }
         }
       }
-      
+
       if (vinculacoes.length > 0) {
         const { error } = await ProfessorService.vincularProfessorDisciplinasTurma(professorId, vinculacoes)
-        
+
         if (error) {
           toast.error('Erro ao vincular disciplinas: ' + error.message)
           btnSalvarVincular.disabled = false
@@ -869,10 +898,10 @@ export async function SecretariaView() {
           return
         }
       }
-      
+
       toast.success('Disciplinas e turmas vinculadas com sucesso!')
       modalVincular.style.display = 'none'
-      
+
       btnSalvarVincular.disabled = false
       btnSalvarVincular.textContent = 'Salvar Vinculação'
     })
@@ -886,11 +915,11 @@ export async function SecretariaView() {
     buscaAlunoInput.addEventListener('input', () => {
       const termo = buscaAlunoInput.value.toLowerCase().trim()
       const rows = container.querySelectorAll('.aluno-row')
-      
+
       rows.forEach(row => {
         const nome = row.getAttribute('data-nome').toLowerCase()
         const cpf = row.getAttribute('data-cpf').toLowerCase()
-        
+
         if (nome.includes(termo) || cpf.includes(termo)) {
           row.style.display = ''
         } else {
@@ -899,6 +928,33 @@ export async function SecretariaView() {
       })
     })
   }
+
+  // =====================================================
+  // VER FICHA DO ALUNO
+  // =====================================================
+  const btnsVerFicha = container.querySelectorAll('.btn-ver-ficha')
+  btnsVerFicha.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const alunoId = btn.getAttribute('data-id')
+      const contentArea = container.closest('.main-content') || container.parentElement
+
+      // Mostrar loading
+      btn.disabled = true
+      btn.textContent = '...'
+
+      try {
+        const detailsView = await StudentDetailsView(alunoId)
+        container.innerHTML = ''
+        container.appendChild(detailsView)
+      } catch (err) {
+        console.error('Erro ao carregar ficha:', err)
+        toast.error('Erro ao carregar ficha do aluno')
+      }
+
+      btn.disabled = false
+      btn.textContent = 'Ficha'
+    })
+  })
 
   // =====================================================
   // EDIÇÃO DE ALUNO
@@ -913,32 +969,32 @@ export async function SecretariaView() {
   btnsEditar.forEach(btn => {
     btn.addEventListener('click', async () => {
       const alunoId = btn.getAttribute('data-id')
-      
+
       btn.disabled = true
       btn.textContent = '...'
-      
+
       const { data: aluno, error } = await AdminService.getAlunoById(alunoId)
-      
+
       btn.disabled = false
       btn.textContent = 'Editar'
-      
+
       if (error) {
         toast.error('Erro ao carregar dados do aluno: ' + error.message)
         return
       }
-      
+
       if (!aluno) {
         toast.error('Aluno não encontrado')
         return
       }
-      
+
       container.querySelector('#edit-aluno-id').value = aluno.id
       container.querySelector('#edit-nome').value = aluno.nome_completo || ''
       container.querySelector('#edit-cpf').value = aluno.cpf || ''
       container.querySelector('#edit-telefone').value = aluno.telefone || ''
       container.querySelector('#edit-email').value = aluno.email || ''
       container.querySelector('#edit-perfil').value = aluno.perfil || 'aluno'
-      
+
       modalEditar.style.display = 'flex'
     })
   })
@@ -966,35 +1022,35 @@ export async function SecretariaView() {
   if (formEditar) {
     formEditar.addEventListener('submit', async (e) => {
       e.preventDefault()
-      
+
       const alunoId = container.querySelector('#edit-aluno-id').value
       const nomeCompleto = container.querySelector('#edit-nome').value.trim()
       const cpf = container.querySelector('#edit-cpf').value.trim()
       const telefone = container.querySelector('#edit-telefone').value.trim()
-      
+
       if (!nomeCompleto) {
         toast.error('O nome completo é obrigatório.')
         return
       }
-      
+
       btnSaveEdit.disabled = true
       btnSaveEdit.textContent = 'Salvando...'
-      
+
       const { error } = await AdminService.updateAluno(alunoId, {
         nome_completo: nomeCompleto,
         cpf: cpf || null,
         telefone: telefone || null
       })
-      
+
       if (error) {
         toast.error('Erro ao salvar: ' + error.message)
         btnSaveEdit.disabled = false
         btnSaveEdit.textContent = 'Salvar Alterações'
         return
       }
-      
+
       toast.success('Dados do aluno atualizados com sucesso!')
-      
+
       const row = container.querySelector(`.aluno-row[data-id="${alunoId}"]`)
       if (row) {
         row.querySelector('td:first-child .fw-600').textContent = nomeCompleto
@@ -1003,9 +1059,9 @@ export async function SecretariaView() {
         row.querySelector('td:nth-child(3)').textContent = cpf || '-'
         row.querySelector('td:nth-child(4)').textContent = telefone || '-'
       }
-      
+
       modalEditar.style.display = 'none'
-      
+
       btnSaveEdit.disabled = false
       btnSaveEdit.textContent = 'Salvar Alterações'
     })

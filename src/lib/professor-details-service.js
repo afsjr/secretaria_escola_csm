@@ -23,7 +23,7 @@ export const ProfessorDetailsService = {
       .select('*')
       .eq('id', professorId)
       .single()
-    
+
     if (perfilError) return { error: perfilError }
     result.perfil = perfil
 
@@ -31,8 +31,8 @@ export const ProfessorDetailsService = {
     const { data: endereco } = await this.getEndereco(professorId)
     result.endereco = endereco
 
-    // Disciplinas do professor
-    const { data: disciplinas } = await supabase
+    // Disciplinas do professor COM informações completas de turmas e cursos
+    const { data: disciplinas, error: discError } = await supabase
       .from('disciplinas')
       .select(`
         *,
@@ -41,8 +41,13 @@ export const ProfessorDetailsService = {
       `)
       .eq('professor_id', professorId)
       .order('nome', { ascending: true })
-    
-    result.disciplinas = disciplinas || []
+
+    if (discError) {
+      console.error('Erro ao buscar disciplinas do professor:', discError)
+      result.disciplinas = []
+    } else {
+      result.disciplinas = disciplinas || []
+    }
 
     return { data: result, error: null }
   },

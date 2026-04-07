@@ -877,10 +877,16 @@ export async function SecretariaView() {
         vinculacoes.push({ disciplinaId, turmaId })
       })
 
+      if (vinculacoes.length === 0) {
+        toast.warning('Selecione pelo menos uma disciplina!')
+        return
+      }
+
       btnSalvarVincular.disabled = true
       btnSalvarVincular.textContent = 'Salvando...'
 
-      if (disciplinas) {
+      // Desvincular disciplinas atuais do professor
+      if (disciplinas && disciplinas.length > 0) {
         for (const d of disciplinas) {
           if (d.professor_id === professorId) {
             await ProfessorService.desvincularProfessorDisciplina(d.id)
@@ -888,22 +894,23 @@ export async function SecretariaView() {
         }
       }
 
-      if (vinculacoes.length > 0) {
-        const { error } = await ProfessorService.vincularProfessorDisciplinasTurma(professorId, vinculacoes)
+      const { error } = await ProfessorService.vincularProfessorDisciplinasTurma(professorId, vinculacoes)
 
-        if (error) {
-          toast.error('Erro ao vincular disciplinas: ' + error.message)
-          btnSalvarVincular.disabled = false
-          btnSalvarVincular.textContent = 'Salvar Vinculação'
-          return
-        }
+      if (error) {
+        toast.error('Erro ao vincular disciplinas: ' + error.message)
+        btnSalvarVincular.disabled = false
+        btnSalvarVincular.textContent = 'Salvar Vinculação'
+        return
       }
 
-      toast.success('Disciplinas e turmas vinculadas com sucesso!')
+      toast.success('Disciplinas vinculadas com sucesso!')
       modalVincular.style.display = 'none'
 
       btnSalvarVincular.disabled = false
       btnSalvarVincular.textContent = 'Salvar Vinculação'
+
+      // Recarregar para atualizar a lista
+      setTimeout(() => window.location.reload(), 500)
     })
   }
 

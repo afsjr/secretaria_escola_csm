@@ -117,12 +117,12 @@ export const StudentDetailsService = {
 
   async addObservacao(alunoId, texto, categoria = 'geral') {
     const { data: { session } } = await supabase.auth.getSession()
-    
+
     const { data, error } = await supabase
       .from('observacoes_aluno')
-      .insert([{ 
-        aluno_id: alunoId, 
-        texto, 
+      .insert([{
+        aluno_id: alunoId,
+        texto,
         categoria,
         criado_por: session?.user?.id || null
       }])
@@ -167,7 +167,7 @@ export const StudentDetailsService = {
       .select('*')
       .eq('id', alunoId)
       .single()
-    
+
     if (perfilError) return { error: perfilError }
     result.perfil = perfil
 
@@ -193,7 +193,7 @@ export const StudentDetailsService = {
       .eq('aluno_id', alunoId)
       .eq('status_aluno', 'ativo')
       .maybeSingle()
-    
+
     result.matricula = matricula
 
     return { data: result, error: null }

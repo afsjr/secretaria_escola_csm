@@ -1,6 +1,5 @@
-import { updateUserProfile } from '../auth/session'
 import { toast } from '../lib/toast'
-import { escapeHTML } from '../lib/security'
+import { escapeHTML, createBadge } from '../lib/security'
 import { StudentDetailsService } from '../lib/student-details-service'
 
 export async function ProfileView(profile) {
@@ -9,6 +8,10 @@ export async function ProfileView(profile) {
 
   // Buscar dados completos
   const { data: dadosCompletos, error: erroDados } = await StudentDetailsService.getAlunoCompleto(profile.id)
+
+  if (erroDados) {
+    console.error('Erro ao buscar dados completos:', erroDados)
+  }
 
   const dados = dadosCompletos?.perfil || profile
   const endereco = dadosCompletos?.endereco || {}
@@ -226,7 +229,7 @@ export async function ProfileView(profile) {
 
         <div class="form-group">
           <label class="label">Perfil de Acesso</label>
-          <span class="badge" style="background: var(--primary); color: white;">${perfilValue}</span>
+          ${createBadge(perfilValue, 'badge')}
         </div>
 
         <button type="submit" class="btn btn-primary" id="save-btn">Salvar Alterações</button>

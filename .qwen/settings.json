@@ -5,7 +5,9 @@
       "Bash(npm run *)",
       "Bash(npm audit)",
       "Bash(supabase *)",
-      "Bash(brew *)"
+      "Bash(brew *)",
+      "Bash(curl *)",
+      "Bash(lsof *)"
     ]
   },
   "$version": 3

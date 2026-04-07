@@ -18,23 +18,29 @@ export async function ProfessorAlunosView(profile) {
   container.className = 'professor-alunos-view animate-in'
 
   // Buscar alunos de todas as turmas do professor
-  const turmasDoProfessor = await ProfessorService.getTurmasDoProfessor(profile.id)
-  
+  const { data: turmasDoProfessor, error: errorTurmas } = await ProfessorService.getTurmasDoProfessor(profile.id)
+
+  if (errorTurmas) {
+    console.error('Erro ao buscar turmas:', errorTurmas)
+  }
+
   let todosAlunos = []
-  for (const turma of turmasDoProfessor) {
-    const { data: matriculas } = await ProfessorService.getAlunosDaTurma(turma.id)
-    if (matriculas) {
-      todosAlunos = todosAlunos.concat(
-        matriculas
-          .filter(m => m.status_aluno === 'ativo')
-          .map(m => ({
-            ...m.perfis,
-            turma_nome: turma.nome,
-            turma_id: turma.id,
-            matricula_id: m.id,
-            status_aluno: m.status_aluno
-          }))
-      )
+  if (turmasDoProfessor && turmasDoProfessor.length > 0) {
+    for (const turma of turmasDoProfessor) {
+      const { data: matriculas } = await ProfessorService.getAlunosDaTurma(turma.id)
+      if (matriculas) {
+        todosAlunos = todosAlunos.concat(
+          matriculas
+            .filter(m => m.status_aluno === 'ativo')
+            .map(m => ({
+              ...m.perfis,
+              turma_nome: turma.nome,
+              turma_id: turma.id,
+              matricula_id: m.id,
+              status_aluno: m.status_aluno
+            }))
+        )
+      }
     }
   }
 
@@ -59,9 +65,9 @@ export async function ProfessorAlunosView(profile) {
 
     <!-- Lista de Alunos -->
     <div id="lista-alunos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-      ${alunosUnicos.length === 0 
-        ? `<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Nenhum aluno encontrado.</p>`
-        : alunosUnicos.map(aluno => `
+      ${alunosUnicos.length === 0
+      ? `<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Nenhum aluno encontrado.</p>`
+      : alunosUnicos.map(aluno => `
             <div class="aluno-card" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo.toLowerCase())}" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.2s; border-left: 4px solid var(--primary);">
               <div style="display: flex; align-items: center; gap: 1rem;">
                 <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; color: white; flex-shrink: 0;">
@@ -77,7 +83,7 @@ export async function ProfessorAlunosView(profile) {
               </div>
             </div>
           `).join('')
-      }
+    }
     </div>
   `
 
@@ -89,7 +95,7 @@ export async function ProfessorAlunosView(profile) {
 
   buscaInput.addEventListener('input', () => {
     const termo = buscaInput.value.toLowerCase().trim()
-    
+
     container.querySelectorAll('.aluno-card').forEach(card => {
       const nome = card.getAttribute('data-nome')
       card.style.display = nome.includes(termo) ? 'block' : 'none'
@@ -100,9 +106,9 @@ export async function ProfessorAlunosView(profile) {
   container.querySelectorAll('.aluno-card').forEach(card => {
     card.addEventListener('click', async () => {
       const alunoId = card.getAttribute('data-id')
-      
+
       card.style.opacity = '0.5'
-      
+
       try {
         const detailsView = await StudentDetailsView(alunoId)
         container.innerHTML = ''

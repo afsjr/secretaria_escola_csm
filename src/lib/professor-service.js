@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 
 export const ProfessorService = {
   // === DISCIPLINAS ===
-  
+
   // Buscar disciplinas de um professor específico
   async getDisciplinasDoProfessor(professorId) {
     const { data, error } = await supabase
@@ -14,7 +14,7 @@ export const ProfessorService = {
       .eq('professor_id', professorId)
       .order('modulo', { ascending: true })
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
@@ -29,7 +29,7 @@ export const ProfessorService = {
       `)
       .order('modulo', { ascending: true })
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
@@ -40,7 +40,7 @@ export const ProfessorService = {
       .update({ professor_id: professorId })
       .in('id', disciplinasIds)
       .select()
-    
+
     return { data, error }
   },
 
@@ -49,28 +49,28 @@ export const ProfessorService = {
     // vinculacoes = [{ disciplinaId, turmaId }, ...]
     const results = []
     const errors = []
-    
+
     for (const v of vinculacoes) {
       const { data, error } = await supabase
         .from('disciplinas')
-        .update({ 
+        .update({
           professor_id: professorId,
           turma_id: v.turmaId || null
         })
         .eq('id', v.disciplinaId)
         .select()
-      
+
       if (error) {
         errors.push(error)
       } else {
         results.push(data)
       }
     }
-    
+
     if (errors.length > 0) {
       return { data: null, error: errors[0] }
     }
-    
+
     return { data: results, error: null }
   },
 
@@ -81,12 +81,12 @@ export const ProfessorService = {
       .update({ professor_id: null, turma_id: null })
       .eq('id', disciplinaId)
       .select()
-    
+
     return { data, error }
   },
 
   // === NOTAS ===
-  
+
   // Buscar notas de uma turma para uma disciplina específica
   async getNotasDaDisciplina(disciplinaNome, turmaId) {
     // Primeiro buscar os alunos da turma
@@ -138,7 +138,7 @@ export const ProfessorService = {
         rec: parseFloat(rec) || 0
       }, { onConflict: 'aluno_id, disciplina' })
       .select()
-    
+
     return { data, error }
   },
 
@@ -157,17 +157,18 @@ export const ProfessorService = {
     const { error } = await supabase
       .from('boletim')
       .upsert(payload, { onConflict: 'aluno_id, disciplina' })
-    
+
     return { error }
   },
 
   // === REGISTRO DE AULAS ===
-  
+
   // Registrar nova aula
   async registrarAula({ disciplina_id, professor_id, data, conteudo }) {
     const { data: aulaData, error } = await supabase
       .from('aulas')
       .insert([{
+        id: crypto.randomUUID(),
         disciplina_id,
         professor_id,
         data: data || new Date().toISOString().split('T')[0],
@@ -175,7 +176,7 @@ export const ProfessorService = {
       }])
       .select()
       .single()
-    
+
     return { data: aulaData, error }
   },
 
@@ -189,7 +190,7 @@ export const ProfessorService = {
       `)
       .eq('disciplina_id', disciplinaId)
       .order('data', { ascending: false })
-    
+
     return { data, error }
   },
 
@@ -203,7 +204,7 @@ export const ProfessorService = {
       `)
       .eq('professor_id', professorId)
       .order('data', { ascending: false })
-    
+
     return { data, error }
   },
 
@@ -215,7 +216,7 @@ export const ProfessorService = {
       .eq('id', aulaId)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
@@ -226,12 +227,12 @@ export const ProfessorService = {
       .delete()
       .eq('id', aulaId)
       .select()
-    
+
     return { data, error }
   },
 
   // === LISTAS AUXILIARES ===
-  
+
   // Buscar professores (para secretaria)
   async getProfessores() {
     const { data, error } = await supabase
@@ -239,7 +240,7 @@ export const ProfessorService = {
       .select('*')
       .eq('perfil', 'professor')
       .order('nome_completo', { ascending: true })
-    
+
     return { data, error }
   },
 
@@ -254,7 +255,7 @@ export const ProfessorService = {
       .eq('turma_id', turmaId)
       .eq('status_aluno', 'ativo')
       .order('perfis(nome_completo)', { ascending: true })
-    
+
     return { data, error }
   },
 
@@ -269,9 +270,9 @@ export const ProfessorService = {
       `)
       .eq('professor_id', professorId)
       .not('turma_id', 'is', null)
-    
+
     if (errorDisciplinas) return { data: null, error: errorDisciplinas }
-    
+
     // Extrair turmas únicas
     const turmasMap = new Map()
     disciplinas.forEach(d => {
@@ -289,7 +290,7 @@ export const ProfessorService = {
         })
       }
     })
-    
+
     const turmas = Array.from(turmasMap.values())
     return { data: turmas, error: null }
   },
@@ -305,7 +306,7 @@ export const ProfessorService = {
       .eq('turma_id', turmaId)
       .order('modulo', { ascending: true })
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
@@ -316,7 +317,7 @@ export const ProfessorService = {
       .select('*', { count: 'exact', head: true })
       .eq('turma_id', turmaId)
       .eq('status_aluno', 'ativo')
-    
+
     return { count: count || 0, error }
   }
 }

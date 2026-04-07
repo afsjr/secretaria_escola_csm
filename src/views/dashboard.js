@@ -6,7 +6,9 @@ import { SecretariaView } from './secretaria'
 import { GestaoTurmasView } from './gestao-turmas'
 import { AcademicoView } from './academico'
 import { MatrizView } from './matriz'
-import { ProfessorView } from './professor'
+import { ProfessorTurmasView } from './professor-turmas'
+import { ProfessorAlunosView } from './professor-alunos'
+import { ProfessorRegistrarAulaView } from './professor-registrar-aula'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
@@ -62,9 +64,17 @@ export async function DashboardView(session, subPath = '/') {
           ${isAdmin ? 'Controle Acadêmico' : isProfessor ? 'Notas e Aulas' : 'Boletim Escolar'}
         </a>
         ${isProfessor ? `
-          <a href="#/dashboard/professor" class="nav-item ${subPath === '/professor' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            Painel do Professor
+          <a href="#/dashboard/professor/turmas" class="nav-item ${subPath.startsWith('/professor/turmas') ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Minhas Turmas
+          </a>
+          <a href="#/dashboard/professor/alunos" class="nav-item ${subPath.startsWith('/professor/alunos') ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Meus Alunos
+          </a>
+          <a href="#/dashboard/professor/aulas" class="nav-item ${subPath.startsWith('/professor/aulas') ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Registrar Aula
           </a>
         ` : ''}
         <a href="#/dashboard/perfil" class="nav-item ${subPath === '/perfil' ? 'active' : ''}" style="text-decoration: none; color: inherit; margin-top: auto;">
@@ -111,8 +121,16 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await AcademicoView(profile))
   } else if (subPath === '/matriz') {
     contentArea.appendChild(await MatrizView())
+  } else if (subPath === '/professor/turmas' && isProfessor) {
+    contentArea.appendChild(await ProfessorTurmasView(profile))
+  } else if (subPath === '/professor/alunos' && isProfessor) {
+    contentArea.appendChild(await ProfessorAlunosView(profile))
+  } else if (subPath === '/professor/aulas' && isProfessor) {
+    contentArea.appendChild(await ProfessorRegistrarAulaView(profile))
   } else if (subPath === '/professor' && isProfessor) {
-    contentArea.appendChild(await ProfessorView(profile))
+    // Redirect to turmas by default
+    window.location.hash = '#/dashboard/professor/turmas'
+    return
   } else {
     // Default Home with dynamic statistics (Phase 4 suggestion)
     const { data: allProfiles } = await supabase.from('perfis').select('id', { count: 'exact' })

@@ -27,8 +27,8 @@ export async function DirectoryView() {
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
-      <h1 style="font-size: 2rem; color: var(--text-main);">Colegas</h1>
-      <p>Veja os outros alunos e membros do SGE.</p>
+      <h1 style="font-size: 2rem; color: var(--text-main);">Usuários do Sistema</h1>
+      <p>Veja todos os membros cadastrados no sistema.</p>
     </header>
 
     <div id="profiles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">

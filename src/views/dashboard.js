@@ -98,7 +98,7 @@ export async function DashboardView(session, subPath = '/') {
 
   // Internal view router (Phase 3 expanded)
   if (subPath === '/perfil') {
-    contentArea.appendChild(ProfileView(profile))
+    contentArea.appendChild(await ProfileView(profile))
   } else if (subPath === '/colegas') {
     contentArea.appendChild(await DirectoryView())
   } else if (subPath === '/documentos') {

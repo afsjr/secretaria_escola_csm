@@ -1,32 +1,84 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+}
 
-console.log("Hello from Functions!")
-
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders })
   }
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
+  try {
+    // Criar cliente admin com Service Role Key (SEGURA, roda no servidor)
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    )
+
+    // Ler dados do request
+    const { email, password, nomeCompleto, cpf, telefone, perfil = "aluno" } = await req.json()
+
+    // Validar dados básicos
+    if (!email || !password || !nomeCompleto) {
+      return new Response(
+        JSON.stringify({ error: { message: "Dados incompletos. Preencha todos os campos obrigatórios." } }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    // Step 1: Criar usuário no Supabase Auth
+    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: nomeCompleto }
+    })
+
+    if (userError) {
+      return new Response(
+        JSON.stringify({ error: { message: userError.message } }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    const user = userData.user
+
+    // Step 2: Criar perfil na tabela perfis
+    const { error: profileError } = await supabaseAdmin
+      .from("perfis")
+      .insert([{
+        id: user.id,
+        nome_completo: nomeCompleto,
+        email: email,
+        cpf: cpf || null,
+        telefone: telefone || null,
+        perfil: perfil
+      }])
+
+    if (profileError) {
+      // ROLLBACK: Deletar usuário criado para evitar dados órfãos
+      await supabaseAdmin.auth.admin.deleteUser(user.id)
+
+      return new Response(
+        JSON.stringify({ error: { message: profileError.message } }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    // Sucesso!
+    return new Response(
+      JSON.stringify({ data: { userId: user.id, email: user.email } }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    )
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: { message: error.message || "Erro interno do servidor." } }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    )
+  }
 })
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/admin-create-user' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/

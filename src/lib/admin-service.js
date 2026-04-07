@@ -38,27 +38,17 @@ async function callEdgeFunction(functionName, payload) {
   }
 
   try {
-    console.log('🔍 DEBUG - Chamando Edge Function:', {
-      url: `${EDGE_FUNCTIONS_BASE_URL}/${functionName}`,
-      hasSession: !!session,
-      hasToken: !!session?.access_token,
-      anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 20) + '...'
-    })
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
     const response = await fetch(`${EDGE_FUNCTIONS_BASE_URL}/${functionName}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${session.access_token}`,
+        'Authorization': `Bearer ${anonKey}`,
         'Content-Type': 'application/json',
-        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+        'apikey': anonKey,
+        'x-client-info': 'supabase-js-v2'
       },
       body: JSON.stringify(payload)
-    })
-
-    console.log('🔍 DEBUG - Resposta:', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries())
     })
 
     const result = await response.json()

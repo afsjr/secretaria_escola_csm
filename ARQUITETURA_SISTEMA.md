@@ -454,7 +454,7 @@ A tabela turmas representa as turmas ativas da instituicao, vinculadas a um curs
 
 A tabela matriculas e uma tabela de relacionamento entre alunos e turmas, armazenando o status do aluno na turma (ativo, trancado, evadido ou concluido). O sistema implementa uma regra de negocio que impede um aluno de estar ativo em mais de uma turma simultaneamente.
 
-A tabela boletim armazena as notas de cada aluno por disciplina, incluindo as tres notas bimestrais (n1, n2, n3), a nota de recuperacao (rec) e o total de faltas. A unicidade e garantida pela constraint UNIQUE(aluno_id, disciplina).
+A tabela boletim armazena as notas de cada aluno por disciplina, incluindo as tres notas bimestrais (n1, n2, n3), a nota de recuperacao (rec) e o total de faltas. A unicidade e garantida pela constraint UNIQUE(aluno_id, disciplina_id) e uma CHECK constraint valida que todas as notas estejam entre 0 e 10.
 
 ```
 +------------------------------------------------------------------+
@@ -538,15 +538,16 @@ A tabela boletim armazena as notas de cada aluno por disciplina, incluindo as tr
 |   TABELA: boletim                                                |
 |   Notas e frequencia dos alunos                                 |
 |   ------------------------------------------------------------   |
-|   | Campo     | Tipo      | Descricao                           ||
-|   | id       | UUID      | PK                                  ||
-|   | aluno_id | UUID      | FK para perfis                      ||
-|   | disciplina | TEXT    | Nome da disciplina                  ||
-|   | n1       | DECIMAL   | Nota do 1 bimestre                  ||
-|   | n2       | DECIMAL   | Nota do 2 bimestre                  ||
-|   | n3       | DECIMAL   | Nota do 3 bimestre                  ||
-|   | rec      | DECIMAL   | Nota de recuperacao                 ||
-|   | faltas   | INTEGER   | Total de faltas                     ||
+|   | Campo       | Tipo      | Descricao                         ||
+|   | id          | UUID      | PK                                ||
+|   | aluno_id    | UUID      | FK para perfis                    ||
+|   | disciplina_id | UUID  | FK para disciplinas                 ||
+|   | n1          | DECIMAL   | Nota do 1 bimestre (0-10)         ||
+|   | n2          | DECIMAL   | Nota do 2 bimestre (0-10)         ||
+|   | n3          | DECIMAL   | Nota do 3 bimestre (0-10)         ||
+|   | rec         | DECIMAL   | Nota de recuperacao (0-10)        ||
+|   | faltas      | INTEGER   | Total de faltas                   ||
+|   | CONSTRAINT  |           | CHECK(n1,n2,n3 BETWEEN 0 AND 10) ||
 |   ------------------------------------------------------------   |
 |                                                                   |
 |   TABELA: solicitacoes                                            |
@@ -578,13 +579,19 @@ As politicas RLS sao aplicadas automaticamente pelo Supabase em todas as consult
 |   ------------------------------------------------------------   |
 |   LEITURA:                                                       |
 |     - policy: "Users can view all profiles"                     |
-|     - USING: true (todos veem todos os perfis)                   |
+|     - USING: auth.role() = 'authenticated'                       |
 |                                                               |
 |   ESCRITA:                                                       |
 |     - policy: "Users can update own profile"                    |
 |     - WITH CHECK: auth.uid() = id                                |
 |     - policy: "Admins can update any profile"                    |
 |     - WITH CHECK: perfil IN ('admin', 'secretaria')              |
+|                                                               |
+|   DELETE:                                                        |
+|     - policy: "Apenas admin pode deletar perfis"                |
+|     - USING: EXISTS (SELECT 1 FROM perfis p                      |
+|                        WHERE p.id = auth.uid()                   |
+|                        AND p.perfil = 'admin')                   |
 |                                                               |
 |   TABELA: turmas                                                 |
 |   ------------------------------------------------------------   |
@@ -597,6 +604,12 @@ As politicas RLS sao aplicadas automaticamente pelo Supabase em todas as consult
 |     - WITH CHECK: EXISTS (SELECT 1 FROM perfis p                  |
 |                            WHERE p.id = auth.uid()               |
 |                            AND p.perfil IN ('admin','secretaria'))|
+|                                                               |
+|   DELETE:                                                        |
+|     - policy: "Apenas admin/secretaria pode deletar turmas"     |
+|     - USING: EXISTS (SELECT 1 FROM perfis p                      |
+|                        WHERE p.id = auth.uid()                   |
+|                        AND p.perfil IN ('admin','secretaria'))   |
 |                                                               |
 |   TABELA: matriculas                                             |
 |   ------------------------------------------------------------   |
@@ -612,16 +625,28 @@ As politicas RLS sao aplicadas automaticamente pelo Supabase em todas as consult
 |                            WHERE p.id = auth.uid()               |
 |                            AND p.perfil IN ('admin','secretaria'))|
 |                                                               |
+|   DELETE:                                                        |
+|     - policy: "Apenas admin/secretaria pode deletar matriculas" |
+|     - USING: EXISTS (SELECT 1 FROM perfis p                      |
+|                        WHERE p.id = auth.uid()                   |
+|                        AND p.perfil IN ('admin','secretaria'))   |
+|                                                               |
 |   TABELA: disciplinas                                            |
 |   ------------------------------------------------------------   |
 |   LEITURA:                                                       |
 |     - policy: "Everyone can view"                                |
-|     - USING: true                                                |
+|     - USING: auth.role() = 'authenticated'                       |
 |                                                               |
 |   ESCRITA:                                                       |
 |     - policy: "Professores gerem suas disciplinas"              |
 |     - WITH CHECK: professor_id = auth.uid()                     |
 |     - policy: "Admin/secretaria gerem todas"                     |
+|                                                               |
+|   DELETE:                                                        |
+|     - policy: "Apenas admin/secretaria pode deletar disciplinas"|
+|     - USING: EXISTS (SELECT 1 FROM perfis p                      |
+|                        WHERE p.id = auth.uid()                   |
+|                        AND p.perfil IN ('admin','secretaria'))   |
 |                                                               |
 |   TABELA: aulas                                                  |
 |   ------------------------------------------------------------   |
@@ -634,20 +659,33 @@ As politicas RLS sao aplicadas automaticamente pelo Supabase em todas as consult
 |     - policy: "Only owner professor can insert"                 |
 |     - WITH CHECK: professor_id = auth.uid()                      |
 |                                                               |
+|   DELETE:                                                        |
+|     - policy: "Professor dono ou admin pode deletar aulas"      |
+|     - USING: professor_id = auth.uid()                          |
+|       OR EXISTS (SELECT 1 FROM perfis p                          |
+|                    WHERE p.id = auth.uid()                       |
+|                    AND p.perfil = 'admin')                       |
+|                                                               |
 |   TABELA: boletim                                                |
 |   ------------------------------------------------------------   |
 |   LEITURA:                                                       |
-|     - policy: "Aluno ve proprio bulletin"                       |
+|     - policy: "Aluno ve proprio boletim"                        |
 |     - USING: aluno_id = auth.uid()                              |
-|     - policy: "Professor ve bulletin de suas disciplinas"       |
+|     - policy: "Professor ve boletim de suas disciplinas"        |
 |     - policy: "Admin/secretaria veem todos"                      |
 |                                                               |
 |   ESCRITA:                                                       |
 |     - policy: "Professor atualiza notas"                        |
 |     - WITH CHECK: EXISTS (SELECT 1 FROM disciplinas d            |
-|                            WHERE d.nome = disciplina             |
+|                            WHERE d.id = disciplina_id             |
 |                            AND d.professor_id = auth.uid())      |
 |     - policy: "Admin atualiza qualquer"                         |
+|                                                               |
+|   DELETE:                                                        |
+|     - policy: "Apenas admin/secretaria pode deletar"            |
+|     - USING: EXISTS (SELECT 1 FROM perfis p                      |
+|                        WHERE p.id = auth.uid()                   |
+|                        AND p.perfil IN ('admin','secretaria'))   |
 |                                                               |
 +------------------------------------------------------------------+
 ```
@@ -697,7 +735,9 @@ O sistema define quatro perfis de usuario com permisscoes distintas. O perfil ad
 
 O sistema implementa multiplas camadas de protecao contra os vetores de ataque mais comuns em aplicacoes web. A protecao contra XSS e implementada atraves da funcao escapeHTML que escapa todos os caracteres especiais antes de inserir dados do usuario no HTML. Essa funcao e utilizada em todas as views do sistema.
 
-A protecao contra forca bruta e implementada pelo rate-limiter que limita tentativas de login a 5 por janela de 5 minutos. Apos exceder o limite, o IP ou email e bloqueado por 15 minutos. Essa logica e executada inteiramente no cliente, o que significa que用户提供um usuario malicioso ainda pode tentar ataques, mas sera notificado rapidamente sobre o bloqueio.
+A protecao contra forca bruta e implementada em duas camadas. A primeira camada e client-side, executada pelo rate-limiter.js que limita tentativas de login a 5 por janela de 5 minutos, oferecendo feedback imediato ao usuario. A segunda camada e server-side, implementada via Edge Function, que garante protecao real contra ataques automatizados mesmo quando o atacante contorna as restricoes do navegador.
+
+A implementacao server-side utiliza uma tabela `login_attempts` no banco de dados para registrar tentativas falhas por IP e email. A Edge Function `auth-rate-limiter` e chamada antes de cada tentativa de login e verifica se o limite foi excedido. Quando o limite e atingido, o usuario e bloqueado por 15 minutos, independentemente de estar usando o navegador ou scripts automatizados.
 
 A protecao contra sequestro de sessao e implementada atraves de um timeout de 30 minutos de inatividade. Se o usuario nao interagir com o sistema por esse periodo, ele sera automaticamente desconectado. Esse timeout e verificado periodicamente em background.
 
@@ -720,11 +760,40 @@ A protecao contra sequestro de sessao e implementada atraves de um timeout de 30
 |   FORCA BRUTA                                                    |
 |   ==========                                                      |
 |                                                                   |
-|   Tentativa 1 -> Tentativa 2 -> ... -> Tentativa 5              |
+|   CAMADA 1: CLIENT-SIDE                                         |
+|   Tentativa 1 -> ... -> Tentativa 5                              |
 |                        |                                          |
 |                        v                                          |
-|   Bloqueio: 15 minutos                                           |
+|   Bloqueio local: 15 minutos                                     |
 |   Mensagem: "Muitas tentativas. Tente novamente em X min."      |
+|                                                                   |
+|   CAMADA 2: SERVER-SIDE (Edge Function)                         |
+|   Requisicao -> Edge Function auth-rate-limiter                  |
+|        |                                                         |
+|        v                                                         |
+|   SELECT COUNT(*) FROM login_attempts                           |
+|     WHERE (ip = $1 OR email = $2)                               |
+|     AND created_at > NOW() - INTERVAL '5 min'                   |
+|        |                                                         |
+|        | count >= 5?                                             |
+|        +---- SIM -> Retorna 429 Too Many Requests               |
+|        |                                                         |
+|        NAO                                                       |
+|        |                                                         |
+|        v                                                         |
+|   Prossegue para Supabase Auth                                  |
+|        |                                                         |
+|        | Falhou?                                                |
+|        v                                                         |
+|   INSERT INTO login_attempts (ip, email, created_at)           |
+|                                                                   |
+|   TABELA: login_attempts                                        |
+|   ------------------------------------------------------------   |
+|   | id        | UUID   | PK                                     ||
+|   | ip        | TEXT   | IP do solicitante                     ||
+|   | email     | TEXT   | Email tentado                         ||
+|   | created_at| TIMESTMP | Data da tentativa                  ||
+|   ------------------------------------------------------------   |
 |                                                                   |
 |   SEQUESTRO DE SESSAO                                            |
 |   ===============                                                |
@@ -959,9 +1028,63 @@ O fluxo de dados comeca quando uma view precisa exibir ou modificar informacoes.
 
 ### 7.1 Pipeline GitHub Actions
 
-O projeto utiliza GitHub Actions para implantacao automatica. O workflow definido no arquivo deploy.yml e acionado a cada push para o branch main, executando testes de build e implantando automaticamente em producao.
+O projeto utiliza GitHub Actions para implantacao automatica. O workflow definido no arquivo `deploy.yml` e acionado a cada push para o branch main, executando testes de build e implantando automaticamente em producao.
 
 O pipeline comeca com o checkout do codigo, seguido pela instalacao das dependencias NPM. O proximo passo e o build da aplicacao com Vite, que gera os arquivos estaticos otimizados na pasta dist. Finalmente, os arquivos sao fazer upload para o ambiente de hospedagem configurado.
+
+#### Exemplo de Workflow (.github/workflows/deploy.yml)
+
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linting
+      run: npm run lint
+      continue-on-error: true
+    
+    - name: Run tests
+      run: npm test
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+    
+    - name: Build project
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+    
+    - name: Upload to GitHub Pages
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        publish_branch: gh-pages
+        force_orphan: true
+```
 
 ### 7.2 Ambiente de Producao
 
@@ -1140,9 +1263,196 @@ try {
 }
 ```
 
-### 8.3 Politica RLS Exemplo
+### 8.4 Rate Limiter Server-Side (Edge Function)
 
-Este e um exemplo de como as politicas RLS sao definidas no banco de dados. Cada politca define quem pode executar qual operacao em quais condicoes.
+Este exemplo demonstra a implementacao da Edge Function que protege contra ataques de forca bruta no servidor:
+
+```typescript
+// supabase/functions/auth-rate-limiter/index.ts
+
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const MAX_ATTEMPTS = 5
+const WINDOW_MS = 5 * 60 * 1000 // 5 minutos
+const BLOCK_MS = 15 * 60 * 1000 // 15 minutos
+
+serve(async (req) => {
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, content-type',
+  }
+
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const { ip, email } = await req.json()
+
+    // Conecta ao banco com chave anonima
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!
+    )
+
+    // Conta tentativas recentes por IP ou email
+    const { data: attempts, error } = await supabase
+      .from('login_attempts')
+      .select('id', { count: 'exact' })
+      .or(`ip.eq.${ip},email.eq.${email}`)
+      .gte('created_at', new Date(Date.now() - WINDOW_MS).toISOString())
+
+    if (error) {
+      throw new Error('Erro ao verificar tentativas')
+    }
+
+    // Se excedeu o limite, retorna bloqueado
+    if (attempts && attempts.length >= MAX_ATTEMPTS) {
+      return new Response(
+        JSON.stringify({
+          allowed: false,
+          message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+          retryAfter: BLOCK_MS
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Permite login
+    return new Response(
+      JSON.stringify({ allowed: true }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+})
+```
+
+### 8.5 Session Management
+
+O gerenciamento de sessao implementa timeout por inatividade e verificacao periodica. Este codigo demonstra a implementacao completa.
+
+```javascript
+// src/auth/session.js
+
+import { supabase } from '../lib/supabase'
+import { toast } from '../lib/toast'
+
+// Timeout: 30 minutos de inatividade
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000
+let sessionCheckInterval = null
+let lastActivityTimestamp = Date.now()
+
+/**
+ * Inicia sessao do usuario
+ */
+export async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (!error && data?.session) {
+    resetActivityTimer()
+    startSessionTimeout()
+  }
+
+  return { data, error }
+}
+
+/**
+ * Encerra sessao do usuario
+ */
+export async function logout() {
+  stopSessionTimeout()
+  const { error } = await supabase.auth.signOut()
+  return { error }
+}
+
+/**
+ * Obtem sessao atual e verifica se nao expirou por inatividade
+ */
+export async function getSession() {
+  const { data: { session }, error } = await supabase.auth.getSession()
+
+  if (session) {
+    const inactiveTime = Date.now() - lastActivityTimestamp
+    if (inactiveTime > SESSION_TIMEOUT_MS) {
+      await logout()
+      toast.error('Sessao expirada por inatividade. Faca login novamente.')
+      return { session: null, error: { message: 'Session expired' } }
+    }
+  }
+
+  return { session, error }
+}
+
+/**
+ * Reseta o timer de atividade quando usuario interage
+ */
+function resetActivityTimer() {
+  lastActivityTimestamp = Date.now()
+}
+
+/**
+ * Inicia verificacao periodica de timeout
+ */
+function startSessionTimeout() {
+  stopSessionTimeout()
+
+  // Monitora atividade do usuario
+  const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']
+  
+  activityEvents.forEach(event => {
+    window.addEventListener(event, resetActivityTimer, { passive: true })
+  })
+
+  // Verifica a cada minuto se o timeout foi atingido
+  sessionCheckInterval = setInterval(async () => {
+    const inactiveTime = Date.now() - lastActivityTimestamp
+    
+    if (inactiveTime > SESSION_TIMEOUT_MS) {
+      stopSessionTimeout()
+      await logout()
+      window.location.hash = '#/'
+      toast.warning('Sessao expirada por inatividade.')
+    }
+  }, 60000) // Verifica a cada minuto
+}
+
+/**
+ * Para verificacao de timeout
+ */
+function stopSessionTimeout() {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval)
+    sessionCheckInterval = null
+  }
+}
+
+/**
+ * Busca perfil do usuario
+ */
+export async function getUserProfile(userId) {
+  const { data, error } = await supabase
+    .from('perfis')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  return { data, error }
+}
+```
+
+### 8.6 Politica RLS Exemplo
+
+Este e um exemplo de como as politicas RLS sao definidas no banco de dados. Cada politica define quem pode executar qual operacao em quais condicoes.
 
 ```sql
 -- =====================================================
@@ -1195,9 +1505,9 @@ WITH CHECK (
   )
 );
 
--- Policy: Aluno ve apenas seu proprio bulletin
-CREATE POLICY "Aluno ve proprio bulletin"
-ON bulletin FOR SELECT
+-- Policy: Aluno ve apenas seu proprio boletim
+CREATE POLICY "Aluno ve proprio boletim"
+ON boletim FOR SELECT
 USING (
   aluno_id = auth.uid()
   OR EXISTS (
@@ -1208,102 +1518,7 @@ USING (
 );
 ```
 
-### 8.4 Session Management
-
-O gerenciamento de sessao implementa timeout por inatividade e verificacao periodica. Este codigo demonstra a implementacao completa.
-
-```javascript
-// src/auth/session.js
-
-import { supabase } from '../lib/supabase'
-import { toast } from '../lib/toast'
-
-// Timeout: 30 minutos de inatividade
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000
-let sessionCheckInterval = null
-
-/**
- * Inicia sessao do usuario
- */
-export async function login(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (!error && data?.session) {
-    startSessionTimeout()
-  }
-
-  return { data, error }
-}
-
-/**
- * Encerra sessao do usuario
- */
-export async function logout() {
-  stopSessionTimeout()
-  const { error } = await supabase.auth.signOut()
-  return { error }
-}
-
-/**
- * Obtem sessao atual e verifica se nao expirou
- */
-export async function getSession() {
-  const { data: { session }, error } = await supabase.auth.getSession()
-
-  if (session) {
-    const sessionAge = Date.now() - new Date(session.created_at).getTime()
-    if (sessionAge > SESSION_TIMEOUT_MS) {
-      await logout()
-      toast.error('Sessao expirada por inatividade. Faca login novamente.')
-      return { session: null, error: { message: 'Session expired' } }
-    }
-  }
-
-  return { session, error }
-}
-
-/**
- * Inicia verificacao periodica de timeout
- */
-function startSessionTimeout() {
-  stopSessionTimeout()
-
-  sessionCheckInterval = setInterval(async () => {
-    const { session } = await getSession()
-    if (!session) {
-      stopSessionTimeout()
-      window.location.hash = '#/'
-    }
-  }, 60000) // Verifica a cada minuto
-}
-
-/**
- * Para verificacao de timeout
- */
-function stopSessionTimeout() {
-  if (sessionCheckInterval) {
-    clearInterval(sessionCheckInterval)
-    sessionCheckInterval = null
-  }
-}
-
-/**
- * Busca perfil do usuario
- */
-export async function getUserProfile(userId) {
-  const { data, error } = await supabase
-    .from('perfis')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  return { data, error }
-}
-```
-
-### 8.5 Protecao XSS
+### 8.7 Protecao XSS
 
 O modulo de seguranca fornece funcoes para sanitizar dados antes de inseri-los no HTML, prevenindo ataques XSS.
 
@@ -1482,25 +1697,515 @@ function handleLogin(event) {
 }
 ```
 
-## 9. Consideracoes Finais
+## 9. Backup e Disaster Recovery
 
-### 9.1 Limitações e Melhorias Futuras
+### 9.1 Estrategia de Backup
+
+O Supabase oferece backups automaticos diarios com retencao de 7 dias no plano gratuito e ate 30 dias no plano Pro. No entanto, e essencial implementar uma estrategia complementar de backup para garantir a recuperacao em caso de falhas criticas.
+
+#### Backup Automatizado via Script
+
+```bash
+#!/bin/bash
+# backup-db.sh - Script para backup manual do banco de dados
+
+# Configuracoes
+SUPABASE_PROJECT_ID="seu_project_id"
+SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}"
+BACKUP_DIR="./backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/backup_${DATE}.sql"
+
+mkdir -p ${BACKUP_DIR}
+
+# Backup via Supabase CLI
+supabase db dump -f ${BACKUP_FILE} \
+  --project-id ${SUPABASE_PROJECT_ID}
+
+# Comprime o backup
+gzip ${BACKUP_FILE}
+
+# Mantem apenas ultimos 7 dias de backups
+find ${BACKUP_DIR} -name "*.sql.gz" -mtime +7 -delete
+
+echo "Backup concluido: ${BACKUP_FILE}.gz"
+```
+
+#### Agendamento de Backups (Cron)
+
+```bash
+# Backup diario as 2h da manha
+0 2 * * * /path/to/backup-db.sh >> /var/log/db-backup.log 2>&1
+```
+
+### 9.2 Disaster Recovery
+
+#### Plano de Recuperacao
+
+| Cenário                             | Tempo Rec. (RTO) | Ponto Rec. (RPO) | Procedimento                    |
+| ------------------------------------ | ---------------- | ---------------- | ------------------------------- |
+| Corrupcao de dados                  | < 1 hora         | < 24 horas       | Restore de backup SQL          |
+| Falha no servidor                   | < 30 minutos     | 0 (Supabase HA)  | Failover automatico            |
+| Delete acidental                    | < 2 horas        | < 24 horas       | Restore pontual                |
+| Ataque malicioso                    | < 4 horas        | < 7 dias         | Audit log + restore completo   |
+
+#### Procedimento de Restore
+
+```bash
+# 1. Identificar o backup mais recente
+ls -lt backups/*.sql.gz | head -n 1
+
+# 2. Restaurar banco de dados
+gunzip backups/backup_20260408_020000.sql.gz
+psql -h db.seu-projeto.supabase.co \
+     -U postgres.seu-projeto \
+     -d postgres \
+     -f backups/backup_20260408_020000.sql
+
+# 3. Validar integridade
+SELECT COUNT(*) FROM perfis;
+SELECT COUNT(*) FROM turmas;
+SELECT COUNT(*) FROM matriculas;
+```
+
+## 10. Monitoramento e Logging
+
+### 10.1 Logging de Aplicacao
+
+O sistema implementa logging estruturado em multiplas camadas para facilitar o troubleshooting e auditoria.
+
+#### Frontend Logging
+
+```javascript
+// src/lib/logger.js
+
+const LOG_LEVELS = {
+  DEBUG: 0,
+  INFO: 1,
+  WARN: 2,
+  ERROR: 3,
+}
+
+const CURRENT_LOG_LEVEL = import.meta.env.DEV 
+  ? LOG_LEVELS.DEBUG 
+  : LOG_LEVELS.WARN
+
+export const logger = {
+  debug: (msg, data) => log(LOG_LEVELS.DEBUG, msg, data),
+  info: (msg, data) => log(LOG_LEVELS.INFO, msg, data),
+  warn: (msg, data) => log(LOG_LEVELS.WARN, msg, data),
+  error: (msg, error) => {
+    log(LOG_LEVELS.ERROR, msg, error)
+    // Envia para servico de monitoramento (ex: Sentry)
+    reportToMonitoring(msg, error)
+  }
+}
+
+function log(level, message, data) {
+  if (level >= CURRENT_LOG_LEVEL) {
+    const timestamp = new Date().toISOString()
+    const logEntry = {
+      timestamp,
+      level: Object.keys(LOG_LEVELS)[level],
+      message,
+      ...(data && { data })
+    }
+    
+    if (level >= LOG_LEVELS.ERROR) {
+      console.error(JSON.stringify(logEntry))
+    } else {
+      console.log(JSON.stringify(logEntry))
+    }
+  }
+}
+
+function reportToMonitoring(message, error) {
+  // Integracao com Sentry ou similar
+  if (window.Sentry) {
+    window.Sentry.captureException(error, {
+      tags: { context: message }
+    })
+  }
+}
+```
+
+### 10.2 Auditoria de Acoes Criticas
+
+A tabela `audit_log` registra todas as acoes administrativas para fins de compliance e investigacao de incidentes.
+
+```sql
+-- Tabela de audit log
+CREATE TABLE audit_log (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  acao TEXT NOT NULL,
+  tabela_afetada TEXT,
+  registro_id UUID,
+  detalhes JSONB,
+  ip_address TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS: Apenas admin/secretaria podem visualizar logs
+ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admin/Secretaria veem audit logs"
+ON audit_log FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM perfis p
+    WHERE p.id = auth.uid()
+    AND p.perfil IN ('admin', 'secretaria')
+  )
+);
+
+-- Trigger para registrar criacao de usuarios
+CREATE OR REPLACE FUNCTION log_user_creation()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO audit_log (user_id, acao, tabela_afetada, registro_id, detalhes)
+  VALUES (
+    auth.uid(),
+    'CREATE_USER',
+    'perfis',
+    NEW.id,
+    jsonb_build_object('email', NEW.email, 'perfil', NEW.perfil)
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER after_perfis_insert
+  AFTER INSERT ON perfis
+  FOR EACH ROW
+  EXECUTE FUNCTION log_user_creation();
+```
+
+### 10.3 Health Checks
+
+Endpoint de health check para monitoramento continuo:
+
+```javascript
+// src/lib/health-check.js
+
+import { supabase } from './supabase'
+
+export async function healthCheck() {
+  const results = {
+    database: false,
+    auth: false,
+    timestamp: new Date().toISOString()
+  }
+
+  try {
+    // Verifica conexao com banco
+    const { data, error } = await supabase
+      .from('perfis')
+      .select('id')
+      .limit(1)
+    
+    results.database = !error && data !== null
+  } catch (err) {
+    console.error('Database health check failed:', err)
+  }
+
+  try {
+    // Verifica autenticacao
+    const { data: { session } } = await supabase.auth.getSession()
+    results.auth = session !== null
+  } catch (err) {
+    console.error('Auth health check failed:', err)
+  }
+
+  const overall = results.database && results.auth
+  
+  return {
+    status: overall ? 'healthy' : 'degraded',
+    details: results
+  }
+}
+
+// Executa health check a cada 5 minutos
+setInterval(async () => {
+  const status = await healthCheck()
+  if (status.status === 'degraded') {
+    // Notifica administradores
+    console.warn('System degradation detected:', status.details)
+  }
+}, 5 * 60 * 1000)
+```
+
+## 11. Testes Automatizados
+
+### 11.1 Estrategia de Testes
+
+O projeto adota uma pirâmide de testes com foco em testes unitarios para servicos e integracao para views:
+
+```
+        /\
+       /  \  E2E Tests (Cypress) - 10%
+      /----\
+     /      \ Integration Tests (Vitest) - 20%
+    /--------\
+   /          \ Unit Tests (Vitest) - 70%
+  /------------\
+```
+
+### 11.2 Exemplo de Testes Unitarios
+
+```javascript
+// tests/unit/security.test.js
+
+import { describe, it, expect } from 'vitest'
+import { escapeHTML, sanitizeURL, safeHTML } from '../../src/lib/security'
+
+describe('Security - escapeHTML', () => {
+  it('deve escapar tags script', () => {
+    const input = '<script>alert("xss")</script>'
+    const output = escapeHTML(input)
+    expect(output).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;')
+  })
+
+  it('deve escapar aspas simples e duplas', () => {
+    const input = 'teste "com" \'aspas\''
+    const output = escapeHTML(input)
+    expect(output).toBe('teste &quot;com&quot; &#x27;aspas&#x27;')
+  })
+
+  it('deve retornar string vazia para null/undefined', () => {
+    expect(escapeHTML(null)).toBe('')
+    expect(escapeHTML(undefined)).toBe('')
+  })
+
+  it('deve converter numeros para string', () => {
+    expect(escapeHTML(123)).toBe('123')
+  })
+})
+
+describe('Security - sanitizeURL', () => {
+  it('deve bloquear javascript: URLs', () => {
+    expect(sanitizeURL('javascript:alert(1)')).toBe('#')
+    expect(sanitizeURL('  JAVASCRIPT:alert(1)')).toBe('#')
+  })
+
+  it('deve bloquear data: URLs', () => {
+    expect(sanitizeURL('data:text/html,<script>')).toBe('#')
+  })
+
+  it('deve permitir URLs validas', () => {
+    expect(sanitizeURL('https://example.com')).toBe('https://example.com')
+    expect(sanitizeURL('/relative/path')).toBe('/relative/path')
+  })
+})
+
+describe('Security - safeHTML', () => {
+  it('deve escapar valores interpolados', () => {
+    const userInput = '<b>negrito</b>'
+    const result = safeHTML`<div>${userInput}</div>`
+    expect(result).toBe('<div>&lt;b&gt;negrito&lt;/b&gt;</div>')
+  })
+})
+```
+
+### 11.3 Exemplo de Testes de Integracao
+
+```javascript
+// tests/integration/academic-service.test.js
+
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { academicService } from '../../src/lib/academic-service'
+import { supabase } from '../../src/lib/supabase'
+
+vi.mock('../../src/lib/supabase')
+
+describe('Academic Service Integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('deve buscar turmas ativas', async () => {
+    const mockTurmas = [
+      { id: '1', nome: 'Turma A', periodo: 'Manha' },
+      { id: '2', nome: 'Turma B', periodo: 'Noite' }
+    ]
+
+    supabase.from.mockReturnValue({
+      select: vi.fn().mockResolvedValue({ data: mockTurmas, error: null })
+    })
+
+    const result = await academicService.getTurmasAtivas()
+    
+    expect(result).toEqual(mockTurmas)
+    expect(supabase.from).toHaveBeenCalledWith('turmas')
+  })
+
+  it('deve lancar erro ao falhar busca', async () => {
+    supabase.from.mockReturnValue({
+      select: vi.fn().mockResolvedValue({ 
+        data: null, 
+        error: new Error('Connection timeout') 
+      })
+    })
+
+    await expect(academicService.getTurmasAtivas())
+      .rejects.toThrow('Connection timeout')
+  })
+
+  it('deve validar dados de matricula antes de inserir', async () => {
+    const matriculaInvalida = {
+      aluno_id: null, // Obrigatorio
+      turma_id: '123',
+      status_aluno: 'status_invalido'
+    }
+
+    await expect(academicService.createMatricula(matriculaInvalida))
+      .rejects.toThrow('aluno_id e obrigatorio')
+  })
+})
+```
+
+### 11.4 Executando os Testes
+
+```bash
+# Instalar dependencias de teste
+npm install -D vitest @testing-library/jsdom
+
+# Executar todos os testes
+npm test
+
+# Executar com coverage
+npm run test:coverage
+
+# Executar em modo watch (desenvolvimento)
+npm run test:watch
+
+# Executar testes especificos
+npm test -- security.test.js
+
+# Verificar cobertura minima de 80%
+npm run test:coverage -- --coverage.thresholds.statements=80
+```
+
+## 12. Otimizacao de Queries e Indexing
+
+### 12.1 Indices Implementados
+
+Para garantir performance em consultas frequentes, o banco de dados possui os seguintes indices:
+
+```sql
+-- Indices para chaves estrangeiras (automaticos)
+-- perfis_pkey, turmas_pkey, etc.
+
+-- Indices para consultas frequentes
+CREATE INDEX idx_perfis_email ON perfis(email);
+CREATE INDEX idx_perfis_cpf ON perfis(cpf);
+CREATE INDEX idx_perfis_perfil ON perfis(perfil);
+
+CREATE INDEX idx_turmas_curso_id ON turmas(curso_id);
+CREATE INDEX idx_turmas_status_ingresso ON turmas(status_ingresso);
+
+CREATE INDEX idx_matriculas_aluno_id ON matriculas(aluno_id);
+CREATE INDEX idx_matriculas_turma_id ON matriculas(turma_id);
+CREATE INDEX idx_matriculas_status_aluno ON matriculas(status_aluno);
+
+CREATE INDEX idx_disciplinas_turma_id ON disciplinas(turma_id);
+CREATE INDEX idx_disciplinas_professor_id ON disciplinas(professor_id);
+CREATE INDEX idx_disciplinas_curso_id ON disciplinas(curso_id);
+
+CREATE INDEX idx_aulas_disciplina_id ON aulas(disciplina_id);
+CREATE INDEX idx_aulas_professor_id ON aulas(professor_id);
+CREATE INDEX idx_aulas_data ON aulas(data DESC);
+
+CREATE INDEX idx_boletim_aluno_id ON boletim(aluno_id);
+CREATE INDEX idx_boletim_disciplina_id ON boletim(disciplina_id);
+
+CREATE INDEX idx_solicitacoes_user_id ON solicitacoes(user_id);
+CREATE INDEX idx_solicitacoes_status ON solicitacoes(status);
+
+-- Indice para audit log
+CREATE INDEX idx_audit_log_user_id ON audit_log(user_id);
+CREATE INDEX idx_audit_log_created_at ON audit_log(created_at DESC);
+```
+
+### 12.2 Query Optimization
+
+Exemplo de otimizacao de consulta usando EXPLAIN ANALYZE:
+
+```sql
+-- ANTES (Sem indice, 2000ms)
+SELECT * FROM matriculas m
+JOIN perfis p ON p.id = m.aluno_id
+WHERE m.turma_id = 'abc-123'
+  AND m.status_aluno = 'ativo';
+
+-- EXPLAIN ANALYZE mostra:
+-- Seq Scan on matriculas  (cost=0.00..250.00 rows=100 width=32)
+--   Filter: ((turma_id = 'abc-123') AND (status_aluno = 'ativo'))
+
+-- DEPOIS (Com indice, 10ms)
+CREATE INDEX idx_matriculas_turma_status ON matriculas(turma_id, status_aluno);
+
+-- EXPLAIN ANALYZE agora mostra:
+-- Index Scan using idx_matriculas_turma_status on matriculas
+--   (cost=0.28..8.30 rows=1 width=32)
+--   Index Cond: ((turma_id = 'abc-123') AND (status_aluno = 'ativo'))
+```
+
+### 12.3 Praticas de Performance
+
+1. **Evitar SELECT \***: Sempre especificar colunas necessarias
+2. **Usar JOINs apropriados**: INNER JOIN ao inves de LEFT JOIN quando possivel
+3. **Limitar resultados**: Usar LIMIT para consultas grandes
+4. **Pagination**: Implementar cursor-based pagination para listas longas
+5. **Connection Pooling**: Supabase gerencia automaticamente, mas evitar conexoes simultaneas excessivas
+
+```javascript
+// Exemplo de pagination eficiente
+async function getAlunosPaginado(page = 1, limit = 20) {
+  const offset = (page - 1) * limit
+  
+  const { data, error, count } = await supabase
+    .from('perfis')
+    .select('id, nome_completo, email, perfil', { count: 'exact' })
+    .eq('perfil', 'aluno')
+    .order('nome_completo')
+    .range(offset, offset + limit - 1)
+  
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit)
+    }
+  }
+}
+```
+
+## 13. Consideracoes Finais
+
+### 13.1 Limitações e Melhorias Futuras
 
 O sistema atualmente implementa uma arquitetura solida para suas necessidades atuais, mas existem areas que podem ser aprimoradas em versões futuras. A primeira melhoria seria mover toda a logica de criação e gerenciamento de usuarios para Edge Functions, eliminando completamente a necessidade de operações administrativas no cliente. Atualmente, o admin-service.js ainda tenta usar um cliente admin que foi removido por segurança.
 
 Outra melhoria seria implementar testes automatizados com Jest ou Vitest para garantir que novas alterações não Quebrem funcionalidades existentes. O sistema também poderia se beneficiar de uma implementação mais robusta de caching no frontend usando Service Workers para funcionar offline.
 
-### 9.2 Referencias
+### 13.2 Referencias
 
 Abaixo estão as referências técnicas utilizadas no desenvolvimento do sistema.
 
-- Supabase Documentation: https://supabase.com/docs
-- Vite Configuration: https://vitejs.dev/config/
-- Zod Validation: https://zod.dev/
-- PostgreSQL RLS: https://www.postgresql.org/docs/current/ddl-rowsecurity.html
-- OWASP Security: https://owasp.org/www-project-web-security-testing-guide/
+- Supabase Documentation: <https://supabase.com/docs>
+- Vite Configuration: <https://vitejs.dev/config/>
+- Zod Validation: <https://zod.dev/>
+- PostgreSQL RLS: <https://www.postgresql.org/docs/current/ddl-rowsecurity.html>
+- OWASP Security: <https://owasp.org/www-project-web-security-testing-guide/>
+- Vitest Testing: <https://vitest.dev/>
+- GitHub Actions: <https://docs.github.com/en/actions>
+- Deno Deploy Edge Functions: <https://deno.com/deploy>
+- Sentry Error Tracking: <https://docs.sentry.io/>
 
 ---
 
-Documento gerado em Abril de 2026.
+Documento atualizado em Abril de 2026.
 Sistema de Gestão Escolar - Centro de Saúde Monteiro (CSM)

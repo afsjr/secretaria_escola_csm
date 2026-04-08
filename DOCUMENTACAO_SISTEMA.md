@@ -5,7 +5,8 @@
 Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Saúde Monteiro (CSM).
 
 ### 🚀 Acesso
-- **Local:** http://localhost:5173/secretaria_escola_csm/
+
+- **Local:** <http://localhost:5173/secretaria_escola_csm/>
 - **Produção:** (URL de produção após deploy)
 
 ---
@@ -15,6 +16,7 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 ### 📋 Menu por Perfil
 
 #### 👨‍🎓 ALUNO
+
 | Menu | Descrição |
 |------|-----------|
 | 📌 Início | Dashboard com estatísticas e avisos |
@@ -24,6 +26,7 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 | ⚙️ Meus Dados | Editar perfil completo (dados, endereço, contato) |
 
 #### 👨‍🏫 PROFESSOR
+
 | Menu | Descrição |
 |------|-----------|
 | 📌 Início | Dashboard com estatísticas |
@@ -36,6 +39,7 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 | ⚙️ Meus Dados | Editar perfil completo |
 
 #### 🏫 ADMIN/SECRETARIA
+
 | Menu | Descrição |
 |------|-----------|
 | 📌 Início | Dashboard geral |
@@ -48,11 +52,62 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 
 ---
 
+## 🔐 Segurança
+
+### Implementada
+
+- ✅ **Edge Functions com autorização** para operações administrativas
+- ✅ **Row Level Security (RLS)** em todas as tabelas
+- ✅ **Sanitização XSS** em todas as views (`escapeHTML()`)
+- ✅ **Validação de inputs** com Zod (email, CPF, telefone, senha ≥8 caracteres)
+- ✅ **Rate limiting** no login e signup (5 tentativas → bloqueio 15min)
+- ✅ **CORS restrito** na Edge Function (apenas domínio autorizado)
+- ✅ **Headers de segurança** (CSP, HSTS, X-Frame-Options)
+- ✅ **Session timeout** automático (30 minutos de inatividade)
+- ✅ **Console removido** em builds de produção
+- ✅ **Camada de autorização RBAC**
+- ✅ **Tratamento centralizado de erros**
+
+### Edge Functions
+
+| Função | Finalidade | Autorização |
+|--------|-----------|-------------|
+| `admin-create-user` | Criar usuário com perfil | Apenas admin/secretaria (verificado no servidor) |
+| **Perfil forçado** | Sempre cria como `aluno` (não confia no input do cliente) | ✅ |
+
+### Proteção Contra Ameaças
+
+| Ameaça | Proteção |
+|--------|----------|
+| **Força bruta** | Rate limiting: 5 tentativas/5min, bloqueio 15min |
+| **XSS** | `escapeHTML()` em todos os dados do banco |
+| **Escalada de privilégios** | Edge Function verifica role + força perfil `aluno` |
+| **Sequestro de sessão** | Timeout 30min + verificação automática |
+| **Vazamento de info** | Console removido em produção |
+| **CSRF** | CORS restrito + Bearer tokens |
+| **Senhas fracas** | Mínimo 8 caracteres + letra + número |
+
+### RLS - Políticas Principais
+
+| Tabela | Quem pode ler | Quem pode escrever |
+|--------|--------------|-------------------|
+| `perfis` | Todos | Próprio usuário, admin |
+| `perfis_enderecos` | Próprio, admin | Próprio, admin |
+| `disciplinas` | Professor (suas), admin | Admin, professor (suas) |
+| `matriculas` | Próprio aluno, admin | Admin |
+| `boletim` | Aluno (seu), professor, admin | Professor, admin |
+| `aulas` | Professor (suas), admin | Professor |
+| `responsaveis` | Aluno, admin | Admin |
+| `observacoes_aluno` | Aluno, professor, admin | Professor, admin |
+
+---
+
 ## 🗄️ Estrutura do Banco de Dados
 
 ### Tabelas Principais
 
 #### `perfis`
+
 Dados pessoais e de acesso de todos os usuários.
 
 | Campo | Tipo | Descrição |
@@ -94,6 +149,7 @@ Dados pessoais e de acesso de todos os usuários.
 | `preferencia_contato` | jsonb | Preferências de contato |
 
 #### `perfis_enderecos`
+
 Endereço completo dos usuários (1:1 com perfis).
 
 | Campo | Tipo | Descrição |
@@ -109,6 +165,7 @@ Endereço completo dos usuários (1:1 com perfis).
 | `uf` | char(2) | Estado |
 
 #### `cursos`
+
 Cursos oferecidos pela instituição.
 
 | Campo | Tipo | Descrição |
@@ -119,6 +176,7 @@ Cursos oferecidos pela instituição.
 | `ativo` | boolean | Se está ativo |
 
 #### `turmas`
+
 Turmas/categorias de alunos.
 
 | Campo | Tipo | Descrição |
@@ -130,6 +188,7 @@ Turmas/categorias de alunos.
 | `curso_id` | uuid | FK → cursos.id |
 
 #### `disciplinas`
+
 Disciplinas dos cursos.
 
 | Campo | Tipo | Descrição |
@@ -142,6 +201,7 @@ Disciplinas dos cursos.
 | `professor_id` | uuid | FK → perfis.id |
 
 #### `matriculas`
+
 Matrículas de alunos em turmas.
 
 | Campo | Tipo | Descrição |
@@ -156,6 +216,7 @@ Matrículas de alunos em turmas.
 | `senha_portal` | text | Senha do portal |
 
 #### `boletim`
+
 Notas e faltas dos alunos.
 
 | Campo | Tipo | Descrição |
@@ -170,6 +231,7 @@ Notas e faltas dos alunos.
 | `rec` | numeric | Nota de recuperação |
 
 #### `aulas`
+
 Aulas registradas pelos professores.
 
 | Campo | Tipo | Descrição |
@@ -181,6 +243,7 @@ Aulas registradas pelos professores.
 | `conteudo` | text | Conteúdo ministrado |
 
 #### `solicitacoes`
+
 Solicitações de documentos.
 
 | Campo | Tipo | Descrição |
@@ -192,6 +255,7 @@ Solicitações de documentos.
 | `criado_em` | timestamptz | Data da solicitação |
 
 #### `responsaveis`
+
 Responsáveis legais de alunos menores.
 
 | Campo | Tipo | Descrição |
@@ -207,6 +271,7 @@ Responsáveis legais de alunos menores.
 | `principal` | boolean | Responsável principal |
 
 #### `observacoes_aluno`
+
 Observações e follow-ups sobre alunos.
 
 | Campo | Tipo | Descrição |
@@ -220,42 +285,12 @@ Observações e follow-ups sobre alunos.
 
 ---
 
-## 🔐 Segurança
-
-### Implementada
-- ✅ **Edge Functions** para operações administrativas (Service Role Key segura)
-- ✅ **Row Level Security (RLS)** em todas as tabelas
-- ✅ **Sanitização XSS** em todas as views
-- ✅ **Validação de inputs** com Zod (email, CPF, telefone, senha)
-- ✅ **Headers de segurança** (CSP, HSTS, X-Frame-Options)
-- ✅ **Tratamento centralizado de erros**
-- ✅ **Camada de autorização RBAC**
-
-### Edge Functions
-| Função | Finalidade |
-|--------|-----------|
-| `admin-create-user` | Criar usuário com perfil (com rollback) |
-
-### RLS - Políticas Principais
-| Tabela | Quem pode ler | Quem pode escrever |
-|--------|--------------|-------------------|
-| `perfis` | Todos | Próprio usuário, admin |
-| `perfis_enderecos` | Próprio, admin | Próprio, admin |
-| `disciplinas` | Professor (suas), admin | Admin, professor (suas) |
-| `matriculas` | Próprio aluno, admin | Admin |
-| `boletim` | Aluno (seu), professor, admin | Professor, admin |
-| `aulas` | Professor (suas), admin | Professor |
-| `responsaveis` | Aluno, admin | Admin |
-| `observacoes_aluno` | Aluno, professor, admin | Professor, admin |
-
----
-
 ## 📁 Estrutura de Arquivos
 
 ```
 src/
 ├── auth/
-│   ├── session.js              # Login, logout, getSession
+│   ├── session.js              # Login, logout, getSession + session timeout
 │   └── signup-handler.js       # Cadastro de aluno com rollback
 ├── lib/
 │   ├── supabase.js             # Cliente Supabase (sem admin client)
@@ -268,16 +303,17 @@ src/
 │   ├── student-details-service.js    # Endereço, responsáveis, observações
 │   ├── professor-details-service.js  # Dados expandidos do professor
 │   ├── security.js             # Sanitização XSS
-│   ├── validation.js           # Validação com Zod
+│   ├── validation.js           # Validação com Zod (senha ≥8 chars)
 │   ├── authz.js                # Autorização RBAC
 │   ├── error-handler.js        # Tratamento de erros
+│   ├── rate-limiter.js         # Rate limiting (5 tent/5min, bloqueio 15min)
 │   └── toast.js                # Notificações toast
 ├── styles/
 │   └── main.css                # Estilos globais
 ├── views/
 │   ├── home.js                 # Página inicial
-│   ├── login.js                # Login com validação
-│   ├── signup.js               # Cadastro com validação
+│   ├── login.js                # Login com validação + rate limiting
+│   ├── signup.js               # Cadastro com validação + rate limiting
 │   ├── dashboard.js            # Layout principal + router
 │   ├── profile.js              # Meus Dados (expandido)
 │   ├── directory.js            # Usuários do sistema
@@ -298,6 +334,7 @@ src/
 ## 🛠️ Configuração
 
 ### Variáveis de Ambiente
+
 ```env
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGci...
@@ -306,14 +343,16 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 **⚠️ IMPORTANTE:** Nunca adicione `VITE_SUPABASE_SERVICE_ROLE_KEY` no frontend!
 
 ### Instalação
+
 ```bash
 npm install
 npm run dev        # Desenvolvimento
-npm run build      # Produção
+npm run build      # Produção (com console removido)
 npm run preview    # Preview do build
 ```
 
 ### Deploy Edge Functions
+
 ```bash
 supabase login
 supabase link --project-ref <ref>
@@ -325,12 +364,14 @@ supabase functions deploy admin-create-user
 ## 📊 Funcionalidades
 
 ### 👨‍🎓 Aluno
+
 - ✅ Solicitar documentos (Declaração, Histórico, Atestado)
 - ✅ Editar perfil completo (dados, endereço, contato)
 - ✅ Ver usuários do sistema
 - ✅ Ver matriz curricular
 
 ### 👨‍🏫 Professor
+
 - ✅ Ver turmas atribuídas
 - ✅ Lançar notas em lote (cálculo automático de médias)
 - ✅ Registrar aulas (data, conteúdo)
@@ -338,9 +379,11 @@ supabase functions deploy admin-create-user
 - ✅ Ver ficha completa de alunos
 - ✅ Exportar notas em PDF
 - ✅ Alertas de alunos com média baixa
+- ✅ Busca de alunos por nome
 
 ### 🏫 Admin/Secretaria
-- ✅ Criar alunos e professores (via Edge Functions)
+
+- ✅ Criar alunos e professores (via Edge Functions seguras)
 - ✅ Vincular disciplinas a professores
 - ✅ Gerenciar alunos (editar, buscar)
 - ✅ Gerenciar professores
@@ -349,23 +392,28 @@ supabase functions deploy admin-create-user
 - ✅ Aprovar e gerar PDFs de documentos
 - ✅ Controle de status acadêmico e financeiro
 - ✅ Gestão de cursos e disciplinas
+- ✅ Fichas completas de alunos e professores
+- ✅ Observações e follow-ups por aluno
 
 ---
 
 ## 📈 Fórmulas de Cálculo
 
 ### Média Teórica
+
 ```
 Média = soma(notas presentes) / quantidade(notas presentes)
 ```
 
 ### Média Final
+
 ```
 Se há recuperação: Final = (Média Teórica + Recuperação) / 2
 Senão: Final = Média Teórica
 ```
 
 ### Status do Aluno
+
 | Média Final | Status |
 |-------------|--------|
 | ≥ 7.0 | ✅ Aprovado |
@@ -373,29 +421,84 @@ Senão: Final = Média Teórica
 | < 5.0 | 🔴 Reprovado |
 
 ### Menor de Idade
+
 ```
 menor = idade < 18 anos
 ```
+
 Responsáveis são **obrigatórios** para menores de idade.
+
+### Session Timeout
+
+```
+Sessão expira após 30 minutos de inatividade
+Verificação automática a cada 60 segundos
+```
+
+### Rate Limiting
+
+```
+Máximo: 5 tentativas de login/signup em 5 minutos
+Bloqueio: 15 minutos após exceder o limite
+Reset automático: Após login/cadastro bem-sucedido
+```
 
 ---
 
 ## 🐛 Resolução de Problemas
 
 ### Edge Functions não configuradas
+
 ```bash
 supabase functions deploy admin-create-user
 ```
 
 ### Erro de RLS
-Execute o SQL de criação de políticas em `DOCUMENTACAO_SEGURANCA.md`
+
+Execute o SQL de criação de políticas no SQL Editor do Supabase.
 
 ### Build falha
+
 ```bash
 rm -rf node_modules dist
 npm install
 npm run build
 ```
+
+### Sessão expirada
+
+O sistema expira sessões após 30 minutos de inatividade. Faça login novamente.
+
+### Conta bloqueada por muitas tentativas
+
+Aguarde 15 minutos ou aguarde o bloqueio expirar automaticamente.
+
+---
+
+## 📝 Changelog
+
+### v2.0 - Abril 2026
+
+- 🔒 Segurança: Edge Function com auth check + CORS restrito
+- 🔒 Segurança: Rate limiting no login/signup
+- 🔒 Segurança: Session timeout automático (30min)
+- 🔒 Segurança: Console removido em produção
+- 🔒 Segurança: Senha mínima aumentada para 8 caracteres
+- 🔒 Segurança: Sanitização XSS completa
+- 📚 Nova view: Ficha completa do aluno (secretaria)
+- 📚 Nova view: Ficha completa do professor
+- 📚 Nova view: Minhas Turmas (professor - lançamento em lote)
+- 📚 Nova view: Meus Alunos (professor - busca + ficha)
+- 📚 Nova view: Registrar Aula (professor)
+- 📚 Nova aba: Frequência (professor)
+- 📚 Export PDF de notas por disciplina
+- 📚 Alertas de alunos com média baixa
+- 📚 Responsáveis obrigatórios para menores de idade
+- 📚 Observações e follow-ups por aluno
+- 📋 Menu reorganizado por perfil
+- 📋 Colegas → Usuários do sistema
+- 📋 Removido: Boletim/Controle Acadêmico (redundante)
+- 🐛 Bug fixes diversos
 
 ---
 

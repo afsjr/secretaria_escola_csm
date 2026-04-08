@@ -5,7 +5,14 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: '/secretaria_escola_csm/',
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,       // Remove console.log, console.error, console.warn
+        drop_debugger: true       // Remove debugger statements
+      }
+    }
   },
   server: {
     // Configurar headers de segurança para dev server

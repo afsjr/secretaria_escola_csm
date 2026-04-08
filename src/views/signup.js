@@ -1,6 +1,7 @@
 import { registerUser } from '../auth/signup-handler'
 import { toast } from '../lib/toast'
 import { validateSignup } from '../lib/validation'
+import { checkRateLimit, clearRateLimit } from '../lib/rate-limiter'
 
 export function SignupView() {
   const container = document.createElement('div')
@@ -65,6 +66,13 @@ export function SignupView() {
       return
     }
 
+    // Verificar rate limiting
+    const rateLimit = checkRateLimit(email)
+    if (!rateLimit.allowed) {
+      toast.error(rateLimit.message)
+      return
+    }
+
     const submitBtn = form.querySelector('button[type="submit"]')
     submitBtn.disabled = true
     submitBtn.textContent = 'Registrando...'
@@ -81,6 +89,7 @@ export function SignupView() {
       if (error) {
         toast.error('Erro no cadastro: ' + error.message)
       } else {
+        clearRateLimit(email)
         toast.success('Conta criada com sucesso!')
       }
     } catch (err) {

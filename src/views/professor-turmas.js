@@ -470,7 +470,7 @@ async function loadAlunosDaDisciplina(disciplinaId, disciplinaNome, turma, conta
             <td style="padding: 0.5rem;"><input type="number" class="input input-rec" value="${rec}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
             <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="final-cell" data-final>${final > 0 ? final.toFixed(1) : '-'}</td>
             <td style="padding: 0.5rem; text-align: center;" class="status-cell" data-status>
-              <span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${status}</span>
+              <span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${escapeHTML(status)}</span>
             </td>
           </tr>
         `
@@ -519,7 +519,7 @@ function recalcularMedia(tbody, disciplinaId) {
       finalCell.style.color = final >= 7 ? 'var(--success)' : 'var(--danger)'
     }
     if (statusCell) {
-      statusCell.innerHTML = `<span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${status}</span>`
+      statusCell.innerHTML = `<span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${escapeHTML(status)}</span>`
     }
   })
 

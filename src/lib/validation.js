@@ -18,7 +18,7 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(1, 'Senha é obrigatória')
-    .min(6, 'Senha deve ter pelo menos 6 caracteres')
+    .min(8, 'Senha deve ter pelo menos 8 caracteres')
 })
 
 /**
@@ -49,7 +49,7 @@ export const signupSchema = z.object({
   password: z
     .string()
     .min(1, 'Senha é obrigatória')
-    .min(6, 'Senha deve ter pelo menos 6 caracteres')
+    .min(8, 'Senha deve ter pelo menos 8 caracteres')
     .max(100, 'Senha muito longa')
     .refine(val => /[A-Za-z]/.test(val), {
       message: 'Senha deve conter pelo menos uma letra'
@@ -128,16 +128,16 @@ export const notaSchema = z.object({
  */
 function validarCPF(cpf) {
   if (!cpf) return true
-  
+
   // Remover caracteres não numéricos
   cpf = cpf.replace(/\D/g, '')
-  
+
   // Verificar se tem 11 dígitos
   if (cpf.length !== 11) return false
-  
+
   // Verificar se todos os dígitos são iguais (ex: 111.111.111-11)
   if (/^(\d)\1+$/.test(cpf)) return false
-  
+
   // Calcular primeiro dígito verificador
   let soma = 0
   for (let i = 0; i < 9; i++) {
@@ -146,7 +146,7 @@ function validarCPF(cpf) {
   let resto = (soma * 10) % 11
   if (resto === 10) resto = 0
   if (resto !== parseInt(cpf.charAt(9))) return false
-  
+
   // Calcular segundo dígito verificador
   soma = 0
   for (let i = 0; i < 10; i++) {
@@ -155,7 +155,7 @@ function validarCPF(cpf) {
   resto = (soma * 10) % 11
   if (resto === 10) resto = 0
   if (resto !== parseInt(cpf.charAt(10))) return false
-  
+
   return true
 }
 
@@ -164,10 +164,10 @@ function validarCPF(cpf) {
  */
 function validarTelefone(telefone) {
   if (!telefone) return true
-  
+
   // Remover caracteres não numéricos
   const numeros = telefone.replace(/\D/g, '')
-  
+
   // Verificar se tem 10 ou 11 dígitos (com ou sem 9)
   return numeros.length >= 10 && numeros.length <= 11
 }

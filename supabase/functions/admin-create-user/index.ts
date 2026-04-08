@@ -1,9 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+// CORS restrito ao domínio do sistema
+const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") || "http://localhost:5173"
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": allowedOrigin,
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Max-Age": "86400",
 }
 
 serve(async (req) => {
@@ -13,14 +18,62 @@ serve(async (req) => {
   }
 
   try {
-    // Criar cliente admin com Service Role Key (SEGURA, roda no servidor)
+    // Criar cliente admin com Service Role Key
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     )
 
+    // === VERIFICAÇÃO DE AUTORIZAÇÃO ===
+    const authHeader = req.headers.get("Authorization")
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: { message: "Não autorizado." } }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+    
+    // Verificar token com Supabase
+    const supabaseVerify = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    )
+    const { data: { user }, error: authError } = await supabaseVerify.auth.getUser(token)
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: { message: "Token inválido." } }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    // Verificar se o usuário tem role admin ou secretaria
+    const { data: perfil, error: perfilError } = await supabaseAdmin
+      .from("perfis")
+      .select("perfil")
+      .eq("id", user.id)
+      .single()
+
+    if (perfilError || !perfil) {
+      return new Response(
+        JSON.stringify({ error: { message: "Perfil não encontrado." } }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    if (perfil.perfil !== "admin" && perfil.perfil !== "secretaria") {
+      return new Response(
+        JSON.stringify({ error: { message: "Acesso negado. Apenas admin/secretaria." } }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    // === FIM DA VERIFICAÇÃO ===
+
     // Ler dados do request
-    const { email, password, nomeCompleto, cpf, telefone, perfil = "aluno" } = await req.json()
+    const { email, password, nomeCompleto, cpf, telefone } = await req.json()
 
     // Validar dados básicos
     if (!email || !password || !nomeCompleto) {
@@ -29,6 +82,9 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }
+
+    // Forçar perfil para 'aluno' (não confiar no input do cliente)
+    const perfil = "aluno"
 
     // Step 1: Criar usuário no Supabase Auth
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
@@ -45,23 +101,23 @@ serve(async (req) => {
       )
     }
 
-    const user = userData.user
+    const newUser = userData.user
 
     // Step 2: Criar perfil na tabela perfis
     const { error: profileError } = await supabaseAdmin
       .from("perfis")
       .insert([{
-        id: user.id,
+        id: newUser.id,
         nome_completo: nomeCompleto,
         email: email,
         cpf: cpf || null,
         telefone: telefone || null,
-        perfil: perfil
+        perfil: perfil // Forçado pelo servidor, não pelo cliente
       }])
 
     if (profileError) {
       // ROLLBACK: Deletar usuário criado para evitar dados órfãos
-      await supabaseAdmin.auth.admin.deleteUser(user.id)
+      await supabaseAdmin.auth.admin.deleteUser(newUser.id)
 
       return new Response(
         JSON.stringify({ error: { message: profileError.message } }),
@@ -71,13 +127,13 @@ serve(async (req) => {
 
     // Sucesso!
     return new Response(
-      JSON.stringify({ data: { userId: user.id, email: user.email } }),
+      JSON.stringify({ data: { userId: newUser.id, email: newUser.email } }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
 
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: { message: error.message || "Erro interno do servidor." } }),
+      JSON.stringify({ error: { message: "Erro interno do servidor." } }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
   }

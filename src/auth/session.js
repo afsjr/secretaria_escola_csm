@@ -1,21 +1,68 @@
 import { supabase } from '../lib/supabase'
+import { toast } from '../lib/toast'
+
+// Session timeout: 30 minutos de inatividade
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000
+let sessionCheckInterval = null
 
 export async function login(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
+
+  if (!error && data?.session) {
+    startSessionTimeout()
+  }
+
   return { data, error }
 }
 
 export async function logout() {
+  stopSessionTimeout()
   const { error } = await supabase.auth.signOut()
   return { error }
 }
 
 export async function getSession() {
   const { data: { session }, error } = await supabase.auth.getSession()
+
+  if (session) {
+    // Verificar se a sessão expirou
+    const sessionAge = Date.now() - new Date(session.created_at).getTime()
+    if (sessionAge > SESSION_TIMEOUT_MS) {
+      await logout()
+      toast.error('Sessão expirada por inatividade. Faça login novamente.')
+      return { session: null, error: { message: 'Session expired' } }
+    }
+  }
+
   return { session, error }
+}
+
+/**
+ * Inicia verificação periódica de timeout de sessão
+ */
+function startSessionTimeout() {
+  stopSessionTimeout() // Limpa intervalo anterior se existir
+
+  sessionCheckInterval = setInterval(async () => {
+    const { session } = await getSession()
+    if (!session) {
+      stopSessionTimeout()
+      window.location.hash = '#/'
+    }
+  }, 60000) // Verifica a cada minuto
+}
+
+/**
+ * Para a verificação de timeout
+ */
+function stopSessionTimeout() {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval)
+    sessionCheckInterval = null
+  }
 }
 
 export async function getUserProfile(userId) {

@@ -1,6 +1,7 @@
 import { login } from '../auth/session'
 import { toast } from '../lib/toast'
 import { validateLogin } from '../lib/validation'
+import { checkRateLimit, clearRateLimit } from '../lib/rate-limiter'
 
 export function LoginView() {
   const container = document.createElement('div')
@@ -47,6 +48,13 @@ export function LoginView() {
       return
     }
 
+    // Verificar rate limiting
+    const rateLimit = checkRateLimit(email)
+    if (!rateLimit.allowed) {
+      toast.error(rateLimit.message)
+      return
+    }
+
     const submitBtn = form.querySelector('button[type="submit"]')
     submitBtn.disabled = true
     submitBtn.textContent = 'Entrando...'
@@ -57,6 +65,7 @@ export function LoginView() {
       if (error) {
         toast.error('Erro de acesso: ' + error.message)
       } else {
+        clearRateLimit(email) // Limpa tentativas após login bem-sucedido
         toast.success('Bem-vindo ao sistema!')
       }
     } catch (err) {

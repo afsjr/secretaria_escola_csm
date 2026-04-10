@@ -2,7 +2,7 @@
 
 ---
 
-## 🎓 NOVIDADE: Sistema de Gestão Escolar (SGE) - Agora com Material de Treinamento Completo!
+## 🎓 NOVIDADE: Sistema de Gestão Escolar (SGE) - Agora com Material de Treinamento Completo
 
 **De:** Equipe de Tecnologia / Desenvolvimento  
 **Para:** Equipe Gestora, Coordenadores e Professores  
@@ -11,7 +11,7 @@
 
 ---
 
-## 👋 Prezada Equipe Gestora e Professores,
+## 👋 Prezada Equipe Gestora e Professores
 
 É com grande satisfação que anunciamos o lançamento do **Sistema de Gestão Escolar (SGE)** do Colégio Santa Mônica! 🎉
 
@@ -24,6 +24,7 @@ Após meses de desenvolvimento e testes, nossa plataforma digital está pronta p
 O **SGE** é uma plataforma online que centraliza todas as informações acadêmicas da nossa escola em um único lugar, permitindo:
 
 ✅ **Para Professores:**
+
 - Lançar notas de forma rápida e organizada
 - Registrar aulas e acompanhar o progresso da turma
 - Registrar frequência dos alunos
@@ -31,6 +32,7 @@ O **SGE** é uma plataforma online que centraliza todas as informações acadêm
 - Exportar relatórios em PDF
 
 ✅ **Para a Gestão:**
+
 - Gerenciar turmas e matrículas
 - Cadastrar alunos e professores
 - Processar solicitações de documentos
@@ -39,6 +41,7 @@ O **SGE** é uma plataforma online que centraliza todas as informações acadêm
 - Controle total do status dos alunos
 
 ✅ **Para Alunos:**
+
 - Acessar notas e frequência
 - Solicitar documentos online
 - Ver matriz curricular
@@ -50,7 +53,7 @@ O **SGE** é uma plataforma online que centraliza todas as informações acadêm
 
 Desenvolvemos um **guia completo e interativo** para que todos possam conhecer o sistema, suas funcionalidades e permissões de cada perfil.
 
-### 📍 Onde Acessar o Treinamento:
+### 📍 Onde Acessar o Treinamento
 
 O material está disponível em **3 locais** para facilitar seu acesso:
 
@@ -58,11 +61,12 @@ O material está disponível em **3 locais** para facilitar seu acesso:
 2. **Página Inicial** → Opção "📚 Material de Treinamento"
 3. **Dentro do Sistema** (após login) → Link "📚 Treinamento" na barra lateral
 
-### 🌐 Acesso Direto:
+### 🌐 Acesso Direto
 
 **URL:** [https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html](https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html)
 
 O treinamento é **didático, visual e fácil de seguir**, com:
+
 - 15 slides interativos
 - Explicações passo a passo
 - Tabelas de permissões por perfil
@@ -73,15 +77,15 @@ O treinamento é **didático, visual e fácil de seguir**, com:
 
 ## 🔐 COMO ACESSAR O SISTEMA
 
-### Acesso Rápido:
+### Acesso Rápido
 
 **URL:** [https://afsjr.github.io/secretaria_escola_csm/](https://afsjr.github.io/secretaria_escola_csm/)
 
-### Opções de Acesso:
+### Opções de Acesso
 
 **1️⃣ Conta de Teste (Para Experimentação)**
 
-Quer conhecer o sistema antes de usar oficialmente? 
+Quer conhecer o sistema antes de usar oficialmente?
 
 📧 **Fale com o Desenvolvedor** para receber credenciais de acesso temporárias e explorar todas as funcionalidades sem compromisso.
 
@@ -109,7 +113,7 @@ Cada pessoa terá acesso conforme seu papel na escola:
 
 ## 🎯 PRINCIPAIS VANTAGENS DO SISTEMA
 
-### Para a Gestão Escolar:
+### Para a Gestão Escolar
 
 📊 **Centralização de Informações**  
 Tudo em um só lugar - sem mais planilhas dispersas ou documentos perdidos.
@@ -126,7 +130,7 @@ Dashboard com estatísticas atualizadas para tomada de decisões.
 🌐 **Acesso de Qualquer Lugar**  
 Basta ter internet - funciona em computadores, tablets e celulares.
 
-### Para os Professores:
+### Para os Professores
 
 ✍️ **Lançamento de Notas Simplificado**  
 Interface intuitiva com cálculo automático de médias.
@@ -163,7 +167,7 @@ O material de treinamento cobre **todos os aspectos do sistema**:
 
 ## 🚀 PRÓXIMOS PASSOS
 
-### Recomendamos que você:
+### Recomendamos que você
 
 **1️⃣ Acesse o Material de Treinamento**  
 Revise os slides para entender as funcionalidades do sistema.
@@ -242,8 +246,8 @@ Juntos, estamos construindo uma escola mais tecnológica e eficiente. 🚀
 | Item | Detalhe |
 |------|---------|
 | **Sistema** | SGE - Sistema de Gestão Escolar |
-| **URL** | https://afsjr.github.io/secretaria_escola_csm/ |
-| **Treinamento** | https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html |
+| **URL** | <https://afsjr.github.io/secretaria_escola_csm/> |
+| **Treinamento** | <https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html> |
 | **Credenciais de Teste** | Falar com o Desenvolvedor |
 | **Conta Oficial** | Criar com e-mail válido via Desenvolvedor ou Secretaria |
 | **Suporte** | Desenvolvedor ou Secretaria da Escola |

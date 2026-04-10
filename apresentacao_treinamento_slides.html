@@ -263,14 +263,19 @@
 
         /* CORREÇÃO DE CONTRASTE: Listas dentro de Info Box */
         .info-box .passos li {
-            background: rgba(255, 255, 255, 0.1); /* Fundo semi-transparente escuro */
-            color: var(--branco); /* Texto branco */
-            border: 1px solid rgba(255,255,255, 0.2);
+            background: var(--branco); /* Fundo branco sólido para máximo contraste */
+            color: var(--cinza-escuro); /* Texto escuro para ler bem no branco */
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         .info-box .passos li::before {
             background: var(--amarelo);
             color: var(--vermelho-escuro);
+        }
+        
+        .info-box .passos li strong {
+            color: var(--vermelho-escuro); /* Destaques ficam vermelhos */
         }
 
         /* Navegação */

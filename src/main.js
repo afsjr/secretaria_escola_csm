@@ -11,7 +11,7 @@ const app = document.querySelector('#app')
 
 /**
  * Very simple client-side router based on URL hash.
- * Protects the dashboard by checking for a valid session.
+ * Protege o painel de controle verificando sessão válida.
  */
 async function router() {
   const path = window.location.hash || '#/'
@@ -46,7 +46,7 @@ async function router() {
     } else if (path === '#/reset-password') {
       app.appendChild(ResetPasswordView())
     } else if (path.startsWith('#/dashboard')) {
-      // Pass the subpath to the DashboardView
+      // Pass the subpath to the PainelControleView
       const subPath = path.replace('#/dashboard', '') || '/'
       app.appendChild(await DashboardView(session, subPath))
     } else {

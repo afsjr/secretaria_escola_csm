@@ -136,7 +136,7 @@ export async function DocumentsView(profile) {
       toast.success('Solicitação enviada com sucesso!')
       modal.style.display = 'none'
       // Reload view (SPA style hack)
-      window.location.hash = '#/dashboard' // Quick reset
+      window.location.hash = '#/dashboard' // Reset rápido
       setTimeout(() => window.location.hash = '#/dashboard/documentos', 10)
     }
   }

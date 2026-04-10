@@ -263,19 +263,22 @@
 
         /* CORREÇÃO DE CONTRASTE: Listas dentro de Info Box */
         .info-box .passos li {
-            background: var(--branco); /* Fundo branco sólido para máximo contraste */
-            color: var(--cinza-escuro); /* Texto escuro para ler bem no branco */
+            background: var(--branco);
+            /* Fundo branco sólido para máximo contraste */
+            color: var(--cinza-escuro);
+            /* Texto escuro para ler bem no branco */
             border: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
+
         .info-box .passos li::before {
             background: var(--amarelo);
             color: var(--vermelho-escuro);
         }
-        
+
         .info-box .passos li strong {
-            color: var(--vermelho-escuro); /* Destaques ficam vermelhos */
+            color: var(--vermelho-escuro);
+            /* Destaques ficam vermelhos */
         }
 
         /* Navegação */
@@ -420,11 +423,11 @@
             td {
                 padding: 0.5rem;
             }
-            
+
             .navegacao {
                 padding: 0.8rem 1rem;
             }
-            
+
             .navegacao button {
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
@@ -435,7 +438,8 @@
         .swipe-indicator {
             display: none;
             position: absolute;
-            bottom: 80px; /* Acima da barra de navegação local */
+            bottom: 80px;
+            /* Acima da barra de navegação local */
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
@@ -450,14 +454,26 @@
 
         @media (max-width: 768px) {
             .swipe-indicator {
-                display: block; /* Só aparece no celular */
+                display: block;
+                /* Só aparece no celular */
             }
         }
 
         @keyframes pulseSwipe {
-            0% { opacity: 0.4; transform: translateX(-50%) scale(0.95); }
-            50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
-            100% { opacity: 0.4; transform: translateX(-50%) scale(0.95); }
+            0% {
+                opacity: 0.4;
+                transform: translateX(-50%) scale(0.95);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.05);
+            }
+
+            100% {
+                opacity: 0.4;
+                transform: translateX(-50%) scale(0.95);
+            }
         }
 
         /* Slide de índice */
@@ -680,7 +696,7 @@
         <div class="func-grid">
             <div class="func-item">
                 <h4>📌 Início</h4>
-                <p>Dashboard com estatísticas pessoais, documentos pendentes e avisos importantes</p>
+                <p>Painel de Controle com estatísticas pessoais, documentos pendentes e avisos importantes</p>
             </div>
             <div class="func-item">
                 <h4>📄 Documentos</h4>
@@ -721,7 +737,7 @@
         <div class="func-grid">
             <div class="func-item">
                 <h4>📌 Início</h4>
-                <p>Dashboard com estatísticas e visão geral das suas turmas</p>
+                <p>Painel de Controle com estatísticas e visão geral das suas turmas</p>
             </div>
             <div class="func-item">
                 <h4>🎓 Minhas Turmas</h4>
@@ -766,7 +782,7 @@
         <div class="func-grid">
             <div class="func-item">
                 <h4>📌 Início</h4>
-                <p>Dashboard geral com estatísticas do sistema</p>
+                <p>Painel de Controle geral com estatísticas do sistema</p>
             </div>
             <div class="func-item">
                 <h4>📋 Painel Secretaria</h4>
@@ -1226,7 +1242,7 @@
                 hideSwipeIndicator();
             }
         }
-        
+
         function hideSwipeIndicator() {
             const indicator = document.getElementById('swipeIndicator');
             if (indicator) {

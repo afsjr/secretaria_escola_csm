@@ -1,4 +1,5 @@
 # 🎓 Sistema de Gestão Escolar - CSM
+
 ## Guia de Funcionalidades e Permissões por Perfil
 
 **Colégio Santa Mônica** - Limoeiro/PE  
@@ -37,10 +38,10 @@ O **Sistema de Gestão Escolar (SGE)** é uma plataforma digital desenvolvida es
 
 ### 🌐 Acesso ao Sistema
 
-**URL:** https://afsjr.github.io/secretaria_escola_csm/
+**URL:** <https://afsjr.github.io/secretaria_escola_csm/>
 
 Ou acesse localmente durante o desenvolvimento:  
-**Local:** http://localhost:5173/secretaria_escola_csm/
+**Local:** <http://localhost:5173/secretaria_escola_csm/>
 
 ---
 
@@ -62,13 +63,14 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 
 | Menu | Descrição |
 |------|-----------|
-| 📌 **Início** | Dashboard com estatísticas pessoais e avisos |
+| 📌 **Início** | Painel de Controle com estatísticas pessoais e avisos |
 | 📄 **Documentos** | Solicitar Declaração de Matrícula, Histórico, Atestado |
 | 👥 **Usuários** | Ver lista de colegas (apenas nomes, por privacidade) |
 | 📚 **Matriz Curricular** | Ver todas as disciplinas do curso |
 | ⚙️ **Meus Dados** | Editar perfil completo (dados, endereço, contato) |
 
 **O que o Aluno pode fazer:**
+
 - ✅ Visualizar suas notas e frequência
 - ✅ Solicitar documentos acadêmicos
 - ✅ Editar seus dados pessoais
@@ -76,6 +78,7 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 - ✅ Acompanhar status de solicitações
 
 **O que o Aluno NÃO pode fazer:**
+
 - ❌ Lançar ou modificar notas
 - ❌ Registrar aulas
 - ❌ Gerenciar turmas ou matrículas
@@ -87,7 +90,7 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 
 | Menu | Descrição |
 |------|-----------|
-| 📌 **Início** | Dashboard com estatísticas das turmas |
+| 📌 **Início** | Painel de Controle com estatísticas das turmas |
 | 🎓 **Minhas Turmas** | Ver turmas, lançar notas em lote, registrar frequência |
 | 👤 **Meus Alunos** | Busca de alunos + ficha completa individual |
 | 📅 **Registrar Aula** | Registrar conteúdo ministrado em cada aula |
@@ -96,6 +99,7 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 | 📚 **Treinamento** | Acessar material de treinamento |
 
 **O que o Professor pode fazer:**
+
 - ✅ Lançar notas dos alunos (N1, N2, N3, Recuperação)
 - ✅ Registrar aulas com conteúdo ministrado
 - ✅ Registrar frequência dos alunos
@@ -105,6 +109,7 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 - ✅ Buscar alunos por nome
 
 **O que o Professor NÃO pode fazer:**
+
 - ❌ Cadastrar novos alunos ou professores
 - ❌ Gerenciar turmas (criar/excluir)
 - ❌ Processar solicitações de documentos
@@ -116,7 +121,7 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 
 | Menu | Descrição |
 |------|-----------|
-| 📌 **Início** | Dashboard geral com estatísticas do sistema |
+| 📌 **Início** | Painel de Controle geral com estatísticas do sistema |
 | 📋 **Painel Secretaria** | Cadastros, gerenciamento, solicitações |
 | 🎓 **Gestão de Turmas** | Criar turmas, matricular alunos, status acadêmico |
 | 📚 **Matriz Curricular** | Visualizar matriz dos cursos e disciplinas |
@@ -126,6 +131,7 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 | 📚 **Treinamento** | Acessar material de treinamento |
 
 **O que a Secretaria/Admin pode fazer:**
+
 - ✅ Cadastrar alunos e professores
 - ✅ Gerenciar turmas e matrículas
 - ✅ Processar solicitações de documentos
@@ -187,11 +193,13 @@ O sistema possui **3 perfis de acesso**, cada um com permissões e funcionalidad
 ### Sistema de Cálculo Automático
 
 **Média Teórica:**
+
 ```
 Média = (N1 + N2 + N3) ÷ 3
 ```
 
 **Média Final:**
+
 ```
 Se há recuperação: Final = (Média + Recuperação) ÷ 2
 Senão: Final = Média
@@ -219,12 +227,14 @@ Senão: Final = Média
 4. Clique em **Registrar**
 
 **Exemplo:**
+
 ```
 Data: 01/04/2026
 Conteúdo: Introdução à Anatomia Humana - Sistema Esquelético
 ```
 
 **Por que registrar aulas?**
+
 - Mantém histórico organizado do conteúdo ministrado
 - Facilita o acompanhamento do progresso da turma
 - Ajuda em caso de substituição de professor
@@ -292,7 +302,7 @@ O material de treinamento está disponível em **3 locais**:
 
 1. **Tela de Login:** Botão "📚 Material de Treinamento"
 2. **Home Page:** Opção "📚 Material de Treinamento"
-3. **Dashboard (todos os perfis):** Link "📚 Treinamento" na barra lateral
+3. **Painel de Controle (todos os perfis):** Link "📚 Treinamento" na barra lateral
 
 ### O que o Material Inclui
 
@@ -314,11 +324,13 @@ O material de treinamento está disponível em **3 locais**:
 ### Não consigo fazer login
 
 **Possíveis causas:**
+
 - E-mail ou senha incorretos
 - Usuário não cadastrado
 - Conta bloqueada por muitas tentativas
 
 **Solução:**
+
 1. Verifique se o e-mail está correto (sem espaços)
 2. Verifique se a senha está correta (atenção a maiúsculas)
 3. Se bloqueado, aguarde 15 minutos
@@ -327,16 +339,19 @@ O material de treinamento está disponível em **3 locais**:
 ### Não aparecem notas no boletim
 
 **Possíveis causas:**
+
 - Professor ainda não lançou as notas
 - Aluno não está matriculado em nenhuma turma
 
 **Solução:**
+
 1. Verifique com o professor se as notas foram lançadas
 2. Confirme com a secretaria se está matriculado na turma
 
 ### Botão "Matricular" não aparece
 
 **Solução:**
+
 - O botão está na cor **amarela** com ícone 🎓
 - Localizado na coluna "Ações" da tabela de alunos
 - Se não aparecer, faça refresh da página (F5)
@@ -344,8 +359,9 @@ O material de treinamento está disponível em **3 locais**:
 ### Material de treinamento dá erro 404
 
 **Solução:**
+
 - Certifique-se de que o sistema está atualizado
-- Acesse através dos botões: Login, Home ou Dashboard
+- Acesse através dos botões: Login, Home ou Painel de Controle
 - URL direta: `/secretaria_escola_csm/apresentacao_treinamento.html`
 
 ---

@@ -125,7 +125,7 @@ Matricular alunos, gerar documentos e acompanhar turmas em poucos cliques.
 Dados protegidos, acesso controlado por perfil, em conformidade com a LGPD.
 
 📈 **Visão Geral em Tempo Real**  
-Dashboard com estatísticas atualizadas para tomada de decisões.
+Painel de Controle com estatísticas atualizadas para tomada de decisões.
 
 🌐 **Acesso de Qualquer Lugar**  
 Basta ter internet - funciona em computadores, tablets e celulares.

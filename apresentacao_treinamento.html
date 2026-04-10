@@ -8,9 +8,12 @@
     <style>
         :root {
             /* Identidade Visual Colégio Santa Mônica */
-            --primary: #C41E3A;        /* Vermelho Institucional */
-            --primary-dark: #9B1B30;   /* Vermelho Escuro */
-            --accent: #FFD700;         /* Amarelo Ouro */
+            --primary: #C41E3A;
+            /* Vermelho Institucional */
+            --primary-dark: #9B1B30;
+            /* Vermelho Escuro */
+            --accent: #FFD700;
+            /* Amarelo Ouro */
             --accent-light: #FFF4B8;
             --text-main: #333333;
             --text-muted: #666666;
@@ -199,8 +202,15 @@
             vertical-align: middle;
         }
 
-        .tag-secretaria { background: #E0E7FF; color: #3730A3; }
-        .tag-professor { background: #FEF3C7; color: #92400E; }
+        .tag-secretaria {
+            background: #E0E7FF;
+            color: #3730A3;
+        }
+
+        .tag-professor {
+            background: #FEF3C7;
+            color: #92400E;
+        }
 
         /* SCROLL INDICATOR */
         .scroll-indicator {
@@ -224,24 +234,61 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
         }
 
         /* MOBILE ADAPTABILITY */
         @media (max-width: 768px) {
-            body { padding: 1rem 0.5rem; }
-            header { padding: 2rem 1.5rem; }
-            header h1 { font-size: 1.8rem; }
-            header p { font-size: 1rem; }
-            
-            .card { padding: 1.5rem; }
-            .card h2 { font-size: 1.4rem; flex-wrap: wrap; }
-            
-            .step { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-            .step-number { margin-bottom: 0.5rem; }
-            
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            header {
+                padding: 2rem 1.5rem;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .card h2 {
+                font-size: 1.4rem;
+                flex-wrap: wrap;
+            }
+
+            .step {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .step-number {
+                margin-bottom: 0.5rem;
+            }
+
             .scroll-indicator {
                 left: 50%;
                 right: auto;
@@ -250,13 +297,26 @@
                 font-size: 0.8rem;
                 bottom: 15px;
             }
+
             @keyframes bounce {
-                0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
-                40% { transform: translate(-50%, -10px); }
-                60% { transform: translate(-50%, -5px); }
+
+                0%,
+                20%,
+                50%,
+                80%,
+                100% {
+                    transform: translate(-50%, 0);
+                }
+
+                40% {
+                    transform: translate(-50%, -10px);
+                }
+
+                60% {
+                    transform: translate(-50%, -5px);
+                }
             }
         }
-
     </style>
 </head>
 
@@ -278,7 +338,9 @@
         <!-- OBJETIVO -->
         <div class="card">
             <h2>🎯 1. Objetivo do Treinamento</h2>
-            <p>Capacitar os usuários (Secretaria e Professores) a utilizar de forma <strong>autônoma e segura</strong> o novo Sistema de Gestão Escolar, garantindo a organização acadêmica, o fluxo de documentos e a agilidade nas rotinas diárias.</p>
+            <p>Capacitar os usuários (Secretaria e Professores) a utilizar de forma <strong>autônoma e segura</strong> o
+                novo Sistema de Gestão Escolar, garantindo a organização acadêmica, o fluxo de documentos e a agilidade
+                nas rotinas diárias.</p>
         </div>
 
         <!-- ACESSO -->
@@ -287,7 +349,8 @@
             <div class="steps-container">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <div>Acesse o navegador e abra o link oficial: <strong>https://afsjr.github.io/secretaria_escola_csm/</strong></div>
+                    <div>Acesse o navegador e abra o link oficial:
+                        <strong>https://afsjr.github.io/secretaria_escola_csm/</strong></div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
@@ -299,16 +362,19 @@
                 </div>
             </div>
             <div class="warning">
-                ⚠️ <strong>Atenção:</strong> Nunca compartilhe seu acesso. Se esqueceu sua senha, o Administrador (Secretaria) deverá cadastrá-la novamente através do Painel.
+                ⚠️ <strong>Atenção:</strong> Nunca compartilhe seu acesso. Se esqueceu sua senha, o Administrador
+                (Secretaria) deverá cadastrá-la novamente através do Painel.
             </div>
             <div class="highlight">
-                ✔️ Resultado esperado: O painel inicial (Dashboard) carregará de acordo com as permissões do seu Perfil.
+                ✔️ Resultado esperado: O painel inicial (Painel de Controle) carregará de acordo com as permissões do
+                seu Perfil.
             </div>
         </div>
 
         <!-- CADASTRO DE PESSOAS -->
         <div class="card">
-            <h2>👨‍🎓 3. Cadastro de Novos Alunos/Professores <span class="tag-perfil tag-secretaria">Secretaria</span></h2>
+            <h2>👨‍🎓 3. Cadastro de Novos Alunos/Professores <span class="tag-perfil tag-secretaria">Secretaria</span>
+            </h2>
             <div class="steps-container">
                 <div class="step">
                     <div class="step-number">1</div>
@@ -320,16 +386,18 @@
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <div>Preencha, obrigatoriamente, <strong>Nome Completo</strong>, <strong>E-mail</strong> e defina uma <strong>Senha Inicial</strong> de 6 dígitos</div>
+                    <div>Preencha, obrigatoriamente, <strong>Nome Completo</strong>, <strong>E-mail</strong> e defina
+                        uma <strong>Senha Inicial</strong> de 6 dígitos</div>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
                     <div>Clique em <strong>"Criar Aluno"</strong></div>
                 </div>
             </div>
-            
+
             <div class="warning">
-                ⚠️ <strong>Importante:</strong> Use sempre e-mails reais ou um padrão interno (ex: aluno123@csm.com.br) para evitar conflitos de segurança.
+                ⚠️ <strong>Importante:</strong> Use sempre e-mails reais ou um padrão interno (ex: aluno123@csm.com.br)
+                para evitar conflitos de segurança.
             </div>
 
             <ul class="checklist">
@@ -340,8 +408,10 @@
 
         <!-- COMPLEMENTO DA FICHA DA SECRETARIA -->
         <div class="card">
-            <h2>📝 4. Complemento da Ficha (Dados Avançados) <span class="tag-perfil tag-secretaria">Secretaria</span></h2>
-            <p>Após criar a conta básica, você deve preencher os dados completos do estudante no sistema (Endereço, Responsáveis, RG):</p>
+            <h2>📝 4. Complemento da Ficha (Dados Avançados) <span class="tag-perfil tag-secretaria">Secretaria</span>
+            </h2>
+            <p>Após criar a conta básica, você deve preencher os dados completos do estudante no sistema (Endereço,
+                Responsáveis, RG):</p>
             <div class="steps-container">
                 <div class="step">
                     <div class="step-number">1</div>
@@ -361,7 +431,8 @@
                 </div>
             </div>
             <div class="highlight">
-                ✔️ Resultado esperado: Uma mensagem de Sucesso será exibida, e todos os dados foram salvos simultaneamente no banco de dados.
+                ✔️ Resultado esperado: Uma mensagem de Sucesso será exibida, e todos os dados foram salvos
+                simultaneamente no banco de dados.
             </div>
         </div>
 
@@ -395,7 +466,8 @@
         <!-- LANÇAMENTO DE NOTAS -->
         <div class="card">
             <h2>📊 6. Lançamento de Notas <span class="tag-perfil tag-professor">Professor</span></h2>
-            <p>Ação que visa popular o <strong>Boletim</strong> do estudante e calcular estatísticas (Aprovado, Recuperação ou Reprovado).</p>
+            <p>Ação que visa popular o <strong>Boletim</strong> do estudante e calcular estatísticas (Aprovado,
+                Recuperação ou Reprovado).</p>
             <div class="steps-container">
                 <div class="step">
                     <div class="step-number">1</div>
@@ -407,7 +479,8 @@
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <div>Preencha as linhas correspondentes: Número de Faltas, <strong>N1</strong>, <strong>N2</strong> e <strong>N3</strong></div>
+                    <div>Preencha as linhas correspondentes: Número de Faltas, <strong>N1</strong>, <strong>N2</strong>
+                        e <strong>N3</strong></div>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
@@ -418,9 +491,10 @@
                     <div>Clique em <strong>"Salvar Notas"</strong> na cor verde</div>
                 </div>
             </div>
-            
+
             <div class="warning">
-                ⚠️ <strong>Atenção operacional:</strong> O status Final (Aprovado / Reprovado) só é calculado efetivamente ao SALVAR O FORMULÁRIO. Não deixe alunos sem Faltas lançadas.
+                ⚠️ <strong>Atenção operacional:</strong> O status Final (Aprovado / Reprovado) só é calculado
+                efetivamente ao SALVAR O FORMULÁRIO. Não deixe alunos sem Faltas lançadas.
             </div>
             <div class="highlight">
                 ✔️ Resultado esperado: O aluno verá imediatamente seu boletim atualizado pelo seu próprio login.
@@ -429,7 +503,8 @@
 
         <!-- EMISSÃO DE DOCUMENTOS -->
         <div class="card">
-            <h2>📄 7. Solicitação de Documentos <span class="tag-perfil tag-secretaria">Secretaria</span> <span class="tag-perfil tag-professor">Todos</span></h2>
+            <h2>📄 7. Solicitação de Documentos <span class="tag-perfil tag-secretaria">Secretaria</span> <span
+                    class="tag-perfil tag-professor">Todos</span></h2>
             <div class="steps-container">
                 <div class="step">
                     <div class="step-number">1</div>
@@ -437,7 +512,8 @@
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <div>Clique em <strong>"Nova Solicitação"</strong>. Se você for Secretária, a solicitação irá cair na FILA da aba "Solicitações" Central</div>
+                    <div>Clique em <strong>"Nova Solicitação"</strong>. Se você for Secretária, a solicitação irá cair
+                        na FILA da aba "Solicitações" Central</div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
@@ -445,7 +521,8 @@
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <div>O sistema gera um arquivo PDF com o logo do <strong>CSM</strong> e data autêntica de emissão. Faça o download pressionando "Salvar" no visualizador do navegador.</div>
+                    <div>O sistema gera um arquivo PDF com o logo do <strong>CSM</strong> e data autêntica de emissão.
+                        Faça o download pressionando "Salvar" no visualizador do navegador.</div>
                 </div>
             </div>
         </div>
@@ -458,7 +535,8 @@
                 <li>✔️ <strong>1.</strong> O login do aluno foi testado ou a senha foi enviada?</li>
                 <li>✔️ <strong>2.</strong> Todos os dados da Ficha (Telefone/Nascimento) foram preenchidos?</li>
                 <li>✔️ <strong>3.</strong> O aluno foi efetivamente vinculado ("Matriculado") em uma turma?</li>
-                <li>✔️ <strong>4.</strong> Foi validado que o aluno não possui pendência nos documentos impressos anexos?</li>
+                <li>✔️ <strong>4.</strong> Foi validado que o aluno não possui pendência nos documentos impressos
+                    anexos?</li>
             </ul>
         </div>
 
@@ -477,4 +555,5 @@
         });
     </script>
 </body>
+
 </html>

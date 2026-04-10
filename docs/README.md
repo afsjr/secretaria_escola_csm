@@ -21,6 +21,7 @@ Documentos para comunicar o lançamento e uso do sistema à equipe.
 | [COMUNICADO_EMAIL.md](./COMUNICADO_EMAIL.md) | Template de email pronto para envio | Todos os usuários | Email direto para staff |
 
 **Quando usar cada um:**
+
 - Use o **COMUNICADO_LANCAMENTO** para comunicação formal e oficial
 - Use o **COMUNICADO_WHATSAPP** para grupos de mensagens instantâneas
 - Use o **COMUNICADO_EMAIL** para envio direto por email
@@ -37,6 +38,7 @@ Documentação técnica e guias de uso do sistema.
 | [MANUAL_SGE.md](../MANUAL_SGE.md) | Manual completo do sistema | Todos os usuários | Índice detalhado, instruções passo a passo, solução de problemas |
 
 **Quando usar cada um:**
+
 - Use o **FUNCIONALIDADES_PERFIS** para ver rapidamente o que cada perfil pode fazer
 - Use o **MANUAL_SGE** para instruções detalhadas e completas
 
@@ -53,6 +55,7 @@ Documentação para desenvolvedores e equipe técnica.
 | [DOCUMENTACAO_SEGURANCA.md](../DOCUMENTACAO_SEGURANCA.md) | Documentação de segurança | Desenvolvedores, Admin | Proteções implementadas, RLS, Edge Functions, ameaças |
 
 **Quando usar cada um:**
+
 - Use o **DOCUMENTACAO_SISTEMA** para visão geral técnica
 - Use o **ARQUITETURA_SISTEMA** para entender a estrutura técnica
 - Use o **DOCUMENTACAO_SEGURANCA** para detalhes de segurança
@@ -68,12 +71,14 @@ Material didático para treinamento da equipe.
 | [apresentacao_treinamento.html](../apresentacao_treinamento.html) | Apresentação interativa de treinamento | Todos os usuários | HTML interativo (15 slides) |
 
 **Como acessar:**
+
 - **Diretamente:** Abra o arquivo `apresentacao_treinamento.html` no navegador
-- **Pelo sistema:** Clique em "📚 Treinamento" na barra lateral do dashboard
+- **Pelo sistema:** Clique em "📚 Treinamento" na barra lateral do Painel de Controle
 - **Pelo login:** Clique em "📚 Material de Treinamento" na tela de login
 - **Pela home:** Clique em "📚 Material de Treinamento" na página inicial
 
 **Conteúdo do treinamento:**
+
 - 15 slides interativos com navegação
 - Explicações didáticas para adultos
 - Esquema de cores do Colégio Santa Mônica
@@ -85,22 +90,26 @@ Material didático para treinamento da equipe.
 
 ## 🗺️ Mapa de Navegação Rápido
 
-### Para Equipe Gestora:
+### Para Equipe Gestora
+
 1. 📢 Leia o **COMUNICADO_LANCAMENTO.md** para entender o sistema
 2. 🎓 Acesse o **apresentacao_treinamento.html** para conhecer funcionalidades
 3. 📖 Consulte o **FUNCIONALIDADES_PERFIS.md** para ver permissões de cada perfil
 
-### Para Professores:
+### Para Professores
+
 1. 📢 Leia o **COMUNICADO_WHATSAPP.md** para visão rápida
 2. 🎓 Acesse o **apresentacao_treinamento.html** (foco nas seções de Professor)
 3. 📖 Consulte o **FUNCIONALIDADES_PERFIS.md** para ver suas funcionalidades
 
-### Para Desenvolvedores:
+### Para Desenvolvedores
+
 1. 🏗️ Leia o **ARQUITETURA_SISTEMA.md** para entender a estrutura
 2. 🏗️ Consulte o **DOCUMENTACAO_SEGURANCA.md** para detalhes de segurança
 3. 📖 Veja o **DOCUMENTACAO_SISTEMA.md** para visão geral
 
-### Para Administradores do Sistema:
+### Para Administradores do Sistema
+
 1. 📖 Leia o **MANUAL_SGE.md** para instruções completas
 2. 🏗️ Consulte o **DOCUMENTACAO_SISTEMA.md** para funcionalidades
 3. 🏗️ Veja o **DOCUMENTACAO_SEGURANCA.md** para políticas de segurança
@@ -119,8 +128,8 @@ Material didático para treinamento da equipe.
 
 ### Acesso ao Sistema
 
-- **URL:** https://afsjr.github.io/secretaria_escola_csm/
-- **Treinamento:** https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html
+- **URL:** <https://afsjr.github.io/secretaria_escola_csm/>
+- **Treinamento:** <https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html>
 - **Credenciais de Teste:** Falar com o Desenvolvedor
 - **Conta Oficial:** Criar com e-mail válido
 
@@ -151,6 +160,7 @@ O sistema e toda documentação utilizam as cores oficiais do **Colégio Santa M
 ## 📝 Changelog da Documentação
 
 ### v5.0 - Abril 2026
+
 - 📚 Criação da pasta `docs` para organização centralizada
 - 📢 Adicionados 3 tipos de comunicados (Lançamento, WhatsApp, Email)
 - 📖 Criado guia completo de funcionalidades e permissões

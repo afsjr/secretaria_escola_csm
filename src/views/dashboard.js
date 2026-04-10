@@ -1,3 +1,8 @@
+/**
+ * Painel de Controle View - Layout Principal
+ *
+ * Barra lateral de navegação + Área de conteúdo dinâmico
+ */
 import { logout, getUserProfile, getAllProfiles } from '../auth/session'
 import { ProfileView } from './profile'
 import { DirectoryView } from './directory'
@@ -14,7 +19,7 @@ import { escapeHTML, createBadge } from '../lib/security'
 
 export async function DashboardView(session, subPath = '/') {
   const container = document.createElement('div')
-  container.className = 'dashboard-layout'
+  container.className = 'painel-controle-layout'
 
   // Fetch profile data
   const { data: profile, error } = await getUserProfile(session.user.id)
@@ -100,12 +105,12 @@ export async function DashboardView(session, subPath = '/') {
       </div>
     </aside>
 
-    <main class="main-content" id="dashboard-content">
+    <main class="main-content" id="painel-controle-conteudo">
       <!-- Inner View Loaded Here -->
     </main>
   `
 
-  const contentArea = container.querySelector('#dashboard-content')
+  const contentArea = container.querySelector('#painel-controle-conteudo')
 
   // Internal view router
   if (subPath === '/perfil') {

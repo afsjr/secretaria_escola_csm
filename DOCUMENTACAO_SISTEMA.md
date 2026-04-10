@@ -19,7 +19,7 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 
 | Menu | Descrição |
 |------|-----------|
-| 📌 Início | Dashboard com estatísticas e avisos |
+| 📌 Início | Painel de Controle com estatísticas e avisos |
 | 📄 Documentos | Solicitar e acompanhar documentos |
 | 👥 Usuários | Ver todos os membros do sistema |
 | 📚 Matriz Curricular | Grade curricular do curso |
@@ -29,7 +29,7 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 
 | Menu | Descrição |
 |------|-----------|
-| 📌 Início | Dashboard com estatísticas |
+| 📌 Início | Painel de Controle com estatísticas |
 | 📄 Documentos | Solicitar documentos |
 | 👥 Usuários | Ver todos os membros |
 | 📚 Matriz Curricular | Grade curricular |
@@ -42,7 +42,7 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 
 | Menu | Descrição |
 |------|-----------|
-| 📌 Início | Dashboard geral |
+| 📌 Início | Painel de Controle geral |
 | 📄 Documentos | Gerenciar solicitações de documentos |
 | 👥 Usuários | Lista completa de usuários |
 | 📚 Matriz Curricular | Visualizar matriz dos cursos |

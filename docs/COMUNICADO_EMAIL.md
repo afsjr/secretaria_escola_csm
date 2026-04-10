@@ -32,7 +32,7 @@ Para a GESTÃO:
 Desenvolvemos um GUIÁ INTERATIVO E DIDÁTICO para que todos possam conhecer o sistema:
 
 🔗 ACESSE O TREINAMENTO:
-https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html
+<https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html>
 
 ⏱️ Tempo estimado: 15-20 minutos
 🎨 Visual com as cores do Colégio Santa Mônica (Vermelho, Amarelo, Cinza e Branco)
@@ -43,7 +43,7 @@ https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html
 🔐 COMO ACESSAR O SISTEMA
 ═══════════════════════════════════════════════════════
 
-🌐 URL: https://afsjr.github.io/secretaria_escola_csm/
+🌐 URL: <https://afsjr.github.io/secretaria_escola_csm/>
 
 QUER EXPERIMENTAR ANTES?
 📧 Fale com o DESENVOLVEDOR para receber credenciais de teste e explorar o sistema sem compromisso
@@ -68,7 +68,7 @@ Cada pessoa terá acesso conforme seu papel na escola:
 📊 Centralização de Informações - Tudo em um só lugar
 ⚡ Agilidade nos Processos - Matrículas e documentos em poucos cliques
 🔒 Segurança e Privacidade - Dados protegidos, conformidade LGPD
-📈 Visão Geral em Tempo Real - Dashboard com estatísticas atualizadas
+📈 Visão Geral em Tempo Real - Painel de Controle com estatísticas atualizadas
 🌐 Acesso de Qualquer Lugar - Computadores, tablets e celulares
 
 ═══════════════════════════════════════════════════════
@@ -117,8 +117,8 @@ Colégio Santa Mônica - Limoeiro/PE
 
 RESUMO RÁPIDO:
 📌 Sistema: SGE - Sistema de Gestão Escolar
-🌐 URL: https://afsjr.github.io/secretaria_escola_csm/
-📚 Treinamento: https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html
+🌐 URL: <https://afsjr.github.io/secretaria_escola_csm/>
+📚 Treinamento: <https://afsjr.github.io/secretaria_escola_csm/apresentacao_treinamento.html>
 🔑 Credenciais de Teste: Falar com o Desenvolvedor
 📧 Conta Oficial: Criar com e-mail válido
 📞 Suporte: Desenvolvedor ou Secretaria da Escola

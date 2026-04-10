@@ -197,7 +197,9 @@ export async function DashboardView(session, subPath = '/') {
   if (btnTreinamentoGuia) {
     btnTreinamentoGuia.addEventListener('click', (e) => {
       e.preventDefault();
-      window.open('apresentacao_treinamento.html', '_blank')
+      let baseUrl = window.location.href.split('#')[0].replace('index.html', '');
+      if (!baseUrl.endsWith('/')) baseUrl += '/';
+      window.open(baseUrl + 'apresentacao_treinamento.html', '_blank')
     })
   }
 
@@ -205,7 +207,9 @@ export async function DashboardView(session, subPath = '/') {
   if (btnTreinamentoSlide) {
     btnTreinamentoSlide.addEventListener('click', (e) => {
       e.preventDefault();
-      window.open('apresentacao_treinamento_slides.html', '_blank')
+      let baseUrl = window.location.href.split('#')[0].replace('index.html', '');
+      if (!baseUrl.endsWith('/')) baseUrl += '/';
+      window.open(baseUrl + 'apresentacao_treinamento_slides.html', '_blank')
     })
   }
 

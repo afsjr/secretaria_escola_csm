@@ -9,7 +9,7 @@
  */
 
 import { toast } from '../lib/toast'
-import { escapeHTML, createBadge } from '../lib/security'
+import { escapeHTML, createBadge, createOption } from '../lib/security'
 import { ProfessorDetailsService } from '../lib/professor-details-service'
 
 export async function ProfessorDetailsView(professorId) {

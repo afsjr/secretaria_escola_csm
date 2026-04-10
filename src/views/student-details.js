@@ -44,13 +44,17 @@ export async function StudentDetailsView(alunoId) {
   if (dados.data_nascimento) {
     const nasc = new Date(dados.data_nascimento)
     const hoje = new Date()
-    idade = Math.floor((hoje - nasc) / (365.25 * 24 * 60 * 60 * 1000))
+    idade = hoje.getFullYear() - nasc.getFullYear()
+    const mesDiff = hoje.getMonth() - nasc.getMonth()
+    if (mesDiff < 0 || (mesDiff === 0 && hoje.getDate() < nasc.getDate())) {
+      idade--
+    }
   }
 
   const isMenor = dados.data_nascimento && idade < 18
 
   const initials = dados.nome_completo ? escapeHTML(dados.nome_completo.charAt(0).toUpperCase()) : '?'
-  
+
   // Gênero label
   const generoLabels = {
     'masculino': 'Masculino',
@@ -59,7 +63,7 @@ export async function StudentDetailsView(alunoId) {
     'prefiro_nao_informar': 'Prefiro não informar'
   }
   const generoLabel = generoLabels[dados.genero] || '-'
-  
+
   // Estado civil label
   const estadoCivilLabels = {
     'solteiro': 'Solteiro(a)',
@@ -245,9 +249,9 @@ export async function StudentDetailsView(alunoId) {
         </legend>
         
         <div id="responsaveis-list">
-          ${responsaveis.length === 0 
-            ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhum responsável cadastrado.</p>`
-            : `
+          ${responsaveis.length === 0
+      ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhum responsável cadastrado.</p>`
+      : `
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
               ${responsaveis.map(r => `
                 <div class="responsavel-item" data-id="${r.id}" style="padding: 1rem; background: var(--secondary); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
@@ -274,9 +278,9 @@ export async function StudentDetailsView(alunoId) {
         </legend>
         
         <div id="observacoes-list">
-          ${observacoes.length === 0 
-            ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma observação registrada.</p>`
-            : `
+          ${observacoes.length === 0
+      ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma observação registrada.</p>`
+      : `
             <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto;">
               ${observacoes.map(o => `
                 <div class="observacao-item" data-id="${o.id}" style="padding: 1rem; background: var(--secondary); border-radius: 6px;">
@@ -329,7 +333,7 @@ export async function StudentDetailsView(alunoId) {
         celular: container.querySelector('#sd-celular').value || null,
         whatsapp: container.querySelector('#sd-whatsapp').value || null
       }
-      
+
       const { error: errorPerfil } = await StudentDetailsService.updateDadosPessoais(alunoId, dadosPerfil)
       if (errorPerfil) throw errorPerfil
 
@@ -361,7 +365,7 @@ export async function StudentDetailsView(alunoId) {
   addResponsavelBtn.addEventListener('click', async () => {
     const nome = prompt('Nome do responsável:')
     if (!nome) return
-    
+
     const parentesco = prompt('Parentesco (Ex: Pai, Mãe, Tutor):') || ''
     const telefone = prompt('Telefone:') || ''
     const email = prompt('E-mail:') || ''
@@ -408,7 +412,7 @@ export async function StudentDetailsView(alunoId) {
   addObservacaoBtn.addEventListener('click', async () => {
     const texto = prompt('Observação:')
     if (!texto) return
-    
+
     const categoria = prompt('Categoria (geral, follow, importante, saude):') || 'geral'
 
     const { error } = await StudentDetailsService.addObservacao(alunoId, texto, categoria)

@@ -5,25 +5,38 @@ export function HomeView() {
   container.innerHTML = `
     <div class="home-card">
       <div class="home-header">
-        <div class="home-logo">🎓</div>
-        <h1>Secretaria Escola CSM</h1>
-        <p>Sistema de Gestão Escolar</p>
+        <div class="home-logo" style="color: var(--primary);">🎓</div>
+        <h1 style="color: var(--primary);">Secretaria Escola CSM</h1>
+        <p style="color: var(--text-muted);">Colégio Santa Mônica - Limoeiro/PE</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Sistema de Gestão Escolar</p>
       </div>
-      
+
       <div class="home-options">
-        <div class="home-option" onclick="window.location.hash='#/'">
-          <span class="home-option-icon">🔑</span>
-          <h3>Acesso Administrativo</h3>
-          <p>Login para Secretaria</p>
+        <div class="home-option" onclick="window.location.hash='#/'" style="border-left: 4px solid var(--primary);">
+          <span class="home-option-icon" style="background: var(--primary);">🔑</span>
+          <div>
+            <h3>Acesso Administrativo</h3>
+            <p>Login para Secretaria e Professores</p>
+          </div>
         </div>
-        
-        <div class="home-option" onclick="window.location.hash='#/aluno-info'">
-          <span class="home-option-icon">👤</span>
-          <h3>Portal do Aluno</h3>
-          <p>Informações acadêmicas</p>
+
+        <div class="home-option" onclick="window.location.hash='#/aluno-info'" style="border-left: 4px solid var(--accent);">
+          <span class="home-option-icon" style="background: var(--accent); color: var(--text-main);">👤</span>
+          <div>
+            <h3>Portal do Aluno</h3>
+            <p>Informações acadêmicas e documentos</p>
+          </div>
+        </div>
+
+        <div class="home-option" onclick="window.open('apresentacao_treinamento.html', '_blank')" style="border-left: 4px solid var(--success); background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);">
+          <span class="home-option-icon" style="background: var(--success);">📚</span>
+          <div>
+            <h3 style="color: var(--success-text);">Material de Treinamento</h3>
+            <p>Guia completo de funcionalidades e permissões</p>
+          </div>
         </div>
       </div>
-      
+
       <div class="home-footer">
         <a href="#/" class="home-link">Já tem conta? Faça login</a>
       </div>

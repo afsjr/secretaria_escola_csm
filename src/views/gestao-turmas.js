@@ -21,13 +21,13 @@ export async function GestaoTurmasView() {
   const turmasList = !turmas || turmas.length === 0
     ? '<p style="color:var(--text-muted);font-size:0.8rem;">Nenhuma turma registrada.</p>'
     : turmas?.map(t => {
-      const statusBg = t.status_ingresso === 'aberta' ? '#dcfce7' : '#fee2e2'
-      const statusColor = t.status_ingresso === 'aberta' ? '#166534' : '#991b1b'
+      const statusBg = t.status_ingresso === 'aberta' ? 'var(--success-bg)' : '#FEE2E2'
+      const statusColor = t.status_ingresso === 'aberta' ? 'var(--success-text)' : '#991B1B'
       return `
-          <li style="padding: 1rem; border: 1px solid var(--secondary); border-radius: 6px; cursor: pointer; transition: 0.2s;" class="turma-item" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}">
-            <div style="font-weight: 600; color: var(--primary);">${escapeHTML(t.nome)} <span style="font-size:0.7rem; color:gray; font-weight:normal;">(${escapeHTML(t.periodo)})</span></div>
-            <div style="font-size: 0.8rem; margin-top: 5px;">
-              <span class="badge" style="background: ${statusBg}; color: ${statusColor};">${escapeHTML(t.status_ingresso)}</span>
+          <li style="padding: 1rem; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;" class="turma-item" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" onmouseover="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='var(--secondary)'; this.style.boxShadow='none'">
+            <div style="font-weight: 600; color: var(--primary); font-size: 1.05rem;">${escapeHTML(t.nome)} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHTML(t.periodo)})</span></div>
+            <div style="font-size: 0.8rem; margin-top: 8px;">
+              <span class="badge" style="background: ${statusBg}; color: ${statusColor}; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600;">${escapeHTML(t.status_ingresso)}</span>
             </div>
           </li>
         `
@@ -79,29 +79,37 @@ export async function GestaoTurmasView() {
 
       <!-- Lado Direito: Detalhes da Turma e Matrículas -->
       <div id="painel-matriculas" style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: none;">
-        <h2 id="titulo-turma-selecionada" style="margin-bottom: 0.5rem; color: var(--text-main);">Selecione uma Turma</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Gerencie matrículas e o status financeiro para esta turma.</p>
+        <h2 id="titulo-turma-selecionada" style="margin-bottom: 0.5rem; color: var(--primary); border-bottom: 3px solid var(--accent); padding-bottom: 0.5rem;">Selecione uma Turma</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Gerencie matrículas e o status acadêmico/financeiro para esta turma.</p>
 
-        <!-- Matricular Aluno -->
-        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--secondary);">
-          <h4 style="margin-bottom: 15px;">Matricular Aluno Existente</h4>
-          <div style="display: flex; gap: 10px; align-items: flex-end;">
-            <div class="form-group" style="flex: 1; margin: 0;">
-              <label for="aluno-select" style="display: none;">Escolha o Aluno</label>
-              <select id="aluno-select" name="aluno_select" class="input">
+        <!-- Matricular Aluno - DESTAQUE -->
+        <div style="background: linear-gradient(135deg, #FFF9E6 0%, #FFF4B8 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid var(--accent); box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);">
+          <h4 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">🎓</span>
+            Matricular Aluno Existente
+          </h4>
+          <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; margin: 0; min-width: 250px;">
+              <label for="aluno-select" class="label" style="font-size: 0.85rem; font-weight: 600;">Selecione o Aluno</label>
+              <select id="aluno-select" name="aluno_select" class="input" style="width: 100%;">
                 <option value="">-- Escolha um Aluno --</option>
                 ${alunosOptions}
               </select>
             </div>
-            <button id="btn-matricular" class="btn btn-primary">Adicionar à Turma</button>
+            <button id="btn-matricular" class="btn btn-primary" style="background: var(--primary); white-space: nowrap; padding: 0.75rem 1.5rem; font-weight: 600;">
+              <span style="margin-right: 0.5rem;">✓</span> Matricular na Turma
+            </button>
           </div>
         </div>
 
         <!-- Tabela de Alunos na Turma -->
-        <h3 style="margin-bottom: 1rem;">Diário Oficial (Caderneta)</h3>
-        <div style="overflow-x: auto;">
+        <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">📋</span>
+          Diário Oficial (Caderneta)
+        </h3>
+        <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
           <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead style="background: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">
+            <thead style="background: var(--primary); color: white; font-size: 0.85rem; text-transform: uppercase;">
               <tr>
                 <th style="padding: 1rem;">Nome do Aluno</th>
                 <th style="padding: 1rem;">Status (Acadêmico)</th>

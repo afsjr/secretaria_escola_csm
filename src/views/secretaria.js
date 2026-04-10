@@ -118,10 +118,12 @@ export async function SecretariaView() {
                       ${aluno.bloqueio_financeiro ? 'Bloqueado' : 'Ativo'}
                     </span>
                   </td>
-                    <td style="display: flex; gap: 0.3rem;">
-                      <button class="btn btn-sm btn-ver-ficha" data-id="${aluno.id}" style="background: var(--primary); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Ficha</button>
-                      <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">Editar</button>
-                      <button class="btn btn-sm btn-vincular-turma" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}" style="background: var(--accent); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Matricular</button>
+                    <td style="padding: 1rem;">
+                      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn btn-sm btn-ver-ficha" data-id="${aluno.id}" style="background: var(--primary); color: white; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; white-space: nowrap;">📋 Ficha</button>
+                        <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; white-space: nowrap;">✏️ Editar</button>
+                        <button class="btn btn-sm btn-vincular-turma" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}" style="background: var(--accent); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; white-space: nowrap; border: 2px solid var(--accent);">🎓 Matricular</button>
+                      </div>
                     </td>
                 </tr>
               `).join('')}
@@ -477,23 +479,32 @@ export async function SecretariaView() {
 
   const renderModalMatricula = () => `
     <div id="modal-matricular-aluno" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-      <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 400px; width: 90%;">
-        <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Matricular Aluno</h3>
-        <p style="margin-bottom: 1rem; font-size: 0.9rem;">Selecione a turma para <strong id="nome-aluno-matricula"></strong>:</p>
+      <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 500px; width: 90%; box-shadow: var(--shadow-lg); border-top: 5px solid var(--accent);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3 style="margin: 0; color: var(--text-main); font-size: 1.5rem;">🎓 Matricular Aluno</h3>
+          <button id="btn-fechar-modal-matricula" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
         
+        <div style="background: var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Aluno: <strong id="nome-aluno-matricula" style="color: var(--text-main);"></strong></p>
+        </div>
+
         <form id="form-vincular-turma">
           <input type="hidden" id="vincular-aluno-id">
+          
           <div class="form-group">
-            <select id="vincular-turma-id" class="input" required>
+            <label class="label" for="vincular-turma-id">Selecione a Turma *</label>
+            <select id="vincular-turma-id" class="input" required style="width: 100%;">
               <option value="">-- Selecione uma turma --</option>
               ${turmas && turmas.length > 0 ? turmas.map(t => `
-                <option value="${t.id}">${escapeHTML(t.nome)} (${escapeHTML(t.periodo)})</option>
+                <option value="${t.id}">${escapeHTML(t.nome)} - ${escapeHTML(t.periodo)}</option>
               `).join('') : '<option value="">Nenhuma turma disponível</option>'}
             </select>
           </div>
-          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-            <button type="button" class="btn btn-fechar-matricula" style="flex: 1; background: var(--secondary); border: 1px solid var(--secondary); cursor: pointer; border-radius: 4px; padding: 0.6rem;">Cancelar</button>
-            <button type="submit" class="btn btn-primary" style="flex: 1;">Matricular</button>
+          
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="button" class="btn btn-fechar-matricula" style="flex: 1; background: var(--secondary); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; border-radius: 6px; padding: 0.75rem; font-weight: 600;">Cancelar</button>
+            <button type="submit" class="btn btn-primary" style="flex: 1; border-radius: 6px; padding: 0.75rem; font-weight: 600;">Confirmar Matrícula</button>
           </div>
         </form>
       </div>
@@ -1052,7 +1063,7 @@ export async function SecretariaView() {
       container.querySelector('#edit-telefone').value = aluno.telefone || ''
       container.querySelector('#edit-email').value = aluno.email || ''
       container.querySelector('#edit-perfil').value = aluno.perfil || 'aluno'
-      
+
       // Novos campos
       container.querySelector('#edit-rg').value = aluno.rg || ''
       container.querySelector('#edit-nascimento').value = aluno.data_nascimento || ''
@@ -1252,20 +1263,25 @@ export async function SecretariaView() {
     modalMatricula.style.display = 'none'
   }
 
+  // Fechar modal com botão X
+  container.querySelector('#btn-fechar-modal-matricula').onclick = () => {
+    modalMatricula.style.display = 'none'
+  }
+
   formMatricula.onsubmit = async (e) => {
     e.preventDefault()
     const alunoId = container.querySelector('#vincular-aluno-id').value
     const turmaId = container.querySelector('#vincular-turma-id').value
-    
+
     const btnSubmit = formMatricula.querySelector('button[type="submit"]')
     btnSubmit.disabled = true
     btnSubmit.textContent = 'Matriculando...'
-    
+
     const { error } = await AdminService.matricularAluno(alunoId, turmaId)
-    
+
     btnSubmit.disabled = false
     btnSubmit.textContent = 'Matricular'
-    
+
     if (error) {
       toast.error('Erro ao matricular: ' + error.message)
     } else {

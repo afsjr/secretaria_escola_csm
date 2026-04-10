@@ -9,8 +9,11 @@ export function LoginView() {
 
   container.innerHTML = `
     <div class="auth-card">
-      <h2>Acesso Administrativo</h2>
-      <p style="text-align:center; margin-bottom: 2rem;">SGE - Secretaria Escola CSM</p>
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
+        <h2 style="color: var(--primary);">Acesso Administrativo</h2>
+        <p style="text-align:center; margin-bottom: 2rem; color: var(--text-muted);">SGE - Secretaria Escola CSM<br><strong style="color: var(--primary);">Colégio Santa Mônica</strong> - Limoeiro/PE</p>
+      </div>
 
       <form id="login-form">
         <div class="form-group">
@@ -25,6 +28,13 @@ export function LoginView() {
 
         <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
       </form>
+
+      <div style="margin-top: 1rem;">
+        <a href="apresentacao_treinamento.html" target="_blank" class="btn btn-treinamento" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--accent); color: var(--text-main); border: 2px solid var(--accent);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          📚 Material de Treinamento
+        </a>
+      </div>
 
       <div class="auth-footer">
         Não tem uma conta? <a href="#/signup">Criar Cadastro</a>

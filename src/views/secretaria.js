@@ -117,10 +117,11 @@ export async function SecretariaView() {
                       ${aluno.bloqueio_financeiro ? 'Bloqueado' : 'Ativo'}
                     </span>
                   </td>
-                  <td style="display: flex; gap: 0.3rem;">
-                    <button class="btn btn-sm btn-ver-ficha" data-id="${aluno.id}" style="background: var(--primary); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Ficha</button>
-                    <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">Editar</button>
-                  </td>
+                    <td style="display: flex; gap: 0.3rem;">
+                      <button class="btn btn-sm btn-ver-ficha" data-id="${aluno.id}" style="background: var(--primary); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Ficha</button>
+                      <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">Editar</button>
+                      <button class="btn btn-sm btn-vincular-turma" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}" style="background: var(--accent); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem;">Matricular</button>
+                    </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -157,6 +158,27 @@ export async function SecretariaView() {
             <div class="form-group">
               <label class="label">E-mail</label>
               <input type="text" id="edit-email" class="input" disabled style="background: var(--secondary);">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label class="label" for="edit-rg">RG</label>
+                <input type="text" id="edit-rg" name="rg" class="input">
+              </div>
+              <div class="form-group">
+                <label class="label" for="edit-nascimento">Data de Nascimento</label>
+                <input type="date" id="edit-nascimento" name="data_nascimento" class="input">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="edit-naturalidade">Naturalidade (Cidade/Estado)</label>
+              <input type="text" id="edit-naturalidade" name="cidade_natal" class="input">
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="edit-endereco">Endereço Completo</label>
+              <input type="text" id="edit-endereco" name="endereco" class="input" placeholder="Rua, Número, Bairro...">
             </div>
 
             <div class="form-group">
@@ -452,6 +474,31 @@ export async function SecretariaView() {
     `
   }
 
+  const renderModalMatricula = () => `
+    <div id="modal-matricular-aluno" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+      <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 400px; width: 90%;">
+        <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Matricular Aluno</h3>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem;">Selecione a turma para <strong id="nome-aluno-matricula"></strong>:</p>
+        
+        <form id="form-vincular-turma">
+          <input type="hidden" id="vincular-aluno-id">
+          <div class="form-group">
+            <select id="vincular-turma-id" class="input" required>
+              <option value="">-- Selecione uma turma --</option>
+              ${turmas && turmas.length > 0 ? turmas.map(t => `
+                <option value="${t.id}">${escapeHTML(t.nome)} (${escapeHTML(t.periodo)})</option>
+              `).join('') : '<option value="">Nenhuma turma disponível</option>'}
+            </select>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-fechar-matricula" style="flex: 1; background: var(--secondary); border: 1px solid var(--secondary); cursor: pointer; border-radius: 4px; padding: 0.6rem;">Cancelar</button>
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Matricular</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+
   container.innerHTML = `
     <header class="view-header">
       <h1 class="title">Painel da Secretaria</h1>
@@ -490,6 +537,9 @@ export async function SecretariaView() {
     <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;">
       ${renderGerenciarCursos()}
     </div>
+
+    ${renderModalMatricula()}
+  `
   `
 
   // Lógica das tabs
@@ -1001,6 +1051,12 @@ export async function SecretariaView() {
       container.querySelector('#edit-telefone').value = aluno.telefone || ''
       container.querySelector('#edit-email').value = aluno.email || ''
       container.querySelector('#edit-perfil').value = aluno.perfil || 'aluno'
+      
+      // Novos campos
+      container.querySelector('#edit-rg').value = aluno.rg || ''
+      container.querySelector('#edit-nascimento').value = aluno.data_nascimento || ''
+      container.querySelector('#edit-naturalidade').value = aluno.cidade_natal || ''
+      container.querySelector('#edit-endereco').value = aluno.endereco || ''
 
       modalEditar.style.display = 'flex'
     })
@@ -1046,7 +1102,11 @@ export async function SecretariaView() {
       const { error } = await AdminService.updateAluno(alunoId, {
         nome_completo: nomeCompleto,
         cpf: cpf || null,
-        telefone: telefone || null
+        telefone: telefone || null,
+        rg: container.querySelector('#edit-rg').value.trim() || null,
+        data_nascimento: container.querySelector('#edit-nascimento').value || null,
+        cidade_natal: container.querySelector('#edit-naturalidade').value.trim() || null,
+        endereco: container.querySelector('#edit-endereco').value.trim() || null
       })
 
       if (error) {
@@ -1160,6 +1220,49 @@ export async function SecretariaView() {
       setTimeout(() => window.location.hash = '#/dashboard/secretaria', 10)
     })
   })
+
+  // =====================================================
+  // VINCULAR ALUNO A TURMA (MATRÍCULA)
+  // =====================================================
+  const btnsMatricular = container.querySelectorAll('.btn-vincular-turma')
+  const modalMatricula = container.querySelector('#modal-matricular-aluno')
+  const formMatricula = container.querySelector('#form-vincular-turma')
+
+  btnsMatricular.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const alunoId = btn.getAttribute('data-id')
+      const alunoNome = btn.getAttribute('data-nome')
+      container.querySelector('#vincular-aluno-id').value = alunoId
+      container.querySelector('#nome-aluno-matricula').textContent = alunoNome
+      modalMatricula.style.display = 'flex'
+    })
+  })
+
+  container.querySelector('.btn-fechar-matricula').onclick = () => {
+    modalMatricula.style.display = 'none'
+  }
+
+  formMatricula.onsubmit = async (e) => {
+    e.preventDefault()
+    const alunoId = container.querySelector('#vincular-aluno-id').value
+    const turmaId = container.querySelector('#vincular-turma-id').value
+    
+    const btnSubmit = formMatricula.querySelector('button[type="submit"]')
+    btnSubmit.disabled = true
+    btnSubmit.textContent = 'Matriculando...'
+    
+    const { error } = await AdminService.matricularAluno(alunoId, turmaId)
+    
+    btnSubmit.disabled = false
+    btnSubmit.textContent = 'Matricular'
+    
+    if (error) {
+      toast.error('Erro ao matricular: ' + error.message)
+    } else {
+      toast.success('Aluno matriculado com sucesso!')
+      modalMatricula.style.display = 'none'
+    }
+  }
 
   return container
 }

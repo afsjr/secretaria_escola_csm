@@ -9,29 +9,27 @@ export async function DirectoryView() {
 
   const profilesHTML = error
     ? `<p style="color:red">Erro ao carregar lista: ${escapeHTML(error.message)}</p>`
-    : profiles?.map(p => {
-      const initials = p.nome_completo ? escapeHTML(p.nome_completo.charAt(0).toUpperCase()) : '?'
-      const nome = escapeHTML(p.nome_completo)
-      const perfilBadge = createBadge(p.perfil || 'aluno')
+    : profiles?.sort((a,b) => (a.nome_completo || '').localeCompare(b.nome_completo || ''))
+      .map(p => {
+        const nome = escapeHTML(p.nome_completo)
+        const perfil = p.perfil || 'aluno'
+        const perfilLabel = perfil === 'secretaria' ? 'Secretaria' : perfil === 'professor' ? 'Professor' : 'Aluno'
 
-      return `
-          <div class="profile-card">
-            <div class="avatar-circle">${initials}</div>
-            <div>
-              <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${nome}</div>
-              ${perfilBadge}
+        return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; background: white; border-bottom: 1px solid var(--secondary);">
+              <div style="font-weight: 500;">${nome}</div>
+              <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">${perfilLabel}</div>
             </div>
-          </div>
-        `
-    }).join('')
+          `
+      }).join('')
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
       <h1 style="font-size: 2rem; color: var(--text-main);">Usuários do Sistema</h1>
-      <p>Veja todos os membros cadastrados no sistema.</p>
+      <p>Lista simplificada de membros registrados.</p>
     </header>
 
-    <div id="profiles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+    <div id="profiles-list" style="background: white; border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
       ${profilesHTML}
     </div>
   `

@@ -28,6 +28,8 @@ export function LoginView() {
 
       <div class="auth-footer">
         Não tem uma conta? <a href="#/signup">Criar Cadastro</a>
+        <br><br>
+        Esqueceu sua senha? <a href="#/forgot-password">Recuperar Acesso</a>
       </div>
     </div>
   `

@@ -30,10 +30,15 @@ export function LoginView() {
       </form>
 
       <div style="margin-top: 1rem;">
-        <button id="btn-treinamento" class="btn btn-treinamento" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--accent); color: var(--text-main); border: 2px solid var(--accent); cursor: pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          📚 Material de Treinamento
-        </button>
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 0.5rem; font-weight: 500;">Materiais de Treinamento CSM:</div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" id="btn-treinamento-guia" class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--bg-page); color: var(--text-main); border: 1px solid #CBD5E1; cursor: pointer;">
+            📄 Guia
+          </button>
+          <button type="button" id="btn-treinamento-slide" class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--bg-page); color: var(--text-main); border: 1px solid #CBD5E1; cursor: pointer;">
+            📺 Slides
+          </button>
+        </div>
       </div>
 
       <div class="auth-footer">
@@ -88,11 +93,21 @@ export function LoginView() {
     }
   })
 
-  // Training button event listener
-  const btnTreinamento = container.querySelector('#btn-treinamento')
-  btnTreinamento.addEventListener('click', () => {
-    window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
-  })
+  // Training button event listener (Guia)
+  const btnTreinamentoGuia = container.querySelector('#btn-treinamento-guia')
+  if(btnTreinamentoGuia) {
+    btnTreinamentoGuia.addEventListener('click', () => {
+      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
+    })
+  }
+
+  // Training button event listener (Slides)
+  const btnTreinamentoSlide = container.querySelector('#btn-treinamento-slide')
+  if(btnTreinamentoSlide) {
+    btnTreinamentoSlide.addEventListener('click', () => {
+      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento_slides.html', '_blank')
+    })
+  }
 
   return container
 }

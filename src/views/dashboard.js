@@ -83,9 +83,12 @@ export async function DashboardView(session, subPath = '/') {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Meus Dados
         </a>
-        <div id="btn-treinamento-sidebar" class="nav-item" style="text-decoration: none; color: inherit; background: var(--accent); color: var(--text-main); margin-top: 0.5rem; font-weight: 600; cursor: pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          📚 Treinamento
+        <div style="margin-top: 0.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.5); padding: 0 15px;">Apoio</div>
+        <div id="btn-treinamento-guia-sidebar" class="nav-item" style="text-decoration: none; color: inherit; background: rgba(255,255,255,0.1); margin-top: 0.25rem; font-weight: 500; cursor: pointer; font-size: 0.85rem;">
+          📄 Guia de Uso
+        </div>
+        <div id="btn-treinamento-slide-sidebar" class="nav-item" style="text-decoration: none; color: inherit; background: rgba(255,255,255,0.1); margin-top: 0.25rem; font-weight: 500; cursor: pointer; font-size: 0.85rem;">
+          📺 Modo Slides
         </div>
       </nav>
 
@@ -190,10 +193,17 @@ export async function DashboardView(session, subPath = '/') {
   })
 
   // Training button event listener
-  const btnTreinamento = container.querySelector('#btn-treinamento-sidebar')
-  if (btnTreinamento) {
-    btnTreinamento.addEventListener('click', () => {
+  const btnTreinamentoGuia = container.querySelector('#btn-treinamento-guia-sidebar')
+  if (btnTreinamentoGuia) {
+    btnTreinamentoGuia.addEventListener('click', () => {
       window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
+    })
+  }
+
+  const btnTreinamentoSlide = container.querySelector('#btn-treinamento-slide-sidebar')
+  if (btnTreinamentoSlide) {
+    btnTreinamentoSlide.addEventListener('click', () => {
+      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento_slides.html', '_blank')
     })
   }
 

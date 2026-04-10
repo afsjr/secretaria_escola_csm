@@ -79,7 +79,6 @@ export async function ProfessorDetailsView(professorId) {
         </div>
         <div style="text-align: right; font-size: 0.9rem; color: var(--text-muted);">
           <div>CPF: <strong>${escapeHTML(dados.cpf || '-')}</strong></div>
-          <div>Telefone: <strong>${escapeHTML(dados.telefone || '-')}</strong></div>
         </div>
       </div>
 
@@ -90,43 +89,56 @@ export async function ProfessorDetailsView(professorId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Data de Nascimento</label>
-            <div class="field-value">${dados.data_nascimento ? new Date(dados.data_nascimento).toLocaleDateString('pt-BR') : '-'}</div>
+            <input type="date" id="pd-nascimento" class="input" value="${dados.data_nascimento || ''}">
           </div>
           <div class="form-group">
             <label class="label">Gênero</label>
-            <div class="field-value">${generoLabel}</div>
+            <select id="pd-genero" class="input">
+              <option value="">--</option>
+              ${createOption('masculino', 'Masculino', dados.genero)}
+              ${createOption('feminino', 'Feminino', dados.genero)}
+              ${createOption('outro', 'Outro', dados.genero)}
+              ${createOption('prefiro_nao_informar', 'Prefiro não informar', dados.genero)}
+            </select>
           </div>
           <div class="form-group">
             <label class="label">Estado Civil</label>
-            <div class="field-value">${estadoCivilLabel}</div>
+            <select id="pd-estado-civil" class="input">
+              <option value="">--</option>
+              ${createOption('solteiro', 'Solteiro(a)', dados.estado_civil)}
+              ${createOption('casado', 'Casado(a)', dados.estado_civil)}
+              ${createOption('divorciado', 'Divorciado(a)', dados.estado_civil)}
+              ${createOption('viuvo', 'Viúvo(a)', dados.estado_civil)}
+              ${createOption('uniao_estavel', 'União Estável', dados.estado_civil)}
+            </select>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Cidade Natal</label>
-            <div class="field-value">${escapeHTML(dados.cidade_natal || '-')}</div>
+            <input type="text" id="pd-cidade-natal" class="input" value="${escapeHTML(dados.cidade_natal || '')}">
           </div>
           <div class="form-group">
             <label class="label">Nacionalidade</label>
-            <div class="field-value">${escapeHTML(dados.nacionalidade || 'Brasileira')}</div>
+            <input type="text" id="pd-nacionalidade" class="input" value="${escapeHTML(dados.nacionalidade || 'Brasileira')}">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Profissão / Especialidade</label>
-            <div class="field-value">${escapeHTML(dados.profissao || '-')}</div>
+            <input type="text" id="pd-profissao" class="input" value="${escapeHTML(dados.profissao || '')}">
           </div>
           <div class="form-group">
             <label class="label">Graduação e Nome do Curso</label>
-            <div class="field-value">${escapeHTML(dados.graduacao || '-')}</div>
+            <input type="text" id="pd-graduacao" class="input" value="${escapeHTML(dados.graduacao || '')}">
           </div>
         </div>
 
         <div class="form-group">
           <label class="label">Data de Conclusão da Graduação</label>
-          <div class="field-value">${dados.data_conclusao_graduacao ? new Date(dados.data_conclusao_graduacao).toLocaleDateString('pt-BR') : '-'}</div>
+          <input type="date" id="pd-data-conclusao" class="input" value="${dados.data_conclusao_graduacao || ''}">
         </div>
       </fieldset>
 
@@ -137,35 +149,27 @@ export async function ProfessorDetailsView(professorId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">RG</label>
-            <div class="field-value">${escapeHTML(dados.rg || '-')}</div>
+            <input type="text" id="pd-rg" class="input" value="${escapeHTML(dados.rg || '')}">
           </div>
           <div class="form-group">
             <label class="label">Órgão Expedidor</label>
-            <div class="field-value">${escapeHTML(dados.orgao_expedidor || '-')}</div>
+            <input type="text" id="pd-orgao-expedidor" class="input" value="${escapeHTML(dados.orgao_expedidor || '')}">
           </div>
           <div class="form-group">
             <label class="label">Data de Expedição</label>
-            <div class="field-value">${dados.data_expedicao_rg ? new Date(dados.data_expedicao_rg).toLocaleDateString('pt-BR') : '-'}</div>
+            <input type="date" id="pd-data-expedicao-rg" class="input" value="${dados.data_expedicao_rg || ''}">
           </div>
         </div>
       </fieldset>
 
-      <!-- Contato -->
+      <!-- Contato / Informações Reduzidas -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Contato</legend>
+        <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Contato / Informações Reduzidas</legend>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
-            <label class="label">Telefone</label>
-            <div class="field-value">${escapeHTML(dados.telefone || '-')}</div>
-          </div>
-          <div class="form-group">
-            <label class="label">Celular</label>
-            <div class="field-value">${escapeHTML(dados.celular || '-')}</div>
-          </div>
-          <div class="form-group">
-            <label class="label">WhatsApp</label>
-            <div class="field-value">${escapeHTML(dados.whatsapp || '-')}</div>
+            <label class="label">WhatsApp Principal (apenas números)</label>
+            <input type="text" id="pd-whatsapp" class="input" value="${escapeHTML(dados.whatsapp || '')}">
           </div>
         </div>
       </fieldset>
@@ -177,30 +181,38 @@ export async function ProfessorDetailsView(professorId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">CEP</label>
-            <div class="field-value">${escapeHTML(endereco.cep || '-')}</div>
+            <input type="text" id="pd-cep" class="input" value="${escapeHTML(endereco.cep || '')}">
           </div>
           <div class="form-group">
             <label class="label">Bairro</label>
-            <div class="field-value">${escapeHTML(endereco.bairro || '-')}</div>
+            <input type="text" id="pd-bairro" class="input" value="${escapeHTML(endereco.bairro || '')}">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="label">Logradouro (Rua, Av, etc)</label>
+            <input type="text" id="pd-logradouro" class="input" value="${escapeHTML(endereco.logradouro || '')}">
+          </div>
+          <div class="form-group">
+            <label class="label">Número</label>
+            <input type="text" id="pd-numero" class="input" value="${escapeHTML(endereco.numero || '')}">
           </div>
         </div>
 
         <div class="form-group">
-          <label class="label">Endereço</label>
-          <div class="field-value">
-            ${endereco.logradouro ? `${escapeHTML(endereco.logradouro)}, ${escapeHTML(endereco.numero || 'S/N')}` : '-'}
-            ${endereco.complemento ? ` - ${escapeHTML(endereco.complemento)}` : ''}
-          </div>
+          <label class="label">Complemento</label>
+          <input type="text" id="pd-complemento" class="input" value="${escapeHTML(endereco.complemento || '')}">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Cidade</label>
-            <div class="field-value">${escapeHTML(endereco.cidade || '-')}</div>
+            <input type="text" id="pd-cidade" class="input" value="${escapeHTML(endereco.cidade || '')}">
           </div>
           <div class="form-group">
             <label class="label">UF</label>
-            <div class="field-value">${escapeHTML(endereco.uf || '-')}</div>
+            <input type="text" id="pd-uf" class="input" value="${escapeHTML(endereco.uf || '')}" maxlength="2">
           </div>
         </div>
       </fieldset>
@@ -232,6 +244,55 @@ export async function ProfessorDetailsView(professorId) {
       </div>
     </div>
   `
+
+  // Salvar Alterações
+  const saveBtn = container.querySelector('#save-btn-prof')
+  saveBtn.addEventListener('click', async () => {
+    saveBtn.disabled = true
+    saveBtn.textContent = 'Salvando...'
+
+    try {
+      // 1. DADOS PERFIL
+      const dadosPerfil = {
+        data_nascimento: container.querySelector('#pd-nascimento').value || null,
+        genero: container.querySelector('#pd-genero').value || null,
+        estado_civil: container.querySelector('#pd-estado-civil').value || null,
+        cidade_natal: container.querySelector('#pd-cidade-natal').value || null,
+        nacionalidade: container.querySelector('#pd-nacionalidade').value || null,
+        profissao: container.querySelector('#pd-profissao').value || null,
+        graduacao: container.querySelector('#pd-graduacao').value || null,
+        data_conclusao_graduacao: container.querySelector('#pd-data-conclusao').value || null,
+        rg: container.querySelector('#pd-rg').value || null,
+        orgao_expedidor: container.querySelector('#pd-orgao-expedidor').value || null,
+        data_expedicao_rg: container.querySelector('#pd-data-expedicao-rg').value || null,
+        whatsapp: container.querySelector('#pd-whatsapp').value || null
+      }
+      
+      const { error: errorPerfil } = await ProfessorDetailsService.updateDadosPessoais(professorId, dadosPerfil)
+      if (errorPerfil) throw errorPerfil
+
+      // 2. ENDEREÇO
+      const dadosEndereco = {
+        cep: container.querySelector('#pd-cep').value || null,
+        bairro: container.querySelector('#pd-bairro').value || null,
+        logradouro: container.querySelector('#pd-logradouro').value || null,
+        numero: container.querySelector('#pd-numero').value || null,
+        complemento: container.querySelector('#pd-complemento').value || null,
+        cidade: container.querySelector('#pd-cidade').value || null,
+        uf: container.querySelector('#pd-uf').value || null
+      }
+
+      const { error: errorEndereco } = await ProfessorDetailsService.saveEndereco(professorId, dadosEndereco)
+      if (errorEndereco) throw errorEndereco
+
+      toast.success('Ficha do professor atualizada com sucesso!')
+    } catch (err) {
+      toast.error('Erro ao salvar ficha: ' + err.message)
+    } finally {
+      saveBtn.disabled = false
+      saveBtn.textContent = 'Salvar Alterações'
+    }
+  })
 
   return container
 }

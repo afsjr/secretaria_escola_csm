@@ -106,34 +106,50 @@ export async function StudentDetailsView(alunoId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Data de Nascimento</label>
-            <div class="field-value">${dados.data_nascimento ? new Date(dados.data_nascimento).toLocaleDateString('pt-BR') : '-'}</div>
+            <input type="date" id="sd-nascimento" class="input" value="${dados.data_nascimento || ''}">
           </div>
           <div class="form-group">
             <label class="label">Gênero</label>
-            <div class="field-value">${generoLabel}</div>
+            <select id="sd-genero" class="input">
+              <option value="">--</option>
+              ${createOption('masculino', 'Masculino', dados.genero)}
+              ${createOption('feminino', 'Feminino', dados.genero)}
+              ${createOption('outro', 'Outro', dados.genero)}
+              ${createOption('prefiro_nao_informar', 'Prefiro não informar', dados.genero)}
+            </select>
           </div>
           <div class="form-group">
             <label class="label">Estado Civil</label>
-            <div class="field-value">${estadoCivilLabel}</div>
+            <select id="sd-estado-civil" class="input">
+              <option value="">--</option>
+              ${createOption('solteiro', 'Solteiro(a)', dados.estado_civil)}
+              ${createOption('casado', 'Casado(a)', dados.estado_civil)}
+              ${createOption('divorciado', 'Divorciado(a)', dados.estado_civil)}
+              ${createOption('viuvo', 'Viúvo(a)', dados.estado_civil)}
+              ${createOption('uniao_estavel', 'União Estável', dados.estado_civil)}
+            </select>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Cidade Natal</label>
-            <div class="field-value">${escapeHTML(dados.cidade_natal || '-')}</div>
+            <input type="text" id="sd-cidade-natal" class="input" value="${escapeHTML(dados.cidade_natal || '')}">
           </div>
           <div class="form-group">
             <label class="label">Nacionalidade</label>
-            <div class="field-value">${escapeHTML(dados.nacionalidade || 'Brasileira')}</div>
+            <input type="text" id="sd-nacionalidade" class="input" value="${escapeHTML(dados.nacionalidade || 'Brasileira')}">
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="label">Profissão / Empresa</label>
-          <div class="field-value">
-            ${escapeHTML(dados.profissao || '-')}
-            ${dados.empresa_trabalho ? ` - ${escapeHTML(dados.empresa_trabalho)}` : ''}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="label">Profissão</label>
+            <input type="text" id="sd-profissao" class="input" value="${escapeHTML(dados.profissao || '')}">
+          </div>
+          <div class="form-group">
+            <label class="label">Empresa</label>
+            <input type="text" id="sd-empresa" class="input" value="${escapeHTML(dados.empresa_trabalho || '')}">
           </div>
         </div>
       </fieldset>
@@ -145,15 +161,15 @@ export async function StudentDetailsView(alunoId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">RG</label>
-            <div class="field-value">${escapeHTML(dados.rg || '-')}</div>
+            <input type="text" id="sd-rg" class="input" value="${escapeHTML(dados.rg || '')}">
           </div>
           <div class="form-group">
             <label class="label">Órgão Expedidor</label>
-            <div class="field-value">${escapeHTML(dados.orgao_expedidor || '-')}</div>
+            <input type="text" id="sd-orgao-expedidor" class="input" value="${escapeHTML(dados.orgao_expedidor || '')}">
           </div>
           <div class="form-group">
             <label class="label">Data de Expedição</label>
-            <div class="field-value">${dados.data_expedicao_rg ? new Date(dados.data_expedicao_rg).toLocaleDateString('pt-BR') : '-'}</div>
+            <input type="date" id="sd-data-expedicao-rg" class="input" value="${dados.data_expedicao_rg || ''}">
           </div>
         </div>
       </fieldset>
@@ -165,15 +181,15 @@ export async function StudentDetailsView(alunoId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Telefone</label>
-            <div class="field-value">${escapeHTML(dados.telefone || '-')}</div>
+            <input type="text" id="sd-telefone" class="input" value="${escapeHTML(dados.telefone || '')}">
           </div>
           <div class="form-group">
             <label class="label">Celular</label>
-            <div class="field-value">${escapeHTML(dados.celular || '-')}</div>
+            <input type="text" id="sd-celular" class="input" value="${escapeHTML(dados.celular || '')}">
           </div>
           <div class="form-group">
             <label class="label">WhatsApp</label>
-            <div class="field-value">${escapeHTML(dados.whatsapp || '-')}</div>
+            <input type="text" id="sd-whatsapp" class="input" value="${escapeHTML(dados.whatsapp || '')}">
           </div>
         </div>
       </fieldset>
@@ -185,30 +201,38 @@ export async function StudentDetailsView(alunoId) {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">CEP</label>
-            <div class="field-value">${escapeHTML(endereco.cep || '-')}</div>
+            <input type="text" id="sd-cep" class="input" value="${escapeHTML(endereco.cep || '')}">
           </div>
           <div class="form-group">
             <label class="label">Bairro</label>
-            <div class="field-value">${escapeHTML(endereco.bairro || '-')}</div>
+            <input type="text" id="sd-bairro" class="input" value="${escapeHTML(endereco.bairro || '')}">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="label">Logradouro (Rua, Av, etc)</label>
+            <input type="text" id="sd-logradouro" class="input" value="${escapeHTML(endereco.logradouro || '')}">
+          </div>
+          <div class="form-group">
+            <label class="label">Número</label>
+            <input type="text" id="sd-numero" class="input" value="${escapeHTML(endereco.numero || '')}">
           </div>
         </div>
 
         <div class="form-group">
-          <label class="label">Endereço</label>
-          <div class="field-value">
-            ${endereco.logradouro ? `${escapeHTML(endereco.logradouro)}, ${escapeHTML(endereco.numero || 'S/N')}` : '-'}
-            ${endereco.complemento ? ` - ${escapeHTML(endereco.complemento)}` : ''}
-          </div>
+          <label class="label">Complemento</label>
+          <input type="text" id="sd-complemento" class="input" value="${escapeHTML(endereco.complemento || '')}">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Cidade</label>
-            <div class="field-value">${escapeHTML(endereco.cidade || '-')}</div>
+            <input type="text" id="sd-cidade" class="input" value="${escapeHTML(endereco.cidade || '')}">
           </div>
           <div class="form-group">
             <label class="label">UF</label>
-            <div class="field-value">${escapeHTML(endereco.uf || '-')}</div>
+            <input type="text" id="sd-uf" class="input" value="${escapeHTML(endereco.uf || '')}" maxlength="2">
           </div>
         </div>
       </fieldset>
@@ -281,6 +305,56 @@ export async function StudentDetailsView(alunoId) {
   `
 
   // === Event Handlers ===
+
+  // Salvar Alterações Principais
+  const saveBtn = container.querySelector('#save-btn')
+  saveBtn.addEventListener('click', async () => {
+    saveBtn.disabled = true
+    saveBtn.textContent = 'Salvando...'
+
+    try {
+      // 1. DADOS PERFIL
+      const dadosPerfil = {
+        data_nascimento: container.querySelector('#sd-nascimento').value || null,
+        genero: container.querySelector('#sd-genero').value || null,
+        estado_civil: container.querySelector('#sd-estado-civil').value || null,
+        cidade_natal: container.querySelector('#sd-cidade-natal').value || null,
+        nacionalidade: container.querySelector('#sd-nacionalidade').value || null,
+        profissao: container.querySelector('#sd-profissao').value || null,
+        empresa_trabalho: container.querySelector('#sd-empresa').value || null,
+        rg: container.querySelector('#sd-rg').value || null,
+        orgao_expedidor: container.querySelector('#sd-orgao-expedidor').value || null,
+        data_expedicao_rg: container.querySelector('#sd-data-expedicao-rg').value || null,
+        telefone: container.querySelector('#sd-telefone').value || null,
+        celular: container.querySelector('#sd-celular').value || null,
+        whatsapp: container.querySelector('#sd-whatsapp').value || null
+      }
+      
+      const { error: errorPerfil } = await StudentDetailsService.updateDadosPessoais(alunoId, dadosPerfil)
+      if (errorPerfil) throw errorPerfil
+
+      // 2. ENDEREÇO
+      const dadosEndereco = {
+        cep: container.querySelector('#sd-cep').value || null,
+        bairro: container.querySelector('#sd-bairro').value || null,
+        logradouro: container.querySelector('#sd-logradouro').value || null,
+        numero: container.querySelector('#sd-numero').value || null,
+        complemento: container.querySelector('#sd-complemento').value || null,
+        cidade: container.querySelector('#sd-cidade').value || null,
+        uf: container.querySelector('#sd-uf').value || null
+      }
+
+      const { error: errorEndereco } = await StudentDetailsService.saveEndereco(alunoId, dadosEndereco)
+      if (errorEndereco) throw errorEndereco
+
+      toast.success('Ficha do aluno atualizada com sucesso!')
+    } catch (err) {
+      toast.error('Erro ao salvar ficha: ' + err.message)
+    } finally {
+      saveBtn.disabled = false
+      saveBtn.textContent = 'Salvar Alterações'
+    }
+  })
 
   // Adicionar responsável
   const addResponsavelBtn = container.querySelector('#add-responsavel-btn')

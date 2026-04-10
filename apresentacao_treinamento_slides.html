@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinamento SGE - Colégio Santa Mônica</title>
+    <style>
+        :root {
+            --vermelho: #C41E3A;
+            --vermelho-escuro: #9B1B30;
+            --amarelo: #FFD700;
+            --amarelo-claro: #FFF4B8;
+            --cinza-escuro: #4A4A4A;
+            --cinza-medio: #7A7A7A;
+            --cinza-claro: #E8E8E8;
+            --branco: #FFFFFF;
+            --fundo: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
+            color: var(--cinza-escuro);
+            line-height: 1.6;
+        }
+
+        .slide {
+            display: none;
+            min-height: 100vh;
+            padding: 3rem 4rem;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Capa */
+        .slide.capa {
+            background: linear-gradient(135deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%);
+            color: var(--branco);
+            text-align: center;
+            align-items: center;
+        }
+
+        .slide.capa h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .slide.capa h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            color: var(--amarelo);
+        }
+
+        .slide.capa .info {
+            font-size: 1.2rem;
+            margin-top: 2rem;
+            opacity: 0.9;
+        }
+
+        .logo-area {
+            width: 120px;
+            height: 120px;
+            background: var(--branco);
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--vermelho);
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Conteúdo */
+        .slide.conteudo {
+            background: linear-gradient(135deg, var(--branco) 0%, #FAFAFA 100%);
+        }
+
+        .slide.conteudo h1 {
+            color: var(--vermelho);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 4px solid var(--amarelo);
+        }
+
+        .slide.conteudo h2 {
+            color: var(--vermelho-escuro);
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+        }
+
+        .slide.conteudo h3 {
+            color: var(--cinza-escuro);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 0.8rem;
+        }
+
+        .slide.conteudo p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .slide.conteudo ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .slide.conteudo li {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Cards de perfil */
+        .perfil-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .perfil-card {
+            background: var(--branco);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--vermelho);
+            transition: transform 0.3s ease;
+        }
+
+        .perfil-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .perfil-card h3 {
+            color: var(--vermelho);
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .perfil-card .icone {
+            font-size: 2rem;
+        }
+
+        .perfil-card ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .perfil-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .perfil-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--vermelho);
+            font-weight: bold;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--branco);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--vermelho);
+            color: var(--branco);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--cinza-claro);
+        }
+
+        tbody tr:hover {
+            background: var(--amarelo-claro);
+        }
+
+        .check {
+            color: var(--vermelho);
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .cross {
+            color: var(--cinza-medio);
+            font-size: 1.3rem;
+        }
+
+        /* Destaques */
+        .destaque {
+            background: var(--amarelo-claro);
+            border-left: 5px solid var(--amarelo);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .destaque.vermelho {
+            background: #FFE5E5;
+            border-left-color: var(--vermelho);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%);
+            color: var(--branco);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .info-box h3 {
+            color: var(--amarelo);
+            margin-bottom: 1rem;
+        }
+
+        /* CORREÇÃO DE CONTRASTE: Listas dentro de Info Box */
+        .info-box .passos li {
+            background: rgba(255, 255, 255, 0.1); /* Fundo semi-transparente escuro */
+            color: var(--branco); /* Texto branco */
+            border: 1px solid rgba(255,255,255, 0.2);
+        }
+        
+        .info-box .passos li::before {
+            background: var(--amarelo);
+            color: var(--vermelho-escuro);
+        }
+
+        /* Navegação */
+        .navegacao {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--cinza-escuro);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .navegacao button {
+            background: var(--vermelho);
+            color: var(--branco);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .navegacao button:hover {
+            background: var(--vermelho-escuro);
+        }
+
+        .navegacao button:disabled {
+            background: var(--cinza-medio);
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: var(--amarelo);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Passo a passo */
+        .passos {
+            counter-reset: passo;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .passos li {
+            counter-increment: passo;
+            padding: 1rem 1rem 1rem 4rem;
+            position: relative;
+            margin-bottom: 1rem;
+            background: var(--cinza-claro);
+            border-radius: 8px;
+        }
+
+        .passos li::before {
+            content: counter(passo);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2rem;
+            height: 2rem;
+            background: var(--vermelho);
+            color: var(--branco);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Grid de funcionalidades */
+        .func-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .func-item {
+            background: var(--branco);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--cinza-claro);
+            transition: all 0.3s ease;
+        }
+
+        .func-item:hover {
+            border-color: var(--vermelho);
+            box-shadow: 0 4px 12px rgba(196, 30, 58, 0.15);
+        }
+
+        .func-item h4 {
+            color: var(--vermelho);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .func-item p {
+            font-size: 0.95rem;
+            color: var(--cinza-medio);
+            margin: 0;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 2rem 1.5rem;
+            }
+
+            .slide.capa h1 {
+                font-size: 2rem;
+            }
+
+            .slide.capa h2 {
+                font-size: 1.3rem;
+            }
+
+            .slide.conteudo h1 {
+                font-size: 1.8rem;
+            }
+
+            .perfil-cards {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85rem;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            th,
+            td {
+                padding: 0.5rem;
+            }
+            
+            .navegacao {
+                padding: 0.8rem 1rem;
+            }
+            
+            .navegacao button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* INDICADOR DE SWIPE NO MOBILE */
+        .swipe-indicator {
+            display: none;
+            position: absolute;
+            bottom: 80px; /* Acima da barra de navegação local */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            z-index: 999;
+            animation: pulseSwipe 2s infinite;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .swipe-indicator {
+                display: block; /* Só aparece no celular */
+            }
+        }
+
+        @keyframes pulseSwipe {
+            0% { opacity: 0.4; transform: translateX(-50%) scale(0.95); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+            100% { opacity: 0.4; transform: translateX(-50%) scale(0.95); }
+        }
+
+        /* Slide de índice */
+        .indice {
+            background: linear-gradient(135deg, var(--amarelo) 0%, #FFA500 100%);
+            color: var(--cinza-escuro);
+        }
+
+        .indice h1 {
+            color: var(--vermelho-escuro);
+            border-bottom-color: var(--vermelho);
+        }
+
+        .indice-list {
+            list-style: none;
+            margin-left: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .indice-list li {
+            padding: 1rem 1.5rem;
+            background: var(--branco);
+            border-radius: 8px;
+            border-left: 4px solid var(--vermelho);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indice-list li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .indice-list li strong {
+            color: var(--vermelho);
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+        }
+
+        .highlight-box {
+            background: var(--vermelho);
+            color: var(--branco);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .highlight-box h3 {
+            color: var(--amarelo);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- INDICADOR DE SWIPE GLOBAL -->
+    <div class="swipe-indicator" id="swipeIndicator">👈 Deslize para navegar 👉</div>
+
+    <!-- SLIDE 1: CAPA -->
+    <div class="slide capa active" data-slide="1">
+        <div class="logo-area">CSM</div>
+        <h1>Sistema de Gestão Escolar</h1>
+        <h2>Guia Completo de Funcionalidades e Permissões</h2>
+        <div class="info">
+            <p><strong>Colégio Santa Mônica</strong> - Limoeiro/PE</p>
+            <p style="margin-top: 1rem;">Treinamento para Equipe Gestora e Professores</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: ÍNDICE -->
+    <div class="slide indice conteudo" data-slide="2">
+        <h1>📋 Conteúdo do Treinamento</h1>
+        <ul class="indice-list">
+            <li onclick="goToSlide(3)"><strong>1.</strong> O que é o SGE?</li>
+            <li onclick="goToSlide(4)"><strong>2.</strong> Como acessar o sistema?</li>
+            <li onclick="goToSlide(5)"><strong>3.</strong> Perfis de acesso e permissões</li>
+            <li onclick="goToSlide(6)"><strong>4.</strong> Perfil ALUNO - Funcionalidades</li>
+            <li onclick="goToSlide(7)"><strong>5.</strong> Perfil PROFESSOR - Funcionalidades</li>
+            <li onclick="goToSlide(8)"><strong>6.</strong> Perfil SECRETARIA/ADMIN - Funcionalidades</li>
+            <li onclick="goToSlide(9)"><strong>7.</strong> Gestão de Turmas e Matrículas</li>
+            <li onclick="goToSlide(10)"><strong>8.</strong> Lançamento de Notas</li>
+            <li onclick="goToSlide(11)"><strong>9.</strong> Registro de Aulas</li>
+            <li onclick="goToSlide(12)"><strong>10.</strong> Solicitação de Documentos</li>
+            <li onclick="goToSlide(13)"><strong>11.</strong> Segurança e Proteção de Dados</li>
+            <li onclick="goToSlide(14)"><strong>12.</strong> Dicas importantes</li>
+        </ul>
+    </div>
+
+    <!-- SLIDE 3: O QUE É O SGE? -->
+    <div class="slide conteudo" data-slide="3">
+        <h1>📚 O que é o Sistema de Gestão Escolar?</h1>
+
+        <p>O <strong>SGE</strong> é uma plataforma digital desenvolvida especialmente para o <strong>Colégio Santa
+                Mônica</strong> que permite gerenciar todas as atividades acadêmicas de forma organizada, segura e
+            eficiente.</p>
+
+        <div class="info-box">
+            <h3>🎯 Objetivos do Sistema</h3>
+            <ul style="margin-left: 1.5rem;">
+                <li>Centralizar informações acadêmicas em um único lugar</li>
+                <li>Facilitar a comunicação entre alunos, professores e secretaria</li>
+                <li>Automatizar processos como lançamento de notas e emissão de documentos</li>
+                <li>Garantir segurança e privacidade dos dados</li>
+                <li>Permitir acesso de qualquer lugar com internet</li>
+            </ul>
+        </div>
+
+        <h2>✨ Principais Vantagens</h2>
+        <div class="func-grid">
+            <div class="func-item">
+                <h4>🌐 Acesso Online</h4>
+                <p>Acesse de qualquer computador ou celular com internet</p>
+            </div>
+            <div class="func-item">
+                <h4>🔒 Segurança</h4>
+                <p>Dados protegidos com criptografia e controle de acesso por perfil</p>
+            </div>
+            <div class="func-item">
+                <h4>⚡ Automatização</h4>
+                <p>Cálculo automático de médias e geração de documentos PDF</p>
+            </div>
+            <div class="func-item">
+                <h4>📊 Organização</h4>
+                <p>Todas as informações organizadas e fáceis de encontrar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: COMO ACESSAR -->
+    <div class="slide conteudo" data-slide="4">
+        <h1>🔐 Como Acessar o Sistema?</h1>
+
+        <h2>📍 Endereço do Sistema</h2>
+        <div class="destaque">
+            <strong>URL de Acesso:</strong> https://afsjr.github.io/secretaria_escola_csm/
+        </div>
+
+        <h2>📝 Passo a Passo para Login</h2>
+        <ol class="passos">
+            <li>Abra o navegador (Chrome, Firefox, Edge) e acesse o endereço acima</li>
+            <li>Na tela de login, informe seu <strong>e-mail</strong> e <strong>senha</strong></li>
+            <li>Clique em <strong>"Entrar"</strong></li>
+            <li>Pronto! Você será direcionado ao seu painel personalizado</li>
+        </ol>
+
+        <div class="destaque vermelho">
+            <strong>⚠️ Importante:</strong> Se você esqueceu sua senha, entre em contato com a secretaria para que seja
+            cadastrada uma nova senha.
+        </div>
+
+        <h2>🎓 Primeiro Acesso</h2>
+        <p>No primeiro acesso, o sistema solicitará que você complete seu cadastro:</p>
+        <ul>
+            <li>Preencha seus dados pessoais (nome completo, CPF, telefone)</li>
+            <li>Clique em <strong>"Salvar"</strong></li>
+            <li>Pronto! Você já pode usar o sistema</li>
+        </ul>
+    </div>
+
+    <!-- SLIDE 5: PERFIS DE ACESSO -->
+    <div class="slide conteudo" data-slide="5">
+        <h1>👥 Perfis de Acesso e Permissões</h1>
+
+        <p>O sistema possui <strong>3 perfis de acesso</strong>, cada um com permissões e funcionalidades específicas:
+        </p>
+
+        <div class="perfil-cards">
+            <div class="perfil-card">
+                <h3><span class="icone">👨‍🎓</span> Aluno</h3>
+                <p><strong>Quem usa:</strong> Estudantes matriculados nos cursos</p>
+                <ul>
+                    <li>Visualizar notas e frequência</li>
+                    <li>Solicitar documentos</li>
+                    <li>Editar seus dados</li>
+                    <li>Ver matriz curricular</li>
+                </ul>
+            </div>
+
+            <div class="perfil-card">
+                <h3><span class="icone">👨‍🏫</span> Professor</h3>
+                <p><strong>Quem usa:</strong> Docentes que ministram aulas</p>
+                <ul>
+                    <li>Lançar notas dos alunos</li>
+                    <li>Registrar aulas</li>
+                    <li>Registrar frequência</li>
+                    <li>Ver ficha completa dos alunos</li>
+                </ul>
+            </div>
+
+            <div class="perfil-card">
+                <h3><span class="icone">🏫</span> Secretaria / Admin</h3>
+                <p><strong>Quem usa:</strong> Funcionários da secretaria e administradores</p>
+                <ul>
+                    <li>Cadastrar alunos e professores</li>
+                    <li>Gerenciar turmas e matrículas</li>
+                    <li>Processar solicitações de documentos</li>
+                    <li>Acesso total ao sistema</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="destaque">
+            <strong>💡 Importante:</strong> Cada perfil vê apenas os menus e funcionalidades que lhe são permitidos.
+            Isso garante segurança e organização do sistema.
+        </div>
+    </div>
+
+    <!-- SLIDE 6: PERFIL ALUNO -->
+    <div class="slide conteudo" data-slide="6">
+        <h1>👨‍🎓 Perfil ALUNO - Funcionalidades</h1>
+
+        <h2>Menu disponível para Alunos:</h2>
+
+        <div class="func-grid">
+            <div class="func-item">
+                <h4>📌 Início</h4>
+                <p>Dashboard com estatísticas pessoais, documentos pendentes e avisos importantes</p>
+            </div>
+            <div class="func-item">
+                <h4>📄 Documentos</h4>
+                <p>Solicitar Declaração de Matrícula, Histórico Acadêmico e Atestado de Frequência</p>
+            </div>
+            <div class="func-item">
+                <h4>👥 Usuários</h4>
+                <p>Visualizar lista de colegas do sistema (apenas nomes, por privacidade)</p>
+            </div>
+            <div class="func-item">
+                <h4>📚 Matriz Curricular</h4>
+                <p>Ver todas as disciplinas do seu curso organizadas por módulo</p>
+            </div>
+            <div class="func-item">
+                <h4>⚙️ Meus Dados</h4>
+                <p>Editar perfil completo: dados pessoais, endereço, telefone, WhatsApp</p>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>📝 Como solicitar um documento?</h3>
+            <ol class="passos" style="margin-left: 0;">
+                <li>Clique em <strong>"Documentos"</strong> no menu lateral</li>
+                <li>Clique em <strong>"+ Nova Solicitação"</strong></li>
+                <li>Escolha o tipo de documento desejado</li>
+                <li>Clique em <strong>"Solicitar"</strong></li>
+                <li>Acompanhe o status: <strong>Pendente</strong> (amarelo) ou <strong>Concluído</strong> (verde)</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: PERFIL PROFESSOR -->
+    <div class="slide conteudo" data-slide="7">
+        <h1>👨‍🏫 Perfil PROFESSOR - Funcionalidades</h1>
+
+        <h2>Menu disponível para Professores:</h2>
+
+        <div class="func-grid">
+            <div class="func-item">
+                <h4>📌 Início</h4>
+                <p>Dashboard com estatísticas e visão geral das suas turmas</p>
+            </div>
+            <div class="func-item">
+                <h4>🎓 Minhas Turmas</h4>
+                <p>Ver turmas atribuídas, lançar notas em lote, registrar frequência</p>
+            </div>
+            <div class="func-item">
+                <h4>👤 Meus Alunos</h4>
+                <p>Busca de alunos + ficha completa individual com dados detalhados</p>
+            </div>
+            <div class="func-item">
+                <h4>📅 Registrar Aula</h4>
+                <p>Formulário centralizado para registrar conteúdo ministrado em cada aula</p>
+            </div>
+            <div class="func-item">
+                <h4>📚 Matriz Curricular</h4>
+                <p>Visualizar grade curricular dos cursos</p>
+            </div>
+            <div class="func-item">
+                <h4>⚙️ Meus Dados</h4>
+                <p>Editar perfil completo: dados pessoais, endereço, contato</p>
+            </div>
+        </div>
+
+        <div class="destaque">
+            <h3>📊 Sistema de Cálculo Automático de Notas</h3>
+            <p>O sistema calcula automaticamente as médias dos alunos:</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>Média Teórica:</strong> (N1 + N2 + N3) ÷ 3</li>
+                <li><strong>Média Final:</strong> (Média + Recuperação) ÷ 2 (se houver recuperação)</li>
+            </ul>
+            <p style="margin-top: 0.5rem;"><strong>Status:</strong> ✅ Aprovado (≥ 7.0) | 🟡 Recuperação (5.0-6.9) | 🔴
+                Reprovado (< 5.0)</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: PERFIL SECRETARIA/ADMIN -->
+    <div class="slide conteudo" data-slide="8">
+        <h1>🏫 Perfil SECRETARIA / ADMIN - Funcionalidades</h1>
+
+        <h2>Menu disponível para Secretaria e Administradores:</h2>
+
+        <div class="func-grid">
+            <div class="func-item">
+                <h4>📌 Início</h4>
+                <p>Dashboard geral com estatísticas do sistema</p>
+            </div>
+            <div class="func-item">
+                <h4>📋 Painel Secretaria</h4>
+                <p>Cadastros, gerenciamento, solicitações de documentos</p>
+            </div>
+            <div class="func-item">
+                <h4>🎓 Gestão de Turmas</h4>
+                <p>Criar turmas, matricular alunos, gerenciar status acadêmico</p>
+            </div>
+            <div class="func-item">
+                <h4>📚 Matriz Curricular</h4>
+                <p>Visualizar matriz dos cursos e disciplinas</p>
+            </div>
+            <div class="func-item">
+                <h4>👥 Usuários</h4>
+                <p>Lista completa de todos os usuários do sistema</p>
+            </div>
+            <div class="func-item">
+                <h4>📄 Documentos</h4>
+                <p>Gerenciar solicitações de documentos e gerar PDFs</p>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Funções do Painel Secretaria</h3>
+            <ul style="margin-left: 1.5rem;">
+                <li><strong>Solicitações:</strong> Processar pedidos de documentos dos usuários</li>
+                <li><strong>Cadastrar Aluno:</strong> Criar novas contas de alunos</li>
+                <li><strong>Gerenciar Alunos:</strong> Visualizar e editar dados de alunos</li>
+                <li><strong>Cadastrar Professor:</strong> Criar novas contas de professores</li>
+                <li><strong>Gerenciar Professores:</strong> Vincular professores a disciplinas e turmas</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: GESTÃO DE TURMAS -->
+    <div class="slide conteudo" data-slide="9">
+        <h1>🎓 Gestão de Turmas e Matrículas</h1>
+
+        <p>A gestão de turmas é uma funcionalidade essencial para organização da escola, disponível apenas para
+            <strong>Secretaria e Admin</strong>.
+        </p>
+
+        <h2>📝 Criando uma Nova Turma</h2>
+        <ol class="passos">
+            <li>No menu lateral, clique em <strong>"Gestão de Turmas"</strong></li>
+            <li>Preencha o campo <strong>"Nome da Turma"</strong> (ex: Técnico Enfermagem Manhã - 10A)</li>
+            <li>Preencha o campo <strong>"Período Letivo"</strong> (ex: 2026.1)</li>
+            <li>Clique em <strong>"Registrar Turma"</strong></li>
+        </ol>
+
+        <h2>👨‍🎓 Matriculando Alunos em uma Turma</h2>
+        <ol class="passos">
+            <li>Clique na turma desejada na lista à esquerda</li>
+            <li>No campo <strong>"Matricular Aluno Existente"</strong>, selecione o aluno</li>
+            <li>Clique em <strong>"Adicionar à Turma"</strong></li>
+        </ol>
+
+        <h2>📊 Status Acadêmico dos Alunos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Descrição</th>
+                    <th>Quando Usar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong style="color: green;">Ativo</strong></td>
+                    <td>Aluno regular</td>
+                    <td>Aluno frequentando aulas normalmente</td>
+                </tr>
+                <tr>
+                    <td><strong style="color: orange;">Trancado</strong></td>
+                    <td>Matrícula trancada</td>
+                    <td>Aluno trancou temporariamente</td>
+                </tr>
+                <tr>
+                    <td><strong style="color: red;">Evadido</strong></td>
+                    <td>Abandonou o curso</td>
+                    <td>Aluno não retorna mais às aulas</td>
+                </tr>
+                <tr>
+                    <td><strong style="color: blue;">Concluído</strong></td>
+                    <td>Formado com sucesso</td>
+                    <td>Aluno completou todas as disciplinas</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="destaque vermelho">
+            <strong>⚠️ Atenção:</strong> NUNCA exclua um aluno da turma! Sempre altere o status para "Trancado" ou
+            "Evadido" para preservar o histórico acadêmico.
+        </div>
+    </div>
+
+    <!-- SLIDE 10: LANÇAMENTO DE NOTAS -->
+    <div class="slide conteudo" data-slide="10">
+        <h1>📊 Lançamento de Notas</h1>
+
+        <p>O lançamento de notas é uma das funções mais importantes para os <strong>professores</strong>. O sistema
+            facilita o processo com cálculo automático.</p>
+
+        <h2>📝 Como Lançar Notas</h2>
+        <ol class="passos">
+            <li>No menu lateral, clique em <strong>"Minhas Turmas"</strong></li>
+            <li>Selecione a disciplina desejada</li>
+            <li>O sistema mostrará todos os alunos da turma automaticamente</li>
+            <li>Para cada aluno, preencha:
+                <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                    <li><strong>Faltas:</strong> Quantidade de ausências</li>
+                    <li><strong>N1:</strong> Primeira nota (0 a 10)</li>
+                    <li><strong>N2:</strong> Segunda nota (0 a 10)</li>
+                    <li><strong>N3:</strong> Terceira nota (0 a 10)</li>
+                    <li><strong>Rec.:</strong> Nota de recuperação (se necessário)</li>
+                </ul>
+            </li>
+            <li>Clique em <strong>"Salvar Todas as Notas"</strong> para salvar de uma vez</li>
+        </ol>
+
+        <div class="info-box">
+            <h3>💡 Dicas Importantes para Professores</h3>
+            <ul style="margin-left: 1.5rem;">
+                <li>Registre as notas o mais rápido possível após as provas</li>
+                <li>Verifique as faltas antes de salvar, pois afetam a aprovação</li>
+                <li>Use a recuperação apenas para alunos com média abaixo de 7.0</li>
+                <li>Você pode exportar notas em PDF para seu controle</li>
+            </ul>
+        </div>
+
+        <h2>🎨 Interpretação das Cores</h2>
+        <div class="func-grid">
+            <div class="func-item" style="border-left: 5px solid green;">
+                <h4 style="color: green;">🟢 Verde</h4>
+                <p><strong>Aprovado:</strong> Média Final ≥ 7.0</p>
+            </div>
+            <div class="func-item" style="border-left: 5px solid orange;">
+                <h4 style="color: orange;">🟡 Amarelo</h4>
+                <p><strong>Recuperação:</strong> Média Final entre 5.0 e 6.9</p>
+            </div>
+            <div class="func-item" style="border-left: 5px solid red;">
+                <h4 style="color: red;">🔴 Vermelho</h4>
+                <p><strong>Reprovado:</strong> Média Final < 5.0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: REGISTRO DE AULAS -->
+    <div class="slide conteudo" data-slide="11">
+        <h1>📅 Registro de Aulas</h1>
+
+        <p>O registro de aulas permite documentar o conteúdo ministrado em cada aula, criando um histórico organizado
+            para o professor e para a escola.</p>
+
+        <h2>📝 Como Registrar uma Aula</h2>
+        <ol class="passos">
+            <li>No menu lateral, clique em <strong>"Registrar Aula"</strong></li>
+            <li>No campo <strong>"Selecione a Disciplina"</strong>, escolha a matéria</li>
+            <li>Preencha o formulário:
+                <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                    <li><strong>Data:</strong> Data da aula (já vem preenchida com a data de hoje)</li>
+                    <li><strong>Conteúdo Ministrado:</strong> Descreva o que foi ensinado</li>
+                </ul>
+            </li>
+            <li>Clique em <strong>"Registrar"</strong></li>
+        </ol>
+
+        <h2>📋 Visualizando o Histórico</h2>
+        <p>Abaixo do formulário, você verá todas as aulas já registradas para essa disciplina:</p>
+        <ul>
+            <li>Data da aula</li>
+            <li>Conteúdo ministrado</li>
+            <li>Botão "Remover" (para excluir registros incorretos)</li>
+        </ul>
+
+        <div class="destaque">
+            <h3>💡 Exemplo de Registro</h3>
+            <p><strong>Data:</strong> 01/04/2026</p>
+            <p><strong>Conteúdo:</strong> Introdução à Anatomia Humana - Sistema Esquelético</p>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Por que registrar aulas?</h3>
+            <ul style="margin-left: 1.5rem;">
+                <li>Mantém um histórico organizado do conteúdo ministrado</li>
+                <li>Facilita o acompanhamento do progresso da turma</li>
+                <li>Ajuda em caso de substituição de professor</li>
+                <li>Documenta o cumprimento do plano de ensino</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: SOLICITAÇÃO DE DOCUMENTOS -->
+    <div class="slide conteudo" data-slide="12">
+        <h1>📄 Solicitação de Documentos</h1>
+
+        <p>O sistema permite solicitar e gerar documentos acadêmicos de forma automatizada com o cabeçalho oficial do
+            Colégio Santa Mônica.</p>
+
+        <h2>📋 Tipos de Documentos Disponíveis</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de Documento</th>
+                    <th>Quem Pode Solicitar</th>
+                    <th>O que é Gerado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Declaração de Matrícula</strong></td>
+                    <td>Aluno</td>
+                    <td>PDF com dados do curso e turma</td>
+                </tr>
+                <tr>
+                    <td><strong>Histórico Acadêmico</strong></td>
+                    <td>Aluno</td>
+                    <td>PDF com todas as notas e situação</td>
+                </tr>
+                <tr>
+                    <td><strong>Atestado de Frequência</strong></td>
+                    <td>Aluno</td>
+                    <td>PDF com frequência do aluno</td>
+                </tr>
+                <tr>
+                    <td><strong>Declaração de Vínculo</strong></td>
+                    <td>Professor / Admin / Secretaria</td>
+                    <td>PDF com função exercida na escola</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>📝 Fluxo de Solicitação</h2>
+        <ol class="passos">
+            <li><strong>Aluno</strong> solicita o documento pelo menu "Documentos"</li>
+            <li><strong>Secretaria</strong> vê o pedido no Painel da Secretaria → Solicitações</li>
+            <li><strong>Secretaria</strong> clica em "Gerar PDF" para criar o documento</li>
+            <li>O PDF é baixado automaticamente para o computador</li>
+            <li><strong>Secretaria</strong> imprime e entrega ao solicitante</li>
+            <li>Status muda para "Concluído"</li>
+        </ol>
+
+        <div class="destaque">
+            <strong>💡 Dica:</strong> O sistema gera automaticamente o PDF correto baseado no perfil do solicitante.
+            Alunos recebem documentos acadêmicos, enquanto funcionários recebem declarações de vínculo.
+        </div>
+    </div>
+
+    <!-- SLIDE 13: SEGURANÇA -->
+    <div class="slide conteudo" data-slide="13">
+        <h1>🔒 Segurança e Proteção de Dados</h1>
+
+        <p>O sistema implementa diversas camadas de segurança para proteger os dados dos usuários:</p>
+
+        <h2>🛡️ Proteções Implementadas</h2>
+        <div class="func-grid">
+            <div class="func-item">
+                <h4>🔐 Autenticação Segura</h4>
+                <p>Login com e-mail e senha criptografados. Session timeout automático após 30 minutos de inatividade
+                </p>
+            </div>
+            <div class="func-item">
+                <h4>🚫 Proteção contra Força Bruta</h4>
+                <p>Após 5 tentativas de login erradas, a conta é bloqueada por 15 minutos</p>
+            </div>
+            <div class="func-item">
+                <h4>👤 Controle de Acesso por Perfil</h4>
+                <p>Cada usuário vê apenas o que tem permissão. Alunos não acessam dados de outros alunos</p>
+            </div>
+            <div class="func-item">
+                <h4>🔒 Criptografia de Dados</h4>
+                <p>Todos os dados são transmitidos com criptografia HTTPS</p>
+            </div>
+        </div>
+
+        <h2>📊 Row Level Security (RLS)</h2>
+        <p>O sistema usa políticas de segurança em nível de banco de dados:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tabela</th>
+                    <th>Quem pode ler</th>
+                    <th>Quem pode escrever</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Perfis</strong></td>
+                    <td>Próprio usuário, Admin</td>
+                    <td>Próprio usuário, Admin</td>
+                </tr>
+                <tr>
+                    <td><strong>Notas (Boletim)</strong></td>
+                    <td>Aluno (só suas), Professor, Admin</td>
+                    <td>Professor, Admin</td>
+                </tr>
+                <tr>
+                    <td><strong>Aulas</strong></td>
+                    <td>Professor (só suas), Admin</td>
+                    <td>Professor</td>
+                </tr>
+                <tr>
+                    <td><strong>Matrículas</strong></td>
+                    <td>Próprio aluno, Admin</td>
+                    <td>Admin</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-box">
+            <h3>💡 LGPD - Lei Geral de Proteção de Dados</h3>
+            <p>O sistema está em conformidade com a LGPD. Os dados dos alunos e professores são tratados com sigilo e
+                utilizados apenas para fins acadêmicos.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: DICAS IMPORTANTES -->
+    <div class="slide conteudo" data-slide="14">
+        <h1>💡 Dicas Importantes para Todos os Perfis</h1>
+
+        <h2>👨‍🎓 Para Alunos</h2>
+        <ul>
+            <li>Mantenha seus dados sempre atualizados (telefone, endereço, WhatsApp)</li>
+            <li>Verifique suas notas regularmente no boletim</li>
+            <li>Solicite documentos com antecedência quando precisar</li>
+            <li>Nunca compartilhe sua senha de acesso</li>
+        </ul>
+
+        <h2>👨‍🏫 Para Professores</h2>
+        <ul>
+            <li>Lance notas logo após as avaliações para não esquecer</li>
+            <li>Registre o conteúdo de todas as aulas ministradas</li>
+            <li>Verifique a frequência dos alunos regularmente</li>
+            <li>Use o sistema para acompanhar o desempenho da turma</li>
+        </ul>
+
+        <h2>🏫 Para Secretaria / Admin</h2>
+        <ul>
+            <li>Crie senhas seguras para novos usuários e oriente a troca no primeiro acesso</li>
+            <li>Processa solicitações de documentos rapidamente</li>
+            <li>Mantenha turmas e matrículas sempre atualizadas</li>
+            <li>Use o status "Trancado" ou "Evadido" ao invés de excluir alunos</li>
+        </ul>
+
+        <div class="highlight-box">
+            <h3>🆘 Precisa de Ajuda?</h3>
+            <p style="font-size: 1.2rem; margin-top: 1rem;">Entre em contato com o suporte técnico da secretaria</p>
+            <p style="margin-top: 0.5rem;">Horário de atendimento: 08h às 18h - Campus Central</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: ENCERRAMENTO -->
+    <div class="slide capa" data-slide="15">
+        <div class="logo-area">CSM</div>
+        <h1>Obrigado pelo Treinamento!</h1>
+        <h2>Agora você está pronto para usar o SGE</h2>
+        <div class="info">
+            <p style="font-size: 1.3rem; margin-bottom: 1rem;"><strong>Colégio Santa Mônica</strong></p>
+            <p>Limoeiro/PE</p>
+            <p style="margin-top: 2rem; font-size: 1.1rem;">
+                <strong>Acesse:</strong> https://afsjr.github.io/secretaria_escola_csm/
+            </p>
+            <p style="margin-top: 1rem; opacity: 0.9;">
+                Em caso de dúvidas, procure a secretaria da escola
+            </p>
+        </div>
+    </div>
+
+    <!-- NAVEGAÇÃO -->
+    <div class="navegacao">
+        <button id="btn-anterior" onclick="previousSlide()" disabled>← Anterior</button>
+        <span class="slide-counter">
+            <span id="slide-atual">1</span> / <span id="total-slides">15</span>
+        </span>
+        <button id="btn-proximo" onclick="nextSlide()">Próximo →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 15;
+
+        function updateSlide() {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            // Show current slide
+            const currentSlideEl = document.querySelector(`[data-slide="${currentSlide}"]`);
+            if (currentSlideEl) {
+                currentSlideEl.classList.add('active');
+            }
+
+            // Update counter
+            document.getElementById('slide-atual').textContent = currentSlide;
+            document.getElementById('total-slides').textContent = totalSlides;
+
+            // Update buttons
+            document.getElementById('btn-anterior').disabled = currentSlide === 1;
+            document.getElementById('btn-proximo').disabled = currentSlide === totalSlides;
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(slideNumber) {
+            if (slideNumber >= 1 && slideNumber <= totalSlides) {
+                currentSlide = slideNumber;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchStartX - touchEndX > swipeThreshold) {
+                nextSlide();
+                hideSwipeIndicator();
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                previousSlide();
+                hideSwipeIndicator();
+            }
+        }
+        
+        function hideSwipeIndicator() {
+            const indicator = document.getElementById('swipeIndicator');
+            if (indicator) {
+                indicator.style.display = 'none';
+            }
+        }
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+
+</html>

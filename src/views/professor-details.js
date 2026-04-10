@@ -113,9 +113,20 @@ export async function ProfessorDetailsView(professorId) {
           </div>
         </div>
 
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="label">Profissão / Especialidade</label>
+            <div class="field-value">${escapeHTML(dados.profissao || '-')}</div>
+          </div>
+          <div class="form-group">
+            <label class="label">Graduação e Nome do Curso</label>
+            <div class="field-value">${escapeHTML(dados.graduacao || '-')}</div>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label class="label">Profissão / Especialidade</label>
-          <div class="field-value">${escapeHTML(dados.profissao || '-')}</div>
+          <label class="label">Data de Conclusão da Graduação</label>
+          <div class="field-value">${dados.data_conclusao_graduacao ? new Date(dados.data_conclusao_graduacao).toLocaleDateString('pt-BR') : '-'}</div>
         </div>
       </fieldset>
 

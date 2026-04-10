@@ -228,7 +228,7 @@ export async function StudentDetailsView(alunoId) {
               ${responsaveis.map(r => `
                 <div class="responsavel-item" data-id="${r.id}" style="padding: 1rem; background: var(--secondary); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
                   <div>
-                    <div style="font-weight: 600;">${escapeHTML(r.nome)} ${r.principal ? '<span class="badge">Principal</span>' : ''}</div>
+                    <div style="font-weight: 600;">${escapeHTML(r.nome)} ${r.principal ? '<span class="badge">Principal</span>' : ''} ${r.financeiro ? '<span class="badge badge-warning" style="background:#fef08a;color:#854d0e;">Financeiro</span>' : ''}</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted);">${escapeHTML(r.parentesco || '-')} | ${escapeHTML(r.telefone || '-')} | ${escapeHTML(r.email || '-')}</div>
                   </div>
                   <div style="display: flex; gap: 0.5rem;">
@@ -291,12 +291,15 @@ export async function StudentDetailsView(alunoId) {
     const parentesco = prompt('Parentesco (Ex: Pai, Mãe, Tutor):') || ''
     const telefone = prompt('Telefone:') || ''
     const email = prompt('E-mail:') || ''
+    const financeiroStr = prompt('É o Responsável Financeiro? (S/N)') || 'N'
+    const isFinanceiro = financeiroStr.toUpperCase() === 'S'
 
     const { error } = await StudentDetailsService.addResponsavel(alunoId, {
       nome,
       parentesco,
       telefone,
       email,
+      financeiro: isFinanceiro,
       principal: responsaveis.length === 0
     })
 

@@ -161,7 +161,14 @@ export const ProfessorService = {
     return { error }
   },
 
-  // === REGISTRO DE AULAS ===
+  // === REGISTRO DE AULAS E FREQUÊNCIA ===
+
+  // Salvar Frequências (Placeholder para a futura tabela de frequência interligada)
+  async salvarFrequencia(turmaId, dataAula, disciplinaId, alunosAusentesIds) {
+    // Aqui no futuro será feito: await supabase.from('frequencias').insert(...)
+    console.log('Faltas registradas para:', alunosAusentesIds, 'Data:', dataAula);
+    return { data: true, error: null }
+  },
 
   // Registrar nova aula
   async registrarAula({ disciplina_id, professor_id, data, conteudo }) {

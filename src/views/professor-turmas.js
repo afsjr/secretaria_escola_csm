@@ -17,6 +17,21 @@ import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
 import { escapeHTML, createBadge, createOption } from '../lib/security'
 
+/**
+ * Arredonda a nota para múltiplos de 0.5 conforme regra:
+ * X.1 até X.4 => X.5 ; X.6 até X.9 => (X+1).0
+ */
+function arredondarNota(nota) {
+  if (!nota || nota <= 0) return 0;
+  const inteiro = Math.floor(nota);
+  const decimal = nota - inteiro;
+  
+  if (decimal === 0) return nota;
+  if (decimal > 0 && decimal <= 0.4) return inteiro + 0.5;
+  if (decimal > 0.4 && decimal <= 0.5) return inteiro + 0.5;
+  return inteiro + 1.0;
+}
+
 export async function ProfessorTurmasView(profile) {
   const container = document.createElement('div')
   container.className = 'professor-turmas-view animate-in'
@@ -352,18 +367,26 @@ export async function ProfessorTurmasView(profile) {
           const n3 = row.querySelector('.input-n3')?.value || 0
           const rec = row.querySelector('.input-rec')?.value || 0
 
-          const notasPresentes = [n1, n2, n3].filter(n => parseFloat(n) > 0)
-          const media = notasPresentes.length > 0 ? notasPresentes.reduce((a, b) => a + b, 0) / notasPresentes.length : 0
+          const n1Val = parseFloat(n1) || 0;
+          const n2Val = parseFloat(n2) || 0;
+          const n3Val = parseFloat(n3) || 0;
+          const recVal = parseFloat(rec) || 0;
+
+          let mediaParcial = arredondarNota((n1Val + n2Val + n3Val) / 3);
+          let finalVal = mediaParcial;
+          if (mediaParcial < 7) {
+            finalVal = arredondarNota((mediaParcial + recVal) / 2);
+          }
 
           notasData.push({
             disciplina: disciplinaNome,
             modulo: 'Módulo Atual',
-            faltas: parseFloat(faltas),
-            n1: parseFloat(n1),
-            n2: parseFloat(n2),
-            n3: parseFloat(n3),
-            rec: parseFloat(rec),
-            media: media.toFixed(1)
+            faltas: parseFloat(faltas) || 0,
+            n1: n1Val,
+            n2: n2Val,
+            n3: n3Val,
+            rec: recVal,
+            media: finalVal.toFixed(1)
           })
         })
 
@@ -451,11 +474,22 @@ async function loadAlunosDaDisciplina(disciplinaId, disciplinaNome, turma, conta
         const n3 = notas.n3 || 0
         const rec = notas.rec || 0
 
-        const notasPresentes = [n1, n2, n3].filter(n => n > 0)
-        const media = notasPresentes.length > 0 ? notasPresentes.reduce((a, b) => a + b, 0) / notasPresentes.length : 0
-        const final = rec > 0 ? (media + rec) / 2 : media
-        const status = final >= 7 ? 'Aprovado' : final >= 5 ? 'Recuperação' : 'Reprovado'
-        const statusColor = final >= 7 ? 'var(--success)' : final >= 5 ? '#F59E0B' : 'var(--danger)'
+        const nfVal = parseFloat(rec) || 0
+        const mediaParcial = arredondarNota((parseFloat(n1) + parseFloat(n2) + parseFloat(n3)) / 3)
+        let mediaCalculada = mediaParcial
+        let statusStr = ''
+
+        if (mediaParcial >= 7) {
+          statusStr = 'Aprovado'
+        } else {
+          mediaCalculada = arredondarNota((mediaParcial + nfVal) / 2)
+          statusStr = mediaCalculada >= 6 ? 'Aprovado' : 'Reprovado'
+        }
+
+        const media = mediaParcial
+        const final = mediaCalculada
+        const status = statusStr
+        const statusColor = status === 'Aprovado' ? 'var(--success)' : 'var(--danger)'
 
         return `
           <tr data-aluno-id="${aluno.id}" style="border-top: 1px solid var(--secondary);">
@@ -500,11 +534,22 @@ function recalcularMedia(tbody, disciplinaId) {
     const n3 = parseFloat(row.querySelector('.input-n3')?.value) || 0
     const rec = parseFloat(row.querySelector('.input-rec')?.value) || 0
 
-    const notasPresentes = [n1, n2, n3].filter(n => n > 0)
-    const media = notasPresentes.length > 0 ? notasPresentes.reduce((a, b) => a + b, 0) / notasPresentes.length : 0
-    const final = rec > 0 ? (media + rec) / 2 : media
-    const status = final >= 7 ? 'Aprovado' : final >= 5 ? 'Recuperação' : 'Reprovado'
-    const statusColor = final >= 7 ? 'var(--success)' : final >= 5 ? '#F59E0B' : 'var(--danger)'
+    const nfVal = parseFloat(rec) || 0
+    const mediaParcial = arredondarNota((parseFloat(n1) + parseFloat(n2) + parseFloat(n3)) / 3)
+    let mediaCalculada = mediaParcial
+    let statusStr = ''
+
+    if (mediaParcial >= 7) {
+      statusStr = 'Aprovado'
+    } else {
+      mediaCalculada = arredondarNota((mediaParcial + nfVal) / 2)
+      statusStr = mediaCalculada >= 6 ? 'Aprovado' : 'Reprovado'
+    }
+
+    const media = mediaParcial
+    const final = mediaCalculada
+    const status = statusStr
+    const statusColor = status === 'Aprovado' ? 'var(--success)' : 'var(--danger)'
 
     const mediaCell = row.querySelector('[data-media]')
     const finalCell = row.querySelector('[data-final]')
@@ -641,8 +686,29 @@ async function loadFrequenciaAlunos(turma, container) {
     `
 
     // Save frequência
-    freqList.querySelector('.btn-salvar-frequencia').addEventListener('click', async () => {
-      toast.info('Frequência salva com sucesso!')
+    const btnSalvar = freqList.querySelector('.btn-salvar-frequencia')
+    btnSalvar.addEventListener('click', async () => {
+      const freqDataInput = document.getElementById('freq-data')
+      const freqDiscInput = document.getElementById('freq-disciplina')
+      
+      const dataAula = freqDataInput ? freqDataInput.value : new Date().toISOString().split('T')[0]
+      const disciplinaId = freqDiscInput ? freqDiscInput.value : null
+      
+      const alunosAusentesIds = Array.from(freqList.querySelectorAll('.freq-checkbox:checked')).map(cb => cb.getAttribute('data-aluno-id'));
+      
+      btnSalvar.disabled = true;
+      btnSalvar.textContent = 'Salvando...';
+      
+      const { error } = await ProfessorService.salvarFrequencia(turma.id, dataAula, disciplinaId, alunosAusentesIds)
+      
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = '💾 Salvar Frequência';
+
+      if (error) {
+        toast.error('Erro ao salvar frequência: ' + error.message)
+      } else {
+        toast.success('Frequência salva com sucesso!')
+      }
     })
 
   } catch (err) {

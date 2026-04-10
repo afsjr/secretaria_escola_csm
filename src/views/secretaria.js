@@ -541,7 +541,6 @@ export async function SecretariaView() {
 
     ${renderModalMatricula()}
   `
-  `
 
   // Lógica das tabs
   const tabBtns = container.querySelectorAll('.tab-btn')

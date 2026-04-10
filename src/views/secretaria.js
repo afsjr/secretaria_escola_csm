@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
 import { StudentDetailsView } from './student-details'
 import { ProfessorDetailsView } from './professor-details'
+import { StudentDetailsService } from '../lib/student-details-service'
 
 // Helper para prevenir XSS
 const escapeHTML = (str) => {
@@ -1031,6 +1032,7 @@ export async function SecretariaView() {
       btn.textContent = '...'
 
       const { data: aluno, error } = await AdminService.getAlunoById(alunoId)
+      const { data: enderecoData } = await StudentDetailsService.getEndereco(alunoId)
 
       btn.disabled = false
       btn.textContent = 'Editar'
@@ -1056,7 +1058,7 @@ export async function SecretariaView() {
       container.querySelector('#edit-rg').value = aluno.rg || ''
       container.querySelector('#edit-nascimento').value = aluno.data_nascimento || ''
       container.querySelector('#edit-naturalidade').value = aluno.cidade_natal || ''
-      container.querySelector('#edit-endereco').value = aluno.endereco || ''
+      container.querySelector('#edit-endereco').value = enderecoData && enderecoData.logradouro ? enderecoData.logradouro : ''
 
       modalEditar.style.display = 'flex'
     })
@@ -1099,15 +1101,24 @@ export async function SecretariaView() {
       btnSaveEdit.disabled = true
       btnSaveEdit.textContent = 'Salvando...'
 
+      const editRg = container.querySelector('#edit-rg').value.trim()
+      const editNascimento = container.querySelector('#edit-nascimento').value
+      const editNaturalidade = container.querySelector('#edit-naturalidade').value.trim()
+      const editEndereco = container.querySelector('#edit-endereco').value.trim()
+
       const { error } = await AdminService.updateAluno(alunoId, {
         nome_completo: nomeCompleto,
         cpf: cpf || null,
         telefone: telefone || null,
-        rg: container.querySelector('#edit-rg').value.trim() || null,
-        data_nascimento: container.querySelector('#edit-nascimento').value || null,
-        cidade_natal: container.querySelector('#edit-naturalidade').value.trim() || null,
-        endereco: container.querySelector('#edit-endereco').value.trim() || null
+        rg: editRg || null,
+        data_nascimento: editNascimento || null,
+        cidade_natal: editNaturalidade || null
       })
+
+      // Salvar endereço separado se fornecido
+      if (editEndereco) {
+        await StudentDetailsService.saveEndereco(alunoId, { logradouro: editEndereco })
+      }
 
       if (error) {
         toast.error('Erro ao salvar: ' + error.message)

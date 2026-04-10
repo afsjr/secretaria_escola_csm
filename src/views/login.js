@@ -96,16 +96,18 @@ export function LoginView() {
   // Training button event listener (Guia)
   const btnTreinamentoGuia = container.querySelector('#btn-treinamento-guia')
   if(btnTreinamentoGuia) {
-    btnTreinamentoGuia.addEventListener('click', () => {
-      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
+    btnTreinamentoGuia.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.open('apresentacao_treinamento.html', '_blank')
     })
   }
 
   // Training button event listener (Slides)
   const btnTreinamentoSlide = container.querySelector('#btn-treinamento-slide')
   if(btnTreinamentoSlide) {
-    btnTreinamentoSlide.addEventListener('click', () => {
-      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento_slides.html', '_blank')
+    btnTreinamentoSlide.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.open('apresentacao_treinamento_slides.html', '_blank')
     })
   }
 

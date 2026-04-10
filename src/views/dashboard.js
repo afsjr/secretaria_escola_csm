@@ -195,15 +195,17 @@ export async function DashboardView(session, subPath = '/') {
   // Training button event listener
   const btnTreinamentoGuia = container.querySelector('#btn-treinamento-guia-sidebar')
   if (btnTreinamentoGuia) {
-    btnTreinamentoGuia.addEventListener('click', () => {
-      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
+    btnTreinamentoGuia.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.open('apresentacao_treinamento.html', '_blank')
     })
   }
 
   const btnTreinamentoSlide = container.querySelector('#btn-treinamento-slide-sidebar')
   if (btnTreinamentoSlide) {
-    btnTreinamentoSlide.addEventListener('click', () => {
-      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento_slides.html', '_blank')
+    btnTreinamentoSlide.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.open('apresentacao_treinamento_slides.html', '_blank')
     })
   }
 

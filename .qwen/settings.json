@@ -9,7 +9,10 @@
       "Bash(curl *)",
       "Bash(lsof *)",
       "Bash(sleep *)",
-      "Bash(cp *)"
+      "Bash(cp *)",
+      "Bash(mkdir *)",
+      "Bash(mv *)",
+      "Bash(tree *)"
     ]
   },
   "$version": 3

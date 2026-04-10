@@ -78,10 +78,10 @@ export async function DashboardView(session, subPath = '/') {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Meus Dados
         </a>
-        <a href="apresentacao_treinamento.html" target="_blank" class="nav-item" style="text-decoration: none; color: inherit; background: var(--accent); color: var(--text-main); margin-top: 0.5rem; font-weight: 600;">
+        <div id="btn-treinamento-sidebar" class="nav-item" style="text-decoration: none; color: inherit; background: var(--accent); color: var(--text-main); margin-top: 0.5rem; font-weight: 600; cursor: pointer;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           📚 Treinamento
-        </a>
+        </div>
       </nav>
 
       <div class="sidebar-user">
@@ -183,6 +183,14 @@ export async function DashboardView(session, subPath = '/') {
   container.querySelector('#logout-btn').addEventListener('click', async () => {
     await logout()
   })
+
+  // Training button event listener
+  const btnTreinamento = container.querySelector('#btn-treinamento-sidebar')
+  if (btnTreinamento) {
+    btnTreinamento.addEventListener('click', () => {
+      window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
+    })
+  }
 
   return container
 }

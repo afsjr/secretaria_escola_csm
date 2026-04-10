@@ -28,7 +28,7 @@ export function HomeView() {
           </div>
         </div>
 
-        <div class="home-option" onclick="window.open('apresentacao_treinamento.html', '_blank')" style="border-left: 4px solid var(--success); background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);">
+        <div class="home-option" id="btn-treinamento-home" style="border-left: 4px solid var(--success); background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); cursor: pointer;">
           <span class="home-option-icon" style="background: var(--success);">📚</span>
           <div>
             <h3 style="color: var(--success-text);">Material de Treinamento</h3>
@@ -42,6 +42,16 @@ export function HomeView() {
       </div>
     </div>
   `
+
+  // Training button event listener
+  setTimeout(() => {
+    const btnTreinamento = document.querySelector('#btn-treinamento-home')
+    if (btnTreinamento) {
+      btnTreinamento.addEventListener('click', () => {
+        window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')
+      })
+    }
+  }, 100)
 
   return container
 }

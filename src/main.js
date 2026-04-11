@@ -65,12 +65,13 @@ window.addEventListener('load', router)
 // Listen for Auth changes (login/logout redirect)
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN') {
-    window.location.hash = '#/dashboard'
+    if (window.location.hash === '#/' || window.location.hash === '') {
+      window.location.hash = '#/dashboard'
+    }
   } else if (event === 'SIGNED_OUT') {
     window.location.hash = '#/'
   }
-  router()
+  // Remove redundant router() call here as hashchange/load already cover it
 })
 
-// Initialize the app
-router()
+// Initialize the app (Router is handled by 'load' and 'hashchange')

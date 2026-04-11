@@ -1,561 +1,388 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treinamento Completo SGE CSM</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <title>Treinamento Avançado SGE CSM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8B0000;
-            /* Vermelho Institucional */
-            --accent: #D4A520;
-            /* Ouro CSM */
+            --primary: #C41E3A;    /* Vermelho CSM */
+            --primary-dark: #8B0000;
+            --accent: #FFD700;     /* Ouro */
             --white: #FFFFFF;
-            --text-dark: #1A202C;
-            --bg-body: #111111;
+            --gray-bg: #F8FAFC;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #222; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-dark);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* CONTAINER DO SLIDE */
-        .slide-viewer {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
+        .slide-viewer { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        
+        /* ESTILO DO SLIDE (MODELO EXECUTIVO) */
         .slide {
             width: 100%;
             max-width: 1200px;
             aspect-ratio: 16/9;
             background: var(--white);
             border-radius: 12px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             display: none;
             overflow: hidden;
             position: relative;
             flex-direction: column;
+            border: 4px solid var(--primary);
         }
+        .slide.active { display: flex; animation: slideFade 0.4s ease-in-out; }
 
-        .slide.active {
-            display: flex;
-            animation: slideIn 0.4s ease-out;
-        }
+        @keyframes slideFade { from { opacity: 0; } to { opacity: 1; } }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* ESTILOS DE CABEÇALHO (CONTRASTE LARANJA/VERMELHO) */
-        .slide-header {
+        /* CABEÇALHO COM SIDEBAR VERMELHA */
+        .header-bar {
             background: var(--primary);
-            padding: 30px 50px;
-            color: var(--white);
-            border-bottom: 5px solid var(--accent);
-        }
-
-        .slide-header h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2.2rem;
-            margin-bottom: 5px;
-            letter-spacing: -0.02em;
-        }
-
-        .slide-header p {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        /* CORPO DO SLIDE */
-        .slide-content {
-            padding: 40px 60px;
-            flex: 1;
-            font-size: 1.25rem;
-            line-height: 1.5;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .slide-content h2 {
-            color: var(--primary);
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .step-list {
-            list-style: none;
-        }
-
-        .step-item {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            align-items: flex-start;
-        }
-
-        .step-num {
-            background: var(--accent);
-            color: var(--primary);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            flex-shrink: 0;
-            font-size: 1.1rem;
-        }
-
-        .highlight-box {
-            background: #FFF8E1;
-            border-left: 5px solid var(--accent);
-            padding: 15px 20px;
-            margin-top: auto;
-            font-size: 1rem;
-            border-radius: 4px;
-        }
-
-        .warning-box {
-            background: #FEE2E2;
-            border-left: 5px solid #EF4444;
-            padding: 15px 20px;
-            margin-top: 15px;
-            font-size: 1rem;
-            border-radius: 4px;
-        }
-
-        /* SLIDE DE CAPA */
-        .slide.hero {
-            background: var(--primary);
-            color: var(--white);
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-family: 'Montserrat';
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero .divider {
-            width: 100px;
-            height: 5px;
-            background: var(--accent);
-            margin: 2rem 0;
-        }
-
-        /* CONTROLES */
-        .nav-bar {
-            background: #111;
-            padding: 15px 40px;
+            color: white;
+            padding: 25px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
         }
+        .header-bar h2 { font-family: 'Montserrat'; font-size: 2rem; letter-spacing: -0.02em; }
+        .module-tag { background: var(--accent); color: var(--primary-dark); padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; }
 
-        .btn {
-            background: var(--accent);
-            color: var(--primary);
-            border: none;
-            padding: 10px 25px;
-            border-radius: 6px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        /* AREA DE CONTEÚDO */
+        .content { padding: 40px 60px; flex: 1; display: flex; flex-direction: column; }
+        .content h3 { color: var(--primary-dark); font-size: 1.8rem; margin-bottom: 2rem; border-bottom: 2px solid var(--accent); padding-bottom: 10px; width: fit-content; }
+        
+        .step-list { list-style: none; }
+        .step-item { display: flex; gap: 20px; margin-bottom: 20px; font-size: 1.3rem; line-height: 1.4; align-items: flex-start; }
+        .step-num { color: var(--primary); font-family: 'Montserrat'; font-weight: 800; font-size: 2rem; line-height: 1; width: 40px; }
 
-        .btn:hover {
-            background: white;
-            transform: translateY(-2px);
-        }
+        .note-box { background: #FFFEEB; border: 1px solid #FFE58F; padding: 20px; border-radius: 8px; margin-top: auto; font-size: 1.1rem; }
+        .warning-text { color: #C41E3A; font-weight: 700; margin-bottom: 5px; display: block; }
 
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
+        /* CAPA INSTITUCIONAL */
+        .slide.hero { background: var(--primary-dark); color: white; justify-content: center; align-items: center; text-align: center; border: none; }
+        .hero h1 { font-family: 'Montserrat'; font-size: 4.5rem; margin-bottom: 0.5rem; }
+        .hero .accent-line { width: 120px; height: 6px; background: var(--accent); margin: 2rem 0; }
 
-        .progress-track {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            width: 100%;
-        }
+        /* CONTROLES */
+        .controls { background: #111; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: white; transform: scale(1.05); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s;
-        }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 6px; background: var(--accent); transition: width 0.3s; z-index: 100; }
 
-        .tag {
-            font-size: 0.7rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: 700;
-        }
+        /* ESTILO PARA TERMOS TÉCNICOS */
+        .term { background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-style: italic; color: #444; }
     </style>
 </head>
-
 <body>
 
-    <div class="slide-viewer">
-        <!-- SLIDE 1: CAPA -->
-        <div class="slide active hero">
-            <h1>SGE CSM</h1>
-            <p style="font-size: 1.5rem; letter-spacing: 0.3em;">MANUAL DE TREINAMENTO</p>
-            <div class="divider"></div>
-            <p style="opacity: 0.8;">Operação do Sistema de Gestão Escolar v2.0</p>
-        </div>
+<div class="progress-bar" id="progress"></div>
 
-        <!-- SLIDE 2: OBJETIVO -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>01. Objetivo</h1>
-                <p>Propósito e Expectativas</p>
+<div class="slide-viewer">
+    <!-- SLIDE 1: CAPA -->
+    <div class="slide active hero">
+        <h1>SGE CSM</h1>
+        <p style="font-size: 1.4rem; letter-spacing: 0.4em; opacity: 0.9;">TREINAMENTO OPERACIONAL</p>
+        <div class="accent-line"></div>
+        <p style="font-size: 1.1rem; opacity: 0.7;">Gestão Pedagógica & Financeira Unificada</p>
+    </div>
+
+    <!-- SLIDE 2: OBJETIVO -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>01. Objetivo</h2>
+            <div class="module-tag">INTRODUÇÃO</div>
+        </div>
+        <div class="content">
+            <h3>🎯 Padronização e Segurança</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Capacitação técnica para as rotinas da Secretaria e Professores.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Domínio das ferramentas de lançamento e consulta.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Garantia de que os documentos emitidos sejam 100% autênticos.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>🎯 Foco na Excelência Operacional</h2>
-                <p style="font-size: 1.4rem; margin-bottom: 2rem;">Capacitar os usuários a utilizar de forma
-                    <strong>autônoma e segura</strong> o sistema, garantindo:</p>
-                <div class="step-list">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Integridade dos dados acadêmicos e financeiros.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Agilidade no fluxo de matrículas e documentos.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div>Transparência total na renegociação de débitos.</div>
-                    </div>
-                </div>
-                <div class="highlight-box">
-                    ✔️ Resultado esperado: Redução de erros manuais e aumento da produtividade do setor.
-                </div>
+            <div class="note-box">
+                <span class="warning-text">FOCO:</span> Autonomia no uso do sistema e redução de retrabalho com planilhas externas.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 3: ACESSO -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>02. Acesso ao Sistema</h1>
-                <p>Segurança e Login</p>
+    <!-- SLIDE 3: ACESSO -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>02. Acesso ao Sistema</h2>
+            <div class="module-tag">SEGURANÇA</div>
+        </div>
+        <div class="content">
+            <h3>🔐 Login e Autenticação</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>URL Oficial: <span class="term">https://afsjr.github.io/secretaria_escola_csm/</span></div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Use seu e-mail funcional e a senha padrão inicial: <span class="term">csm_1983#</span></div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Sempre faça <strong>Logout</strong> antes de fechar o computador.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>🔐 Primeiros Passos</h2>
-                <div class="step-list">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Acesse o link oficial via Chrome ou Edge atualizado.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Insira seu <span style="color:var(--primary); font-weight:700;">E-mail Corporativo</span> e
-                            Senha de 8 dígitos.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div>Caso esqueça a senha, solicite o reset ao Administrador Master.</div>
-                    </div>
-                </div>
-                <div class="warning-box">
-                    ⚠️ <strong>CUIDADO:</strong> Nunca compartilhe sua senha. Toda operação é registrada no log do
-                    sistema.
-                </div>
+            <div class="note-box">
+                <span class="warning-text">IMPORTANTE:</span> O sistema bloqueia acessos após várias tentativas inválidas por segurança.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 4: CADASTRO -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>03. Cadastro de Usuários</h1>
-                <p>Secretaria</p>
+    <!-- SLIDE 4: CADASTRO BÁSICO -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>03. Lançamento Inicial</h2>
+            <div class="module-tag">SECRETARIA</div>
+        </div>
+        <div class="content">
+            <h3>👨‍🎓 Cadastro de Novos Usuários</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Vá em <span style="font-weight:700;">Usuários</span> -> <span style="color:var(--primary); font-weight:700;">+ Novo Aluno</span>.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Preencha Nome Completo e E-mail Válido.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Defina a Role correta: Aluno, Professor ou Financeiro.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>👨‍🎓 Novos Alunos e Professores</h2>
-                <div class="step-list" style="font-size: 1.1rem;">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Vá em <span style="font-weight:700;">"Gerenciar Alunos"</span> e clique em <span
-                                style="font-weight:700; color:#059669;">+ Novo Aluno</span>.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Preencha Nome Completo e E-mail (Obrigatórios).</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div>Defina a role (perfil) correta: <span class="tag">Aluno</span> <span
-                                class="tag">Professor</span> <span class="tag">Financeiro</span>.</div>
-                    </div>
-                </div>
-                <div class="highlight-box">
-                    🔍 <strong>Checklist:</strong> Validou o e-mail? Definiu a senha inicial conforme o padrão
-                    csm_1983#?
-                </div>
+            <div class="note-box">
+                <span class="warning-text">DICA:</span> Use e-mails reais para que o aluno receba notificações e consiga recuperar a senha se necessário.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 5: DADOS AVANÇADOS -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>04. Ficha Completa</h1>
-                <p>Secretaria</p>
+    <!-- SLIDE 5: FICHA AVANÇADA -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>04. Dados Pessoais</h2>
+            <div class="module-tag">SECRETARIA</div>
+        </div>
+        <div class="content">
+            <h3>📝 Ficha de Matrícula (Completa)</h3>
+            <div class="step-list" style="font-size: 1.1rem;">
+                <div class="step-item"><div class="step-num">01</div><div>Após o cadastro básico, clique em <span style="font-weight:700;">"Editar Dados Básicos"</span>.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Insira: CPF, RG, Nome do Pai, Nome da Mãe e Endereço.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Não use apelidos, use o nome conforme a certidão de nascimento.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>📝 Complemento de Dados</h2>
-                <p>A conta básica não é suficiente. Você deve clicar em <span style="font-weight:700;">"Editar
-                        Ficha"</span>:</p>
-                <div class="step-list" style="font-size: 1.1rem; margin-top: 1rem;">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Insira CPF, RG e Data de Nascimento (Validados).</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Preencha Endereço Completo e Nome da Mãe/Pai.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div><strong>Ficha Médica:</strong> Registre alergias ou restrições importantes.</div>
-                    </div>
-                </div>
-                <div class="warning-box">
-                    ⚠️ Dados incompletos impedem o aluno de solicitar documentos oficiais.
-                </div>
+            <div class="note-box">
+                <span class="warning-text">REGRA:</span> Estes dados são usados automaticamente para gerar o <span class="term">Histórico Escolar</span>. Erros aqui invalidam o documento.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 6: LANÇAMENTO DE NOTAS -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>05. Módulo Acadêmico</h1>
-                <p>Professores</p>
-            </div>
-            <div class="slide-content">
-                <h2>📊 Gestão de Notas e Faltas</h2>
-                <div class="step-list" style="font-size: 1.1rem;">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Acesse sua turma e clique em <span style="font-weight:700;">"Lançar Notas"</span>.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Preencha N1, N2 e N3 (Valores de 0 a 10).</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div><strong>Importante:</strong> O status final (Aprovado/Reprovado) é calculado ao salvar.
-                        </div>
-                    </div>
-                </div>
-                <div class="highlight-box">
-                    ✔️ O aluno visualiza o boletim em tempo real no portal dele.
-                </div>
+    <!-- SLIDE 6: FICHA MÉDICA -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>05. Saúde e Alergias</h2>
+            <div class="module-tag">FICHA MÉDICA</div>
+        </div>
+        <div class="content">
+            <h3>🏥 Dados Médicos & Observações</h3>
+            <p style="margin-bottom: 2rem;">Fundamental para o cuidado com o estudante durante o período escolar:</p>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Selecione o aluno e vá em <span style="font-weight:700;">"Dados Escolares e Saúde"</span>.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Preencha o campo <span class="term">Observações Médicas</span> com detalhes de alergias ou medicamentos.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Mantenha o campo de <span style="font-weight:700;">Telefone de Emergência</span> sempre atualizado.</div></div>
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 7: FINANCEIRO -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>06. Módulo Financeiro</h1>
-                <p>Financeiro / Admin Master</p>
+    <!-- SLIDE 7: TURMAS -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>06. Matrícula</h2>
+            <div class="module-tag">SECRETARIA / ADMIN</div>
+        </div>
+        <div class="content">
+            <h3>🏫 Gestão de Turmas e Cursos</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Defina o Curso (Ex: Técnico em Administração) na <span class="term">Matriz</span>.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Crie a turma vinculada ao período letivo correto.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div><strong>Vínculo:</strong> Adicione o aluno na turma para que ele apareça na pauta do professor.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>💰 Gestão de Mensalidades</h2>
-                <div class="step-list" style="font-size: 1.1rem;">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Use o botão <span style="font-weight:700;">"+ Lançar"</span> para registrar débitos
-                            mensais.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Status <strong>Inadimplente</strong> é gerado automaticamente após o vencimento.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div>O setor Financeiro tem exclusividade sobre estes dados (Zela pelo sigilo).</div>
-                    </div>
-                </div>
-                <div class="warning-box">
-                    🛡️ Secretaria e Professores <strong>não possuem acesso</strong> a estas telas.
-                </div>
+            <div class="note-box">
+                <span class="warning-text">AÇÃO:</span> Sem o vínculo na turma, o professor não consegue lançar notas para o aluno.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 8: CALCULADORA -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>07. Calculadora de Acordos</h1>
-                <p>Financeiro / Admin Master</p>
+    <!-- SLIDE 8: DIÁRIO DE CLASSE -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>07. Diário de Classe</h2>
+            <div class="module-tag">PROFESSOR</div>
+        </div>
+        <div class="content">
+            <h3>📖 Registro Diário de Aulas</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Acesse <span style="font-weight:700;">"Meus Alunos"</span> ou <span style="font-weight:700;">"Registrar Aula"</span>.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Insira a data e o conteúdo pedagógico ministrado.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>O sistema armazena este log para fins de supervisão escolar.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>🤝 Renegociação Premium</h2>
-                <div class="step-list" style="font-size: 1.1rem;">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>Abra a <span style="font-weight:700;">"Ficha Financeira"</span> do aluno devedor.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>Marque as mensalidades (checkbox) para o acordo.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div>Analise o <span style="color:var(--primary); font-weight:700;">Resumo Lateral</span>
-                            (Principal + Juros - Desconto).</div>
-                    </div>
-                </div>
-                <div class="highlight-box">
-                    ✨ Design inspirado na Calculadora de Aproveitamento Comercial.
-                </div>
+            <div class="note-box">
+                <span class="warning-text">FREQUÊNCIA:</span> Deve ser feito logo após o término de cada aula para evitar esquecimentos.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 9: DOCUMENTOS -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>08. Documentos Oficiais</h1>
-                <p>Solicitações</p>
+    <!-- SLIDE 9: NOTAS -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>08. Avaliação</h2>
+            <div class="module-tag">PROFESSOR</div>
+        </div>
+        <div class="content">
+            <h3>📊 Lançamento de Notas (N1, N2, N3)</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Preencha as faltas totais do período.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Insira as notas bimestrais/semestrais com atenção aos pontos.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Clique em <span style="padding: 5px 10px; background: #059669; color: white; border-radius: 4px; font-weight: 700;">Salvar Notas</span>.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>📄 Emissão de PDFs</h2>
-                <div class="step-list" style="font-size: 1.1rem;">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div>O aluno solicita via portal ou a Secretaria gera manualmente.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div>O sistema gera PDFs com Brasão, Assinatura e Data autêntica.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div><strong>Tipos:</strong> Histórico, Declaração de Matrícula e Termo de Acordo.</div>
-                    </div>
-                </div>
-                <div class="warning-box">
-                    ⚠️ Verifique o bloqueio financeiro antes de emitir documentos para o público externo.
-                </div>
+            <div class="note-box">
+                <span class="warning-text">SÁBIO:</span> O status de Aprovado ou Recuperação é calculado automaticamente após o salvamento baseado na média do colégio.
             </div>
         </div>
+    </div>
 
-        <!-- SLIDE 10: CHECKLIST -->
-        <div class="slide">
-            <div class="slide-header">
-                <h1>09. Checklist Final</h1>
-                <p>Encerramento</p>
+    <!-- SLIDE 10: FINANCEIRO GERAL -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>09. Gestão Financeira</h2>
+            <div class="module-tag">FINANCEIRO</div>
+        </div>
+        <div class="content">
+            <h3>💰 Fluxo de Mensalidades</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Visualize a lista total de alunos do setor Comercial/Financeiro.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Lançamento: Utilize <span style="font-weight:700;">"Lançar"</span> para criar novas faturas.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Inadimplência: O status vira vermelho (Atrasado) ao vencer a data.</div></div>
             </div>
-            <div class="slide-content">
-                <h2>✅ Antes de Sair...</h2>
-                <ul style="margin-bottom: 2rem;">
-                    <li>✔️ Salvou os lançamentos de notas da turma?</li>
-                    <li>✔️ Verificou se o novo e-mail do aluno está correto?</li>
-                    <li>✔️ Registrou as observações médicas na ficha avançada?</li>
-                    <li>✔️ Conferiu o valor final da parcela no Termo de Acordo?</li>
+            <div class="note-box">
+                <span class="warning-text">RESTRIÇÃO:</span> A Secretaria não visualiza estas informações por questões de confidencialidade e LGPD.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: ACORDOS -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>10. Acordos Comerciais</h2>
+            <div class="module-tag">FINANCEIRO / PREMIUM</div>
+        </div>
+        <div class="content">
+            <h3>🤝 Calculadora de Renegociação</h3>
+            <div class="step-list" style="font-size: 1.15rem;">
+                <div class="step-item"><div class="step-num">01</div><div>Entre na <span style="font-weight:700;">"Ficha Financeira"</span> e marque as faturas pendentes.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Aplique descontos na coluna de ajustes se necessário.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Confira o resumo das parcelas no painel lateral escuro.</div></div>
+            </div>
+            <div class="note-box">
+                <span class="warning-text">DIFERENCIAL:</span> Este módulo permite simular o acordo na frente do responsável antes de efetivar.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: DOCUMENTOS -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>11. Documentos PDF</h2>
+            <div class="module-tag">CERTIFICAÇÃO</div>
+        </div>
+        <div class="content">
+            <h3>📄 Emissão de Documentos Legais</h3>
+            <p>Os documentos oficiais utilizam o modelo institucional do CSM:</p>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>Habilite o botão <span style="font-weight:700;">"Solicitar Documento"</span>.</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Escolha entre Declaração de Matrícula ou Histórico de Notas.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>O arquivo é gerado em tempo real e salvo no banco de dados.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: BLOQUEIO -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>12. Regras de Negócio</h2>
+            <div class="module-tag">ALIMENTAÇÃO SISTEMA</div>
+        </div>
+        <div class="content">
+            <h3>🚫 Bloqueio e Inconsistências</h3>
+            <div class="step-list">
+                <div class="step-item"><div class="step-num">01</div><div>O aluno não verá suas notas se houver trava pedagógica (Dívida de Docs).</div></div>
+                <div class="step-item"><div class="step-num">02</div><div>Transferências externas dependem do fechamento do Diário de Classe.</div></div>
+                <div class="step-item"><div class="step-num">03</div><div>Cancelamento de matrícula exige quitação de acordos ativos.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: AUDITORIA -->
+    <div class="slide">
+        <div class="header-bar">
+            <h2>13. Checklist de Auditoria</h2>
+            <div class="module-tag">FINALIZAÇÃO</div>
+        </div>
+        <div class="content">
+            <h3>✅ Verificação de Rotina</h3>
+            <div style="background: var(--gray-bg); padding: 25px; border-radius: 12px; border: 1px dashed var(--primary);">
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 10px;">✔️ Conferiu se a Turma tem Professor vinculado?</li>
+                    <li style="margin-bottom: 10px;">✔️ Validou o CPF do novo aluno junto a Receita (Manual)?</li>
+                    <li style="margin-bottom: 10px;">✔️ Verificou se todas as N1 e N2 foram salvas (Verde)?</li>
+                    <li style="margin-bottom: 10px;">✔️ Atualizou o telefone de emergência na Ficha Médica?</li>
                 </ul>
-                <div class="hero"
-                    style="background:var(--accent); color:var(--primary); padding: 15px; border-radius: 8px;">
-                    <h3 style="margin:0;">BOM TRABALHO! SISTEMA PRONTO PARA OPERAÇÃO.</h3>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="nav-bar">
-        <div id="slide-info" style="font-weight: 700; opacity: 0.7;">SLIDE 1 / 10</div>
-        <div style="display: flex; gap: 1rem;">
-            <button class="btn" id="prevBtn" disabled>ANTERIOR</button>
-            <button class="btn" id="nextBtn">PRÓXIMO</button>
-        </div>
+    <!-- SLIDE 15: ENCERRAMENTO -->
+    <div class="slide hero">
+        <h1>Treinamento Concluído</h1>
+        <p style="font-size: 1.4rem; opacity: 0.8; margin-top: 1rem;">Obrigado por contribuir com a excelência do Colégio CSM.</p>
+        <div class="accent-line"></div>
+        <button class="btn" style="background:white;" onclick="window.close()">ENCERRAR APRESENTAÇÃO</button>
     </div>
+</div>
 
-    <div class="progress-track">
-        <div class="progress-fill" id="progress"></div>
+<div class="controls">
+    <div id="slide-info" style="font-weight: 700; opacity: 0.7;">SLIDE 1 DE 15</div>
+    <div style="display: flex; gap: 1rem;">
+        <button class="btn" id="prevBtn" disabled>ANTERIOR</button>
+        <button class="btn" id="nextBtn">PRÓXIMO</button>
     </div>
+</div>
 
-    <script>
-        const slides = document.querySelectorAll('.slide');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const slideInfo = document.getElementById('slide-info');
-        const progress = document.getElementById('progress');
-        let current = 0;
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const slideInfo = document.getElementById('slide-info');
+    const progress = document.getElementById('progress');
+    let current = 0;
 
-        function update() {
-            slides.forEach((s, i) => s.classList.toggle('active', i === current));
-            prevBtn.disabled = current === 0;
-            nextBtn.innerText = current === slides.length - 1 ? 'FINALIZAR' : 'PRÓXIMO';
-            slideInfo.innerText = `SLIDE ${current + 1} / ${slides.length}`;
-            progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    function update() {
+        slides.forEach((s, i) => s.classList.toggle('active', i === current));
+        prevBtn.disabled = current === 0;
+        nextBtn.innerText = current === slides.length - 1 ? 'SAIR' : 'PRÓXIMO';
+        slideInfo.innerText = `SLIDE ${current + 1} DE ${slides.length}`;
+        progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (current < slides.length - 1) {
+            current++;
+            update();
+        } else {
+            window.close();
         }
+    });
 
-        nextBtn.addEventListener('click', () => {
-            if (current < slides.length - 1) {
-                current++;
-                update();
-            } else {
-                window.close();
-            }
-        });
+    prevBtn.addEventListener('click', () => {
+        if (current > 0) {
+            current--;
+            update();
+        }
+    });
 
-        prevBtn.addEventListener('click', () => {
-            if (current > 0) {
-                current--;
-                update();
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextBtn.click();
-            if (e.key === 'ArrowLeft') prevBtn.click();
-        });
-    </script>
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextBtn.click();
+        if (e.key === 'ArrowLeft') prevBtn.click();
+    });
+</script>
 
 </body>
-
 </html>

@@ -1,3 +1,4 @@
+import { getAllProfiles } from '../auth/session'
 import { escapeHTML, createBadge } from '../lib/security'
 import { AdminService } from '../lib/admin-service'
 import { toast } from '../lib/toast'
@@ -14,8 +15,8 @@ export async function DirectoryView() {
       .map(p => {
         const nome = escapeHTML(p.nome_completo)
         const perfil = p.perfil || 'aluno'
-        const perfilLabel = perfil === 'secretaria' ? 'Secretaria' : perfil === 'professor' ? 'Professor' : 'Aluno'
 
+        return `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-bottom: 1px solid var(--secondary); gap: 1rem;">
               <div style="flex: 1;">
                 <div style="font-weight: 600;">${nome}</div>

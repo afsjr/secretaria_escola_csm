@@ -553,6 +553,7 @@ export const PDFService = {
     doc.text('Documento gerado eletronicamente pelo SGE CSM - Módulo Financeiro', pageWidth / 2, 285, { align: 'center' })
 
     return doc
+  },
 
   // =====================================================
   // HELPER METHODS

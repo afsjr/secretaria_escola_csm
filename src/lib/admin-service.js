@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, supabaseAdmin } from './supabase'
 
 /**
  * AdminService - Operações administrativas via Edge Functions
@@ -51,16 +51,20 @@ async function callEdgeFunction(functionName, payload) {
       body: JSON.stringify(payload)
     })
 
+    if (response.status === 404) {
+      throw new Error('Função não encontrada no servidor (404).')
+    }
+
     const result = await response.json()
 
     if (!response.ok) {
-      return { error: result.error || { message: `Erro HTTP ${response.status}` } }
+      return { error: result.error || { message: `Erro do Servidor: ${response.status}` } }
     }
 
     return { data: result.data, error: null }
   } catch (error) {
-    console.error(`Erro ao chamar Edge Function ${functionName}:`, error)
-    return { error: { message: `Erro de conexão ao chamar ${functionName}.` } }
+    console.warn(`⚠️ Edge Function ${functionName} inacessível:`, error.message)
+    return { error: { message: `Erro de comunicação: ${error.message}.` } }
   }
 }
 
@@ -72,7 +76,44 @@ export const AdminService = {
    * REQUER Edge Function: supabase/functions/admin-create-user
    */
   async createUserByAdmin({ email, password, nomeCompleto, cpf, telefone, perfil = 'aluno' }) {
-    // Tentar via Edge Function primeiro
+    // Tentar via Chave Admin Direta primeiro (Modo mais rápido e estável)
+    if (supabaseAdmin) {
+      try {
+        // 1. Criar usuário no Auth
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: { full_name: nomeCompleto }
+        })
+
+        if (authError) return { error: authError }
+
+        // 2. Criar perfil na tabela perfis
+        const { error: profileError } = await supabaseAdmin
+          .from('perfis')
+          .insert([{
+            id: authData.user.id,
+            nome_completo: nomeCompleto,
+            email,
+            cpf: cpf || null,
+            telefone: telefone || null,
+            perfil
+          }])
+
+        if (profileError) {
+          // Rollback: deletar usuário se perfil falhar
+          await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+          return { error: profileError }
+        }
+
+        return { data: { userId: authData.user.id }, error: null }
+      } catch (err) {
+        return { error: { message: 'Erro interno no cadastro admin: ' + err.message } }
+      }
+    }
+
+    // Fallback para Edge Function se não houver chave Admin no cliente
     if (EDGE_FUNCTIONS_BASE_URL) {
       return await callEdgeFunction('admin-create-user', {
         email,

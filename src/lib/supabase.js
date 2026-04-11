@@ -104,6 +104,12 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
  * - Service Role Key: https://supabase.com/docs/guides/platform/service-role-keys
  */
 
-// Exportar null para manter compatibilidade com código existente
-// TODO: Refatorar admin-service.js para usar Edge Functions
-export const supabaseAdmin = null
+// Client Admin (SÓ USAR EM FALLBACK SEGURO)
+export const supabaseAdmin = (supabaseUrl && import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY)
+  ? createClient(supabaseUrl, import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        autoConfirm: true,
+        persistSession: false
+      }
+    })
+  : null

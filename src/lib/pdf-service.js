@@ -442,6 +442,119 @@ export const PDFService = {
   },
 
   // =====================================================
+  // TERMO DE ACORDO FINANCEIRO (Financial Settlement)
+  // =====================================================
+  generateTermoAcordoPDF(alunoData, acordoData) {
+    const doc = new jsPDF('portrait', 'mm', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const marginLeft = 20
+    const marginRight = 20
+    const contentWidth = pageWidth - marginLeft - marginRight
+
+    // --- Header ---
+    doc.setFillColor(196, 30, 58) // Vermelho Institucional
+    doc.rect(0, 0, pageWidth, 40, 'F')
+    
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(22)
+    doc.setFont('helvetica', 'bold')
+    doc.text('COLÉGIO SANTA MÔNICA', pageWidth / 2, 18, { align: 'center' })
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text('DEPARTAMENTO FINANCEIRO', pageWidth / 2, 26, { align: 'center' })
+    doc.text('Limoeiro/PE - Tel: (81) 3621-XXXX', pageWidth / 2, 32, { align: 'center' })
+
+    // --- Title ---
+    doc.setTextColor(196, 30, 58)
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text('TERMO DE ACORDO E RENEGOCIAÇÃO DE DÍVIDA', pageWidth / 2, 55, { align: 'center' })
+
+    // --- Body ---
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'normal')
+
+    let currentY = 70
+    const dataAtual = new Date().toLocaleDateString('pt-BR', { 
+      day: '2-digit', month: 'long', year: 'numeric' 
+    })
+
+    const infoTexto = `Pelo presente instrumento particular, de um lado COLÉGIO SANTA MÔNICA, e de outro o(a) Sr(a). ${alunoData.nome_completo}, CPF: ${alunoData.cpf || '____.____.____-___'}, responsável pelo(a) aluno(a) supracitado(a), celebram o presente acordo financeiro conforme as condições abaixo descritas:`
+    
+    const splitInfo = doc.splitTextToSize(infoTexto, contentWidth)
+    doc.text(splitInfo, marginLeft, currentY)
+    currentY += (splitInfo.length * 6) + 10
+
+    // --- Debt Details Table ---
+    doc.setFont('helvetica', 'bold')
+    doc.text('DESCRIÇÃO DO ACORDO:', marginLeft, currentY)
+    currentY += 8
+
+    const tableData = [
+      ['VALOR PRINCIPAL (Original)', `R$ ${acordoData.valorOriginal.toFixed(2)}`],
+      ['MULTAS ACUMULADAS (+)', `R$ ${acordoData.multa.toFixed(2)}`],
+      ['JUROS DE MORA (+)', `R$ ${acordoData.juros.toFixed(2)}`],
+      ['DESCONTOS CONCEDIDOS (-)', `R$ ${acordoData.desconto.toFixed(2)}`],
+      ['VALOR FINAL DO ACORDO (=)', `R$ ${acordoData.valorFinal.toFixed(2)}`]
+    ]
+
+    autoTable(doc, {
+      startY: currentY,
+      head: [['Item', 'Valor']],
+      body: tableData,
+      margin: { left: marginLeft, right: marginRight },
+      theme: 'grid',
+      headStyles: { fillColor: [196, 30, 58], textColor: 255 },
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: {
+        0: { cellWidth: 100 },
+        1: { halign: 'right', fontStyle: 'bold' }
+      }
+    })
+
+    currentY = doc.lastAutoTable.finalY + 15
+
+    // --- Terms ---
+    doc.setFont('helvetica', 'bold')
+    doc.text('CLÁUSULAS:', marginLeft, currentY)
+    currentY += 7
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+
+    const clausulas = [
+      '1. O devedor reconhece a dívida acima descrita e compromete-se a efetuar o pagamento do valor final na data acordada.',
+      '2. O descumprimento deste acordo implicará na anulação dos descontos concedidos e no restabelecimento do valor original da dívida.',
+      '3. Este termo serve como comprovante de negociação, não quitando as parcelas até a efetiva compensação bancária do pagamento.'
+    ]
+
+    clausulas.forEach(c => {
+      const splitC = doc.splitTextToSize(c, contentWidth)
+      doc.text(splitC, marginLeft, currentY)
+      currentY += (splitC.length * 5) + 2
+    })
+
+    currentY += 15
+    doc.text(`Limoeiro/PE, ${dataAtual}.`, marginLeft, currentY)
+
+    // --- Signatures ---
+    currentY += 35
+    doc.line(marginLeft, currentY, marginLeft + 75, currentY)
+    doc.line(pageWidth - marginRight - 75, currentY, pageWidth - marginRight, currentY)
+    
+    doc.setFontSize(9)
+    doc.text('Colégio Santa Mônica', marginLeft + 37.5, currentY + 5, { align: 'center' })
+    doc.text('Responsável Financeiro', pageWidth - marginRight - 37.5, currentY + 5, { align: 'center' })
+
+    // --- Footer ---
+    doc.setFontSize(8)
+    doc.setTextColor(150, 150, 150)
+    doc.text('Documento gerado eletronicamente pelo SGE CSM - Módulo Financeiro', pageWidth / 2, 285, { align: 'center' })
+
+    return doc
+
+  // =====================================================
   // HELPER METHODS
   // =====================================================
 

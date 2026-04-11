@@ -2,6 +2,7 @@ import { FinanceiroService } from '../lib/financeiro-service'
 import { AdminService } from '../lib/admin-service'
 import { toast } from '../lib/toast'
 import { supabase } from '../lib/supabase'
+import { PDFService } from '../lib/pdf-service'
 
 const escapeHTML = (str) => {
   if (!str) return ''
@@ -174,11 +175,14 @@ export async function FinanceiroView() {
               </div>
             </div>
 
-            <button id="btn-confirmar-acordo" class="btn" style="background: var(--accent); color: #000; width: 100%; height: 60px; font-size: 1.1rem; font-weight: 800; border-radius: 12px;">
+            <button id="btn-confirmar-acordo" class="btn" style="background: var(--success); color: white; width: 100%; height: 50px; font-size: 1.1rem; font-weight: 800; border-radius: 12px; margin-bottom: 0.5rem;">
               EFETIVAR ACORDO
             </button>
+            <button id="btn-gerar-recibo" class="btn" style="background: var(--accent); color: #000; width: 100%; height: 50px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+              📄 GERAR RECIBO / TERMO
+            </button>
             <p style="font-size: 0.7rem; text-align: center; margin-top: 1rem; opacity: 0.5;">
-              Ao clicar em efetivar, um termo de renegociação será gerado para assinatura.
+              Ao clicar em gerar recibo, o Termo de Acordo será baixado em PDF.
             </p>
           </div>
         </div>
@@ -273,7 +277,45 @@ export async function FinanceiroView() {
   })
 
   container.querySelector('#premium-desconto').oninput = atualizarResumo
-  container.querySelector('#premium-parcelas').onchange = atualizarCalculo
+  container.querySelector('#premium-parcelas').onchange = atualizarResumo
+
+  // GERAR PDF DO ACORDO
+  container.querySelector('#btn-gerar-recibo').addEventListener('click', async () => {
+    if (debitosSelecionados.length === 0) {
+      toast.error('Selecione pelo menos uma parcela para gerar o recibo.')
+      return
+    }
+
+    const principal = debitosSelecionados.reduce((a, b) => a + Number(b.valor_original), 0)
+    const taxas = debitosSelecionados.reduce((a, b) => {
+       const dias = (new Date() - new Date(b.data_vencimento)) / (1000 * 60 * 60 * 24)
+       if (dias <= 0) return a
+       return a + (Number(b.valor_original) * 0.02) + (Number(b.valor_original) * 0.01)
+    }, 0)
+    
+    const desconto = Number(container.querySelector('#premium-desconto').value) || 0
+    const total = (principal + taxas) - desconto
+
+    try {
+      // Buscar dados completos do aluno para o CPF
+      const { data: aluno } = await AdminService.getUserById(alunoAtual)
+      
+      const acordoData = {
+        valorOriginal: principal,
+        multa: principal * 0.02,
+        juros: taxas - (principal * 0.02),
+        desconto: desconto,
+        valorFinal: total
+      }
+
+      const doc = PDFService.generateTermoAcordoPDF(aluno, acordoData)
+      PDFService.downloadPDF(doc, `termo_acordo_${aluno.nome_completo.replace(/\s+/g, '_')}.pdf`)
+      toast.success('Recibo gerado com sucesso!')
+    } catch (err) {
+      console.error(err)
+      toast.error('Erro ao gerar recibo: ' + err.message)
+    }
+  })
 
   // BUSCA
   container.querySelector('#busca-aluno-financeiro').oninput = (e) => {

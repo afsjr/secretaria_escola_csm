@@ -18,7 +18,7 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(1, 'Senha é obrigatória')
-    .min(8, 'Senha deve ter pelo menos 8 caracteres')
+    .min(8, 'A senha deve ter pelo menos 8 caracteres e conter letras e números')
 })
 
 /**
@@ -49,13 +49,13 @@ export const signupSchema = z.object({
   password: z
     .string()
     .min(1, 'Senha é obrigatória')
-    .min(8, 'Senha deve ter pelo menos 8 caracteres')
+    .min(8, 'A senha deve ter pelo menos 8 caracteres')
     .max(100, 'Senha muito longa')
     .refine(val => /[A-Za-z]/.test(val), {
-      message: 'Senha deve conter pelo menos uma letra'
+      message: 'A senha deve conter pelo menos uma letra'
     })
     .refine(val => /\d/.test(val), {
-      message: 'Senha deve conter pelo menos um número'
+      message: 'A senha deve conter pelo menos um número'
     })
 })
 

@@ -12,7 +12,8 @@ export const ROLES = {
   ADMIN: 'admin',
   SECRETARIA: 'secretaria',
   PROFESSOR: 'professor',
-  ALUNO: 'aluno'
+  ALUNO: 'aluno',
+  FINANCEIRO: 'financeiro'
 }
 
 /**
@@ -71,6 +72,16 @@ const PERMISSIONS = {
     'view_matriz',
     'view_academico',
     'view_perfil'
+  ],
+  [ROLES.FINANCEIRO]: [
+    'view_dashboard',
+    'view_documentos',
+    'view_matriz',
+    'view_secretaria',
+    'view_perfil',
+    'view_academico',
+    'manage_financeiro',
+    'manage_documentos'
   ]
 }
 

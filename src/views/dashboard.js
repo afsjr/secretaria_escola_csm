@@ -13,6 +13,7 @@ import { MatrizView } from './matriz'
 import { ProfessorTurmasView } from './professor-turmas'
 import { ProfessorAlunosView } from './professor-alunos'
 import { ProfessorRegistrarAulaView } from './professor-registrar-aula'
+import { FinanceiroView } from './financeiro'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
@@ -27,6 +28,7 @@ export async function DashboardView(session, subPath = '/') {
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
   const isAdmin = userRole === 'admin' || userRole === 'secretaria'
+  const isFinanceiro = userRole === 'financeiro' || userRole === 'admin'
   const isProfessor = userRole === 'professor'
 
   container.innerHTML = `
@@ -63,6 +65,12 @@ export async function DashboardView(session, subPath = '/') {
           <a href="#/dashboard/turmas" class="nav-item ${subPath === '/turmas' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Gestão de Turmas
+          </a>
+        ` : ''}
+        ${isFinanceiro ? `
+          <a href="#/dashboard/financeiro" class="nav-item ${subPath === '/financeiro' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Financeiro
           </a>
         ` : ''}
         ${isProfessor ? `
@@ -128,6 +136,8 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await GestaoTurmasView())
   } else if (subPath === '/matriz') {
     contentArea.appendChild(await MatrizView())
+  } else if (subPath === '/financeiro' && isFinanceiro) {
+    contentArea.appendChild(await FinanceiroView())
   } else if (subPath === '/professor/turmas' && isProfessor) {
     contentArea.appendChild(await ProfessorTurmasView(profile))
   } else if (subPath === '/professor/alunos' && isProfessor) {

@@ -751,8 +751,9 @@ export async function SecretariaView() {
       return
     }
 
-    if (senha.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres.')
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(senha)) {
+      toast.error('Senha inválida: Mínimo 8 caracteres com letras e números (Ex: csm_1983#)')
       return
     }
 
@@ -812,8 +813,9 @@ export async function SecretariaView() {
       return
     }
 
-    if (senha.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres.')
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(senha)) {
+      toast.error('Senha inválida: Mínimo 8 caracteres com letras e números.')
       return
     }
 

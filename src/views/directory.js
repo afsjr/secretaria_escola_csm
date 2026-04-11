@@ -1,5 +1,6 @@
-import { getAllProfiles } from '../auth/session'
 import { escapeHTML, createBadge } from '../lib/security'
+import { AdminService } from '../lib/admin-service'
+import { toast } from '../lib/toast'
 
 export async function DirectoryView() {
   const container = document.createElement('div')
@@ -15,10 +16,16 @@ export async function DirectoryView() {
         const perfil = p.perfil || 'aluno'
         const perfilLabel = perfil === 'secretaria' ? 'Secretaria' : perfil === 'professor' ? 'Professor' : 'Aluno'
 
-        return `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; background: white; border-bottom: 1px solid var(--secondary);">
-              <div style="font-weight: 500;">${nome}</div>
-              <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">${perfilLabel}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-bottom: 1px solid var(--secondary); gap: 1rem;">
+              <div style="flex: 1;">
+                <div style="font-weight: 600;">${nome}</div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">${createBadge(perfil)}</div>
+              </div>
+              <div>
+                <button class="btn btn-reset-password" data-id="${p.id}" data-nome="${nome}" style="background: var(--secondary); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid var(--border);">
+                  🔄 Resetar Senha
+                </button>
+              </div>
             </div>
           `
       }).join('')
@@ -33,6 +40,31 @@ export async function DirectoryView() {
       ${profilesHTML}
     </div>
   `
+
+  // Lógica de Reset
+  container.querySelectorAll('.btn-reset-password').forEach(btn => {
+    btn.onclick = async () => {
+      const { id, nome } = btn.dataset
+      
+      if (confirm(`Deseja resetar a senha de ${nome} para csm1983#?\n\nO usuário será obrigado a trocar a senha no próximo acesso.`)) {
+        btn.disabled = true
+        btn.textContent = 'Processando...'
+        
+        const { error } = await AdminService.resetUserPassword(id)
+        
+        if (error) {
+          toast.error('Erro ao resetar: ' + error.message)
+          btn.disabled = false
+          btn.textContent = '🔄 Resetar Senha'
+        } else {
+          toast.success(`Senha de ${nome} resetada com sucesso!`)
+          btn.textContent = '✅ Resetada'
+          btn.style.background = 'var(--success)'
+          btn.style.color = 'white'
+        }
+      }
+    }
+  })
 
   return container
 }

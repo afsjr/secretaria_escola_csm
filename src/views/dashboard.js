@@ -121,9 +121,42 @@ export async function DashboardView(session, subPath = '/') {
     <main class="main-content" id="painel-controle-conteudo">
       <!-- Inner View Loaded Here -->
     </main>
+
+    <!-- BLOQUEIO DE TROCA DE SENHA OBRIGATÓRIA -->
+    <div id="modal-troca-obrigatoria" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 10000; justify-content: center; align-items: center; color: white;">
+      <div style="max-width: 450px; width: 90%; text-align: center; background: rgba(255,255,255,0.1); padding: 3rem; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+        <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔐</div>
+        <h2 style="margin-bottom: 1rem;">Segurança em Primeiro Lugar</h2>
+        <p style="margin-bottom: 2rem; opacity: 0.9; line-height: 1.6;">
+          Sua senha foi resetada pela administração. Para sua segurança, é **obrigatório** criar uma nova senha personalizada para continuar.
+        </p>
+
+        <form id="form-troca-obrigatoria" style="text-align: left;">
+          <div class="form-group">
+            <label class="label" style="color: var(--accent);">Nova Senha (8+ caracteres, letras e números)</label>
+            <input type="password" id="obrigatoria-nova" class="input" placeholder="Sua nova senha" required style="background: white; color: black; border: none;">
+          </div>
+          <div class="form-group">
+            <label class="label" style="color: var(--accent);">Confirmar Nova Senha</label>
+            <input type="password" id="obrigatoria-confirma" class="input" placeholder="Confirme a senha" required style="background: white; color: black; border: none;">
+          </div>
+          <button type="submit" class="btn" style="width: 100%; height: 50px; background: var(--accent); color: var(--primary); font-weight: 800; font-size: 1rem; border-radius: 12px; margin-top: 1rem;">
+            DEFINIR NOVA SENHA E ENTRAR
+          </button>
+        </form>
+        <p style="margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.6;">SGE - Colégio Santa Mônica</p>
+      </div>
+    </div>
   `
 
   const contentArea = container.querySelector('#painel-controle-conteudo')
+  const modalTroca = container.querySelector('#modal-troca-obrigatoria')
+  
+  // VERIFICAR TROCA OBRIGATÓRIA
+  const needsPasswordChange = session.user?.user_metadata?.force_password_change === true
+  if (needsPasswordChange) {
+    modalTroca.style.display = 'flex'
+  }
 
   // Internal view router
   if (subPath === '/perfil') {
@@ -213,6 +246,50 @@ export async function DashboardView(session, subPath = '/') {
       if (!baseUrl.endsWith('/')) baseUrl += '/';
       window.open(baseUrl + 'apresentacao_treinamento_slides.html', '_blank')
     })
+  }
+
+  // Lógica da Troca Obrigatória
+  const formTroca = container.querySelector('#form-troca-obrigatoria')
+  if (formTroca) {
+    formTroca.onsubmit = async (e) => {
+      e.preventDefault()
+      const nova = container.querySelector('#obrigatoria-nova').value
+      const confirma = container.querySelector('#obrigatoria-confirma').value
+
+      if (nova !== confirma) {
+        return alert('As senhas não coincidem.')
+      }
+
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+      if (!passwordRegex.test(nova)) {
+        return alert('Senha muito fraca! Use 8+ caracteres com letras e números.')
+      }
+
+      if (nova === 'csm1983#') {
+        return alert('Você não pode usar a senha padrão. Escolha uma nova senha pessoal.')
+      }
+
+      const btn = formTroca.querySelector('button')
+      btn.disabled = true
+      btn.textContent = 'Salvando...'
+
+      // Atualizar senha e remover flag de troca obrigatória
+      const { error } = await supabase.auth.updateUser({ 
+        password: nova,
+        data: { force_password_change: false }
+      })
+
+      if (error) {
+        alert('Erro ao atualizar: ' + error.message)
+        btn.disabled = false
+        btn.textContent = 'DEFINIR NOVA SENHA E ENTRAR'
+      } else {
+        alert('Senha definida com sucesso! Bem-vindo ao portal.')
+        modalTroca.style.display = 'none'
+        // Atualizar a sessão local para refletir a mudança de metadata
+        window.location.reload()
+      }
+    }
   }
 
   return container

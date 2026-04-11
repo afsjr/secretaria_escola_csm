@@ -248,5 +248,26 @@ export const AdminService = {
       .single()
 
     return { data, error }
+  },
+
+  /**
+   * Reseta a senha de um usuário para o padrão csm1983#
+   * E marca como troca obrigatória no próximo acesso
+   */
+  async resetUserPassword(userId) {
+    if (!supabaseAdmin) {
+      return { error: { message: 'Acesso Administrativo não configurado (.env / VITE_SUPABASE_SERVICE_ROLE_KEY).' } }
+    }
+
+    try {
+      const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: 'csm1983#',
+        user_metadata: { force_password_change: true }
+      })
+
+      return { data, error }
+    } catch (err) {
+      return { error: { message: 'Erro ao resetar senha: ' + err.message } }
+    }
   }
 }

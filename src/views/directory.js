@@ -14,13 +14,10 @@ export async function DirectoryView() {
     : profiles?.sort((a,b) => (a.nome_completo || '').localeCompare(b.nome_completo || ''))
       .map(p => {
         const nome = escapeHTML(p.nome_completo)
-        const perfil = p.perfil || 'aluno'
-
         return `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-bottom: 1px solid var(--secondary); gap: 1rem;">
               <div style="flex: 1;">
-                <div style="font-weight: 600;">${nome}</div>
-                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">${createBadge(perfil)}</div>
+                <div style="font-weight: 600; font-size: 1rem;">${nome}</div>
               </div>
               <div>
                 <button class="btn btn-reset-password" data-id="${p.id}" data-nome="${nome}" style="background: var(--secondary); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid var(--border);">

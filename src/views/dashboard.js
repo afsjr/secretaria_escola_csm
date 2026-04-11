@@ -14,6 +14,7 @@ import { ProfessorTurmasView } from './professor-turmas'
 import { ProfessorAlunosView } from './professor-alunos'
 import { ProfessorRegistrarAulaView } from './professor-registrar-aula'
 import { FinanceiroView } from './financeiro'
+import { isAdmin, isSecretaria, isFinanceiro, isProfessor, isAluno } from '../lib/authz'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
@@ -27,9 +28,12 @@ export async function DashboardView(session, subPath = '/') {
 
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
-  const isAdmin = userRole === 'admin' || userRole === 'secretaria'
-  const isFinanceiro = userRole === 'financeiro' || userRole === 'admin'
-  const isProfessor = userRole === 'professor'
+  
+  // Usando os novos helpers do authz.js
+  const _isAdmin = isAdmin(userRole)
+  const _isSecretaria = isSecretaria(userRole)
+  const _isFinanceiro = isFinanceiro(userRole)
+  const _isProfessor = isProfessor(userRole)
 
   container.innerHTML = `
     <aside class="sidebar">
@@ -47,7 +51,7 @@ export async function DashboardView(session, subPath = '/') {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Documentos
         </a>
-        ${!isAdmin && userRole === 'aluno' ? '' : `
+        ${_isAluno(userRole) ? '' : `
         <a href="#/dashboard/usuarios" class="nav-item ${subPath === '/usuarios' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Usuários
@@ -57,7 +61,7 @@ export async function DashboardView(session, subPath = '/') {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
           Matriz Curricular
         </a>
-        ${isAdmin ? `
+        ${_isAdmin || _isSecretaria ? `
           <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9m3 3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             Painel Secretaria
@@ -67,7 +71,7 @@ export async function DashboardView(session, subPath = '/') {
             Gestão de Turmas
           </a>
         ` : ''}
-        ${isFinanceiro ? `
+        ${_isFinanceiro || _isAdmin ? `
           <a href="#/dashboard/financeiro" class="nav-item ${subPath === '/financeiro' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Financeiro
@@ -130,19 +134,19 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await DirectoryView())
   } else if (subPath === '/documentos') {
     contentArea.appendChild(await DocumentsView(profile))
-  } else if (subPath === '/secretaria' && isAdmin) {
-    contentArea.appendChild(await SecretariaView())
-  } else if (subPath === '/turmas' && isAdmin) {
-    contentArea.appendChild(await GestaoTurmasView())
   } else if (subPath === '/matriz') {
     contentArea.appendChild(await MatrizView())
-  } else if (subPath === '/financeiro' && isFinanceiro) {
+  } else if (subPath === '/financeiro' && (_isFinanceiro || _isAdmin)) {
     contentArea.appendChild(await FinanceiroView())
-  } else if (subPath === '/professor/turmas' && isProfessor) {
+  } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria)) {
+    contentArea.appendChild(await SecretariaView())
+  } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria)) {
+    contentArea.appendChild(await GestaoTurmasView())
+  } else if (subPath === '/professor/turmas' && _isProfessor) {
     contentArea.appendChild(await ProfessorTurmasView(profile))
-  } else if (subPath === '/professor/alunos' && isProfessor) {
+  } else if (subPath === '/professor/alunos' && _isProfessor) {
     contentArea.appendChild(await ProfessorAlunosView(profile))
-  } else if (subPath === '/professor/aulas' && isProfessor) {
+  } else if (subPath === '/professor/aulas' && _isProfessor) {
     contentArea.appendChild(await ProfessorRegistrarAulaView(profile))
   } else if (subPath === '/professor') {
     // Redirect to turmas by default

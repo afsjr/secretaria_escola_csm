@@ -1,6 +1,7 @@
 import { toast } from '../lib/toast'
 import { escapeHTML, createBadge } from '../lib/security'
 import { StudentDetailsService } from '../lib/student-details-service'
+import { supabase } from '../lib/supabase'
 
 export async function ProfileView(profile) {
   const container = document.createElement('div')
@@ -232,7 +233,35 @@ export async function ProfileView(profile) {
           ${createBadge(perfilValue, 'badge')}
         </div>
 
-        <button type="submit" class="btn btn-primary" id="save-btn">Salvar Alterações</button>
+        <div style="margin-top: 2rem; margin-bottom: 2rem;">
+          <button type="submit" class="btn btn-primary" id="save-btn" style="width: 100%;">Salvar Dados Pessoais</button>
+        </div>
+      </form>
+
+      <hr style="border: 0; border-top: 1px solid var(--secondary); margin: 2rem 0;">
+
+      <!-- Seção de Segurança -->
+      <form id="password-form">
+        <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; background: var(--secondary); background-opacity: 0.2;">
+          <legend style="font-weight: 600; color: var(--danger); padding: 0 0.5rem;">Segurança: Alterar Senha</legend>
+          
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+            A nova senha deve ter no mínimo **8 caracteres**, contendo **letras e números** (Ex: csm_1983#).
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="label" for="nova-senha">Nova Senha</label>
+              <input type="password" id="nova-senha" class="input" placeholder="******" minlength="8">
+            </div>
+            <div class="form-group">
+              <label class="label" for="confirma-senha">Confirmar Nova Senha</label>
+              <input type="password" id="confirma-senha" class="input" placeholder="******" minlength="8">
+            </div>
+          </div>
+          
+          <button type="submit" class="btn" id="update-password-btn" style="background: var(--primary); color: white; margin-top: 1rem;">Atualizar Senha</button>
+        </fieldset>
       </form>
     </div>
   `
@@ -291,7 +320,51 @@ export async function ProfileView(profile) {
     } catch (error) {
       toast.error('Erro ao salvar: ' + error.message)
       saveBtn.disabled = false
-      saveBtn.textContent = 'Salvar Alterações'
+      saveBtn.textContent = 'Salvar Dados Pessoais'
+    }
+  })
+
+  // Lógica de Troca de Senha
+  const passwordForm = container.querySelector('#password-form')
+  const updatePasswordBtn = container.querySelector('#update-password-btn')
+
+  passwordForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    
+    const novaSenha = container.querySelector('#nova-senha').value
+    const confirmaSenha = container.querySelector('#confirma-senha').value
+
+    if (!novaSenha) {
+      toast.error('Digite a nova senha.')
+      return
+    }
+
+    if (novaSenha !== confirmaSenha) {
+      toast.error('As senhas não coincidem.')
+      return
+    }
+
+    // Validação de força (8 caracteres, letras e números)
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(novaSenha)) {
+      toast.error('Senha fraca! Use 8+ caracteres, com letras e números.')
+      return
+    }
+
+    updatePasswordBtn.disabled = true
+    updatePasswordBtn.textContent = 'Atualizando...'
+
+    const { error } = await supabase.auth.updateUser({ password: novaSenha })
+
+    if (error) {
+      toast.error('Erro ao atualizar senha: ' + error.message)
+      updatePasswordBtn.disabled = false
+      updatePasswordBtn.textContent = 'Atualizar Senha'
+    } else {
+      toast.success('Senha atualizada com sucesso!')
+      passwordForm.reset()
+      updatePasswordBtn.disabled = false
+      updatePasswordBtn.textContent = 'Atualizar Senha'
     }
   })
 

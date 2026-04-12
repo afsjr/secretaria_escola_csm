@@ -14,7 +14,8 @@ import { ProfessorTurmasView } from './professor-turmas'
 import { ProfessorAlunosView } from './professor-alunos'
 import { ProfessorRegistrarAulaView } from './professor-registrar-aula'
 import { FinanceiroView } from './financeiro'
-import { isAdmin, isSecretaria, isFinanceiro, isProfessor, isAluno } from '../lib/authz'
+import { ConfiguracoesView } from './configuracoes'
+import { isAdmin, isSecretaria, isFinanceiro, isProfessor, isAluno, isMasterAdmin, canManageInstituicao } from '../lib/authz'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
@@ -30,11 +31,13 @@ export async function DashboardView(session, subPath = '/') {
   const userRole = profile?.perfil || 'aluno'
   
   // Usando os novos helpers do authz.js
+  const _isMasterAdmin = isMasterAdmin(userRole)
   const _isAdmin = isAdmin(userRole)
   const _isSecretaria = isSecretaria(userRole)
   const _isFinanceiro = isFinanceiro(userRole)
   const _isProfessor = isProfessor(userRole)
   const _isAluno = isAluno(userRole)
+  const _canManageInstituicao = canManageInstituicao(userRole)
 
   container.innerHTML = `
     <aside class="sidebar">
@@ -70,6 +73,12 @@ export async function DashboardView(session, subPath = '/') {
           <a href="#/dashboard/turmas" class="nav-item ${subPath === '/turmas' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Gestão de Turmas
+          </a>
+        ` : ''}
+        ${_canManageInstituicao ? `
+          <a href="#/dashboard/configuracoes" class="nav-item ${subPath === '/configuracoes' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Configurações
           </a>
         ` : ''}
         ${_isFinanceiro || _isAdmin ? `
@@ -167,6 +176,8 @@ export async function DashboardView(session, subPath = '/') {
     contentArea.appendChild(await DocumentsView(profile))
   } else if (subPath === '/matriz') {
     contentArea.appendChild(await MatrizView())
+  } else if (subPath === '/configuracoes' && _canManageInstituicao) {
+    contentArea.appendChild(await ConfiguracoesView())
   } else if (subPath === '/financeiro' && (_isFinanceiro || _isAdmin)) {
     contentArea.appendChild(await FinanceiroView())
   } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria)) {

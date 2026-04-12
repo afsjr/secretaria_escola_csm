@@ -1,12 +1,67 @@
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
+import { InstituicaoService } from './instituicao-service'
+
+// Cache de sessão para o cabeçalho dos PDFs
+let _cachedHeader = null
+
+async function getHeader() {
+  if (!_cachedHeader) {
+    _cachedHeader = await InstituicaoService.getPDFHeader()
+  }
+  return _cachedHeader
+}
 
 export const PDFService = {
 
   // =====================================================
+  // HELPER: CABEÇALHO DINÂMICO (compartilhado por todos os docs)
+  // =====================================================
+  _renderHeader(doc, inst, pageWidth, marginLeft, title) {
+    // Fundo colorido com a cor primária da instituição
+    const cor = inst.cor_primaria || '#1E3A5F'
+    const r = parseInt(cor.slice(1, 3), 16)
+    const g = parseInt(cor.slice(3, 5), 16)
+    const b = parseInt(cor.slice(5, 7), 16)
+
+    doc.setFillColor(r, g, b)
+    doc.rect(0, 0, pageWidth, 38, 'F')
+
+    // Logo (se houver)
+    if (inst.logo_url && inst.logo_url.startsWith('data:')) {
+      try { doc.addImage(inst.logo_url, 'PNG', marginLeft, 5, 28, 24) } catch {}
+    }
+
+    // Texto do cabeçalho
+    const textX = inst.logo_url ? marginLeft + 32 : marginLeft
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(15)
+    doc.setFont('helvetica', 'bold')
+    doc.text(inst.nome.toUpperCase(), textX, 14)
+
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    if (inst.cnpj) doc.text(`CNPJ: ${inst.cnpj}`, textX, 20)
+    if (inst.endereco) doc.text(inst.endereco, textX, 25)
+    if (inst.telefone || inst.email) {
+      const contato = [inst.telefone, inst.email].filter(Boolean).join(' | ')
+      doc.text(contato, textX, 30)
+    }
+
+    // Título do documento
+    doc.setTextColor(r, g, b)
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text(title, pageWidth / 2, 52, { align: 'center' })
+
+    return 60 // retorna o Y inicial após o cabeçalho
+  },
+
+  // =====================================================
   // BOLETIM ESCOLAR (Grade Report)
   // =====================================================
-  generateBoletimPDF(alunoData, notasData, turmaInfo) {
+  async generateBoletimPDF(alunoData, notasData, turmaInfo) {
+    const inst = await getHeader()
     const doc = new jsPDF('portrait', 'mm', 'a4')
     const pageWidth = doc.internal.pageSize.getWidth()
     const marginLeft = 15

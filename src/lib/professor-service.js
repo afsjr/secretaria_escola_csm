@@ -1,4 +1,6 @@
 import { supabase } from './supabase'
+import { AuditService } from './audit-service'
+import { getUserProfile } from '../auth/session'
 
 export const ProfessorService = {
   // === DISCIPLINAS ===
@@ -158,6 +160,16 @@ export const ProfessorService = {
       .from('boletim')
       .upsert(payload, { onConflict: 'aluno_id, disciplina' })
 
+    // Registrar no log de auditoria
+    if (!error) {
+      await AuditService.log({
+        acao: 'lancar_nota',
+        tabela_afetada: 'boletim',
+        descricao: `Notas lançadas para ${notasArray.length} aluno(s) na disciplina "${disciplina}"`,
+        dados_novos: { disciplina, alunos_afetados: notasArray.length, notas: payload }
+      })
+    }
+
     return { error }
   },
 
@@ -183,6 +195,17 @@ export const ProfessorService = {
       }])
       .select()
       .single()
+
+    // Registrar no log de auditoria
+    if (!error) {
+      await AuditService.log({
+        acao: 'registrar_aula',
+        tabela_afetada: 'aulas',
+        registro_id: aulaData?.id,
+        descricao: `Aula registrada: "${conteudo}" em ${data}`,
+        dados_novos: { disciplina_id, professor_id, data, conteudo }
+      })
+    }
 
     return { data: aulaData, error }
   },
@@ -229,11 +252,28 @@ export const ProfessorService = {
 
   // Excluir aula
   async excluirAula(aulaId) {
+    const { data: aulaAtual, error: fetchError } = await supabase
+      .from('aulas')
+      .select('*')
+      .eq('id', aulaId)
+      .single()
+
     const { data, error } = await supabase
       .from('aulas')
       .delete()
       .eq('id', aulaId)
       .select()
+
+    // Registrar no log de auditoria
+    if (!error) {
+      await AuditService.log({
+        acao: 'delete_aula',
+        tabela_afetada: 'aulas',
+        registro_id: aulaId,
+        descricao: `Aula excluída: "${aulaAtual?.conteudo || aulaId}"`,
+        dados_antigos: aulaAtual
+      })
+    }
 
     return { data, error }
   },

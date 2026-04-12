@@ -1,4 +1,6 @@
 import { supabase, supabaseAdmin } from './supabase'
+import { AuditService } from './audit-service'
+import { getUserProfile } from '../auth/session'
 
 /**
  * AdminService - Operações administrativas via Edge Functions
@@ -107,6 +109,15 @@ export const AdminService = {
           return { error: profileError }
         }
 
+        // Registrar no log de auditoria
+        await AuditService.log({
+          acao: 'criar_usuario',
+          tabela_afetada: 'perfis',
+          registro_id: authData.user.id,
+          descricao: `Usuário criado: ${nomeCompleto} (${perfil})`,
+          dados_novos: { email, nome_completo: nomeCompleto, perfil, cpf: cpf || null }
+        })
+
         return { data: { userId: authData.user.id }, error: null }
       } catch (err) {
         return { error: { message: 'Erro interno no cadastro admin: ' + err.message } }
@@ -184,6 +195,17 @@ export const AdminService = {
       .select()
       .single()
 
+    // Registrar no log de auditoria
+    if (!error) {
+      await AuditService.log({
+        acao: 'matricular_aluno',
+        tabela_afetada: 'matriculas',
+        registro_id: data?.id,
+        descricao: `Aluno matriculado na turma ${turmaId}`,
+        dados_novos: { aluno_id: alunoId, turma_id: turmaId, status_aluno: 'ativo' }
+      })
+    }
+
     return { data, error }
   },
 
@@ -254,16 +276,34 @@ export const AdminService = {
    * Reseta a senha de um usuário para o padrão csm1983#
    * E marca como troca obrigatória no próximo acesso
    */
-  async resetUserPassword(userId) {
+  async resetUserPassword(userId, userName) {
     if (!supabaseAdmin) {
       return { error: { message: 'Acesso Administrativo não configurado (.env / VITE_SUPABASE_SERVICE_ROLE_KEY).' } }
     }
 
     try {
+      // Buscar dados atuais antes do reset (para log)
+      const { data: dadosAtuais } = await supabase
+        .from('perfis')
+        .select('perfil, nome_completo')
+        .eq('id', userId)
+        .maybeSingle()
+
       const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
         password: 'csm1983#',
         user_metadata: { force_password_change: true }
       })
+
+      // Registrar no log de auditoria
+      if (!error) {
+        await AuditService.log({
+          acao: 'reset_senha',
+          tabela_afetada: 'perfis',
+          registro_id: userId,
+          descricao: `Senha resetada para ${userName || dadosAtuais?.nome_completo || 'usuário'} (perfil: ${dadosAtuais?.perfil || 'desconhecido'})`,
+          dados_novos: { force_password_change: true, action: 'password_reset_to_default' }
+        })
+      }
 
       return { data, error }
     } catch (err) {

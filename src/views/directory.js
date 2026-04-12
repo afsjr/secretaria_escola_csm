@@ -142,7 +142,7 @@ export async function DirectoryView() {
         btn.disabled = true
         btn.textContent = '⏳ Processando...'
 
-        const { error } = await AdminService.resetUserPassword(id)
+        const { error } = await AdminService.resetUserPassword(id, nome)
 
         if (error) {
           toast.error('Erro ao resetar: ' + error.message)

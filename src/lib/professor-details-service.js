@@ -17,7 +17,7 @@ export const ProfessorDetailsService = {
   async getProfessorCompleto(professorId) {
     const result = {}
 
-    // Dados pessoais
+    // Dados pessoais — QUERY CRÍTICA (se falhar, não há ficha)
     const { data: perfil, error: perfilError } = await supabase
       .from('perfis')
       .select('*')
@@ -27,26 +27,32 @@ export const ProfessorDetailsService = {
     if (perfilError) return { error: perfilError }
     result.perfil = perfil
 
-    // Endereço
+    // Endereço — QUERY OPCIONAL (pode não existir)
     const { data: endereco } = await this.getEndereco(professorId)
     result.endereco = endereco
 
-    // Disciplinas do professor COM informações completas de turmas e cursos
-    const { data: disciplinas, error: discError } = await supabase
-      .from('disciplinas')
-      .select(`
-        *,
-        turmas(id, nome, periodo),
-        cursos(id, nome)
-      `)
-      .eq('professor_id', professorId)
-      .order('nome', { ascending: true })
+    // Disciplinas do professor — QUERY OPCIONAL (pode falhar por RLS sem bloquear ficha)
+    let disciplinasError = null
+    try {
+      const { data: disciplinas, error: discError } = await supabase
+        .from('disciplinas')
+        .select(`
+          *,
+          turmas(id, nome, periodo),
+          cursos(id, nome)
+        `)
+        .eq('professor_id', professorId)
+        .order('nome', { ascending: true })
 
-    if (discError) {
-      console.error('Erro ao buscar disciplinas do professor:', discError)
-      result.disciplinas = []
-    } else {
+      if (discError) {
+        console.warn('[ProfessorDetailsService] Disciplinas indisponíveis:', discError.message)
+      }
       result.disciplinas = disciplinas || []
+      result.disciplinasError = discError // Sinaliza erro para a view
+    } catch (err) {
+      console.warn('[ProfessorDetailsService] Erro inesperado ao buscar disciplinas:', err.message)
+      result.disciplinas = []
+      result.disciplinasError = { message: err.message }
     }
 
     return { data: result, error: null }

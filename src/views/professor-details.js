@@ -33,9 +33,10 @@ export async function ProfessorDetailsView(professorId) {
   const dados = dadosCompletos.perfil
   const endereco = dadosCompletos.endereco || {}
   const disciplinas = dadosCompletos.disciplinas || []
+  const disciplinasErro = dadosCompletos.disciplinasError
 
   const initials = dados.nome_completo ? escapeHTML(dados.nome_completo.charAt(0).toUpperCase()) : '?'
-  
+
   // Gênero label
   const generoLabels = {
     'masculino': 'Masculino',
@@ -44,7 +45,7 @@ export async function ProfessorDetailsView(professorId) {
     'prefiro_nao_informar': 'Prefiro não informar'
   }
   const generoLabel = generoLabels[dados.genero] || '-'
-  
+
   // Estado civil label
   const estadoCivilLabels = {
     'solteiro': 'Solteiro(a)',
@@ -220,22 +221,30 @@ export async function ProfessorDetailsView(professorId) {
       <!-- Disciplinas -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Disciplinas / Turmas</legend>
-        
-        ${disciplinas.length === 0 
-          ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma disciplina atribuída.</p>`
-          : `
-          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-            ${disciplinas.map(d => `
-              <div style="padding: 1rem; background: var(--secondary); border-radius: 6px;">
-                <div style="font-weight: 600;">${escapeHTML(d.nome)}</div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">
-                  ${d.turmas ? `Turma: ${escapeHTML(d.turmas.nome)} (${escapeHTML(d.turmas.periodo)})` : ''}
-                  ${d.cursos ? ` | Curso: ${escapeHTML(d.cursos.nome)}` : ''}
-                </div>
+
+        ${disciplinasErro
+      ? `<div style="display: flex; align-items: center; gap: 0.8rem; padding: 1rem; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 6px;">
+              <span style="font-size: 1.2rem;">⚠️</span>
+              <div>
+                <div style="font-weight: 600; font-size: 0.9rem; color: #92400E;">Disciplinas indisponíveis</div>
+                <div style="font-size: 0.8rem; color: #A16207;">Verifique as permissões de acesso no Supabase (RLS na tabela <code>disciplinas</code>).</div>
               </div>
-            `).join('')}
-          </div>
-        `}
+            </div>`
+      : disciplinas.length === 0
+        ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma disciplina atribuída.</p>`
+        : `
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              ${disciplinas.map(d => `
+                <div style="padding: 1rem; background: var(--secondary); border-radius: 6px;">
+                  <div style="font-weight: 600;">${escapeHTML(d.nome)}</div>
+                  <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    ${d.turmas ? `Turma: ${escapeHTML(d.turmas.nome)} (${escapeHTML(d.turmas.periodo)})` : ''}
+                    ${d.cursos ? ` | Curso: ${escapeHTML(d.cursos.nome)}` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
       </fieldset>
 
       <!-- Botão Salvar -->
@@ -246,53 +255,55 @@ export async function ProfessorDetailsView(professorId) {
   `
 
   // Salvar Alterações
-  const saveBtn = container.querySelector('#save-btn-prof')
-  saveBtn.addEventListener('click', async () => {
-    saveBtn.disabled = true
-    saveBtn.textContent = 'Salvando...'
+  const saveBtn = container.querySelector('#save-btn')
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true
+      saveBtn.textContent = 'Salvando...'
 
-    try {
-      // 1. DADOS PERFIL
-      const dadosPerfil = {
-        data_nascimento: container.querySelector('#pd-nascimento').value || null,
-        genero: container.querySelector('#pd-genero').value || null,
-        estado_civil: container.querySelector('#pd-estado-civil').value || null,
-        cidade_natal: container.querySelector('#pd-cidade-natal').value || null,
-        nacionalidade: container.querySelector('#pd-nacionalidade').value || null,
-        profissao: container.querySelector('#pd-profissao').value || null,
-        graduacao: container.querySelector('#pd-graduacao').value || null,
-        data_conclusao_graduacao: container.querySelector('#pd-data-conclusao').value || null,
-        rg: container.querySelector('#pd-rg').value || null,
-        orgao_expedidor: container.querySelector('#pd-orgao-expedidor').value || null,
-        data_expedicao_rg: container.querySelector('#pd-data-expedicao-rg').value || null,
-        whatsapp: container.querySelector('#pd-whatsapp').value || null
+      try {
+        // 1. DADOS PERFIL
+        const dadosPerfil = {
+          data_nascimento: container.querySelector('#pd-nascimento').value || null,
+          genero: container.querySelector('#pd-genero').value || null,
+          estado_civil: container.querySelector('#pd-estado-civil').value || null,
+          cidade_natal: container.querySelector('#pd-cidade-natal').value || null,
+          nacionalidade: container.querySelector('#pd-nacionalidade').value || null,
+          profissao: container.querySelector('#pd-profissao').value || null,
+          graduacao: container.querySelector('#pd-graduacao').value || null,
+          data_conclusao_graduacao: container.querySelector('#pd-data-conclusao').value || null,
+          rg: container.querySelector('#pd-rg').value || null,
+          orgao_expedidor: container.querySelector('#pd-orgao-expedidor').value || null,
+          data_expedicao_rg: container.querySelector('#pd-data-expedicao-rg').value || null,
+          whatsapp: container.querySelector('#pd-whatsapp').value || null
+        }
+
+        const { error: errorPerfil } = await ProfessorDetailsService.updateDadosPessoais(professorId, dadosPerfil)
+        if (errorPerfil) throw errorPerfil
+
+        // 2. ENDEREÇO
+        const dadosEndereco = {
+          cep: container.querySelector('#pd-cep').value || null,
+          bairro: container.querySelector('#pd-bairro').value || null,
+          logradouro: container.querySelector('#pd-logradouro').value || null,
+          numero: container.querySelector('#pd-numero').value || null,
+          complemento: container.querySelector('#pd-complemento').value || null,
+          cidade: container.querySelector('#pd-cidade').value || null,
+          uf: container.querySelector('#pd-uf').value || null
+        }
+
+        const { error: errorEndereco } = await ProfessorDetailsService.saveEndereco(professorId, dadosEndereco)
+        if (errorEndereco) throw errorEndereco
+
+        toast.success('Ficha do professor atualizada com sucesso!')
+      } catch (err) {
+        toast.error('Erro ao salvar ficha: ' + err.message)
+      } finally {
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Salvar Alterações'
       }
-      
-      const { error: errorPerfil } = await ProfessorDetailsService.updateDadosPessoais(professorId, dadosPerfil)
-      if (errorPerfil) throw errorPerfil
-
-      // 2. ENDEREÇO
-      const dadosEndereco = {
-        cep: container.querySelector('#pd-cep').value || null,
-        bairro: container.querySelector('#pd-bairro').value || null,
-        logradouro: container.querySelector('#pd-logradouro').value || null,
-        numero: container.querySelector('#pd-numero').value || null,
-        complemento: container.querySelector('#pd-complemento').value || null,
-        cidade: container.querySelector('#pd-cidade').value || null,
-        uf: container.querySelector('#pd-uf').value || null
-      }
-
-      const { error: errorEndereco } = await ProfessorDetailsService.saveEndereco(professorId, dadosEndereco)
-      if (errorEndereco) throw errorEndereco
-
-      toast.success('Ficha do professor atualizada com sucesso!')
-    } catch (err) {
-      toast.error('Erro ao salvar ficha: ' + err.message)
-    } finally {
-      saveBtn.disabled = false
-      saveBtn.textContent = 'Salvar Alterações'
-    }
-  })
+    })
+  }
 
   return container
 }

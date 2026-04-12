@@ -18,13 +18,18 @@ export const ProfessorDetailsService = {
     const result = {}
 
     // Dados pessoais — QUERY CRÍTICA (se falhar, não há ficha)
+    console.log('[ProfessorDetailsService] Buscando perfil para:', professorId)
     const { data: perfil, error: perfilError } = await supabase
       .from('perfis')
       .select('*')
       .eq('id', professorId)
       .single()
 
-    if (perfilError) return { error: perfilError }
+    if (perfilError) {
+      console.error('[ProfessorDetailsService] ERRO ao buscar perfil:', perfilError)
+      return { error: perfilError }
+    }
+    console.log('[ProfessorDetailsService] Perfil encontrado:', perfil?.nome_completo, '| perfil:', perfil?.perfil)
     result.perfil = perfil
 
     // Endereço — QUERY OPCIONAL (pode não existir)
@@ -32,7 +37,7 @@ export const ProfessorDetailsService = {
     result.endereco = endereco
 
     // Disciplinas do professor — QUERY OPCIONAL (pode falhar por RLS sem bloquear ficha)
-    let disciplinasError = null
+    console.log('[ProfessorDetailsService] Buscando disciplinas para professor:', professorId)
     try {
       const { data: disciplinas, error: discError } = await supabase
         .from('disciplinas')

@@ -1,30 +1,51 @@
-import { getAllProfiles } from '../auth/session'
+import { getAllProfiles, getUserProfile } from '../auth/session'
 import { escapeHTML, createBadge } from '../lib/security'
 import { AdminService } from '../lib/admin-service'
 import { toast } from '../lib/toast'
+import { isMasterAdmin } from '../lib/authz'
 
-// Order of presentation for tech hunters: Alunos → Professores → Secretaria → Admin
-const PROFILE_ORDER = ['aluno', 'professor', 'secretaria', 'admin']
+// Ordem de apresentação: Alunos → Professores → Secretaria → Admin → Master Admin
+const PROFILE_ORDER = ['aluno', 'professor', 'secretaria', 'admin', 'master_admin']
 
 const PROFILE_LABELS = {
   aluno: '👨‍🎓 Alunos',
   professor: '👨‍🏫 Professores',
   secretaria: '🏢 Secretaria',
-  admin: '🔒 Administradores'
+  admin: '🔒 Administradores',
+  master_admin: '🛡️ Gestor do Sistema'
 }
 
 const PROFILE_COLORS = {
-  aluno: '#3B82F6',       // blue-500
-  professor: '#10B981',    // emerald-500
-  secretaria: '#F59E0B',   // amber-500
-  admin: '#8B5CF6'         // violet-500
+  aluno: '#3B82F6',
+  professor: '#10B981',
+  secretaria: '#F59E0B',
+  admin: '#8B5CF6',
+  master_admin: '#DC2626'
 }
 
-function renderProfileCard(p) {
+function renderProfileCard(p, viewerRole) {
   const nome = escapeHTML(p.nome_completo)
-  const perfil = escapeHTML(p.perfil)
-  const isTargetAdmin = p.perfil === 'admin'
-  const accentColor = PROFILE_COLORS[p.perfil] || '#6B7280'
+  const targetPerfil = p.perfil
+  const isTargetMaster = targetPerfil === 'master_admin'
+  const isTargetAdmin = targetPerfil === 'admin' || isTargetMaster
+  const viewerIsMaster = isMasterAdmin(viewerRole)
+  const accentColor = PROFILE_COLORS[targetPerfil] || '#6B7280'
+
+  // master_admin só pode ser resetado por ele próprio (nunca exibe botão)
+  // admin pode ser resetado por master_admin
+  // todos os outros podem ser resetados por admin ou master_admin
+  let canReset = true
+  let restrictedLabel = ''
+  if (isTargetMaster) {
+    canReset = false
+    restrictedLabel = '🛡️ Proprietário do Sistema'
+  } else if (targetPerfil === 'admin' && !viewerIsMaster) {
+    canReset = false
+    restrictedLabel = '🔒 Acesso Restrito'
+  }
+
+  const badgeLabel = isTargetMaster ? '[MASTER]' : (targetPerfil === 'admin' ? '[ADM]' : '')
+  const badgeColor = isTargetMaster ? 'var(--danger, #DC2626)' : 'var(--primary)'
 
   return `
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1.2rem; background: white; border-left: 4px solid ${accentColor}; gap: 1rem; transition: all 0.15s ease;"
@@ -33,12 +54,12 @@ function renderProfileCard(p) {
       <div style="flex: 1;">
         <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
           ${nome}
-          ${isTargetAdmin ? '<span style="font-size: 0.65rem; color: var(--primary); font-weight: 800; margin-left: 6px; letter-spacing: 0.5px;">[ADM]</span>' : ''}
+          ${badgeLabel ? `<span style="font-size: 0.65rem; color: ${badgeColor}; font-weight: 800; margin-left: 6px; letter-spacing: 0.5px;">${badgeLabel}</span>` : ''}
         </div>
       </div>
       <div>
-        ${isTargetAdmin ?
-      '<span style="font-size: 0.7rem; color: var(--text-muted); font-style: italic;">🔒 Acesso Restrito</span>' :
+        ${!canReset ?
+      `<span style="font-size: 0.7rem; color: var(--text-muted); font-style: italic;">${restrictedLabel}</span>` :
       `<button class="btn-reset-password" data-id="${p.id}" data-nome="${nome}" style="background: var(--secondary); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); transition: all 0.15s ease;">
             🔄 Resetar Senha
           </button>`
@@ -48,7 +69,7 @@ function renderProfileCard(p) {
   `
 }
 
-function renderProfileSection(profiles, perfilType) {
+function renderProfileSection(profiles, perfilType, viewerRole) {
   const filtered = profiles.filter(p => p.perfil === perfilType)
   if (filtered.length === 0) return ''
 
@@ -56,7 +77,7 @@ function renderProfileSection(profiles, perfilType) {
   const accentColor = PROFILE_COLORS[perfilType] || '#6B7280'
   const cards = filtered
     .sort((a, b) => (a.nome_completo || '').localeCompare(b.nome_completo || ''))
-    .map(p => renderProfileCard(p))
+    .map(p => renderProfileCard(p, viewerRole))
     .join('')
 
   return `

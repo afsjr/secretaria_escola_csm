@@ -853,6 +853,7 @@ export async function SecretariaView() {
     btn.addEventListener('click', async () => {
       const professorId = btn.getAttribute('data-id')
 
+      console.log('[Ficha Professor] Abrindo ficha para ID:', professorId)
       btn.disabled = true
       btn.textContent = '...'
 
@@ -861,8 +862,8 @@ export async function SecretariaView() {
         container.innerHTML = ''
         container.appendChild(detailsView)
       } catch (err) {
-        console.error('Erro ao carregar ficha do professor:', err)
-        toast.error('Erro ao carregar ficha do professor')
+        console.error('[Ficha Professor] Erro completo:', err)
+        toast.error('Erro ao carregar ficha: ' + err.message)
       }
 
       btn.disabled = false

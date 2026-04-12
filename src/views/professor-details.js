@@ -16,19 +16,30 @@ export async function ProfessorDetailsView(professorId) {
   const container = document.createElement('div')
   container.className = 'professor-details-view animate-in'
 
+  console.log('[ProfessorDetailsView] Buscando dados para professorId:', professorId)
+
   // Buscar dados completos
   const { data: dadosCompletos, error } = await ProfessorDetailsService.getProfessorCompleto(professorId)
 
   if (error) {
+    console.error('[ProfessorDetailsView] Erro ao buscar dados:', error)
     container.innerHTML = `
       <div style="padding: 2rem; text-align: center;">
         <h2 style="color: var(--danger);">Erro ao carregar dados do professor</h2>
         <p>${escapeHTML(error.message)}</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Code: ${escapeHTML(error.code || 'N/A')} | Details: ${escapeHTML(error.details || 'N/A')}</p>
         <button onclick="history.back()" class="btn btn-primary" style="margin-top: 1rem;">Voltar</button>
       </div>
     `
     return container
   }
+
+  console.log('[ProfessorDetailsView] Dados carregados:', {
+    perfil: dadosCompletos?.perfil?.nome_completo,
+    temEndereco: !!dadosCompletos?.endereco,
+    disciplinasCount: dadosCompletos?.disciplinas?.length || 0,
+    disciplinasErro: dadosCompletos?.disciplinasError?.message || null
+  })
 
   const dados = dadosCompletos.perfil
   const endereco = dadosCompletos.endereco || {}

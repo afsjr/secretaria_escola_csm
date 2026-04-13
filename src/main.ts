@@ -19,12 +19,11 @@ async function router(): Promise<void> {
 
   // Handle Supabase recovery redirect: #access_token=...&type=recovery
   const hash = window.location.hash
-  if (hash.includes('type=recovery') || (hash.includes('access_token=') && !hash.startsWith('#/'))) {
-    // Extract sub-path if present in redirectTo, otherwise default to reset-password
-    if (!hash.includes('#/reset-password')) {
-      window.location.hash = '#/reset-password'
-      return
-    }
+  const isRecoveryFlow = hash.includes('type=recovery') || hash.includes('access_token=')
+
+  if (isRecoveryFlow && !hash.startsWith('#/reset-password')) {
+    window.location.hash = '#/reset-password'
+    return
   }
 
   // Clear app
@@ -37,7 +36,8 @@ async function router(): Promise<void> {
   }
 
   // Auth routing (if already logged in, skip auth screens)
-  const isAuthRoute = path === '#/' || path === '#/signup' || path === '#/forgot-password' || path === '#/reset-password'
+  // EXCEPTION: do NOT redirect from reset-password even if session exists (recovery flow)
+  const isAuthRoute = path === '#/' || path === '#/signup' || path === '#/forgot-password'
   if (isAuthRoute && session) {
     window.location.hash = '#/dashboard'
     return

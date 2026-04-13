@@ -17,6 +17,16 @@ async function router(): Promise<void> {
   const path = window.location.hash || '#/'
   const { data: { session } } = await supabase.auth.getSession()
 
+  // Handle Supabase recovery redirect: #access_token=...&type=recovery
+  const hash = window.location.hash
+  if (hash.includes('type=recovery') || (hash.includes('access_token=') && !hash.startsWith('#/'))) {
+    // Extract sub-path if present in redirectTo, otherwise default to reset-password
+    if (!hash.includes('#/reset-password')) {
+      window.location.hash = '#/reset-password'
+      return
+    }
+  }
+
   // Clear app
   app.innerHTML = ''
 
@@ -70,6 +80,8 @@ supabase.auth.onAuthStateChange((event, session) => {
     }
   } else if (event === 'SIGNED_OUT') {
     window.location.hash = '#/'
+  } else if (event === 'PASSWORD_RECOVERY') {
+    window.location.hash = '#/reset-password'
   }
   // Remove redundant router() call here as hashchange/load already cover it
 })

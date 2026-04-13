@@ -1,9 +1,9 @@
 /**
  * Professor Meus Alunos View
- * 
+ *
  * Lista todos os alunos do professor com busca.
  * Ao clicar, abre a ficha completa do aluno.
- * 
+ *
  * Uso secundário - para análise profunda individual.
  */
 
@@ -13,7 +13,17 @@ import { toast } from '../lib/toast'
 import { escapeHTML, createBadge } from '../lib/security'
 import { StudentDetailsView } from './student-details'
 
-export async function ProfessorAlunosView(profile) {
+interface AlunoCardData {
+  id: string
+  nome_completo: string
+  turma_nome?: string
+  turma_id: string
+  matricula_id: string
+  status_aluno: string
+  perfil?: string
+}
+
+export async function ProfessorAlunosView(profile: { id: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'professor-alunos-view animate-in'
 
@@ -24,15 +34,15 @@ export async function ProfessorAlunosView(profile) {
     console.error('Erro ao buscar turmas:', errorTurmas)
   }
 
-  let todosAlunos = []
+  let todosAlunos: AlunoCardData[] = []
   if (turmasDoProfessor && turmasDoProfessor.length > 0) {
     for (const turma of turmasDoProfessor) {
       const { data: matriculas } = await ProfessorService.getAlunosDaTurma(turma.id)
       if (matriculas) {
         todosAlunos = todosAlunos.concat(
           matriculas
-            .filter(m => m.status_aluno === 'ativo')
-            .map(m => ({
+            .filter((m: any) => m.status_aluno === 'ativo')
+            .map((m: any) => ({
               ...m.perfis,
               turma_nome: turma.nome,
               turma_id: turma.id,
@@ -77,7 +87,7 @@ export async function ProfessorAlunosView(profile) {
                   <div style="font-weight: 600; color: var(--text-main);">${escapeHTML(aluno.nome_completo)}</div>
                   <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">${escapeHTML(aluno.turma_nome || '-')}</div>
                   <div style="margin-top: 0.3rem;">
-                    ${createBadge(aluno.perfil)}
+                    ${createBadge(aluno.perfil || 'aluno')}
                   </div>
                 </div>
               </div>
@@ -90,15 +100,14 @@ export async function ProfessorAlunosView(profile) {
   // === Event Handlers ===
 
   // Busca
-  const buscaInput = container.querySelector('#busca-aluno')
-  const listaAlunos = container.querySelector('#lista-alunos')
+  const buscaInput = container.querySelector('#busca-aluno') as HTMLInputElement
 
   buscaInput.addEventListener('input', () => {
     const termo = buscaInput.value.toLowerCase().trim()
 
     container.querySelectorAll('.aluno-card').forEach(card => {
       const nome = card.getAttribute('data-nome')
-      card.style.display = nome.includes(termo) ? 'block' : 'none'
+      ;(card as HTMLElement).style.display = nome!.includes(termo) ? 'block' : 'none'
     })
   })
 
@@ -107,27 +116,27 @@ export async function ProfessorAlunosView(profile) {
     card.addEventListener('click', async () => {
       const alunoId = card.getAttribute('data-id')
 
-      card.style.opacity = '0.5'
+      ;(card as HTMLElement).style.opacity = '0.5'
 
       try {
-        const detailsView = await StudentDetailsView(alunoId)
+        const detailsView = await StudentDetailsView(alunoId!)
         container.innerHTML = ''
         container.appendChild(detailsView)
       } catch (err) {
         console.error('Erro ao carregar ficha:', err)
         toast.error('Erro ao carregar ficha do aluno')
-        card.style.opacity = '1'
+        ;(card as HTMLElement).style.opacity = '1'
       }
     })
 
     // Hover effect
     card.addEventListener('mouseenter', () => {
-      card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-      card.style.transform = 'translateY(-2px)'
+      ;(card as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+      ;(card as HTMLElement).style.transform = 'translateY(-2px)'
     })
     card.addEventListener('mouseleave', () => {
-      card.style.boxShadow = 'var(--shadow-sm)'
-      card.style.transform = 'none'
+      ;(card as HTMLElement).style.boxShadow = 'var(--shadow-sm)'
+      ;(card as HTMLElement).style.transform = 'none'
     })
   })
 

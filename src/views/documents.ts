@@ -2,14 +2,14 @@ import { DocumentsService } from '../lib/documents-service'
 import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
 
-export async function DocumentsView(profile) {
+export async function DocumentsView(profile: { id: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'documents-view animate-in'
 
   // Fetch current requests
   const { data: requests, error } = await DocumentsService.getMyRequests(profile.id)
 
-  const renderRequests = () => {
+  const renderRequests = (): string => {
     if (requests?.length === 0) return '<p>Você ainda não possui solicitações de documentos.</p>'
 
     return `
@@ -85,13 +85,13 @@ export async function DocumentsView(profile) {
   `
 
   // Logic
-  const modal = container.querySelector('#modal-request')
-  const openBtn = container.querySelector('#open-request-btn')
-  const cancelBtn = container.querySelector('#cancel-btn')
-  const confirmBtn = container.querySelector('#confirm-btn')
-  const docTypeSelect = container.querySelector('#doc-type')
-  const descricaoGroup = container.querySelector('#descricao-outros-group')
-  const descricaoInput = container.querySelector('#doc-descricao')
+  const modal = container.querySelector('#modal-request') as HTMLDivElement
+  const openBtn = container.querySelector('#open-request-btn') as HTMLButtonElement
+  const cancelBtn = container.querySelector('#cancel-btn') as HTMLButtonElement
+  const confirmBtn = container.querySelector('#confirm-btn') as HTMLButtonElement
+  const docTypeSelect = container.querySelector('#doc-type') as HTMLSelectElement
+  const descricaoGroup = container.querySelector('#descricao-outros-group') as HTMLDivElement
+  const descricaoInput = container.querySelector('#doc-descricao') as HTMLTextAreaElement
 
   // Mostrar campo de descrição quando selecionar "Outros"
   docTypeSelect.addEventListener('change', () => {

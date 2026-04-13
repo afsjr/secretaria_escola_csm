@@ -1,6 +1,6 @@
 /**
  * Professor Details View - Ficha Completa do Professor
- * 
+ *
  * Permite visualizar e editar todos os dados de um professor:
  * - Dados pessoais
  * - Endereço
@@ -12,7 +12,7 @@ import { toast } from '../lib/toast'
 import { escapeHTML, createBadge, createOption } from '../lib/security'
 import { ProfessorDetailsService } from '../lib/professor-details-service'
 
-export async function ProfessorDetailsView(professorId) {
+export async function ProfessorDetailsView(professorId: string): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'professor-details-view animate-in'
 
@@ -27,7 +27,7 @@ export async function ProfessorDetailsView(professorId) {
       <div style="padding: 2rem; text-align: center;">
         <h2 style="color: var(--danger);">Erro ao carregar dados do professor</h2>
         <p>${escapeHTML(error.message)}</p>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Code: ${escapeHTML(error.code || 'N/A')} | Details: ${escapeHTML(error.details || 'N/A')}</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Code: ${escapeHTML((error as any).code || 'N/A')} | Details: ${escapeHTML((error as any).details || 'N/A')}</p>
         <button onclick="history.back()" class="btn btn-primary" style="margin-top: 1rem;">Voltar</button>
       </div>
     `
@@ -49,7 +49,7 @@ export async function ProfessorDetailsView(professorId) {
   const initials = dados.nome_completo ? escapeHTML(dados.nome_completo.charAt(0).toUpperCase()) : '?'
 
   // Gênero label
-  const generoLabels = {
+  const generoLabels: Record<string, string> = {
     'masculino': 'Masculino',
     'feminino': 'Feminino',
     'outro': 'Outro',
@@ -58,7 +58,7 @@ export async function ProfessorDetailsView(professorId) {
   const generoLabel = generoLabels[dados.genero] || '-'
 
   // Estado civil label
-  const estadoCivilLabels = {
+  const estadoCivilLabels: Record<string, string> = {
     'solteiro': 'Solteiro(a)',
     'casado': 'Casado(a)',
     'divorciado': 'Divorciado(a)',
@@ -97,7 +97,7 @@ export async function ProfessorDetailsView(professorId) {
       <!-- Dados Pessoais -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Dados Pessoais</legend>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Data de Nascimento</label>
@@ -157,7 +157,7 @@ export async function ProfessorDetailsView(professorId) {
       <!-- Documentos -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Documentos</legend>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">RG</label>
@@ -177,7 +177,7 @@ export async function ProfessorDetailsView(professorId) {
       <!-- Contato / Informações Reduzidas -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Contato / Informações Reduzidas</legend>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">WhatsApp Principal (apenas números)</label>
@@ -189,42 +189,42 @@ export async function ProfessorDetailsView(professorId) {
       <!-- Endereço -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Endereço</legend>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">CEP</label>
-            <input type="text" id="pd-cep" class="input" value="${escapeHTML(endereco.cep || '')}">
+            <input type="text" id="pd-cep" class="input" value="${escapeHTML((endereco as any).cep || '')}">
           </div>
           <div class="form-group">
             <label class="label">Bairro</label>
-            <input type="text" id="pd-bairro" class="input" value="${escapeHTML(endereco.bairro || '')}">
+            <input type="text" id="pd-bairro" class="input" value="${escapeHTML((endereco as any).bairro || '')}">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Logradouro (Rua, Av, etc)</label>
-            <input type="text" id="pd-logradouro" class="input" value="${escapeHTML(endereco.logradouro || '')}">
+            <input type="text" id="pd-logradouro" class="input" value="${escapeHTML((endereco as any).logradouro || '')}">
           </div>
           <div class="form-group">
             <label class="label">Número</label>
-            <input type="text" id="pd-numero" class="input" value="${escapeHTML(endereco.numero || '')}">
+            <input type="text" id="pd-numero" class="input" value="${escapeHTML((endereco as any).numero || '')}">
           </div>
         </div>
 
         <div class="form-group">
           <label class="label">Complemento</label>
-          <input type="text" id="pd-complemento" class="input" value="${escapeHTML(endereco.complemento || '')}">
+          <input type="text" id="pd-complemento" class="input" value="${escapeHTML((endereco as any).complemento || '')}">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="label">Cidade</label>
-            <input type="text" id="pd-cidade" class="input" value="${escapeHTML(endereco.cidade || '')}">
+            <input type="text" id="pd-cidade" class="input" value="${escapeHTML((endereco as any).cidade || '')}">
           </div>
           <div class="form-group">
             <label class="label">UF</label>
-            <input type="text" id="pd-uf" class="input" value="${escapeHTML(endereco.uf || '')}" maxlength="2">
+            <input type="text" id="pd-uf" class="input" value="${escapeHTML((endereco as any).uf || '')}" maxlength="2">
           </div>
         </div>
       </fieldset>
@@ -245,7 +245,7 @@ export async function ProfessorDetailsView(professorId) {
         ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma disciplina atribuída.</p>`
         : `
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-              ${disciplinas.map(d => `
+              ${disciplinas.map((d: any) => `
                 <div style="padding: 1rem; background: var(--secondary); border-radius: 6px;">
                   <div style="font-weight: 600;">${escapeHTML(d.nome)}</div>
                   <div style="font-size: 0.85rem; color: var(--text-muted);">
@@ -269,24 +269,24 @@ export async function ProfessorDetailsView(professorId) {
   const saveBtn = container.querySelector('#save-btn')
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
-      saveBtn.disabled = true
-      saveBtn.textContent = 'Salvando...'
+      ;(saveBtn as HTMLButtonElement).disabled = true
+      ;(saveBtn as HTMLButtonElement).textContent = 'Salvando...'
 
       try {
         // 1. DADOS PERFIL
         const dadosPerfil = {
-          data_nascimento: container.querySelector('#pd-nascimento').value || null,
-          genero: container.querySelector('#pd-genero').value || null,
-          estado_civil: container.querySelector('#pd-estado-civil').value || null,
-          cidade_natal: container.querySelector('#pd-cidade-natal').value || null,
-          nacionalidade: container.querySelector('#pd-nacionalidade').value || null,
-          profissao: container.querySelector('#pd-profissao').value || null,
-          graduacao: container.querySelector('#pd-graduacao').value || null,
-          data_conclusao_graduacao: container.querySelector('#pd-data-conclusao').value || null,
-          rg: container.querySelector('#pd-rg').value || null,
-          orgao_expedidor: container.querySelector('#pd-orgao-expedidor').value || null,
-          data_expedicao_rg: container.querySelector('#pd-data-expedicao-rg').value || null,
-          whatsapp: container.querySelector('#pd-whatsapp').value || null
+          data_nascimento: (container.querySelector('#pd-nascimento') as HTMLInputElement).value || null,
+          genero: (container.querySelector('#pd-genero') as HTMLSelectElement).value || null,
+          estado_civil: (container.querySelector('#pd-estado-civil') as HTMLSelectElement).value || null,
+          cidade_natal: (container.querySelector('#pd-cidade-natal') as HTMLInputElement).value || null,
+          nacionalidade: (container.querySelector('#pd-nacionalidade') as HTMLInputElement).value || null,
+          profissao: (container.querySelector('#pd-profissao') as HTMLInputElement).value || null,
+          graduacao: (container.querySelector('#pd-graduacao') as HTMLInputElement).value || null,
+          data_conclusao_graduacao: (container.querySelector('#pd-data-conclusao') as HTMLInputElement).value || null,
+          rg: (container.querySelector('#pd-rg') as HTMLInputElement).value || null,
+          orgao_expedidor: (container.querySelector('#pd-orgao-expedidor') as HTMLInputElement).value || null,
+          data_expedicao_rg: (container.querySelector('#pd-data-expedicao-rg') as HTMLInputElement).value || null,
+          whatsapp: (container.querySelector('#pd-whatsapp') as HTMLInputElement).value || null
         }
 
         const { error: errorPerfil } = await ProfessorDetailsService.updateDadosPessoais(professorId, dadosPerfil)
@@ -294,24 +294,24 @@ export async function ProfessorDetailsView(professorId) {
 
         // 2. ENDEREÇO
         const dadosEndereco = {
-          cep: container.querySelector('#pd-cep').value || null,
-          bairro: container.querySelector('#pd-bairro').value || null,
-          logradouro: container.querySelector('#pd-logradouro').value || null,
-          numero: container.querySelector('#pd-numero').value || null,
-          complemento: container.querySelector('#pd-complemento').value || null,
-          cidade: container.querySelector('#pd-cidade').value || null,
-          uf: container.querySelector('#pd-uf').value || null
+          cep: (container.querySelector('#pd-cep') as HTMLInputElement).value || null,
+          bairro: (container.querySelector('#pd-bairro') as HTMLInputElement).value || null,
+          logradouro: (container.querySelector('#pd-logradouro') as HTMLInputElement).value || null,
+          numero: (container.querySelector('#pd-numero') as HTMLInputElement).value || null,
+          complemento: (container.querySelector('#pd-complemento') as HTMLInputElement).value || null,
+          cidade: (container.querySelector('#pd-cidade') as HTMLInputElement).value || null,
+          uf: (container.querySelector('#pd-uf') as HTMLInputElement).value || null
         }
 
         const { error: errorEndereco } = await ProfessorDetailsService.saveEndereco(professorId, dadosEndereco)
         if (errorEndereco) throw errorEndereco
 
         toast.success('Ficha do professor atualizada com sucesso!')
-      } catch (err) {
+      } catch (err: any) {
         toast.error('Erro ao salvar ficha: ' + err.message)
       } finally {
-        saveBtn.disabled = false
-        saveBtn.textContent = 'Salvar Alterações'
+        ;(saveBtn as HTMLButtonElement).disabled = false
+        ;(saveBtn as HTMLButtonElement).textContent = 'Salvar Alterações'
       }
     })
   }

@@ -1,6 +1,6 @@
 /**
  * Professor Registrar Aula View
- * 
+ *
  * Permite ao professor registrar aulas dadas:
  * - Selecionar disciplina/turma
  * - Informar data e conteúdo
@@ -13,20 +13,26 @@ import { CourseService } from '../lib/course-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createBadge } from '../lib/security'
 
-export async function ProfessorRegistrarAulaView(profile) {
+interface TurmaData {
+  turma_nome: string
+  periodo: string
+  disciplinas: Array<{ id: string; nome: string }>
+}
+
+export async function ProfessorRegistrarAulaView(profile: { id: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'professor-registrar-aula-view animate-in'
 
   // Buscar disciplinas do professor
   const { data: disciplinas, error: errDisc } = await ProfessorService.getDisciplinasDoProfessor(profile.id)
-  
+
   if (errDisc) {
     console.error('Erro ao buscar disciplinas:', errDisc)
   }
 
   // Agrupar por turma
-  const turmasMap = {}
-  disciplinas?.forEach(d => {
+  const turmasMap: Record<string, TurmaData> = {}
+  disciplinas?.forEach((d: any) => {
     const turmaKey = d.turma_id || 'sem-turma'
     if (!turmasMap[turmaKey]) {
       turmasMap[turmaKey] = {
@@ -38,7 +44,7 @@ export async function ProfessorRegistrarAulaView(profile) {
     turmasMap[turmaKey].disciplinas.push(d)
   })
 
-  const turmas = Object.values(turmasMap)
+  const turmas: TurmaData[] = Object.values(turmasMap)
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">
@@ -50,7 +56,7 @@ export async function ProfessorRegistrarAulaView(profile) {
       <!-- Formulário -->
       <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
         <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Nova Aula</h3>
-        
+
         <form id="form-registrar-aula">
           <div class="form-group">
             <label class="label" for="aula-turma">Turma</label>
@@ -89,7 +95,7 @@ export async function ProfessorRegistrarAulaView(profile) {
       <!-- Histórico -->
       <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
         <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Histórico de Aulas</h3>
-        
+
         <div id="historico-aulas">
           <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Carregando histórico...</p>
         </div>
@@ -100,8 +106,8 @@ export async function ProfessorRegistrarAulaView(profile) {
   // === Event Handlers ===
 
   // When turma changes, update disciplinas dropdown
-  const turmaSelect = container.querySelector('#aula-turma')
-  const disciplinaSelect = container.querySelector('#aula-disciplina')
+  const turmaSelect = container.querySelector('#aula-turma') as HTMLSelectElement
+  const disciplinaSelect = container.querySelector('#aula-disciplina') as HTMLSelectElement
 
   turmaSelect.addEventListener('change', () => {
     const turmaIdx = turmaSelect.value
@@ -118,21 +124,21 @@ export async function ProfessorRegistrarAulaView(profile) {
   })
 
   // Form submission
-  const form = container.querySelector('#form-registrar-aula')
-  form.addEventListener('submit', async (e) => {
+  const form = container.querySelector('#form-registrar-aula') as HTMLFormElement
+  form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
     const disciplinaId = disciplinaSelect.value
-    const data = container.querySelector('#aula-data').value
-    const conteudo = container.querySelector('#aula-conteudo').value
-    const observacoes = container.querySelector('#aula-observacoes').value
+    const data = (container.querySelector('#aula-data') as HTMLInputElement).value
+    const conteudo = (container.querySelector('#aula-conteudo') as HTMLTextAreaElement).value
+    const observacoes = (container.querySelector('#aula-observacoes') as HTMLTextAreaElement).value
 
     if (!disciplinaId || !data || !conteudo) {
       toast.error('Preencha todos os campos obrigatórios!')
       return
     }
 
-    const submitBtn = form.querySelector('button[type="submit"]')
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement
     submitBtn.disabled = true
     submitBtn.textContent = 'Registrando...'
 
@@ -150,12 +156,12 @@ export async function ProfessorRegistrarAulaView(profile) {
 
       toast.success('Aula registrada com sucesso!')
       form.reset()
-      container.querySelector('#aula-data').value = new Date().toISOString().split('T')[0]
-      
-      // Reload histórico
-      loadHistoricoAulas(profile.id, container)
+      ;(container.querySelector('#aula-data') as HTMLInputElement).value = new Date().toISOString().split('T')[0]
 
-    } catch (err) {
+      // Reload histórico
+      await loadHistoricoAulas(profile.id, container)
+
+    } catch (err: any) {
       toast.error('Erro ao registrar aula: ' + err.message)
     }
 
@@ -164,7 +170,7 @@ export async function ProfessorRegistrarAulaView(profile) {
   })
 
   // Load initial histórico
-  loadHistoricoAulas(profile.id, container)
+  await loadHistoricoAulas(profile.id, container)
 
   return container
 }
@@ -172,24 +178,24 @@ export async function ProfessorRegistrarAulaView(profile) {
 /**
  * Carrega histórico de aulas do professor
  */
-async function loadHistoricoAulas(professorId, container) {
-  const historicoDiv = container.querySelector('#historico-aulas')
+async function loadHistoricoAulas(professorId: string, container: HTMLElement): Promise<void> {
+  const historicoDiv = container.querySelector('#historico-aulas') as HTMLDivElement
 
   try {
     // Buscar todas as disciplinas do professor
     const { data: disciplinas } = await ProfessorService.getDisciplinasDoProfessor(professorId)
-    
+
     if (!disciplinas || disciplinas.length === 0) {
       historicoDiv.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Nenhuma disciplina atribuída.</p>'
       return
     }
 
     // Buscar aulas de todas as disciplinas
-    let todasAulas = []
+    let todasAulas: any[] = []
     for (const disc of disciplinas) {
       const { data: aulas } = await ProfessorService.getAulasDaDisciplina(disc.id)
       if (aulas) {
-        todasAulas = todasAulas.concat(aulas.map(a => ({
+        todasAulas = todasAulas.concat(aulas.map((a: any) => ({
           ...a,
           disciplina_nome: disc.nome,
           turma_nome: disc.turmas?.nome || '-'
@@ -198,7 +204,7 @@ async function loadHistoricoAulas(professorId, container) {
     }
 
     // Ordenar por data (mais recente primeiro)
-    todasAulas.sort((a, b) => new Date(b.data) - new Date(a.data))
+    todasAulas.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
 
     if (todasAulas.length === 0) {
       historicoDiv.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Nenhuma aula registrada ainda.</p>'
@@ -207,7 +213,7 @@ async function loadHistoricoAulas(professorId, container) {
 
     historicoDiv.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 500px; overflow-y: auto;">
-        ${todasAulas.map(aula => `
+        ${todasAulas.map((aula: any) => `
           <div style="padding: 1rem; background: var(--secondary); border-radius: 6px; border-left: 4px solid var(--primary);">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
               <div>
@@ -229,12 +235,12 @@ async function loadHistoricoAulas(professorId, container) {
         const aulaId = btn.getAttribute('data-aula-id')
         if (!confirm('Deseja excluir esta aula?')) return
 
-        const { error } = await ProfessorService.excluirAula(aulaId)
+        const { error } = await ProfessorService.excluirAula(aulaId!)
         if (error) {
           toast.error('Erro ao excluir: ' + error.message)
         } else {
           toast.success('Aula excluída!')
-          loadHistoricoAulas(professorId, container)
+          await loadHistoricoAulas(professorId, container)
         }
       })
     })

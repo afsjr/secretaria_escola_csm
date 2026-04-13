@@ -2,14 +2,14 @@ import { InstituicaoService } from '../lib/instituicao-service'
 import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
 
-export async function ConfiguracoesView() {
+export async function ConfiguracoesView(): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'configuracoes-view animate-in'
 
   // Carregar dados existentes
   const { data: inst, error } = await InstituicaoService.getInstituicao()
 
-  const v = (field) => escapeHTML(inst?.[field] || '')
+  const v = (field: string): string => escapeHTML((inst as any)?.[field] || '')
 
   container.innerHTML = `
     <!-- AVISO DE ÁREA RESTRITA -->
@@ -18,8 +18,8 @@ export async function ConfiguracoesView() {
       <div>
         <div style="font-weight: 800; font-size: 1rem; margin-bottom: 0.3rem; letter-spacing: 0.02em;">ÁREA DE ACESSO RESTRITO — SOMENTE ADMINISTRADOR</div>
         <div style="font-size: 0.82rem; opacity: 0.9; line-height: 1.6;">
-          As configurações desta tela afetam <strong>todo o sistema</strong> e todos os documentos gerados. 
-          Alterações indevidas podem comprometer a identificação institucional nos documentos legais. 
+          As configurações desta tela afetam <strong>todo o sistema</strong> e todos os documentos gerados.
+          Alterações indevidas podem comprometer a identificação institucional nos documentos legais.
           <strong>Apenas pessoas expressamente autorizadas pela direção da instituição devem realizar modificações aqui.</strong>
         </div>
       </div>
@@ -37,11 +37,11 @@ export async function ConfiguracoesView() {
 
       <!-- FORMULÁRIO PRINCIPAL -->
       <form id="form-instituicao">
-        
+
         <!-- IDENTIDADE -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; background: white;">
           <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">🏫 Identidade da Escola</legend>
-          
+
           <div class="form-group">
             <label class="label" for="inst-nome">Nome Oficial da Instituição *</label>
             <input type="text" id="inst-nome" name="nome" class="input" value="${v('nome')}" placeholder="Ex: Colégio Santa Mônica" required>
@@ -121,7 +121,7 @@ export async function ConfiguracoesView() {
           <div style="display: grid; grid-template-columns: 120px 1fr; gap: 1rem; align-items: center;">
             <div class="form-group">
               <label class="label" for="inst-cor">Cor Principal</label>
-              <input type="color" id="inst-cor" name="cor_primaria" class="input" value="${inst?.cor_primaria || '#1E3A5F'}" style="height: 45px; padding: 4px; cursor: pointer;">
+              <input type="color" id="inst-cor" name="cor_primaria" class="input" value="${(inst as any)?.cor_primaria || '#1E3A5F'}" style="height: 45px; padding: 4px; cursor: pointer;">
             </div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;">
               Cor usada no cabeçalho dos documentos PDF e nos elementos principais do sistema.
@@ -144,8 +144,8 @@ export async function ConfiguracoesView() {
 
           <!-- Área de Preview -->
           <div id="logo-preview-area" style="width: 100%; height: 160px; border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--secondary); margin-bottom: 1rem; overflow: hidden; position: relative;">
-            ${inst?.logo_url
-              ? `<img src="${inst.logo_url}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 1rem;">`
+            ${(inst as any)?.logo_url
+              ? `<img src="${(inst as any).logo_url}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 1rem;">`
               : `<div style="text-align: center; color: var(--text-muted);">
                   <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏫</div>
                   <div style="font-size: 0.8rem;">Sem logo cadastrada</div>
@@ -169,10 +169,10 @@ export async function ConfiguracoesView() {
             📁 Escolher Arquivo
           </label>
           <input type="file" id="logo-file-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display: none;">
-          
+
           <div id="upload-status" style="margin-top: 0.5rem; font-size: 0.8rem; text-align: center; color: var(--text-muted); min-height: 20px;"></div>
 
-          ${inst?.logo_url ? `
+          ${(inst as any)?.logo_url ? `
             <button id="btn-remover-logo" class="btn" style="width: 100%; margin-top: 0.5rem; background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem;">
               🗑️ Remover Logo
             </button>
@@ -183,12 +183,12 @@ export async function ConfiguracoesView() {
   `
 
   // ─── LÓGICA DE UPLOAD DA LOGO ───────────────────────────────────────
-  const logoInput = container.querySelector('#logo-file-input')
-  const previewArea = container.querySelector('#logo-preview-area')
-  const uploadStatus = container.querySelector('#upload-status')
+  const logoInput = container.querySelector('#logo-file-input') as HTMLInputElement
+  const previewArea = container.querySelector('#logo-preview-area') as HTMLDivElement
+  const uploadStatus = container.querySelector('#upload-status') as HTMLDivElement
 
-  logoInput.addEventListener('change', async (e) => {
-    const file = e.target.files?.[0]
+  logoInput.addEventListener('change', async (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0]
     if (!file) return
 
     uploadStatus.textContent = '⏳ Enviando logo...'
@@ -203,7 +203,7 @@ export async function ConfiguracoesView() {
     }
 
     // Atualiza preview sem reload
-    previewArea.innerHTML = `<img src="${data.url}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 1rem;">`
+    previewArea.innerHTML = `<img src="${(data as any).url}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 1rem;">`
     uploadStatus.textContent = '✅ Logo enviada com sucesso!'
     uploadStatus.style.color = 'var(--success)'
     toast.success('Logo atualizada! Os PDFs já usarão a nova logo.')
@@ -219,16 +219,16 @@ export async function ConfiguracoesView() {
   })
 
   // ─── LÓGICA DE SALVAR FORMULÁRIO ────────────────────────────────────
-  const form = container.querySelector('#form-instituicao')
-  const btnSalvar = container.querySelector('#btn-salvar-inst')
+  const form = container.querySelector('#form-instituicao') as HTMLFormElement
+  const btnSalvar = container.querySelector('#btn-salvar-inst') as HTMLButtonElement
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
     btnSalvar.disabled = true
     btnSalvar.textContent = '⏳ Salvando...'
 
     const fd = new FormData(form)
-    const payload = Object.fromEntries(fd.entries())
+    const payload: Record<string, string> = Object.fromEntries(fd.entries()) as Record<string, string>
 
     // Remover campos vazios para não sobrescrever com null
     Object.keys(payload).forEach(k => {

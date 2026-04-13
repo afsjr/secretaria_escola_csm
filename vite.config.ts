@@ -30,6 +30,8 @@ export default defineConfig({
     sourcemap: false              // DESATIVA source maps em produção (segurança)
   },
   server: {
+    port: 3000,                  // Porta fix para Supabase auth redirects
+    strictPort: true,            // Falha se a porta já estiver em uso
     // Configurar headers de segurança para dev server
     headers: {
       'X-Content-Type-Options': 'nosniff',

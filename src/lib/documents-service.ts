@@ -4,9 +4,9 @@ import { supabase } from './supabase'
  * Service for Document Requests (Solicitações)
  */
 export const DocumentsService = {
-  
+
   // Student: Create a new request
-  async createRequest(userId, type) {
+  async createRequest(userId: string, type: string) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .insert([
@@ -16,7 +16,7 @@ export const DocumentsService = {
   },
 
   // Student: Get their own requests
-  async getMyRequests(userId) {
+  async getMyRequests(userId: string) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .select('*')
@@ -38,7 +38,7 @@ export const DocumentsService = {
   },
 
   // Admin (Secretaria): Update status (e.g., Concluído)
-  async updateStatus(id, status) {
+  async updateStatus(id: string, status: string) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .update({ status })

@@ -1,5 +1,13 @@
 import { supabase } from './supabase'
 
+interface AcordoData {
+  alunoId: string
+  totalDebito: number
+  totalComDesconto: number
+  numeroParcelas: number
+  valorParcela: number
+}
+
 /**
  * Serviço para operações financeiras do sistema.
  */
@@ -23,7 +31,7 @@ export const FinanceiroService = {
       contagemAtrasados: 0
     }
 
-    pagamentos.forEach(p => {
+    pagamentos.forEach((p: any) => {
       resumo.totalPrevisto += Number(p.valor_original)
       if (p.status === 'atrasado') {
         resumo.totalInadimplente += Number(p.valor_original)
@@ -44,10 +52,10 @@ export const FinanceiroService = {
     const { data, error } = await supabase
       .from('perfis')
       .select(`
-        id, 
-        nome_completo, 
-        cpf, 
-        email, 
+        id,
+        nome_completo,
+        cpf,
+        email,
         bloqueio_financeiro,
         pagamentos!inner (
           id, valor_original, data_vencimento, status
@@ -62,7 +70,7 @@ export const FinanceiroService = {
   /**
    * Busca histórico financeiro de um aluno específico.
    */
-  async getHistoricoAluno(alunoId) {
+  async getHistoricoAluno(alunoId: string) {
     return await supabase
       .from('pagamentos')
       .select('*')
@@ -73,7 +81,7 @@ export const FinanceiroService = {
   /**
    * Cria um novo acordo financeiro.
    */
-  async criarAcordo(dados) {
+  async criarAcordo(dados: AcordoData) {
     const { data: acordo, error: errorAcordo } = await supabase
       .from('financeiro_acordos')
       .insert({
@@ -106,12 +114,12 @@ export const FinanceiroService = {
     const { data, error } = await supabase
       .from('financeiro_config')
       .select('*')
-    
+
     if (error) return { data: null, error }
-    
+
     // Converte lista em objeto para facilidade de uso
-    const config = {}
-    data.forEach(c => {
+    const config: Record<string, number> = {}
+    data.forEach((c: any) => {
       config[c.chave] = Number(c.valor)
     })
     return { data: config, error: null }

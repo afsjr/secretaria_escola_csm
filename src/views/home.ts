@@ -1,4 +1,4 @@
-export function HomeView() {
+export function HomeView(): HTMLElement {
   const container = document.createElement('div')
   container.className = 'home-container animate-in'
 
@@ -45,7 +45,7 @@ export function HomeView() {
 
   // Training button event listener
   setTimeout(() => {
-    const btnTreinamento = document.querySelector('#btn-treinamento-home')
+    const btnTreinamento = container.querySelector('#btn-treinamento-home')
     if (btnTreinamento) {
       btnTreinamento.addEventListener('click', () => {
         window.open(window.location.origin + window.location.pathname + 'apresentacao_treinamento.html', '_blank')

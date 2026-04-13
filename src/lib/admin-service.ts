@@ -1,13 +1,14 @@
 import { supabase, supabaseAdmin } from './supabase'
 import { AuditService } from './audit-service'
 import { getUserProfile } from '../auth/session'
+import type { UserRole } from '../types'
 
 /**
  * AdminService - Operações administrativas via Edge Functions
- * 
+ *
  * NOTA: O cliente admin (supabaseAdmin) foi removido por motivos de segurança.
  * Todas as operações admin agora devem ser feitas via Supabase Edge Functions.
- * 
+ *
  * Para configurar as Edge Functions:
  * 1. Instale Supabase CLI: `npm install -g supabase`
  * 2. Login: `supabase login`
@@ -16,6 +17,15 @@ import { getUserProfile } from '../auth/session'
  * 5. Deploy: `supabase functions deploy admin-create-user`
  */
 
+interface CreateUserParams {
+  email: string
+  password: string
+  nomeCompleto: string
+  cpf?: string
+  telefone?: string
+  perfil?: UserRole
+}
+
 const EDGE_FUNCTIONS_BASE_URL = import.meta.env.VITE_SUPABASE_URL
   ? `${import.meta.env.VITE_SUPABASE_URL.startsWith('http') ? import.meta.env.VITE_SUPABASE_URL : `https://${import.meta.env.VITE_SUPABASE_URL}.supabase.co`}/functions/v1`
   : null
@@ -23,7 +33,7 @@ const EDGE_FUNCTIONS_BASE_URL = import.meta.env.VITE_SUPABASE_URL
 /**
  * Faz chamada autenticada a uma Edge Function
  */
-async function callEdgeFunction(functionName, payload) {
+async function callEdgeFunction(functionName: string, payload: Record<string, unknown>) {
   if (!EDGE_FUNCTIONS_BASE_URL) {
     return {
       error: {
@@ -64,7 +74,7 @@ async function callEdgeFunction(functionName, payload) {
     }
 
     return { data: result.data, error: null }
-  } catch (error) {
+  } catch (error: any) {
     console.warn(`⚠️ Edge Function ${functionName} inacessível:`, error.message)
     return { error: { message: `Erro de comunicação: ${error.message}.` } }
   }
@@ -74,10 +84,10 @@ export const AdminService = {
 
   /**
    * Cria usuário pelo admin via Edge Function
-   * 
+   *
    * REQUER Edge Function: supabase/functions/admin-create-user
    */
-  async createUserByAdmin({ email, password, nomeCompleto, cpf, telefone, perfil = 'aluno' }) {
+  async createUserByAdmin({ email, password, nomeCompleto, cpf, telefone, perfil = 'aluno' }: CreateUserParams) {
     // Tentar via Chave Admin Direta primeiro (Modo mais rápido e estável)
     if (supabaseAdmin) {
       try {
@@ -119,7 +129,7 @@ export const AdminService = {
         })
 
         return { data: { userId: authData.user.id }, error: null }
-      } catch (err) {
+      } catch (err: any) {
         return { error: { message: 'Erro interno no cadastro admin: ' + err.message } }
       }
     }
@@ -167,7 +177,7 @@ export const AdminService = {
   /**
    * Matricula aluno numa turma (usa RLS normal)
    */
-  async matricularAluno(alunoId, turmaId) {
+  async matricularAluno(alunoId: string, turmaId: string) {
     // Verificar se aluno já está ativo em outra turma
     const { data: matriculasAtivas } = await supabase
       .from('matriculas')
@@ -225,7 +235,7 @@ export const AdminService = {
   /**
    * Busca aluno por ID (usa RLS normal)
    */
-  async getAlunoById(alunoId) {
+  async getAlunoById(alunoId: string) {
     const { data, error } = await supabase
       .from('perfis')
       .select('*')
@@ -239,7 +249,7 @@ export const AdminService = {
   /**
    * Busca usuário por ID (usa RLS normal)
    */
-  async getUserById(userId) {
+  async getUserById(userId: string) {
     const { data, error } = await supabase
       .from('perfis')
       .select('*')
@@ -253,7 +263,7 @@ export const AdminService = {
    * Atualiza dados do aluno (usa RLS normal)
    * Proteção contra escalada de perfil removida via RLS policies
    */
-  async updateAluno(alunoId, updates) {
+  async updateAluno(alunoId: string, updates: Record<string, any>) {
     // Remover campos sensíveis para prevenção de escalada de privilégios
     const safeUpdates = { ...updates }
     delete safeUpdates.perfil
@@ -276,7 +286,7 @@ export const AdminService = {
    * Reseta a senha de um usuário para o padrão csm1983#
    * E marca como troca obrigatória no próximo acesso
    */
-  async resetUserPassword(userId, userName) {
+  async resetUserPassword(userId: string, userName: string) {
     if (!supabaseAdmin) {
       return { error: { message: 'Acesso Administrativo não configurado (.env / VITE_SUPABASE_SERVICE_ROLE_KEY).' } }
     }
@@ -306,7 +316,7 @@ export const AdminService = {
       }
 
       return { data, error }
-    } catch (err) {
+    } catch (err: any) {
       return { error: { message: 'Erro ao resetar senha: ' + err.message } }
     }
   }

@@ -1,7 +1,26 @@
 import { CourseService } from '../lib/course-service'
 
+interface ModuloInfo {
+  titulo: string
+  trilha: string
+  competencia: string
+  color: string
+}
+
+interface CursoData {
+  id: string
+  nome: string
+  descricao?: string
+}
+
+interface DisciplinaData {
+  id: string
+  nome: string
+  modulo?: string
+}
+
 // Descrições padrão dos módulos de Enfermagem
-const enfermagemModulos = {
+const enfermagemModulos: Record<string, ModuloInfo> = {
   'I Módulo': {
     titulo: 'Fundamentos Biológicos e Científicos',
     trilha: 'Trilha 1',
@@ -23,7 +42,7 @@ const enfermagemModulos = {
 }
 
 // Descrições padrão para Instrumentação Cirúrgica
-const instrumentacaoModulos = {
+const instrumentacaoModulos: Record<string, ModuloInfo> = {
   'I Módulo': {
     titulo: 'Fundamentos da Instrumentação',
     trilha: 'Trilha 1',
@@ -45,7 +64,7 @@ const instrumentacaoModulos = {
 }
 
 // Horas padrão por disciplina (fallback)
-const horasDefault = {
+const horasDefault: Record<string, string> = {
   'Anatomia e Fisiologia Humana': '100h',
   'Psicologia Aplicada': '60h',
   'Nutrição e Dietética': '60h',
@@ -66,7 +85,7 @@ const horasDefault = {
 }
 
 // Vivências padrão por disciplina (fallback)
-const vivenciasDefault = {
+const vivenciasDefault: Record<string, string> = {
   'Anatomia e Fisiologia Humana': 'Aulas práticas com bonecos anatômicos, identificação tátil de veias, músculos para injeção e sistemas do corpo humano.',
   'Psicologia Aplicada': 'Dinâmicas sobre relações interpessoais paciente-família, identificação de fases do luto e escuta qualificada.',
   'Nutrição e Dietética': 'Estudo de dietas hospitalares, manuseio laboratorial de sondas enterais e parenterais.',
@@ -86,13 +105,13 @@ const vivenciasDefault = {
   'Enfermagem Neuro Psiquiátrica': 'Acompanhamento ambulatorial no CAPS, protocolos de contenção humanizada quando requerida no surto.'
 }
 
-export async function MatrizView() {
+export async function MatrizView(): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'matriz-view animate-in'
 
   // Fetch courses and disciplines from DB
-  let cursos = []
-  let disciplinasPorCurso = {}
+  let cursos: CursoData[] = []
+  let disciplinasPorCurso: Record<string, DisciplinaData[]> = {}
 
   try {
     const { data: cursosData } = await CourseService.getCursosAtivos()
@@ -102,7 +121,7 @@ export async function MatrizView() {
     for (const curso of cursos) {
       const { data: disciplinas } = await CourseService.getDisciplinasDoCurso(curso.id)
       if (disciplinas && disciplinas.length > 0) {
-        disciplinasPorCurso[curso.nome] = disciplinas
+        disciplinasPorCurso[curso.nome] = disciplinas as DisciplinaData[]
       }
     }
   } catch (err) {
@@ -117,15 +136,15 @@ export async function MatrizView() {
     ]
   }
 
-  const renderCurso = (curso) => {
-    const modulosMap = curso.nome.includes('Enfermagem') ? enfermagemModulos :
-                       curso.nome.includes('Instrumentação') ? instrumentacaoModulos :
-                       enfermagemModulos
+  const renderCurso = (curso: CursoData): string => {
+    const modulosMap: Record<string, ModuloInfo> = curso.nome.includes('Enfermagem') ? enfermagemModulos :
+      curso.nome.includes('Instrumentação') ? instrumentacaoModulos :
+        enfermagemModulos
 
     // Get disciplines from DB or use defaults
-    let modulosDB = null
+    let modulosDB: Record<string, DisciplinaData[]> | null = null
     if (disciplinasPorCurso[curso.nome]) {
-      const grouped = {}
+      const grouped: Record<string, DisciplinaData[]> = {}
       disciplinasPorCurso[curso.nome].forEach(d => {
         const modulo = d.modulo || 'Sem Módulo'
         if (!grouped[modulo]) grouped[modulo] = []
@@ -139,7 +158,7 @@ export async function MatrizView() {
       return Object.keys(modulosDB).map(moduloNome => {
         const info = modulosMap[moduloNome] || { titulo: moduloNome, trilha: '', competencia: 'Disciplinas do módulo.', color: 'var(--primary)' }
         const disciplinas = modulosDB[moduloNome]
-        
+
         return `
           <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
             <div style="background: ${info.color}; padding: 1.5rem; color: white;">

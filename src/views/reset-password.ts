@@ -1,7 +1,7 @@
 import { updatePassword } from '../auth/session'
 import { toast } from '../lib/toast'
 
-export function ResetPasswordView() {
+export function ResetPasswordView(): HTMLElement {
   const container = document.createElement('div')
   container.className = 'auth-container'
 
@@ -26,20 +26,19 @@ export function ResetPasswordView() {
     </div>
   `
 
-  const form = container.querySelector('#reset-password-form')
-
-  form.addEventListener('submit', async (e) => {
+  const form = container.querySelector('#reset-password-form') as HTMLFormElement
+  form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
-    const newPassword = form.querySelector('#new-password').value
-    const confirmPassword = form.querySelector('#confirm-password').value
+    const newPassword = (form.querySelector('#new-password') as HTMLInputElement).value
+    const confirmPassword = (form.querySelector('#confirm-password') as HTMLInputElement).value
 
     if (newPassword !== confirmPassword) {
       toast.error('As senhas não coincidem.')
       return
     }
 
-    const submitBtn = form.querySelector('button[type="submit"]')
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement
     submitBtn.disabled = true
     submitBtn.textContent = 'Atualizando...'
 
@@ -54,7 +53,7 @@ export function ResetPasswordView() {
           window.location.hash = '#/'
         }, 2000)
       }
-    } catch (err) {
+    } catch {
       toast.error('Erro inesperado. Tente novamente.')
     } finally {
       submitBtn.disabled = false

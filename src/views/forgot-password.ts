@@ -1,7 +1,7 @@
 import { resetPassword } from '../auth/session'
 import { toast } from '../lib/toast'
 
-export function ForgotPasswordView() {
+export function ForgotPasswordView(): HTMLElement {
   const container = document.createElement('div')
   container.className = 'auth-container'
 
@@ -25,14 +25,13 @@ export function ForgotPasswordView() {
     </div>
   `
 
-  const form = container.querySelector('#forgot-password-form')
-
-  form.addEventListener('submit', async (e) => {
+  const form = container.querySelector('#forgot-password-form') as HTMLFormElement
+  form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
-    const email = form.querySelector('#email').value
-    const submitBtn = form.querySelector('button[type="submit"]')
-    
+    const email = (form.querySelector('#email') as HTMLInputElement).value
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement
+
     submitBtn.disabled = true
     submitBtn.textContent = 'Enviando...'
 
@@ -47,7 +46,7 @@ export function ForgotPasswordView() {
           window.location.hash = '#/'
         }, 3000)
       }
-    } catch (err) {
+    } catch {
       toast.error('Erro inesperado. Tente novamente.')
     } finally {
       submitBtn.disabled = false

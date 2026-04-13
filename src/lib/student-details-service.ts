@@ -1,6 +1,6 @@
 /**
  * Student Details Service
- * 
+ *
  * Gerencia dados expandidos do aluno:
  * - Endereço (perfis_enderecos)
  * - Responsáveis (responsaveis)
@@ -10,11 +10,19 @@
 
 import { supabase } from './supabase'
 
+interface EnderecoData {
+  [key: string]: any
+}
+
+interface ResponsavelData {
+  [key: string]: any
+}
+
 export const StudentDetailsService = {
 
   // ==================== ENDEREÇO ====================
 
-  async getEndereco(userId) {
+  async getEndereco(userId: string) {
     const { data, error } = await supabase
       .from('perfis_enderecos')
       .select('*')
@@ -24,7 +32,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async saveEndereco(userId, endereco) {
+  async saveEndereco(userId: string, endereco: EnderecoData) {
     const { data: existing } = await this.getEndereco(userId)
 
     if (existing) {
@@ -47,7 +55,7 @@ export const StudentDetailsService = {
     }
   },
 
-  async deleteEndereco(userId) {
+  async deleteEndereco(userId: string) {
     const { data, error } = await supabase
       .from('perfis_enderecos')
       .delete()
@@ -58,7 +66,7 @@ export const StudentDetailsService = {
 
   // ==================== RESPONSÁVEIS ====================
 
-  async getResponsaveis(alunoId) {
+  async getResponsaveis(alunoId: string) {
     const { data, error } = await supabase
       .from('responsaveis')
       .select('*')
@@ -69,7 +77,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async addResponsavel(alunoId, responsavel) {
+  async addResponsavel(alunoId: string, responsavel: ResponsavelData) {
     const { data, error } = await supabase
       .from('responsaveis')
       .insert([{ aluno_id: alunoId, ...responsavel }])
@@ -79,7 +87,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async updateResponsavel(id, updates) {
+  async updateResponsavel(id: string, updates: Record<string, any>) {
     const { data, error } = await supabase
       .from('responsaveis')
       .update(updates)
@@ -90,7 +98,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async deleteResponsavel(id) {
+  async deleteResponsavel(id: string) {
     const { data, error } = await supabase
       .from('responsaveis')
       .delete()
@@ -102,7 +110,7 @@ export const StudentDetailsService = {
 
   // ==================== OBSERVAÇÕES ====================
 
-  async getObservacoes(alunoId) {
+  async getObservacoes(alunoId: string) {
     const { data, error } = await supabase
       .from('observacoes_aluno')
       .select(`
@@ -115,7 +123,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async addObservacao(alunoId, texto, categoria = 'geral') {
+  async addObservacao(alunoId: string, texto: string, categoria: string = 'geral') {
     const { data: { session } } = await supabase.auth.getSession()
 
     const { data, error } = await supabase
@@ -132,7 +140,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async updateObservacao(id, updates) {
+  async updateObservacao(id: string, updates: Record<string, any>) {
     const { data, error } = await supabase
       .from('observacoes_aluno')
       .update(updates)
@@ -143,7 +151,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async deleteObservacao(id) {
+  async deleteObservacao(id: string) {
     const { data, error } = await supabase
       .from('observacoes_aluno')
       .delete()
@@ -158,8 +166,8 @@ export const StudentDetailsService = {
   /**
    * Busca TODOS os dados de um aluno em uma única chamada
    */
-  async getAlunoCompleto(alunoId) {
-    const result = {}
+  async getAlunoCompleto(alunoId: string) {
+    const result: Record<string, any> = {}
 
     // Dados pessoais
     const { data: perfil, error: perfilError } = await supabase
@@ -202,7 +210,7 @@ export const StudentDetailsService = {
   /**
    * Salva dados pessoais expandidos
    */
-  async updateDadosPessoais(userId, dados) {
+  async updateDadosPessoais(userId: string, dados: Record<string, any>) {
     const { data, error } = await supabase
       .from('perfis')
       .update(dados)
@@ -216,7 +224,7 @@ export const StudentDetailsService = {
   /**
    * Verifica se aluno é menor de idade
    */
-  async isMenorDeIdade(alunoId) {
+  async isMenorDeIdade(alunoId: string) {
     const { data } = await supabase
       .rpc('aluno_eh_menor', { aluno_id: alunoId })
 

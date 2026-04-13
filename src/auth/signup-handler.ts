@@ -1,12 +1,20 @@
 import { supabase } from '../lib/supabase'
 
+interface RegisterUserInput {
+  email: string
+  password: string
+  nomeCompleto: string
+  cpf?: string
+  telefone?: string
+}
+
 /**
  * Handles the registration flow for a new user.
  * 1. Creates a user in Supabase Auth.
  * 2. If successful, inserts a record into the 'perfis' table.
  * 3. Se falhar na criação do perfil, faz rollback deletando o usuário criado.
  */
-export async function registerUser({ email, password, nomeCompleto, cpf, telefone }) {
+export async function registerUser({ email, password, nomeCompleto, cpf, telefone }: RegisterUserInput) {
   // Step 1: Signup in Supabase Auth
   const { data, error: authError } = await supabase.auth.signUp({
     email,

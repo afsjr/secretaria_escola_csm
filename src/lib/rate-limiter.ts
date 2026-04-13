@@ -1,8 +1,10 @@
 /**
  * Rate Limiter para Login e Signup
- * 
+ *
  * Previne ataques de força bruta limitando tentativas de login.
  */
+
+import type { RateLimitResult } from '../types'
 
 const RATE_LIMIT = {
   maxAttempts: 5,
@@ -10,14 +12,20 @@ const RATE_LIMIT = {
   blockMs: 15 * 60 * 1000  // 15 minutos de bloqueio
 }
 
-const attempts = {}
+interface RateLimitRecord {
+  count: number
+  firstAttempt: number
+  blockedUntil?: number
+}
+
+const attempts: Record<string, RateLimitRecord> = {}
 
 /**
  * Verifica se o email está bloqueado por muitas tentativas
- * @param {string} email - Email do usuário
- * @returns {Object} { allowed: boolean, remaining: number, resetAt: Date, message?: string }
+ * @param email - Email do usuário
+ * @returns Resultado do rate limit
  */
-export function checkRateLimit(email) {
+export function checkRateLimit(email: string): RateLimitResult {
   const now = Date.now()
   const record = attempts[email]
 
@@ -69,14 +77,14 @@ export function checkRateLimit(email) {
 /**
  * Limpa o rate limiter para um email (após login bem-sucedido)
  */
-export function clearRateLimit(email) {
+export function clearRateLimit(email: string): void {
   delete attempts[email]
 }
 
 /**
  * Limpa tentativas expiradas (rodar periodicamente)
  */
-function cleanupExpiredAttempts() {
+function cleanupExpiredAttempts(): void {
   const now = Date.now()
   Object.keys(attempts).forEach(key => {
     const record = attempts[key]

@@ -1,6 +1,6 @@
 /**
  * Professor Details Service
- * 
+ *
  * Gerencia dados expandidos do professor:
  * - Endereço (perfis_enderecos)
  * - Contatos
@@ -10,12 +10,16 @@
 
 import { supabase } from './supabase'
 
+interface EnderecoData {
+  [key: string]: any
+}
+
 export const ProfessorDetailsService = {
 
   // ==================== DADOS PESSOAIS ====================
 
-  async getProfessorCompleto(professorId) {
-    const result = {}
+  async getProfessorCompleto(professorId: string) {
+    const result: Record<string, any> = {}
 
     // Dados pessoais — QUERY CRÍTICA (se falhar, não há ficha)
     console.log('[ProfessorDetailsService] Buscando perfil para:', professorId)
@@ -54,7 +58,7 @@ export const ProfessorDetailsService = {
       }
       result.disciplinas = disciplinas || []
       result.disciplinasError = discError // Sinaliza erro para a view
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[ProfessorDetailsService] Erro inesperado ao buscar disciplinas:', err.message)
       result.disciplinas = []
       result.disciplinasError = { message: err.message }
@@ -63,7 +67,7 @@ export const ProfessorDetailsService = {
     return { data: result, error: null }
   },
 
-  async updateDadosPessoais(userId, dados) {
+  async updateDadosPessoais(userId: string, dados: Record<string, any>) {
     const { data, error } = await supabase
       .from('perfis')
       .update(dados)
@@ -76,7 +80,7 @@ export const ProfessorDetailsService = {
 
   // ==================== ENDEREÇO ====================
 
-  async getEndereco(userId) {
+  async getEndereco(userId: string) {
     const { data, error } = await supabase
       .from('perfis_enderecos')
       .select('*')
@@ -86,7 +90,7 @@ export const ProfessorDetailsService = {
     return { data, error }
   },
 
-  async saveEndereco(userId, endereco) {
+  async saveEndereco(userId: string, endereco: EnderecoData) {
     const { data: existing } = await this.getEndereco(userId)
 
     if (existing) {

@@ -124,7 +124,166 @@ O GitHub Actions executará o deploy automaticamente.
 
 ---
 
-## 7. Contatos Técnicos
+## 7. Guia de Tecnologias — Decisões de Stack para Gestores
+
+> **Objetivo**: Auxiliar gestores na compreensão das escolhas tecnológicas do projeto e avaliar futuras mudanças de stack.
+
+### 7.1 Stack Atual do SGE CSM
+
+| Camada | Tecnologia | Motivo da Escolha |
+|---|---|---|
+| **Frontend** | Vanilla JS + Vite | Simplicidade, build rápido, deploy estático |
+| **Backend** | Supabase (BaaS) | Sem servidor para manter, PostgreSQL + Auth integrados |
+| **Banco de Dados** | PostgreSQL (Supabase) | Robusto, RLS nativo, ACID compliance |
+| **Autenticação** | Supabase Auth | JWT + Row Level Security integrado |
+| **Deploy** | GitHub Pages | Gratuito, CI/CD via GitHub Actions |
+| **Edge Functions** | Deno (Supabase) | Serverless para operações privilegiadas |
+
+### 7.2 Comparativo de Linguagens/Runtimes para Backend
+
+| Critério | Node.js | Deno | Go (Golang) | Python |
+|---|---|---|---|---|
+| **Performance bruta** | 🟡 Boa | 🟢 Melhor | 🔴 Excelente | 🟡 Moderada |
+| **Segurança nativa** | 🔴 Manual | 🟢 Permissões explícitas | 🟢 Tipagem forte | 🟡 Moderada |
+| **Facilidade de contratação** | 🟢 Muito fácil | 🔴 Difícil | 🟡 Moderada | 🟢 Fácil |
+| **Faixa salarial (Brasil)** | R$ 8-15k | R$ 12-20k | R$ 12-22k | R$ 8-14k |
+| **Ecossistema de pacotes** | 🟢 Gigante (npm) | 🟡 Pequeno | 🟡 Crescendo | 🟢 Excelente (PyPI) |
+| **Curva de aprendizado** | 🟡 Média | 🟡 Média | 🟢 Fácil | 🟢 Fácil |
+| **Indicado para SGE atual?** | ✅ **SIM** | 🟡 Talvez | ❌ Overkill | 🟡 Bom |
+
+### 7.3 Quando Cada Tecnologia Faz Sentido
+
+#### ✅ **Node.js — Recomendado para ESTE projeto**
+
+| Situação | Aplica? |
+|---|---|
+| Projeto com < 5000 usuários | ✅ Sim |
+| Equipe pequena (1-3 devs) | ✅ Sim |
+| Budget limitado | ✅ Sim |
+| Backend-as-a-Service (Supabase) | ✅ Sim |
+| SPA com Vite/React/Vue | ✅ Sim |
+
+**Vantagens para gestão:**
+- Maior disponibilidade de profissionais no mercado
+- Custo de contratação mais baixo
+- Ecossistema maduro com milhares de pacotes
+- Mesma linguagem do frontend (JavaScript)
+
+---
+
+#### 🟡 **Deno — Segurança nativa, mas niche**
+
+| Situação | Aplica? |
+|---|---|
+| Segurança é prioridade crítica | ✅ Sim |
+| Scripts serverless/edge | ✅ Sim (já usado no Supabase) |
+| Projeto novo do zero | 🟡 Talvez |
+| Migração de projeto existente | ❌ Custo alto |
+
+**Vantagens para gestão:**
+- 60-70% menos vulnerabilidades por design (permissões explícitas)
+- TypeScript nativo sem configuração
+- Sem `node_modules` (deploy mais limpo)
+
+**Desvantagens:**
+- Comunidade pequena no Brasil (< 5% dos devs JS)
+- Ecossistema de pacotes limitado (~5% do npm tem equivalente)
+- Salários 50-100% mais altos que Node.js
+
+---
+
+#### 🟡 **Go (Golang) — Alta performance, alto custo**
+
+| Situação | Aplica? |
+|---|---|
+| 10k+ usuários simultâneos | ✅ Sim |
+| Microsserviços | ✅ Sim |
+| Processamento pesado (relatórios, filas) | ✅ Sim |
+| Projeto pequeno (< 1000 usuários) | ❌ Não |
+| Equipe com budget limitado | ❌ Não |
+
+**Vantagens para gestão:**
+- 10-50x mais rápido que Node.js em CPU-bound tasks
+- Uso de memória 5-10x menor
+- Binário único para deploy (sem dependências)
+- Backed by Google (suporte longo prazo)
+
+**Desvantagens:**
+- Não roda no browser (precisa frontend separado)
+- Difícil contratar no Brasil (10-15% do mercado JS)
+- Salários 50-150% mais altos que Node.js
+- Custo de migração: 200-400 horas
+
+---
+
+#### 🟡 **Python — Bom para dados e relatórios**
+
+| Situação | Aplica? |
+|---|---|
+| Muitos relatórios/analytics | ✅ Sim |
+| Machine Learning futuro | ✅ Sim |
+| Equipe com background acadêmico | ✅ Sim |
+| Performance crítica | ❌ Não |
+
+**Vantagens para gestão:**
+- Fácil para não-programadores entenderem
+- Excelente para data science e relatórios
+- Django vem com admin pronto
+- Grande disponibilidade de devs
+
+**Desvantagens:**
+- 3-5x mais lento que Node.js/Go
+- Consome mais memória
+- Não é ideal para alta concorrência
+
+---
+
+### 7.4 Recomendação: Migrar para TypeScript
+
+**Proposta:** Manter stack atual (Node.js + Vite + Supabase), mas adicionar TypeScript.
+
+| Métrica | Valor |
+|---|---|
+| **Esforço estimado** | 20-40 horas (1-2 semanas) |
+| **Redução de bugs** | ~60% menos erros em produção |
+| **Economia anual** | 100+ horas/ano em manutenção |
+| **Custo adicional** | Zero (TypeScript é open source) |
+| **Risco** | Baixo (superset de JavaScript) |
+
+**Benefícios para gestão:**
+- Tipagem estática previne erros antes do deploy
+- Refactoring seguro (o compiler avisa erros)
+- Melhor documentação automática (tipos = docs)
+- Onboarding de devs mais rápido
+- Mesmo ecossistema npm
+
+---
+
+### 7.5 Matriz de Decisão por Escala do Projeto
+
+| Nº de Usuários | Stack Recomendada | Custo Mensal | Equipe Necessária |
+|---|---|---|---|
+| **< 1.000** | JS/TS + Vite + Supabase | R$ 0-50 | 1 dev full-stack |
+| **1.000 - 5.000** | TypeScript + Vite + Supabase | R$ 50-200 | 1-2 devs full-stack |
+| **5.000 - 20.000** | TS + React + Supabase/Node.js | R$ 200-500 | 2-3 devs |
+| **20.000+** | Go/Java + React + PostgreSQL dedicado | R$ 500-2000+ | 5+ devs especializados |
+
+---
+
+### 7.6 Resumo Executivo para Tomada de Decisão
+
+| Pergunta | Resposta |
+|---|---|
+| **Stack atual é adequada?** | ✅ Sim, para o tamanho do projeto |
+| **Devo migrar para Deno ou Go?** | ❌ Não, custo > benefício |
+| **Qual a mudança de maior ROI?** | ✅ Adicionar TypeScript |
+| **Quando reconsiderar stack?** | Se passar de 5.000 usuários |
+| **É fácil manter a stack atual?** | ✅ Sim, qualquer dev JS trabalha |
+| **Risco de ficar com stack atual?** | Baixo (Supabase é mantido pela comunidade + empresa) |
+
+---
+
+## 8. Contatos Técnicos
 
 | Item | Informação |
 |---|---|
@@ -134,4 +293,4 @@ O GitHub Actions executará o deploy automaticamente.
 | Documentação técnica | `ROADMAP_TECNICO.md` e `CSM_STANDARD_SKILL.md` |
 
 ---
-*Manual do Gestor — SGE CSM v2.0 — Atualizado em 12/04/2026*
+*Manual do Gestor — SGE CSM v2.1 — Atualizado em 13/04/2026*

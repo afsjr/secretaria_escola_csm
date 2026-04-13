@@ -2,11 +2,40 @@ import { supabase } from './supabase'
 import { AuditService } from './audit-service'
 import { getUserProfile } from '../auth/session'
 
+interface VinculacaoDisciplina {
+  disciplinaId: string
+  turmaId?: string
+}
+
+interface NotaData {
+  faltas: number | string
+  n1: number | string
+  n2: number | string
+  n3: number | string
+  rec: number | string
+}
+
+interface NotaLoteItem {
+  aluno_id: string
+  faltas: number | string
+  n1: number | string
+  n2: number | string
+  n3: number | string
+  rec: number | string
+}
+
+interface AulaData {
+  disciplina_id: string
+  professor_id: string
+  data?: string
+  conteudo: string
+}
+
 export const ProfessorService = {
   // === DISCIPLINAS ===
 
   // Buscar disciplinas de um professor específico
-  async getDisciplinasDoProfessor(professorId) {
+  async getDisciplinasDoProfessor(professorId: string) {
     const { data, error } = await supabase
       .from('disciplinas')
       .select(`
@@ -36,7 +65,7 @@ export const ProfessorService = {
   },
 
   // Vincular professor a disciplinas
-  async vincularProfessorDisciplinas(professorId, disciplinasIds) {
+  async vincularProfessorDisciplinas(professorId: string, disciplinasIds: string[]) {
     const { data, error } = await supabase
       .from('disciplinas')
       .update({ professor_id: professorId })
@@ -47,10 +76,10 @@ export const ProfessorService = {
   },
 
   // Vincular professor + turma a disciplinas
-  async vincularProfessorDisciplinasTurma(professorId, vinculacoes) {
+  async vincularProfessorDisciplinasTurma(professorId: string, vinculacoes: VinculacaoDisciplina[]) {
     // vinculacoes = [{ disciplinaId, turmaId }, ...]
-    const results = []
-    const errors = []
+    const results: any[] = []
+    const errors: any[] = []
 
     for (const v of vinculacoes) {
       const { data, error } = await supabase
@@ -77,7 +106,7 @@ export const ProfessorService = {
   },
 
   // Desvincular professor de uma disciplina
-  async desvincularProfessorDisciplina(disciplinaId) {
+  async desvincularProfessorDisciplina(disciplinaId: string) {
     const { data, error } = await supabase
       .from('disciplinas')
       .update({ professor_id: null, turma_id: null })
@@ -90,7 +119,7 @@ export const ProfessorService = {
   // === NOTAS ===
 
   // Buscar notas de uma turma para uma disciplina específica
-  async getNotasDaDisciplina(disciplinaNome, turmaId) {
+  async getNotasDaDisciplina(disciplinaNome: string, turmaId: string) {
     // Primeiro buscar os alunos da turma
     const { data: matriculas, error: errorMatriculas } = await supabase
       .from('matriculas')
@@ -105,7 +134,7 @@ export const ProfessorService = {
     if (errorMatriculas) return { data: null, error: errorMatriculas }
 
     // Depois buscar as notas de cada aluno para a disciplina
-    const alunosComNotas = await Promise.all(matriculas.map(async (m) => {
+    const alunosComNotas = await Promise.all(matriculas.map(async (m: any) => {
       const { data: nota } = await supabase
         .from('boletim')
         .select('*')
@@ -127,17 +156,17 @@ export const ProfessorService = {
   },
 
   // Salvar nota de um aluno para uma disciplina
-  async salvarNota(alunoId, disciplina, { faltas, n1, n2, n3, rec }) {
+  async salvarNota(alunoId: string, disciplina: string, { faltas, n1, n2, n3, rec }: NotaData) {
     const { data, error } = await supabase
       .from('boletim')
       .upsert({
         aluno_id: alunoId,
         disciplina: disciplina,
-        faltas: parseFloat(faltas) || 0,
-        n1: parseFloat(n1) || 0,
-        n2: parseFloat(n2) || 0,
-        n3: parseFloat(n3) || 0,
-        rec: parseFloat(rec) || 0
+        faltas: parseFloat(faltas as string) || 0,
+        n1: parseFloat(n1 as string) || 0,
+        n2: parseFloat(n2 as string) || 0,
+        n3: parseFloat(n3 as string) || 0,
+        rec: parseFloat(rec as string) || 0
       }, { onConflict: 'aluno_id, disciplina' })
       .select()
 
@@ -145,15 +174,15 @@ export const ProfessorService = {
   },
 
   // Salvar notas em lote (múltiplos alunos de uma disciplina)
-  async salvarNotasEmLote(disciplina, notasArray) {
+  async salvarNotasEmLote(disciplina: string, notasArray: NotaLoteItem[]) {
     const payload = notasArray.map(item => ({
       aluno_id: item.aluno_id,
       disciplina: disciplina,
-      faltas: parseFloat(item.faltas) || 0,
-      n1: parseFloat(item.n1) || 0,
-      n2: parseFloat(item.n2) || 0,
-      n3: parseFloat(item.n3) || 0,
-      rec: parseFloat(item.rec) || 0
+      faltas: parseFloat(item.faltas as string) || 0,
+      n1: parseFloat(item.n1 as string) || 0,
+      n2: parseFloat(item.n2 as string) || 0,
+      n3: parseFloat(item.n3 as string) || 0,
+      rec: parseFloat(item.rec as string) || 0
     }))
 
     const { error } = await supabase
@@ -176,14 +205,14 @@ export const ProfessorService = {
   // === REGISTRO DE AULAS E FREQUÊNCIA ===
 
   // Salvar Frequências (Placeholder para a futura tabela de frequência interligada)
-  async salvarFrequencia(turmaId, dataAula, disciplinaId, alunosAusentesIds) {
+  async salvarFrequencia(turmaId: string, dataAula: string, disciplinaId: string, alunosAusentesIds: string[]) {
     // Aqui no futuro será feito: await supabase.from('frequencias').insert(...)
     console.log('Faltas registradas para:', alunosAusentesIds, 'Data:', dataAula);
     return { data: true, error: null }
   },
 
   // Registrar nova aula
-  async registrarAula({ disciplina_id, professor_id, data, conteudo }) {
+  async registrarAula({ disciplina_id, professor_id, data, conteudo }: AulaData) {
     const { data: aulaData, error } = await supabase
       .from('aulas')
       .insert([{
@@ -211,7 +240,7 @@ export const ProfessorService = {
   },
 
   // Buscar aulas de uma disciplina
-  async getAulasDaDisciplina(disciplinaId) {
+  async getAulasDaDisciplina(disciplinaId: string) {
     const { data, error } = await supabase
       .from('aulas')
       .select(`
@@ -225,7 +254,7 @@ export const ProfessorService = {
   },
 
   // Buscar aulas de um professor
-  async getAulasDoProfessor(professorId) {
+  async getAulasDoProfessor(professorId: string) {
     const { data, error } = await supabase
       .from('aulas')
       .select(`
@@ -239,7 +268,7 @@ export const ProfessorService = {
   },
 
   // Atualizar aula
-  async atualizarAula(aulaId, updates) {
+  async atualizarAula(aulaId: string, updates: Record<string, any>) {
     const { data, error } = await supabase
       .from('aulas')
       .update(updates)
@@ -251,7 +280,7 @@ export const ProfessorService = {
   },
 
   // Excluir aula
-  async excluirAula(aulaId) {
+  async excluirAula(aulaId: string) {
     const { data: aulaAtual, error: fetchError } = await supabase
       .from('aulas')
       .select('*')
@@ -292,7 +321,7 @@ export const ProfessorService = {
   },
 
   // Buscar alunos de uma turma
-  async getAlunosDaTurma(turmaId) {
+  async getAlunosDaTurma(turmaId: string) {
     const { data, error } = await supabase
       .from('matriculas')
       .select(`
@@ -307,7 +336,7 @@ export const ProfessorService = {
   },
 
   // Buscar turmas do professor (através das disciplinas)
-  async getTurmasDoProfessor(professorId) {
+  async getTurmasDoProfessor(professorId: string) {
     // Primeiro buscar as disciplinas do professor
     const { data: disciplinas, error: errorDisciplinas } = await supabase
       .from('disciplinas')
@@ -321,8 +350,8 @@ export const ProfessorService = {
     if (errorDisciplinas) return { data: null, error: errorDisciplinas }
 
     // Extrair turmas únicas
-    const turmasMap = new Map()
-    disciplinas.forEach(d => {
+    const turmasMap = new Map<string, any>()
+    disciplinas.forEach((d: any) => {
       if (d.turmas && !turmasMap.has(d.turmas.id)) {
         turmasMap.set(d.turmas.id, {
           ...d.turmas,
@@ -343,7 +372,7 @@ export const ProfessorService = {
   },
 
   // Buscar disciplinas de uma turma específica para um professor
-  async getDisciplinasPorTurma(professorId, turmaId) {
+  async getDisciplinasPorTurma(professorId: string, turmaId: string) {
     const { data, error } = await supabase
       .from('disciplinas')
       .select(`
@@ -358,7 +387,7 @@ export const ProfessorService = {
   },
 
   // Contar alunos matriculados em uma turma
-  async contarAlunosTurma(turmaId) {
+  async contarAlunosTurma(turmaId: string) {
     const { count, error } = await supabase
       .from('matriculas')
       .select('*', { count: 'exact', head: true })

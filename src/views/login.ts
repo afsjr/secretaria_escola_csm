@@ -1,11 +1,11 @@
-import { login } from '../auth/session'
-import { toast } from '../lib/toast'
-import { validateLogin } from '../lib/validation'
-import { checkRateLimit, clearRateLimit } from '../lib/rate-limiter'
+import { login } from "../auth/session";
+import { toast } from "../lib/toast";
+import { validateLogin } from "../lib/validation";
+import { checkRateLimit, clearRateLimit } from "../lib/rate-limiter";
 
-export function LoginView() {
-  const container = document.createElement('div')
-  container.className = 'auth-container'
+export function LoginView(): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "auth-container";
 
   container.innerHTML = `
     <div class="auth-card">
@@ -47,73 +47,84 @@ export function LoginView() {
         Esqueceu sua senha? <a href="#/forgot-password">Recuperar Acesso</a>
       </div>
     </div>
-  `
+  `;
 
-  const form = container.querySelector('#login-form')
+  const form = container.querySelector("#login-form") as HTMLFormElement;
+  form.addEventListener("submit", async (e: Event) => {
+    e.preventDefault();
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault()
-
-    const email = form.querySelector('#email').value
-    const password = form.querySelector('#password').value
+    const email = (form.querySelector("#email") as HTMLInputElement).value;
+    const password =
+      (form.querySelector("#password") as HTMLInputElement).value;
 
     // Validar inputs antes de enviar
-    const validation = validateLogin({ email, password })
+    const validation = validateLogin({ email, password });
 
     if (!validation.success) {
-      validation.errors.forEach(err => toast.error(err))
-      return
+      (validation as any).errors.forEach((err: string) => toast.error(err));
+      return;
     }
 
     // Verificar rate limiting
-    const rateLimit = checkRateLimit(email)
+    const rateLimit = checkRateLimit(email);
     if (!rateLimit.allowed) {
-      toast.error(rateLimit.message)
-      return
+      toast.error(rateLimit.message!);
+      return;
     }
 
-    const submitBtn = form.querySelector('button[type="submit"]')
-    submitBtn.disabled = true
-    submitBtn.textContent = 'Entrando...'
+    const submitBtn = form.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Entrando...";
 
     try {
-      const { error } = await login(validation.data.email, validation.data.password)
+      const { error } = await login(
+        validation.data.email as string,
+        validation.data.password as string,
+      );
 
       if (error) {
-        toast.error('Erro de acesso: ' + error.message)
+        toast.error("Erro de acesso: " + error.message);
       } else {
-        clearRateLimit(email) // Limpa tentativas após login bem-sucedido
-        toast.success('Bem-vindo ao sistema!')
+        clearRateLimit(email); // Limpa tentativas após login bem-sucedido
+        toast.success("Bem-vindo ao sistema!");
       }
-    } catch (err) {
-      toast.error('Erro inesperado. Tente novamente.')
+    } catch {
+      toast.error("Erro inesperado. Tente novamente.");
     } finally {
-      submitBtn.disabled = false
-      submitBtn.textContent = 'Entrar'
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Entrar";
     }
-  })
+  });
 
   // Training button event listener (Guia)
-  const btnTreinamentoGuia = container.querySelector('#btn-treinamento-guia')
-  if(btnTreinamentoGuia) {
-    btnTreinamentoGuia.addEventListener('click', (e) => {
+  const btnTreinamentoGuia = container.querySelector("#btn-treinamento-guia");
+  if (btnTreinamentoGuia) {
+    btnTreinamentoGuia.addEventListener("click", (e: Event) => {
       e.preventDefault();
-      let baseUrl = window.location.href.split('#')[0].replace('index.html', '');
-      if (!baseUrl.endsWith('/')) baseUrl += '/';
-      window.open(baseUrl + 'apresentacao_treinamento.html', '_blank')
-    })
+      let baseUrl = window.location.href.split("#")[0].replace(
+        "index.html",
+        "",
+      );
+      if (!baseUrl.endsWith("/")) baseUrl += "/";
+      window.open(baseUrl + "apresentacao_treinamento.html", "_blank");
+    });
   }
 
   // Training button event listener (Slides)
-  const btnTreinamentoSlide = container.querySelector('#btn-treinamento-slide')
-  if(btnTreinamentoSlide) {
-    btnTreinamentoSlide.addEventListener('click', (e) => {
+  const btnTreinamentoSlide = container.querySelector("#btn-treinamento-slide");
+  if (btnTreinamentoSlide) {
+    btnTreinamentoSlide.addEventListener("click", (e: Event) => {
       e.preventDefault();
-      let baseUrl = window.location.href.split('#')[0].replace('index.html', '');
-      if (!baseUrl.endsWith('/')) baseUrl += '/';
-      window.open(baseUrl + 'apresentacao_treinamento_slides.html', '_blank')
-    })
+      let baseUrl = window.location.href.split("#")[0].replace(
+        "index.html",
+        "",
+      );
+      if (!baseUrl.endsWith("/")) baseUrl += "/";
+      window.open(baseUrl + "apresentacao_treinamento_slides.html", "_blank");
+    });
   }
 
-  return container
+  return container;
 }

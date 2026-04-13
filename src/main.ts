@@ -7,13 +7,13 @@ import { HomeView } from './views/home'
 import { ForgotPasswordView } from './views/forgot-password'
 import { ResetPasswordView } from './views/reset-password'
 
-const app = document.querySelector('#app')
+const app = document.querySelector('#app') as HTMLElement
 
 /**
  * Very simple client-side router based on URL hash.
  * Protege o painel de controle verificando sessão válida.
  */
-async function router() {
+async function router(): Promise<void> {
   const path = window.location.hash || '#/'
   const { data: { session } } = await supabase.auth.getSession()
 
@@ -62,7 +62,7 @@ async function router() {
 window.addEventListener('hashchange', router)
 window.addEventListener('load', router)
 
-// Listen for Auth changes (login/logout redirect)
+// Listen for Auth state changes (login/logout redirect)
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN') {
     if (window.location.hash === '#/' || window.location.hash === '') {
@@ -73,5 +73,3 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
   // Remove redundant router() call here as hashchange/load already cover it
 })
-
-// Initialize the app (Router is handled by 'load' and 'hashchange')

@@ -3,6 +3,50 @@ import { supabase, supabaseAdmin } from './supabase'
 // Chave para cache local no SessionStorage
 const CACHE_KEY = 'sge_instituicao'
 
+interface InstituicaoPayload {
+  nome?: string
+  cnpj?: string
+  logradouro?: string
+  numero?: string
+  bairro?: string
+  cep?: string
+  cidade?: string
+  uf?: string
+  telefone?: string
+  email?: string
+  logo_url?: string
+  cor_primaria?: string
+  [key: string]: any
+}
+
+interface InstituicaoData {
+  id?: string
+  nome?: string
+  cnpj?: string
+  logradouro?: string
+  numero?: string
+  bairro?: string
+  cep?: string
+  cidade?: string
+  uf?: string
+  telefone?: string
+  email?: string
+  logo_url?: string | null
+  cor_primaria?: string
+  [key: string]: any
+}
+
+interface PDFHeaderData {
+  nome: string
+  cnpj: string
+  endereco: string
+  cidade_uf: string
+  telefone: string
+  email: string
+  logo_url: string | null
+  cor_primaria: string
+}
+
 export const InstituicaoService = {
 
   /**
@@ -33,14 +77,14 @@ export const InstituicaoService = {
    * Salva ou atualiza os dados da instituição.
    * Invalida o cache local após salvar.
    */
-  async saveInstituicao(payload) {
+  async saveInstituicao(payload: InstituicaoPayload) {
     const { data: existing } = await supabase
       .from('instituicao')
       .select('id')
       .limit(1)
       .maybeSingle()
 
-    let result
+    let result: any
     if (existing?.id) {
       result = await supabase
         .from('instituicao')
@@ -67,7 +111,7 @@ export const InstituicaoService = {
   /**
    * Faz upload da logo da instituição para o Storage do Supabase.
    * Retorna a URL pública do arquivo.
-   * 
+   *
    * ══ ESPECIFICAÇÕES DA LOGO ══
    * • Formato ideal: PNG com fundo transparente
    * • Tamanho máximo: 500KB
@@ -76,7 +120,7 @@ export const InstituicaoService = {
    * • Outros formatos aceitos: SVG, JPG (sem transparência)
    * ════════════════════════════
    */
-  async uploadLogo(file) {
+  async uploadLogo(file: File) {
     const MAX_SIZE_KB = 500
     const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp']
 
@@ -114,19 +158,20 @@ export const InstituicaoService = {
    * Retorna os dados formatados para uso no cabeçalho dos PDFs.
    * Se não houver dados cadastrados, retorna valores genéricos.
    */
-  async getPDFHeader() {
+  async getPDFHeader(): Promise<PDFHeaderData> {
     const { data } = await this.getInstituicao()
+    const inst = data as InstituicaoData | null
     return {
-      nome: data?.nome || 'INSTITUIÇÃO DE ENSINO',
-      cnpj: data?.cnpj || '',
-      endereco: data?.logradouro
-        ? `${data.logradouro}, ${data.numero || 'S/N'} - ${data.bairro || ''} - CEP: ${data.cep || ''}`
+      nome: inst?.nome || 'INSTITUIÇÃO DE ENSINO',
+      cnpj: inst?.cnpj || '',
+      endereco: inst?.logradouro
+        ? `${inst.logradouro}, ${inst.numero || 'S/N'} - ${inst.bairro || ''} - CEP: ${inst.cep || ''}`
         : '',
-      cidade_uf: data?.cidade && data?.uf ? `${data.cidade}/${data.uf}` : '',
-      telefone: data?.telefone || '',
-      email: data?.email || '',
-      logo_url: data?.logo_url || null,
-      cor_primaria: data?.cor_primaria || '#1E3A5F',
+      cidade_uf: inst?.cidade && inst?.uf ? `${inst.cidade}/${inst.uf}` : '',
+      telefone: inst?.telefone || '',
+      email: inst?.email || '',
+      logo_url: inst?.logo_url || null,
+      cor_primaria: inst?.cor_primaria || '#1E3A5F',
     }
   },
 

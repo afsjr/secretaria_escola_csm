@@ -12,7 +12,14 @@
       "Bash(cp *)",
       "Bash(mkdir *)",
       "Bash(mv *)",
-      "Bash(tree *)"
+      "Bash(tree *)",
+      "Bash(npx *)",
+      "Bash(timeout *)",
+      "Bash(true)",
+      "Bash(gtimeout *)",
+      "Bash(kill *)",
+      "Bash(rm *)",
+      "Bash(sed *)"
     ]
   },
   "$version": 3

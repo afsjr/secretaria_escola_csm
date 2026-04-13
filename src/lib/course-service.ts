@@ -1,14 +1,25 @@
 import { supabase } from './supabase'
 
+interface CursoData {
+  nome: string
+  descricao?: string
+}
+
+interface DisciplinaData {
+  nome: string
+  modulo: string
+  cursoId: string
+}
+
 export const CourseService = {
-  
+
   // Buscar todos os cursos
   async getCursos() {
     const { data, error } = await supabase
       .from('cursos')
       .select('*')
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
@@ -19,59 +30,59 @@ export const CourseService = {
       .select('*')
       .eq('ativo', true)
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
   // Criar novo curso
-  async createCurso({ nome, descricao }) {
+  async createCurso({ nome, descricao }: CursoData) {
     const { data, error } = await supabase
       .from('cursos')
       .insert([{ nome, descricao }])
       .select()
       .single()
-    
+
     return { data, error }
   },
 
   // Atualizar curso
-  async updateCurso(cursoId, updates) {
+  async updateCurso(cursoId: string, updates: Record<string, any>) {
     const { data, error } = await supabase
       .from('cursos')
       .update(updates)
       .eq('id', cursoId)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
   // Desativar curso (soft delete)
-  async desativarCurso(cursoId) {
+  async desativarCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('cursos')
       .update({ ativo: false })
       .eq('id', cursoId)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
   // Reativar curso
-  async reativarCurso(cursoId) {
+  async reativarCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('cursos')
       .update({ ativo: true })
       .eq('id', cursoId)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
   // Buscar turmas de um curso específico
-  async getTurmasDoCurso(cursoId) {
+  async getTurmasDoCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('turmas')
       .select(`
@@ -81,12 +92,12 @@ export const CourseService = {
       .eq('curso_id', cursoId)
       .order('periodo', { ascending: false })
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
   // Buscar disciplinas de um curso específico
-  async getDisciplinasDoCurso(cursoId) {
+  async getDisciplinasDoCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('disciplinas')
       .select(`
@@ -97,35 +108,35 @@ export const CourseService = {
       .eq('curso_id', cursoId)
       .order('modulo', { ascending: true })
       .order('nome', { ascending: true })
-    
+
     return { data, error }
   },
 
   // Criar disciplina para um curso
-  async createDisciplina({ nome, modulo, cursoId }) {
+  async createDisciplina({ nome, modulo, cursoId }: DisciplinaData) {
     const { data, error } = await supabase
       .from('disciplinas')
       .insert([{ nome, modulo, curso_id: cursoId }])
       .select()
       .single()
-    
+
     return { data, error }
   },
 
   // Atualizar curso de uma turma
-  async vincularTurmaAoCurso(turmaId, cursoId) {
+  async vincularTurmaAoCurso(turmaId: string, cursoId: string) {
     const { data, error } = await supabase
       .from('turmas')
       .update({ curso_id: cursoId })
       .eq('id', turmaId)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
   // Buscar curso de uma turma
-  async getCursoDaTurma(turmaId) {
+  async getCursoDaTurma(turmaId: string) {
     const { data, error } = await supabase
       .from('turmas')
       .select(`
@@ -134,7 +145,7 @@ export const CourseService = {
       `)
       .eq('id', turmaId)
       .single()
-    
+
     return { data, error }
   }
 }

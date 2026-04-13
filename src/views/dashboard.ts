@@ -3,6 +3,7 @@
  *
  * Barra lateral de navegação + Área de conteúdo dinâmico
  */
+import type { Session, UserProfile } from '../types'
 import { logout, getUserProfile, getAllProfiles } from '../auth/session'
 import { ProfileView } from './profile'
 import { DirectoryView } from './directory'
@@ -21,7 +22,7 @@ import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
 
-export async function DashboardView(session, subPath = '/') {
+export async function DashboardView(session: Session, subPath: string = '/'): Promise<HTMLDivElement> {
   const container = document.createElement('div')
   container.className = 'dashboard-layout'
 
@@ -165,8 +166,8 @@ export async function DashboardView(session, subPath = '/') {
     </div>
   `
 
-  const contentArea = container.querySelector('#painel-controle-conteudo')
-  const modalTroca = container.querySelector('#modal-troca-obrigatoria')
+  const contentArea = container.querySelector<HTMLDivElement>('#painel-controle-conteudo')!
+  const modalTroca = container.querySelector<HTMLDivElement>('#modal-troca-obrigatoria')!
 
   // VERIFICAR TROCA OBRIGATÓRIA
   const needsPasswordChange = session.user?.user_metadata?.force_password_change === true
@@ -176,7 +177,7 @@ export async function DashboardView(session, subPath = '/') {
 
   // Internal view router
   if (subPath === '/perfil') {
-    contentArea.appendChild(await ProfileView(profile))
+    contentArea.appendChild(await ProfileView(profile as UserProfile))
   } else if (subPath === '/usuarios') {
     contentArea.appendChild(await DirectoryView())
   } else if (subPath === '/documentos') {
@@ -194,20 +195,20 @@ export async function DashboardView(session, subPath = '/') {
   } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria)) {
     contentArea.appendChild(await GestaoTurmasView())
   } else if (subPath === '/professor/turmas' && _isProfessor) {
-    contentArea.appendChild(await ProfessorTurmasView(profile))
+    contentArea.appendChild(await ProfessorTurmasView(profile as UserProfile))
   } else if (subPath === '/professor/alunos' && _isProfessor) {
-    contentArea.appendChild(await ProfessorAlunosView(profile))
+    contentArea.appendChild(await ProfessorAlunosView(profile as UserProfile))
   } else if (subPath === '/professor/aulas' && _isProfessor) {
-    contentArea.appendChild(await ProfessorRegistrarAulaView(profile))
+    contentArea.appendChild(await ProfessorRegistrarAulaView(profile as UserProfile))
   } else if (subPath === '/professor') {
     // Redirect to turmas by default
     window.location.hash = '#/dashboard/professor/turmas'
-    return
+    return container
   } else {
     // Default Home with dynamic statistics (Phase 4 suggestion)
-    const { data: allProfiles } = await supabase.from('perfis').select('id', { count: 'exact' })
-    const { data: myDocs } = await DocumentsService.getMyRequests(profile.id)
-    const pendingCount = myDocs?.filter(d => d.status === 'pendente').length || 0
+    const { data: allProfiles, count } = await supabase.from('perfis').select('id', { count: 'exact' })
+    const { data: myDocs } = await DocumentsService.getMyRequests(profile?.id || '')
+    const pendingCount = myDocs?.filter((d: { status: string }) => d.status === 'pendente').length || 0
 
     const firstName = escapeHTML(userName.split(' ')[0])
     const pendingColor = pendingCount > 0 ? 'var(--danger)' : 'var(--success)'
@@ -222,7 +223,7 @@ export async function DashboardView(session, subPath = '/') {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
           <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 5px solid var(--primary);">
             <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px;">Membros no SGE</div>
-            <div style="font-size: 2rem; font-weight: 700;">${allProfiles?.length || 0}</div>
+            <div style="font-size: 2rem; font-weight: 700;">${count || 0}</div>
           </div>
 
           <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 5px solid var(--accent);">
@@ -253,14 +254,17 @@ export async function DashboardView(session, subPath = '/') {
     `
   }
 
-  container.querySelector('#logout-btn').addEventListener('click', async () => {
-    await logout()
-  })
+  const logoutBtn = container.querySelector<HTMLButtonElement>('#logout-btn')
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      await logout()
+    })
+  }
 
   // Training button event listener
-  const btnTreinamentoSlide = container.querySelector('#btn-treinamento-slide-sidebar')
+  const btnTreinamentoSlide = container.querySelector<HTMLDivElement>('#btn-treinamento-slide-sidebar')
   if (btnTreinamentoSlide) {
-    btnTreinamentoSlide.addEventListener('click', (e) => {
+    btnTreinamentoSlide.addEventListener('click', (e: Event) => {
       e.preventDefault();
       let baseUrl = window.location.href.split('#')[0].replace('index.html', '');
       if (!baseUrl.endsWith('/')) baseUrl += '/';
@@ -269,12 +273,14 @@ export async function DashboardView(session, subPath = '/') {
   }
 
   // Lógica da Troca Obrigatória
-  const formTroca = container.querySelector('#form-troca-obrigatoria')
+  const formTroca = container.querySelector<HTMLFormElement>('#form-troca-obrigatoria')
   if (formTroca) {
-    formTroca.onsubmit = async (e) => {
+    formTroca.onsubmit = async (e: Event) => {
       e.preventDefault()
-      const nova = container.querySelector('#obrigatoria-nova').value
-      const confirma = container.querySelector('#obrigatoria-confirma').value
+      const novaInput = container.querySelector<HTMLInputElement>('#obrigatoria-nova')!
+      const confirmaInput = container.querySelector<HTMLInputElement>('#obrigatoria-confirma')!
+      const nova = novaInput.value
+      const confirma = confirmaInput.value
 
       if (nova !== confirma) {
         return alert('As senhas não coincidem.')
@@ -289,7 +295,7 @@ export async function DashboardView(session, subPath = '/') {
         return alert('Você não pode usar a senha padrão. Escolha uma nova senha pessoal.')
       }
 
-      const btn = formTroca.querySelector('button')
+      const btn = formTroca.querySelector<HTMLButtonElement>('button')!
       btn.disabled = true
       btn.textContent = 'Salvando...'
 

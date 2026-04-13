@@ -1,4 +1,5 @@
 import { updatePassword } from '../auth/session'
+import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
 
 export function ResetPasswordView(): HTMLElement {
@@ -30,6 +31,16 @@ export function ResetPasswordView(): HTMLElement {
   form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
+    // Verificar se há sessão válida (recovery token)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      toast.error('Link de recuperação expirado. Solicite um novo link.')
+      setTimeout(() => {
+        window.location.hash = '#/forgot-password'
+      }, 3000)
+      return
+    }
+
     const newPassword = (form.querySelector('#new-password') as HTMLInputElement).value
     const confirmPassword = (form.querySelector('#confirm-password') as HTMLInputElement).value
 
@@ -49,6 +60,8 @@ export function ResetPasswordView(): HTMLElement {
         toast.error('Erro ao atualizar senha: ' + error.message)
       } else {
         toast.success('Senha atualizada com sucesso! Faça login.')
+        // Sign out após update para forçar novo login
+        await supabase.auth.signOut()
         setTimeout(() => {
           window.location.hash = '#/'
         }, 2000)

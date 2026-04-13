@@ -14,14 +14,15 @@ const app = document.querySelector('#app') as HTMLElement
  * Protege o painel de controle verificando sessão válida.
  */
 async function router(): Promise<void> {
-  const path = window.location.hash || '#/'
+  const hash = window.location.hash || '#/'
+  const path = hash.split('&')[0].split('?')[0]  // Strip query/hash params from recovery URL
   const { data: { session } } = await supabase.auth.getSession()
 
   // Handle Supabase recovery redirect: #access_token=...&type=recovery
-  const hash = window.location.hash
-  const isRecoveryFlow = hash.includes('type=recovery') || hash.includes('access_token=')
+  const isRecoveryFlow = hash.includes('type=recovery') || hash.includes('type=email')
 
-  if (isRecoveryFlow && !hash.startsWith('#/reset-password')) {
+  if (isRecoveryFlow && path !== '#/reset-password') {
+    console.log('[router] Detected recovery flow, redirecting to #/reset-password')
     window.location.hash = '#/reset-password'
     return
   }
@@ -74,6 +75,8 @@ window.addEventListener('load', router)
 
 // Listen for Auth state changes (login/logout redirect)
 supabase.auth.onAuthStateChange((event, session) => {
+  console.log('[onAuthStateChange]', event, session?.user?.email)
+
   if (event === 'SIGNED_IN') {
     if (window.location.hash === '#/' || window.location.hash === '') {
       window.location.hash = '#/dashboard'
@@ -81,7 +84,14 @@ supabase.auth.onAuthStateChange((event, session) => {
   } else if (event === 'SIGNED_OUT') {
     window.location.hash = '#/'
   } else if (event === 'PASSWORD_RECOVERY') {
+    console.log('[onAuthStateChange] PASSWORD_RECOVERY event detected')
     window.location.hash = '#/reset-password'
+  } else if (event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+    // Some Supabase versions fire these events instead of PASSWORD_RECOVERY
+    const hash = window.location.hash
+    if (hash.includes('type=recovery') || hash.includes('access_token=')) {
+      console.log('[onAuthStateChange] Recovery via hash detected')
+      window.location.hash = '#/reset-password'
+    }
   }
-  // Remove redundant router() call here as hashchange/load already cover it
 })

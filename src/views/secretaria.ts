@@ -5,6 +5,7 @@ import { ProfessorService } from '../lib/professor-service'
 import { CourseService } from '../lib/course-service'
 import { PDFService } from '../lib/pdf-service'
 import { AcademicService } from '../lib/academic-service'
+import { ExcelService } from '../lib/excel-service'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
 import { StudentDetailsView } from './student-details'
@@ -41,6 +42,12 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     if (!requests || requests.length === 0) return '<p>Não há solicitações pendentes no momento.</p>'
 
     return `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="margin: 0;">Solicitações de Documentos</h3>
+        <button id="btn-export-solicitacoes" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
+          📊 Exportar Excel
+        </button>
+      </div>
       <div class="table-responsive bg-white rounded-lg shadow-sm mt-4">
         <table class="data-table">
           <thead>
@@ -90,7 +97,12 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3 style="margin: 0; color: var(--text-main);">Gerenciar Alunos</h3>
-          <input type="text" id="busca-aluno" class="input" placeholder="Buscar por nome ou CPF..." style="width: 300px; margin: 0;">
+          <div style="display: flex; gap: 1rem;">
+            <button id="btn-export-alunos" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
+              📊 Exportar Excel
+            </button>
+            <input type="text" id="busca-aluno" class="input" placeholder="Buscar por nome ou CPF..." style="width: 300px; margin: 0;">
+          </div>
         </div>
 
         <div class="table-responsive">
@@ -243,7 +255,12 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
         <!-- Lista de Professores -->
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-          <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Professores Cadastrados</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: var(--text-main);">Professores Cadastrados</h3>
+            <button id="btn-export-professores" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
+              📊 Exportar Excel
+            </button>
+          </div>
 
           ${!professores || professores.length === 0 ? '<p style="color: var(--text-muted);">Nenhum professor cadastrado.</p>' : `
             <div class="table-responsive">
@@ -1312,6 +1329,45 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
         if (modalMatricula) modalMatricula.style.display = 'none'
       }
     }
+  }
+
+  // =====================================================
+  // EXPORTAÇÃO PARA EXCEL
+  // =====================================================
+  const btnExportSolicitacoes = container.querySelector('#btn-export-solicitacoes')
+  if (btnExportSolicitacoes && requests) {
+    btnExportSolicitacoes.addEventListener('click', () => {
+      try {
+        ExcelService.exportSolicitacoes(requests)
+        toast.success('Solicitações exportadas com sucesso!')
+      } catch (err: any) {
+        toast.error('Erro ao exportar: ' + err.message)
+      }
+    })
+  }
+
+  const btnExportAlunos = container.querySelector('#btn-export-alunos')
+  if (btnExportAlunos && alunos) {
+    btnExportAlunos.addEventListener('click', () => {
+      try {
+        ExcelService.exportAlunos(alunos)
+        toast.success('Alunos exportados com sucesso!')
+      } catch (err: any) {
+        toast.error('Erro ao exportar: ' + err.message)
+      }
+    })
+  }
+
+  const btnExportProfessores = container.querySelector('#btn-export-professores')
+  if (btnExportProfessores && professores) {
+    btnExportProfessores.addEventListener('click', () => {
+      try {
+        ExcelService.exportProfessores(professores)
+        toast.success('Professores exportados com sucesso!')
+      } catch (err: any) {
+        toast.error('Erro ao exportar: ' + err.message)
+      }
+    })
   }
 
   return container

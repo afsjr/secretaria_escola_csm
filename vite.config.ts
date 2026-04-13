@@ -10,9 +10,24 @@ export default defineConfig({
     terserOptions: {
       compress: {
         drop_console: true,       // Remove console.log, console.error, console.warn
-        drop_debugger: true       // Remove debugger statements
+        drop_debugger: true,      // Remove debugger statements
+        passes: 3,                // Múltiplas passagens para melhor otimização
+        dead_code: true,          // Remove código não utilizado
+        unused: true              // Remove variáveis/funções não utilizadas
+      },
+      mangle: {
+        toplevel: true,           // Ofusca nomes de variáveis e funções no escopo global
+        keep_classnames: false,   // Não preserva nomes de classes
+        keep_fnames: false        // Não preserva nomes de funções
+      },
+      format: {
+        comments: false           // Remove todos os comentários do build final
       }
-    }
+    },
+    // Configurações adicionais de ofuscação
+    target: 'es2015',             // Mantém compatibilidade com navegadores modernos
+    cssCodeSplit: true,           // Divide CSS em chunks separados
+    sourcemap: false              // DESATIVA source maps em produção (segurança)
   },
   server: {
     // Configurar headers de segurança para dev server

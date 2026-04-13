@@ -1,5 +1,6 @@
 import { FinanceiroService } from '../lib/financeiro-service'
 import { AdminService } from '../lib/admin-service'
+import { ExcelService } from '../lib/excel-service'
 import { toast } from '../lib/toast'
 import { supabase } from '../lib/supabase'
 import { PDFService } from '../lib/pdf-service'
@@ -60,7 +61,12 @@ export async function FinanceiroView(): Promise<HTMLElement> {
     <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h3 style="margin: 0;">Lista de Alunos</h3>
-        <input type="text" id="busca-aluno-financeiro" class="input" placeholder="🔍 Buscar por nome ou CPF..." style="max-width: 350px;">
+        <div style="display: flex; gap: 1rem;">
+          <button id="btn-export-financeiro" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
+            📊 Exportar Excel
+          </button>
+          <input type="text" id="busca-aluno-financeiro" class="input" placeholder="🔍 Buscar por nome ou CPF..." style="max-width: 350px;">
+        </div>
       </div>
       <div class="table-responsive">
         <table class="data-table">
@@ -350,6 +356,47 @@ export async function FinanceiroView(): Promise<HTMLElement> {
     const { error } = await supabase.from('pagamentos').insert(payload)
     if (error) toast.error((error as any).message)
     else { toast.success('Lançamento realizado!'); window.location.reload() }
+  }
+
+  // =====================================================
+  // EXPORTAÇÃO PARA EXCEL - FINANCEIRO
+  // =====================================================
+  const btnExportFinanceiro = container.querySelector('#btn-export-financeiro')
+  if (btnExportFinanceiro) {
+    btnExportFinanceiro.addEventListener('click', () => {
+      try {
+        // Preparar dados financeiros para exportação
+        const dadosFinanceiros = todosAlunos.map((aluno: any) => {
+          const pAluno = todosPagamentos?.filter((p: any) => p.aluno_id === aluno.id) || []
+          const atrasados = pAluno.filter((p: any) => p.status === 'atrasado')
+          const sumAtrasado = atrasados.reduce((a: number, b: any) => a + Number(b.valor_original), 0)
+          
+          return {
+            aluno_nome: aluno.nome_completo,
+            aluno_cpf: aluno.cpf || '-',
+            status: atrasados.length > 0 ? `Inadimplente (${atrasados.length})` : 'Em Dia',
+            valor: sumAtrasado,
+            qtd_debitos: atrasados.length
+          }
+        })
+
+        ExcelService.exportToExcel(
+          dadosFinanceiros,
+          `financeiro_${ExcelService['getDateStamp']()}`,
+          [
+            { header: 'Aluno', key: 'aluno_nome' },
+            { header: 'CPF', key: 'aluno_cpf' },
+            { header: 'Status', key: 'status' },
+            { header: 'Valor Débitos', key: 'valor' },
+            { header: 'Qtd Débitos', key: 'qtd_debitos' }
+          ],
+          'Financeiro'
+        )
+        toast.success('Dados financeiros exportados com sucesso!')
+      } catch (err: any) {
+        toast.error('Erro ao exportar: ' + err.message)
+      }
+    })
   }
 
   return container

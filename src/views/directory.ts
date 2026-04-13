@@ -3,7 +3,7 @@ import { createBadge, escapeHTML } from "../lib/security";
 import { AdminService } from "../lib/admin-service";
 import { toast } from "../lib/toast";
 import { isMasterAdmin } from "../lib/authz";
-import type { UserProfile } from "../types";
+import type { UserProfile, UserRole } from "../types";
 
 // Ordem de apresentação: Alunos → Professores → Secretaria → Admin → Master Admin
 const PROFILE_ORDER = [
@@ -38,7 +38,7 @@ function renderProfileCard(
   const targetPerfil = p.perfil;
   const isTargetMaster = targetPerfil === "master_admin";
   const isTargetAdmin = targetPerfil === "admin" || isTargetMaster;
-  const viewerIsMaster = isMasterAdmin(viewerRole);
+  const viewerIsMaster = isMasterAdmin(viewerRole as UserRole);
   const accentColor = PROFILE_COLORS[targetPerfil] || "#6B7280";
 
   // master_admin só pode ser resetado por ele próprio (nunca exibe botão)

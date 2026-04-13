@@ -2,13 +2,19 @@ import { toast } from '../lib/toast'
 import { escapeHTML, createBadge } from '../lib/security'
 import { StudentDetailsService } from '../lib/student-details-service'
 import { supabase } from '../lib/supabase'
+import type { UserRole } from '../types'
 
-export async function ProfileView(profile) {
+interface ProfileParam {
+  id: string
+  perfil: UserRole
+}
+
+export async function ProfileView(profile: ProfileParam): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'profile-view animate-in'
 
   // Buscar dados completos
-  const { data: dadosCompletos, error: erroDados } = await StudentDetailsService.getAlunoCompleto(profile.id)
+  const { data: dadosCompletos, error: erroDados } = await StudentDetailsService.getAlunoCompleto(profile.id) as any
 
   if (erroDados) {
     console.error('Erro ao buscar dados completos:', erroDados)
@@ -61,7 +67,7 @@ export async function ProfileView(profile) {
         <!-- Dados Básicos -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Dados Básicos</legend>
-          
+
           <div class="form-group">
             <label class="label" for="nome-completo">Nome Completo</label>
             <input type="text" id="nome-completo" name="nome_completo" class="input" value="${nomeValue}" required>
@@ -126,7 +132,7 @@ export async function ProfileView(profile) {
         <!-- Documentos -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Documentos</legend>
-          
+
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
             <div class="form-group">
               <label class="label" for="rg">RG</label>
@@ -146,7 +152,7 @@ export async function ProfileView(profile) {
         <!-- Contato -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Contato</legend>
-          
+
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
               <label class="label" for="celular">Celular</label>
@@ -163,7 +169,7 @@ export async function ProfileView(profile) {
         <!-- Endereço -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem;">Endereço</legend>
-          
+
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
             <div class="form-group">
               <label class="label" for="cep">CEP</label>
@@ -244,7 +250,7 @@ export async function ProfileView(profile) {
       <form id="password-form">
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; background: var(--secondary); background-opacity: 0.2;">
           <legend style="font-weight: 600; color: var(--danger); padding: 0 0.5rem;">Segurança: Alterar Senha</legend>
-          
+
           <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
             A nova senha deve ter no mínimo **8 caracteres**, contendo **letras e números** (Ex: csm_1983#).
           </p>
@@ -259,15 +265,15 @@ export async function ProfileView(profile) {
               <input type="password" id="confirma-senha" class="input" placeholder="******" minlength="8">
             </div>
           </div>
-          
+
           <button type="submit" class="btn" id="update-password-btn" style="background: var(--primary); color: white; margin-top: 1rem;">Atualizar Senha</button>
         </fieldset>
       </form>
     </div>
   `
 
-  const form = container.querySelector('#profile-form')
-  const saveBtn = container.querySelector('#save-btn')
+  const form = container.querySelector('#profile-form') as HTMLFormElement
+  const saveBtn = container.querySelector('#save-btn') as HTMLButtonElement
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -278,18 +284,18 @@ export async function ProfileView(profile) {
     try {
       // Dados pessoais
       const dadosPessoais = {
-        nome_completo: form.querySelector('#nome-completo').value,
-        data_nascimento: form.querySelector('#data-nascimento').value || null,
-        genero: form.querySelector('#genero').value || null,
-        estado_civil: form.querySelector('#estado-civil').value || null,
-        cidade_natal: form.querySelector('#cidade-natal').value || null,
-        nacionalidade: form.querySelector('#nacionalidade').value || null,
-        profissao: form.querySelector('#profissao').value || null,
-        rg: form.querySelector('#rg').value || null,
-        orgao_expedidor: form.querySelector('#orgao-exp').value || null,
-        telefone: form.querySelector('#telefone').value || null,
-        celular: form.querySelector('#celular').value || null,
-        whatsapp: form.querySelector('#whatsapp').value || null
+        nome_completo: (form.querySelector('#nome-completo') as HTMLInputElement).value,
+        data_nascimento: (form.querySelector('#data-nascimento') as HTMLInputElement).value || null,
+        genero: (form.querySelector('#genero') as HTMLSelectElement).value || null,
+        estado_civil: (form.querySelector('#estado-civil') as HTMLSelectElement).value || null,
+        cidade_natal: (form.querySelector('#cidade-natal') as HTMLInputElement).value || null,
+        nacionalidade: (form.querySelector('#nacionalidade') as HTMLInputElement).value || null,
+        profissao: (form.querySelector('#profissao') as HTMLInputElement).value || null,
+        rg: (form.querySelector('#rg') as HTMLInputElement).value || null,
+        orgao_expedidor: (form.querySelector('#orgao-exp') as HTMLInputElement).value || null,
+        telefone: (form.querySelector('#telefone') as HTMLInputElement).value || null,
+        celular: (form.querySelector('#celular') as HTMLInputElement).value || null,
+        whatsapp: (form.querySelector('#whatsapp') as HTMLInputElement).value || null
       }
 
       // Salvar dados pessoais
@@ -299,12 +305,12 @@ export async function ProfileView(profile) {
       // Salvar endereço (apenas alunos)
       if (isAluno) {
         const endereco = {
-          cep: form.querySelector('#cep').value || null,
-          logradouro: form.querySelector('#logradouro').value || null,
-          numero: form.querySelector('#numero').value || null,
-          bairro: form.querySelector('#bairro').value || null,
-          cidade: form.querySelector('#cidade-end').value || null,
-          uf: form.querySelector('#uf').value || null
+          cep: (form.querySelector('#cep') as HTMLInputElement).value || null,
+          logradouro: (form.querySelector('#logradouro') as HTMLInputElement).value || null,
+          numero: (form.querySelector('#numero') as HTMLInputElement).value || null,
+          bairro: (form.querySelector('#bairro') as HTMLInputElement).value || null,
+          cidade: (form.querySelector('#cidade-end') as HTMLInputElement).value || null,
+          uf: (form.querySelector('#uf') as HTMLSelectElement).value || null
         }
 
         const { error: errorEndereco } = await StudentDetailsService.saveEndereco(profile.id, endereco)
@@ -317,7 +323,7 @@ export async function ProfileView(profile) {
       setTimeout(() => {
         window.location.hash = '#/dashboard'
       }, 800)
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Erro ao salvar: ' + error.message)
       saveBtn.disabled = false
       saveBtn.textContent = 'Salvar Dados Pessoais'
@@ -325,14 +331,14 @@ export async function ProfileView(profile) {
   })
 
   // Lógica de Troca de Senha
-  const passwordForm = container.querySelector('#password-form')
-  const updatePasswordBtn = container.querySelector('#update-password-btn')
+  const passwordForm = container.querySelector('#password-form') as HTMLFormElement
+  const updatePasswordBtn = container.querySelector('#update-password-btn') as HTMLButtonElement
 
   passwordForm.addEventListener('submit', async (e) => {
     e.preventDefault()
-    
-    const novaSenha = container.querySelector('#nova-senha').value
-    const confirmaSenha = container.querySelector('#confirma-senha').value
+
+    const novaSenha = (container.querySelector('#nova-senha') as HTMLInputElement).value
+    const confirmaSenha = (container.querySelector('#confirma-senha') as HTMLInputElement).value
 
     if (!novaSenha) {
       toast.error('Digite a nova senha.')

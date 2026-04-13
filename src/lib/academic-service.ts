@@ -49,6 +49,40 @@ export const AcademicService = {
     return { data, error };
   },
 
+  // Atualizar uma Turma (ex: renomear)
+  async updateTurma(turma_id: string, updates: Partial<TurmaData>) {
+    const { data, error } = await supabase
+      .from("turmas")
+      .update(updates)
+      .eq("id", turma_id)
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Excluir permanentemente uma Turma
+  async deleteTurma(turma_id: string) {
+    const { data, error } = await supabase
+      .from("turmas")
+      .delete()
+      .eq("id", turma_id)
+      .select();
+
+    if (error) return { error };
+
+    if (data && data.length === 0) {
+      return {
+        error: {
+          message:
+            "Operação barrada pelo Banco de Dados. Você pode não ter permissão ou a turma possui matrículas atreladas.",
+        },
+      };
+    }
+
+    return { error: null };
+  },
+
   // === ALUNOS E MATRÍCULAS ===
 
   // Buscar perfis para a Secretaria (Para matricular)

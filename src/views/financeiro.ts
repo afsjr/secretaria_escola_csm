@@ -4,7 +4,7 @@ import { toast } from '../lib/toast'
 import { supabase } from '../lib/supabase'
 import { PDFService } from '../lib/pdf-service'
 
-const escapeHTML = (str) => {
+const escapeHTML = (str: unknown): string => {
   if (!str) return ''
   return String(str).replace(/[&<>'"]/g, tag => ({
     '&': '&amp;',
@@ -15,7 +15,7 @@ const escapeHTML = (str) => {
   }[tag]))
 }
 
-export async function FinanceiroView() {
+export async function FinanceiroView(): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'financeiro-view animate-in'
 
@@ -24,16 +24,16 @@ export async function FinanceiroView() {
     FinanceiroService.getResumo(),
     AdminService.listAlunos(),
     FinanceiroService.getConfig()
-  ])
+  ]) as any
 
   const resumo = resumoRes.data || { totalInadimplente: 0, totalRecuperado: 0, totalPrevisto: 0, contagemAtrasados: 0 }
   const todosAlunos = todosAlunosRes.data || []
   const configs = configRes.data || { multa_atraso: 0.02, juros_mensal: 0.01 }
-  
-  // Buscar pagamentos ativos
-  const { data: todosPagamentos } = await supabase.from('pagamentos').select('*')
 
-  const renderDashboard = () => `
+  // Buscar pagamentos ativos
+  const { data: todosPagamentos } = await supabase.from('pagamentos').select('*') as any
+
+  const renderDashboard = (): string => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
       <div class="card-stats" style="background: white; padding: 1.5rem; border-radius: 15px; box-shadow: var(--shadow-md); border-top: 4px solid var(--primary);">
         <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Volume em Atraso</div>
@@ -73,11 +73,11 @@ export async function FinanceiroView() {
              </tr>
           </thead>
           <tbody id="lista-alunos-financeiro">
-            ${todosAlunos.map(aluno => {
-              const pAluno = todosPagamentos?.filter(p => p.aluno_id === aluno.id) || []
-              const atrasados = pAluno.filter(p => p.status === 'atrasado')
-              const sumAtrasado = atrasados.reduce((a, b) => a + Number(b.valor_original), 0)
-              
+            ${todosAlunos.map((aluno: any) => {
+              const pAluno = todosPagamentos?.filter((p: any) => p.aluno_id === aluno.id) || []
+              const atrasados = pAluno.filter((p: any) => p.status === 'atrasado')
+              const sumAtrasado = atrasados.reduce((a: number, b: any) => a + Number(b.valor_original), 0)
+
               return `
                 <tr class="aluno-fin-row">
                   <td>
@@ -109,7 +109,7 @@ export async function FinanceiroView() {
     <!-- MODAL PREMIUM DE NEGOCIAÇÃO -->
     <div id="modal-premium-calculo" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
       <div class="modal-content" style="background: var(--bg-app); border-radius: 20px; max-width: 1000px; width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border);">
-        
+
         <div style="background: var(--primary); color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;">
           <div>
             <h2 style="margin: 0; font-size: 1.5rem;">Ficha Financeira & Acordo</h2>
@@ -119,14 +119,14 @@ export async function FinanceiroView() {
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 350px; flex: 1; overflow: hidden;">
-          
+
           <!-- LADO ESQUERDO: LISTAGEM DE DÉBITOS (IGUAL AS MATÉRIAS) -->
           <div style="padding: 2rem; overflow-y: auto; background: white;">
             <h4 style="margin-bottom: 1.5rem; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--text-muted);">Mensalidades e Pendências</h4>
             <div id="calc-lista-debitos" style="display: flex; flex-direction: column; gap: 12px;">
                <!-- Populado via JS -->
             </div>
-            
+
             <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
                <h4 style="margin-bottom: 1rem; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--text-muted);">Ajustes Oficiais</h4>
                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -152,7 +152,7 @@ export async function FinanceiroView() {
           <div style="background: #1a1a1a; color: white; padding: 2rem; display: flex; flex-direction: column;">
             <div style="flex: 1;">
               <h4 style="color: var(--accent); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 2rem;">Resumo da Proposta</h4>
-              
+
               <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between;">
                   <span style="opacity: 0.7;">Principal Selecionado:</span>
@@ -209,42 +209,43 @@ export async function FinanceiroView() {
   `
 
   // --- LÓGICA DO PAINEL ---
-  
-  const modalPremium = container.querySelector('#modal-premium-calculo')
-  const listaDebitosUI = container.querySelector('#calc-lista-debitos')
-  let debitosSelecionados = []
-  let alunoAtual = null
 
-  const atualizarResumo = () => {
+  const modalPremium = container.querySelector('#modal-premium-calculo') as HTMLElement
+  const listaDebitosUI = container.querySelector('#calc-lista-debitos') as HTMLElement
+  let debitosSelecionados: any[] = []
+  let alunoAtual: string | null = null
+
+  const atualizarResumo = (): void => {
     const principal = debitosSelecionados.reduce((a, b) => a + Number(b.valor_original), 0)
     // Multa 2% + Juros 1% sobre cada selecionado
     const taxas = debitosSelecionados.reduce((a, b) => {
-       const dias = (new Date() - new Date(b.data_vencimento)) / (1000 * 60 * 60 * 24)
+       const dias = (new Date().getTime() - new Date(b.data_vencimento).getTime()) / (1000 * 60 * 60 * 24)
        if (dias <= 0) return a
        return a + (Number(b.valor_original) * 0.02) + (Number(b.valor_original) * 0.01)
     }, 0)
-    
-    const desconto = Number(container.querySelector('#premium-desconto').value) || 0
-    const parcelas = Number(container.querySelector('#premium-parcelas').value)
+
+    const desconto = Number((container.querySelector('#premium-desconto') as HTMLInputElement).value) || 0
+    const parcelas = Number((container.querySelector('#premium-parcelas') as HTMLSelectElement).value)
     const total = (principal + taxas) - desconto
-    
-    container.querySelector('#res-principal').textContent = `R$ ${principal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-    container.querySelector('#res-taxas').textContent = `+ R$ ${taxas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-    container.querySelector('#res-desconto').textContent = `- R$ ${desconto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-    container.querySelector('#res-total').textContent = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-    container.querySelector('#res-parcelas').textContent = `(${parcelas}x de R$ ${(total/parcelas).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`
+
+    ;(container.querySelector('#res-principal') as HTMLElement).textContent = `R$ ${principal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+    ;(container.querySelector('#res-taxas') as HTMLElement).textContent = `+ R$ ${taxas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+    ;(container.querySelector('#res-desconto') as HTMLElement).textContent = `- R$ ${desconto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+    ;(container.querySelector('#res-total') as HTMLElement).textContent = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+    ;(container.querySelector('#res-parcelas') as HTMLElement).textContent = `(${parcelas}x de R$ ${(total/parcelas).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`
   }
 
   container.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement
     // ABRIR FICHA FINANCEIRA (MODAL PREMIUM)
-    if (e.target.classList.contains('btn-fatura')) {
-      const { id, nome } = e.target.dataset
-      alunoAtual = id
-      container.querySelector('#calc-aluno-nome').textContent = nome
-      
-      const { data: debitos } = await FinanceiroService.getHistoricoAluno(id)
-      
-      listaDebitosUI.innerHTML = debitos.map(d => `
+    if (target.classList.contains('btn-fatura')) {
+      const { id, nome } = (target as HTMLButtonElement).dataset
+      alunoAtual = id as string
+      ;(container.querySelector('#calc-aluno-nome') as HTMLElement).textContent = nome as string
+
+      const { data: debitos } = await FinanceiroService.getHistoricoAluno(id as string) as any
+
+      listaDebitosUI.innerHTML = (debitos as any[]).map((d: any) => `
         <div class="debito-item" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid var(--bg-app); border-radius: 12px; transition: all 0.2s;">
           <input type="checkbox" class="check-debito" data-id="${d.id}" ${d.status === 'atrasado' ? 'checked' : ''} style="width: 20px; height: 20px;">
           <div style="flex: 1;">
@@ -258,29 +259,30 @@ export async function FinanceiroView() {
         </div>
       `).join('')
 
-      debitosSelecionados = debitos.filter(d => d.status === 'atrasado')
+      debitosSelecionados = debitos.filter((d: any) => d.status === 'atrasado')
       atualizarResumo()
       modalPremium.style.display = 'flex'
     }
 
-    if (e.target.id === 'btn-fechar-premium') modalPremium.style.display = 'none'
+    if ((target as HTMLElement).id === 'btn-fechar-premium') modalPremium.style.display = 'none'
   })
 
   // Evento dos Checkboxes (Matérias -> Mensalidades)
   listaDebitosUI.addEventListener('change', async (e) => {
-    if (e.target.classList.contains('check-debito')) {
-       const { data: todos } = await FinanceiroService.getHistoricoAluno(alunoAtual)
-       const idsSelecionados = Array.from(listaDebitosUI.querySelectorAll('.check-debito:checked')).map(i => i.dataset.id)
-       debitosSelecionados = todos.filter(d => idsSelecionados.includes(d.id))
+    const target = e.target as HTMLElement
+    if (target.classList.contains('check-debito')) {
+       const { data: todos } = await FinanceiroService.getHistoricoAluno(alunoAtual as string) as any
+       const idsSelecionados = Array.from(listaDebitosUI.querySelectorAll('.check-debito:checked')).map(i => (i as HTMLInputElement).dataset.id)
+       debitosSelecionados = todos.filter((d: any) => idsSelecionados.includes(d.id))
        atualizarResumo()
     }
   })
 
-  container.querySelector('#premium-desconto').oninput = atualizarResumo
-  container.querySelector('#premium-parcelas').onchange = atualizarResumo
+  ;(container.querySelector('#premium-desconto') as HTMLInputElement).oninput = atualizarResumo as any
+  ;(container.querySelector('#premium-parcelas') as HTMLSelectElement).onchange = atualizarResumo as any
 
   // GERAR PDF DO ACORDO
-  container.querySelector('#btn-gerar-recibo').addEventListener('click', async () => {
+  ;(container.querySelector('#btn-gerar-recibo') as HTMLButtonElement).addEventListener('click', async () => {
     if (debitosSelecionados.length === 0) {
       toast.error('Selecione pelo menos uma parcela para gerar o recibo.')
       return
@@ -288,18 +290,18 @@ export async function FinanceiroView() {
 
     const principal = debitosSelecionados.reduce((a, b) => a + Number(b.valor_original), 0)
     const taxas = debitosSelecionados.reduce((a, b) => {
-       const dias = (new Date() - new Date(b.data_vencimento)) / (1000 * 60 * 60 * 24)
+       const dias = (new Date().getTime() - new Date(b.data_vencimento).getTime()) / (1000 * 60 * 60 * 24)
        if (dias <= 0) return a
        return a + (Number(b.valor_original) * 0.02) + (Number(b.valor_original) * 0.01)
     }, 0)
-    
-    const desconto = Number(container.querySelector('#premium-desconto').value) || 0
+
+    const desconto = Number((container.querySelector('#premium-desconto') as HTMLInputElement).value) || 0
     const total = (principal + taxas) - desconto
 
     try {
       // Buscar dados completos do aluno para o CPF
-      const { data: aluno } = await AdminService.getUserById(alunoAtual)
-      
+      const { data: aluno } = await AdminService.getUserById(alunoAtual as string) as any
+
       const acordoData = {
         valorOriginal: principal,
         multa: principal * 0.02,
@@ -311,41 +313,42 @@ export async function FinanceiroView() {
       const doc = PDFService.generateTermoAcordoPDF(aluno, acordoData)
       PDFService.downloadPDF(doc, `termo_acordo_${aluno.nome_completo.replace(/\s+/g, '_')}.pdf`)
       toast.success('Recibo gerado com sucesso!')
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
       toast.error('Erro ao gerar recibo: ' + err.message)
     }
   })
 
   // BUSCA
-  container.querySelector('#busca-aluno-financeiro').oninput = (e) => {
-    const val = e.target.value.toLowerCase()
+  ;(container.querySelector('#busca-aluno-financeiro') as HTMLInputElement).oninput = (e) => {
+    const val = (e.target as HTMLInputElement).value.toLowerCase()
     container.querySelectorAll('.aluno-fin-row').forEach(r => {
-      r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none'
+      (r as HTMLElement).style.display = (r as HTMLElement).innerText.toLowerCase().includes(val) ? '' : 'none'
     })
   }
 
   // LANÇAR DÉBITO RÁPIDO
   container.addEventListener('click', (e) => {
-    if (e.target.classList.contains('btn-lancar-debito')) {
-       container.querySelector('#lancar-aluno-id').value = e.target.dataset.id
-       container.querySelector('#lancar-aluno-nome').textContent = e.target.dataset.nome
-       container.querySelector('#modal-lancar-debito').style.display = 'flex'
+    const target = e.target as HTMLElement
+    if (target.classList.contains('btn-lancar-debito')) {
+       ;(container.querySelector('#lancar-aluno-id') as HTMLInputElement).value = (target as HTMLButtonElement).dataset.id as string
+       ;(container.querySelector('#lancar-aluno-nome') as HTMLElement).textContent = (target as HTMLButtonElement).dataset.nome as string
+       ;(container.querySelector('#modal-lancar-debito') as HTMLElement).style.display = 'flex'
     }
-    if (e.target.classList.contains('btn-fechar-lancar')) container.querySelector('#modal-lancar-debito').style.display = 'none'
+    if (target.classList.contains('btn-fechar-lancar')) (container.querySelector('#modal-lancar-debito') as HTMLElement).style.display = 'none'
   })
 
-  container.querySelector('#form-lancar-debito').onsubmit = async (e) => {
+  ;(container.querySelector('#form-lancar-debito') as HTMLFormElement).onsubmit = async (e) => {
     e.preventDefault()
     const payload = {
-       aluno_id: container.querySelector('#lancar-aluno-id').value,
-       descricao: container.querySelector('#lancar-desc').value,
-       valor_original: container.querySelector('#lancar-valor').value,
-       data_vencimento: container.querySelector('#lancar-data').value,
-       status: new Date(container.querySelector('#lancar-data').value) < new Date() ? 'atrasado' : 'pendente'
+       aluno_id: (container.querySelector('#lancar-aluno-id') as HTMLInputElement).value,
+       descricao: (container.querySelector('#lancar-desc') as HTMLInputElement).value,
+       valor_original: (container.querySelector('#lancar-valor') as HTMLInputElement).value,
+       data_vencimento: (container.querySelector('#lancar-data') as HTMLInputElement).value,
+       status: new Date((container.querySelector('#lancar-data') as HTMLInputElement).value) < new Date() ? 'atrasado' : 'pendente'
     }
     const { error } = await supabase.from('pagamentos').insert(payload)
-    if (error) toast.error(error.message)
+    if (error) toast.error((error as any).message)
     else { toast.success('Lançamento realizado!'); window.location.reload() }
   }
 

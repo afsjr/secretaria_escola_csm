@@ -26,11 +26,10 @@ export async function logout() {
 }
 
 export async function resetPassword(email: string) {
-  // O Supabase requer URL absoluta sem path base do Vite
-  // Usar window.location.origin (sem pathname) para o redirect
-  const redirectTo = `${window.location.origin}/secretaria_escola_csm/#/reset-password`
+  // URL dinâmica baseada no path atual do deploy (local ou produção)
+  const basePath = window.location.pathname.replace(/\/$/, '')
+  const redirectTo = `${window.location.origin}${basePath}/#/reset-password`
 
-  console.log('[resetPassword] redirect:', redirectTo)
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   })

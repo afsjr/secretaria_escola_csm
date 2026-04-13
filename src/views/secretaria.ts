@@ -1,3 +1,4 @@
+import type { UserProfile } from '../types'
 import { DocumentsService } from '../lib/documents-service'
 import { AdminService } from '../lib/admin-service'
 import { ProfessorService } from '../lib/professor-service'
@@ -11,7 +12,7 @@ import { ProfessorDetailsView } from './professor-details'
 import { StudentDetailsService } from '../lib/student-details-service'
 
 // Helper para prevenir XSS
-const escapeHTML = (str) => {
+const escapeHTML = (str: string | null | undefined): string => {
   if (!str) return ''
   return String(str).replace(/[&<>'"]/g, tag => ({
     '&': '&amp;',
@@ -22,7 +23,7 @@ const escapeHTML = (str) => {
   }[tag]))
 }
 
-export async function SecretariaView() {
+export async function SecretariaView(): Promise<HTMLDivElement> {
   const container = document.createElement('div')
   container.className = 'secretaria-view animate-in'
 
@@ -35,7 +36,7 @@ export async function SecretariaView() {
 
   if (errorAlunos) toast.error('Erro ao carregar alunos: ' + errorAlunos.message)
 
-  const renderRequests = () => {
+  const renderRequests = (): string => {
     if (error) return `<p class="error-text">Erro ao carregar solicitações.</p>`
     if (!requests || requests.length === 0) return '<p>Não há solicitações pendentes no momento.</p>'
 
@@ -81,7 +82,7 @@ export async function SecretariaView() {
     `
   }
 
-  const renderGerenciarAlunos = () => {
+  const renderGerenciarAlunos = (): string => {
     if (errorAlunos) return `<p class="error-text">Erro ao carregar alunos.</p>`
     if (!alunos || alunos.length === 0) return '<p>Não há alunos cadastrados no momento.</p>'
 
@@ -91,7 +92,7 @@ export async function SecretariaView() {
           <h3 style="margin: 0; color: var(--text-main);">Gerenciar Alunos</h3>
           <input type="text" id="busca-aluno" class="input" placeholder="Buscar por nome ou CPF..." style="width: 300px; margin: 0;">
         </div>
-        
+
         <div class="table-responsive">
           <table class="data-table">
             <thead>
@@ -139,10 +140,10 @@ export async function SecretariaView() {
             <h3 style="margin: 0; color: var(--text-main);">Editar Aluno</h3>
             <button id="btn-fechar-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
           </div>
-          
+
           <form id="form-editar-aluno">
             <input type="hidden" id="edit-aluno-id" name="aluno_id">
-            
+
             <div class="form-group">
               <label class="label" for="edit-nome">Nome Completo *</label>
               <input type="text" id="edit-nome" name="nome_completo" class="input" required>
@@ -199,11 +200,11 @@ export async function SecretariaView() {
     `
   }
 
-  const renderCadastroProfessor = () => `
+  const renderCadastroProfessor = (): string => `
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto;">
       <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Cadastrar Novo Professor</h3>
       <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Crie uma nova conta de professor no sistema. O professor poderá fazer login imediatamente após o cadastro.</p>
-      
+
       <form id="form-cadastro-professor">
         <div class="form-group">
           <label class="label" for="professor-nome">Nome Completo *</label>
@@ -235,7 +236,7 @@ export async function SecretariaView() {
     </div>
   `
 
-  const renderGerenciarProfessores = () => {
+  const renderGerenciarProfessores = (): string => {
     if (errorProfessores) return `<p class="error-text">Erro ao carregar professores.</p>`
 
     return `
@@ -243,7 +244,7 @@ export async function SecretariaView() {
         <!-- Lista de Professores -->
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
           <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Professores Cadastrados</h3>
-          
+
           ${!professores || professores.length === 0 ? '<p style="color: var(--text-muted);">Nenhum professor cadastrado.</p>' : `
             <div class="table-responsive">
               <table class="data-table">
@@ -276,7 +277,7 @@ export async function SecretariaView() {
         <!-- Disciplinas -->
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
           <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Disciplinas do Curso</h3>
-          
+
           ${!disciplinas || disciplinas.length === 0 ? '<p style="color: var(--text-muted);">Nenhuma disciplina cadastrada.</p>' : `
             <div class="table-responsive">
               <table class="data-table">
@@ -308,15 +309,15 @@ export async function SecretariaView() {
       <div id="modal-vincular-disciplinas" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
         <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h3 style="margin: 0; color: var(--text-main);">Vincular Disciplinas e Turmas ao Professor</h3>
+            <h3 style="margin: 0; color: var(--text-main);">Vincular Disciplinas e Turma ao Professor</h3>
             <button id="btn-fechar-modal-vincular" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
           </div>
-          
+
           <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">Selecione as disciplinas que o professor <strong id="nome-professor-vincular"></strong> irá ministrar e vincule a cada turma:</p>
-          
+
           <form id="form-vincular-disciplinas">
             <input type="hidden" id="professor-id-vincular" name="professor_id">
-            
+
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--secondary); border-radius: 8px; padding: 1rem;">
               <table style="width: 100%; border-collapse: collapse;">
                 <thead style="background: var(--secondary); font-size: 0.8rem; text-transform: uppercase;">
@@ -363,11 +364,11 @@ export async function SecretariaView() {
     `
   }
 
-  const renderCadastroAluno = () => `
+  const renderCadastroAluno = (): string => `
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto;">
       <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Cadastrar Novo Aluno</h3>
       <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Crie uma nova conta de aluno no sistema. O aluno poderá fazer login imediatamente após o cadastro.</p>
-      
+
       <form id="form-cadastro-aluno">
         <div class="form-group">
           <label class="label" for="aluno-nome">Nome Completo *</label>
@@ -409,14 +410,14 @@ export async function SecretariaView() {
     </div>
   `
 
-  const renderGerenciarCursos = () => {
+  const renderGerenciarCursos = (): string => {
     return `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
         <!-- Formulário de Novo Curso -->
         <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
           <h3 style="margin-bottom: 1.5rem; color: var(--text-main);">Cadastrar Novo Curso</h3>
           <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Cadastre cursos como Técnico em Enfermagem, Instrumentação Cirúrgica, ou cursos livres.</p>
-          
+
           <form id="form-cadastro-curso">
             <div class="form-group">
               <label class="label" for="curso-nome">Nome do Curso *</label>
@@ -435,7 +436,7 @@ export async function SecretariaView() {
         <!-- Lista de Cursos -->
         <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
           <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Cursos Cadastrados</h3>
-          
+
           ${errorCursos ? `<p class="error-text">Erro ao carregar cursos.</p>` : ''}
           ${!cursos || cursos.length === 0 ? '<p style="color: var(--text-muted);">Nenhum curso cadastrado.</p>' : `
             <div class="table-responsive">
@@ -477,21 +478,21 @@ export async function SecretariaView() {
     `
   }
 
-  const renderModalMatricula = () => `
+  const renderModalMatricula = (): string => `
     <div id="modal-matricular-aluno" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
       <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 500px; width: 90%; box-shadow: var(--shadow-lg); border-top: 5px solid var(--accent);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3 style="margin: 0; color: var(--text-main); font-size: 1.5rem;">🎓 Matricular Aluno</h3>
           <button id="btn-fechar-modal-matricula" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
-        
+
         <div style="background: var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Aluno: <strong id="nome-aluno-matricula" style="color: var(--text-main);"></strong></p>
         </div>
 
         <form id="form-vincular-turma">
           <input type="hidden" id="vincular-aluno-id">
-          
+
           <div class="form-group">
             <label class="label" for="vincular-turma-id">Selecione a Turma *</label>
             <select id="vincular-turma-id" class="input" required style="width: 100%;">
@@ -501,7 +502,7 @@ export async function SecretariaView() {
               `).join('') : '<option value="">Nenhuma turma disponível</option>'}
             </select>
           </div>
-          
+
           <div style="display: flex; gap: 1rem; margin-top: 2rem;">
             <button type="button" class="btn btn-fechar-matricula" style="flex: 1; background: var(--secondary); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; border-radius: 6px; padding: 0.75rem; font-weight: 600;">Cancelar</button>
             <button type="submit" class="btn btn-primary" style="flex: 1; border-radius: 6px; padding: 0.75rem; font-weight: 600;">Confirmar Matrícula</button>
@@ -567,7 +568,7 @@ export async function SecretariaView() {
       tabContents.forEach(content => {
         content.style.display = 'none'
       })
-      container.querySelector(`#tab-${tab}`).style.display = 'block'
+      container.querySelector(`#tab-${tab}`)!.style.display = 'block'
     })
   })
 
@@ -577,25 +578,26 @@ export async function SecretariaView() {
   const generatePdfBtns = container.querySelectorAll('.generate-pdf-btn')
   generatePdfBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-      const userId = btn.getAttribute('data-id')
-      const tipo = btn.getAttribute('data-tipo')
-      const nomeAluno = btn.getAttribute('data-nome')
+      const userId = btn.getAttribute('data-id')!
+      const tipo = btn.getAttribute('data-tipo')!
+      const nomeAluno = btn.getAttribute('data-nome')!
 
-      btn.disabled = true
-      btn.textContent = 'Gerando...'
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = 'Gerando...'
 
       try {
         // Buscar dados do usuário (qualquer perfil)
         const { data: userData } = await AdminService.getUserById(userId)
         if (!userData) {
           toast.error('Usuário não encontrado')
-          btn.disabled = false
-          btn.textContent = 'Gerar PDF'
+          btnEl.disabled = false
+          btnEl.textContent = 'Gerar PDF'
           return
         }
 
         // Buscar matrícula apenas se for aluno
-        let turmaInfo = null
+        let turmaInfo: any = null
         if (userData.perfil === 'aluno') {
           const { data: matriculas } = await supabase
             .from('matriculas')
@@ -622,15 +624,15 @@ export async function SecretariaView() {
           if (userData.perfil === 'aluno') {
             if (!turmaInfo) {
               toast.error('Aluno não possui matrícula ativa')
-              btn.disabled = false
-              btn.textContent = 'Gerar PDF'
+              btnEl.disabled = false
+              btnEl.textContent = 'Gerar PDF'
               return
             }
-            const doc = PDFService.generateDeclaracaoPDF(userData, turmaInfo)
+            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo)
             PDFService.downloadPDF(doc, `declaracao_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           } else {
             // Admin/Professor → Declaração de Vínculo
-            const doc = PDFService.generateDeclaracaoVinculoPDF(userData)
+            const doc = PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile)
             PDFService.downloadPDF(doc, `declaracao_vinculo_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           }
           toast.success('PDF gerado com sucesso!')
@@ -639,15 +641,15 @@ export async function SecretariaView() {
           // Histórico só para alunos
           if (userData.perfil !== 'aluno') {
             toast.error('Histórico acadêmico disponível apenas para alunos')
-            btn.disabled = false
-            btn.textContent = 'Gerar PDF'
+            btnEl.disabled = false
+            btnEl.textContent = 'Gerar PDF'
             return
           }
 
           if (!turmaInfo) {
             toast.error('Aluno não possui matrícula ativa')
-            btn.disabled = false
-            btn.textContent = 'Gerar PDF'
+            btnEl.disabled = false
+            btnEl.textContent = 'Gerar PDF'
             return
           }
 
@@ -659,11 +661,11 @@ export async function SecretariaView() {
           )
 
           const notasComModulo = notas?.map(n => {
-            const disc = disciplinasCurso?.find(d => d.nome === n.disciplina)
+            const disc = disciplinasCurso?.find((d: any) => d.nome === n.disciplina)
             return { ...n, modulo: disc?.modulo || 'I Módulo' }
           }) || notas || []
 
-          const doc = PDFService.generateHistoricoPDF(userData, notasComModulo, turmaInfo)
+          const doc = PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo)
           PDFService.downloadPDF(doc, `historico_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           toast.success('PDF gerado com sucesso!')
 
@@ -672,26 +674,26 @@ export async function SecretariaView() {
           if (userData.perfil === 'aluno') {
             if (!turmaInfo) {
               toast.error('Aluno não possui matrícula ativa')
-              btn.disabled = false
-              btn.textContent = 'Gerar PDF'
+              btnEl.disabled = false
+              btnEl.textContent = 'Gerar PDF'
               return
             }
-            const doc = PDFService.generateDeclaracaoPDF(userData, turmaInfo)
+            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo)
             PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           } else {
             // Admin/Professor/Secretaria → Declaração de Vínculo
-            const doc = PDFService.generateDeclaracaoVinculoPDF(userData)
+            const doc = PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile)
             PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           }
           toast.success('PDF gerado com sucesso!')
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Erro ao gerar PDF:', err)
         toast.error('Erro ao gerar PDF: ' + err.message)
       }
 
-      btn.disabled = false
-      btn.textContent = 'Gerar PDF'
+      btnEl.disabled = false
+      btnEl.textContent = 'Gerar PDF'
     })
   })
 
@@ -700,17 +702,18 @@ export async function SecretariaView() {
   // =====================================================
   const approveBtns = container.querySelectorAll('.approve-btn')
   approveBtns.forEach(btn => {
-    btn.onclick = async () => {
-      const id = btn.getAttribute('data-id')
-      btn.disabled = true
-      btn.textContent = 'Processando...'
+    (btn as HTMLButtonElement).onclick = async () => {
+      const id = btn.getAttribute('data-id')!
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = 'Processando...'
 
       const { error } = await DocumentsService.updateStatus(id, 'concluído')
 
       if (error) {
         toast.error('Erro ao atualizar status: ' + error.message)
-        btn.disabled = false
-        btn.textContent = 'Concluir'
+        btnEl.disabled = false
+        btnEl.textContent = 'Concluir'
       } else {
         toast.success('Documento concluído com sucesso!')
 
@@ -733,18 +736,18 @@ export async function SecretariaView() {
   // =====================================================
   // CADASTRO DE ALUNO
   // =====================================================
-  const formCadastro = container.querySelector('#form-cadastro-aluno')
-  const btnCadastrar = container.querySelector('#btn-cadastrar')
+  const formCadastro = container.querySelector('#form-cadastro-aluno') as HTMLFormElement
+  const btnCadastrar = container.querySelector('#btn-cadastrar') as HTMLButtonElement
 
-  formCadastro.addEventListener('submit', async (e) => {
+  formCadastro.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
-    const nomeCompleto = container.querySelector('#aluno-nome').value.trim()
-    const email = container.querySelector('#aluno-email').value.trim()
-    const cpf = container.querySelector('#aluno-cpf').value.trim()
-    const telefone = container.querySelector('#aluno-telefone').value.trim()
-    const senha = container.querySelector('#aluno-senha').value
-    const turmaId = container.querySelector('#aluno-turma').value
+    const nomeCompleto = (container.querySelector('#aluno-nome') as HTMLInputElement).value.trim()
+    const email = (container.querySelector('#aluno-email') as HTMLInputElement).value.trim()
+    const cpf = (container.querySelector('#aluno-cpf') as HTMLInputElement).value.trim()
+    const telefone = (container.querySelector('#aluno-telefone') as HTMLInputElement).value.trim()
+    const senha = (container.querySelector('#aluno-senha') as HTMLInputElement).value
+    const turmaId = (container.querySelector('#aluno-turma') as HTMLSelectElement).value
 
     if (!nomeCompleto || !email || !senha) {
       toast.error('Preencha os campos obrigatórios.')
@@ -796,17 +799,17 @@ export async function SecretariaView() {
   // =====================================================
   // CADASTRO DE PROFESSOR
   // =====================================================
-  const formCadastroProfessor = container.querySelector('#form-cadastro-professor')
-  const btnCadastrarProfessor = container.querySelector('#btn-cadastrar-professor')
+  const formCadastroProfessor = container.querySelector('#form-cadastro-professor') as HTMLFormElement
+  const btnCadastrarProfessor = container.querySelector('#btn-cadastrar-professor') as HTMLButtonElement
 
-  formCadastroProfessor.addEventListener('submit', async (e) => {
+  formCadastroProfessor.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
-    const nomeCompleto = container.querySelector('#professor-nome').value.trim()
-    const email = container.querySelector('#professor-email').value.trim()
-    const cpf = container.querySelector('#professor-cpf').value.trim()
-    const telefone = container.querySelector('#professor-telefone').value.trim()
-    const senha = container.querySelector('#professor-senha').value
+    const nomeCompleto = (container.querySelector('#professor-nome') as HTMLInputElement).value.trim()
+    const email = (container.querySelector('#professor-email') as HTMLInputElement).value.trim()
+    const cpf = (container.querySelector('#professor-cpf') as HTMLInputElement).value.trim()
+    const telefone = (container.querySelector('#professor-telefone') as HTMLInputElement).value.trim()
+    const senha = (container.querySelector('#professor-senha') as HTMLInputElement).value
 
     if (!nomeCompleto || !email || !senha) {
       toast.error('Preencha os campos obrigatórios.')
@@ -851,23 +854,24 @@ export async function SecretariaView() {
   const btnsVerFichaProf = container.querySelectorAll('.btn-ver-ficha-prof')
   btnsVerFichaProf.forEach(btn => {
     btn.addEventListener('click', async () => {
-      const professorId = btn.getAttribute('data-id')
+      const professorId = btn.getAttribute('data-id')!
 
       console.log('[Ficha Professor] Abrindo ficha para ID:', professorId)
-      btn.disabled = true
-      btn.textContent = '...'
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = '...'
 
       try {
         const detailsView = await ProfessorDetailsView(professorId)
         container.innerHTML = ''
         container.appendChild(detailsView)
-      } catch (err) {
+      } catch (err: any) {
         console.error('[Ficha Professor] Erro completo:', err)
         toast.error('Erro ao carregar ficha: ' + err.message)
       }
 
-      btn.disabled = false
-      btn.textContent = 'Ficha'
+      btnEl.disabled = false
+      btnEl.textContent = 'Ficha'
     })
   })
 
@@ -883,38 +887,38 @@ export async function SecretariaView() {
 
   btnsVincular.forEach(btn => {
     btn.addEventListener('click', () => {
-      const professorId = btn.getAttribute('data-id')
-      const professorNome = btn.getAttribute('data-nome')
+      const professorId = btn.getAttribute('data-id')!
+      const professorNome = btn.getAttribute('data-nome')!
 
-      container.querySelector('#professor-id-vincular').value = professorId
-      container.querySelector('#nome-professor-vincular').textContent = professorNome
+      ;(container.querySelector('#professor-id-vincular') as HTMLInputElement).value = professorId
+      ;(container.querySelector('#nome-professor-vincular') as HTMLElement).textContent = professorNome
 
       container.querySelectorAll('input[name="disciplinas"]').forEach(cb => {
-        cb.checked = false
+        ;(cb as HTMLInputElement).checked = false
       })
 
       if (disciplinas) {
         disciplinas.forEach(d => {
           if (d.professor_id === professorId) {
-            const cb = container.querySelector(`input[name="disciplinas"][value="${d.id}"]`)
+            const cb = container.querySelector(`input[name="disciplinas"][value="${d.id}"]`) as HTMLInputElement
             if (cb) cb.checked = true
           }
         })
       }
 
-      modalVincular.style.display = 'flex'
+      if (modalVincular) modalVincular.style.display = 'flex'
     })
   })
 
   if (btnFecharModalVincular) {
     btnFecharModalVincular.addEventListener('click', () => {
-      modalVincular.style.display = 'none'
+      if (modalVincular) modalVincular.style.display = 'none'
     })
   }
 
   if (btnCancelarVincular) {
     btnCancelarVincular.addEventListener('click', () => {
-      modalVincular.style.display = 'none'
+      if (modalVincular) modalVincular.style.display = 'none'
     })
   }
 
@@ -927,16 +931,16 @@ export async function SecretariaView() {
   }
 
   if (formVincular) {
-    formVincular.addEventListener('submit', async (e) => {
+    formVincular.addEventListener('submit', async (e: Event) => {
       e.preventDefault()
 
-      const professorId = container.querySelector('#professor-id-vincular').value
+      const professorId = (container.querySelector('#professor-id-vincular') as HTMLInputElement).value
       const checkboxes = container.querySelectorAll('input[name="disciplinas"]:checked')
 
-      const vinculacoes = []
+      const vinculacoes: any[] = []
       checkboxes.forEach(cb => {
-        const disciplinaId = cb.value
-        const turmaSelect = container.querySelector(`select[name="turma_${disciplinaId}"]`)
+        const disciplinaId = (cb as HTMLInputElement).value
+        const turmaSelect = container.querySelector(`select[name="turma_${disciplinaId}"]`) as HTMLSelectElement
         const turmaId = turmaSelect ? turmaSelect.value : null
         vinculacoes.push({ disciplinaId, turmaId })
       })
@@ -946,8 +950,9 @@ export async function SecretariaView() {
         return
       }
 
-      btnSalvarVincular.disabled = true
-      btnSalvarVincular.textContent = 'Salvando...'
+      const btnSalvar = btnSalvarVincular as HTMLButtonElement
+      btnSalvar.disabled = true
+      btnSalvar.textContent = 'Salvando...'
 
       // Desvincular disciplinas atuais do professor
       if (disciplinas && disciplinas.length > 0) {
@@ -962,16 +967,16 @@ export async function SecretariaView() {
 
       if (error) {
         toast.error('Erro ao vincular disciplinas: ' + error.message)
-        btnSalvarVincular.disabled = false
-        btnSalvarVincular.textContent = 'Salvar Vinculação'
+        btnSalvar.disabled = false
+        btnSalvar.textContent = 'Salvar Vinculação'
         return
       }
 
       toast.success('Disciplinas vinculadas com sucesso!')
-      modalVincular.style.display = 'none'
+      if (modalVincular) modalVincular.style.display = 'none'
 
-      btnSalvarVincular.disabled = false
-      btnSalvarVincular.textContent = 'Salvar Vinculação'
+      btnSalvar.disabled = false
+      btnSalvar.textContent = 'Salvar Vinculação'
 
       // Recarregar para atualizar a lista
       setTimeout(() => window.location.reload(), 500)
@@ -981,15 +986,15 @@ export async function SecretariaView() {
   // =====================================================
   // BUSCA/FILTRO DE ALUNOS
   // =====================================================
-  const buscaAlunoInput = container.querySelector('#busca-aluno')
+  const buscaAlunoInput = container.querySelector('#busca-aluno') as HTMLInputElement
   if (buscaAlunoInput) {
     buscaAlunoInput.addEventListener('input', () => {
       const termo = buscaAlunoInput.value.toLowerCase().trim()
       const rows = container.querySelectorAll('.aluno-row')
 
       rows.forEach(row => {
-        const nome = row.getAttribute('data-nome').toLowerCase()
-        const cpf = row.getAttribute('data-cpf').toLowerCase()
+        const nome = (row.getAttribute('data-nome') || '').toLowerCase()
+        const cpf = (row.getAttribute('data-cpf') || '').toLowerCase()
 
         if (nome.includes(termo) || cpf.includes(termo)) {
           row.style.display = ''
@@ -1006,24 +1011,25 @@ export async function SecretariaView() {
   const btnsVerFicha = container.querySelectorAll('.btn-ver-ficha')
   btnsVerFicha.forEach(btn => {
     btn.addEventListener('click', async () => {
-      const alunoId = btn.getAttribute('data-id')
+      const alunoId = btn.getAttribute('data-id')!
       const contentArea = container.closest('.main-content') || container.parentElement
 
       // Mostrar loading
-      btn.disabled = true
-      btn.textContent = '...'
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = '...'
 
       try {
         const detailsView = await StudentDetailsView(alunoId)
         container.innerHTML = ''
         container.appendChild(detailsView)
-      } catch (err) {
+      } catch (err: any) {
         console.error('Erro ao carregar ficha:', err)
         toast.error('Erro ao carregar ficha do aluno')
       }
 
-      btn.disabled = false
-      btn.textContent = 'Ficha'
+      btnEl.disabled = false
+      btnEl.textContent = 'Ficha'
     })
   })
 
@@ -1039,16 +1045,17 @@ export async function SecretariaView() {
 
   btnsEditar.forEach(btn => {
     btn.addEventListener('click', async () => {
-      const alunoId = btn.getAttribute('data-id')
+      const alunoId = btn.getAttribute('data-id')!
 
-      btn.disabled = true
-      btn.textContent = '...'
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = '...'
 
       const { data: aluno, error } = await AdminService.getAlunoById(alunoId)
       const { data: enderecoData } = await StudentDetailsService.getEndereco(alunoId)
 
-      btn.disabled = false
-      btn.textContent = 'Editar'
+      btnEl.disabled = false
+      btnEl.textContent = 'Editar'
 
       if (error) {
         toast.error('Erro ao carregar dados do aluno: ' + error.message)
@@ -1060,32 +1067,32 @@ export async function SecretariaView() {
         return
       }
 
-      container.querySelector('#edit-aluno-id').value = aluno.id
-      container.querySelector('#edit-nome').value = aluno.nome_completo || ''
-      container.querySelector('#edit-cpf').value = aluno.cpf || ''
-      container.querySelector('#edit-telefone').value = aluno.telefone || ''
-      container.querySelector('#edit-email').value = aluno.email || ''
-      container.querySelector('#edit-perfil').value = aluno.perfil || 'aluno'
+      ;(container.querySelector('#edit-aluno-id') as HTMLInputElement).value = aluno.id
+      ;(container.querySelector('#edit-nome') as HTMLInputElement).value = aluno.nome_completo || ''
+      ;(container.querySelector('#edit-cpf') as HTMLInputElement).value = aluno.cpf || ''
+      ;(container.querySelector('#edit-telefone') as HTMLInputElement).value = aluno.telefone || ''
+      ;(container.querySelector('#edit-email') as HTMLInputElement).value = aluno.email || ''
+      ;(container.querySelector('#edit-perfil') as HTMLInputElement).value = aluno.perfil || 'aluno'
 
       // Novos campos
-      container.querySelector('#edit-rg').value = aluno.rg || ''
-      container.querySelector('#edit-nascimento').value = aluno.data_nascimento || ''
-      container.querySelector('#edit-naturalidade').value = aluno.cidade_natal || ''
-      container.querySelector('#edit-endereco').value = enderecoData && enderecoData.logradouro ? enderecoData.logradouro : ''
+      ;(container.querySelector('#edit-rg') as HTMLInputElement).value = aluno.rg || ''
+      ;(container.querySelector('#edit-nascimento') as HTMLInputElement).value = aluno.data_nascimento || ''
+      ;(container.querySelector('#edit-naturalidade') as HTMLInputElement).value = aluno.cidade_natal || ''
+      ;(container.querySelector('#edit-endereco') as HTMLInputElement).value = enderecoData && enderecoData.logradouro ? enderecoData.logradouro : ''
 
-      modalEditar.style.display = 'flex'
+      if (modalEditar) modalEditar.style.display = 'flex'
     })
   })
 
   if (btnFecharModal) {
     btnFecharModal.addEventListener('click', () => {
-      modalEditar.style.display = 'none'
+      if (modalEditar) modalEditar.style.display = 'none'
     })
   }
 
   if (btnCancelarEdicao) {
     btnCancelarEdicao.addEventListener('click', () => {
-      modalEditar.style.display = 'none'
+      if (modalEditar) modalEditar.style.display = 'none'
     })
   }
 
@@ -1098,26 +1105,27 @@ export async function SecretariaView() {
   }
 
   if (formEditar) {
-    formEditar.addEventListener('submit', async (e) => {
+    formEditar.addEventListener('submit', async (e: Event) => {
       e.preventDefault()
 
-      const alunoId = container.querySelector('#edit-aluno-id').value
-      const nomeCompleto = container.querySelector('#edit-nome').value.trim()
-      const cpf = container.querySelector('#edit-cpf').value.trim()
-      const telefone = container.querySelector('#edit-telefone').value.trim()
+      const alunoId = (container.querySelector('#edit-aluno-id') as HTMLInputElement).value
+      const nomeCompleto = (container.querySelector('#edit-nome') as HTMLInputElement).value.trim()
+      const cpf = (container.querySelector('#edit-cpf') as HTMLInputElement).value.trim()
+      const telefone = (container.querySelector('#edit-telefone') as HTMLInputElement).value.trim()
 
       if (!nomeCompleto) {
         toast.error('O nome completo é obrigatório.')
         return
       }
 
-      btnSaveEdit.disabled = true
-      btnSaveEdit.textContent = 'Salvando...'
+      const btnSave = btnSaveEdit as HTMLButtonElement
+      btnSave.disabled = true
+      btnSave.textContent = 'Salvando...'
 
-      const editRg = container.querySelector('#edit-rg').value.trim()
-      const editNascimento = container.querySelector('#edit-nascimento').value
-      const editNaturalidade = container.querySelector('#edit-naturalidade').value.trim()
-      const editEndereco = container.querySelector('#edit-endereco').value.trim()
+      const editRg = (container.querySelector('#edit-rg') as HTMLInputElement).value.trim()
+      const editNascimento = (container.querySelector('#edit-nascimento') as HTMLInputElement).value
+      const editNaturalidade = (container.querySelector('#edit-naturalidade') as HTMLInputElement).value.trim()
+      const editEndereco = (container.querySelector('#edit-endereco') as HTMLInputElement).value.trim()
 
       const { error } = await AdminService.updateAluno(alunoId, {
         nome_completo: nomeCompleto,
@@ -1135,8 +1143,8 @@ export async function SecretariaView() {
 
       if (error) {
         toast.error('Erro ao salvar: ' + error.message)
-        btnSaveEdit.disabled = false
-        btnSaveEdit.textContent = 'Salvar Alterações'
+        btnSave.disabled = false
+        btnSave.textContent = 'Salvar Alterações'
         return
       }
 
@@ -1144,32 +1152,35 @@ export async function SecretariaView() {
 
       const row = container.querySelector(`.aluno-row[data-id="${alunoId}"]`)
       if (row) {
-        row.querySelector('td:first-child .fw-600').textContent = nomeCompleto
+        const firstCell = row.querySelector('td:first-child .fw-600')
+        if (firstCell) firstCell.textContent = nomeCompleto
         row.setAttribute('data-nome', nomeCompleto)
         row.setAttribute('data-cpf', cpf)
-        row.querySelector('td:nth-child(3)').textContent = cpf || '-'
-        row.querySelector('td:nth-child(4)').textContent = telefone || '-'
+        const thirdCell = row.querySelector('td:nth-child(3)')
+        if (thirdCell) thirdCell.textContent = cpf || '-'
+        const fourthCell = row.querySelector('td:nth-child(4)')
+        if (fourthCell) fourthCell.textContent = telefone || '-'
       }
 
-      modalEditar.style.display = 'none'
+      if (modalEditar) modalEditar.style.display = 'none'
 
-      btnSaveEdit.disabled = false
-      btnSaveEdit.textContent = 'Salvar Alterações'
+      btnSave.disabled = false
+      btnSave.textContent = 'Salvar Alterações'
     })
   }
 
   // =====================================================
   // GERENCIAMENTO DE CURSOS
   // =====================================================
-  const formCadastroCurso = container.querySelector('#form-cadastro-curso')
-  const btnCadastrarCurso = container.querySelector('#btn-cadastrar-curso')
+  const formCadastroCurso = container.querySelector('#form-cadastro-curso') as HTMLFormElement
+  const btnCadastrarCurso = container.querySelector('#btn-cadastrar-curso') as HTMLButtonElement
 
   if (formCadastroCurso) {
-    formCadastroCurso.addEventListener('submit', async (e) => {
+    formCadastroCurso.addEventListener('submit', async (e: Event) => {
       e.preventDefault()
 
-      const nome = container.querySelector('#curso-nome').value.trim()
-      const descricao = container.querySelector('#curso-descricao').value.trim()
+      const nome = (container.querySelector('#curso-nome') as HTMLInputElement).value.trim()
+      const descricao = (container.querySelector('#curso-descricao') as HTMLTextAreaElement).value.trim()
 
       if (!nome) {
         toast.error('O nome do curso é obrigatório.')
@@ -1203,16 +1214,17 @@ export async function SecretariaView() {
   const btnsDesativarCurso = container.querySelectorAll('.btn-desativar-curso')
   btnsDesativarCurso.forEach(btn => {
     btn.addEventListener('click', async () => {
-      const cursoId = btn.getAttribute('data-id')
-      btn.disabled = true
-      btn.textContent = '...'
+      const cursoId = btn.getAttribute('data-id')!
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = '...'
 
       const { error } = await CourseService.desativarCurso(cursoId)
 
       if (error) {
         toast.error('Erro ao desativar curso: ' + error.message)
-        btn.disabled = false
-        btn.textContent = 'Desativar'
+        btnEl.disabled = false
+        btnEl.textContent = 'Desativar'
         return
       }
 
@@ -1226,16 +1238,17 @@ export async function SecretariaView() {
   const btnsReativarCurso = container.querySelectorAll('.btn-reativar-curso')
   btnsReativarCurso.forEach(btn => {
     btn.addEventListener('click', async () => {
-      const cursoId = btn.getAttribute('data-id')
-      btn.disabled = true
-      btn.textContent = '...'
+      const cursoId = btn.getAttribute('data-id')!
+      const btnEl = btn as HTMLButtonElement
+      btnEl.disabled = true
+      btnEl.textContent = '...'
 
       const { error } = await CourseService.reativarCurso(cursoId)
 
       if (error) {
         toast.error('Erro ao reativar curso: ' + error.message)
-        btn.disabled = false
-        btn.textContent = 'Reativar'
+        btnEl.disabled = false
+        btnEl.textContent = 'Reativar'
         return
       }
 
@@ -1254,42 +1267,50 @@ export async function SecretariaView() {
 
   btnsMatricular.forEach(btn => {
     btn.addEventListener('click', () => {
-      const alunoId = btn.getAttribute('data-id')
-      const alunoNome = btn.getAttribute('data-nome')
-      container.querySelector('#vincular-aluno-id').value = alunoId
-      container.querySelector('#nome-aluno-matricula').textContent = alunoNome
-      modalMatricula.style.display = 'flex'
+      const alunoId = btn.getAttribute('data-id')!
+      const alunoNome = btn.getAttribute('data-nome')!
+      ;(container.querySelector('#vincular-aluno-id') as HTMLInputElement).value = alunoId
+      ;(container.querySelector('#nome-aluno-matricula') as HTMLElement).textContent = alunoNome
+      if (modalMatricula) modalMatricula.style.display = 'flex'
     })
   })
 
-  container.querySelector('.btn-fechar-matricula').onclick = () => {
-    modalMatricula.style.display = 'none'
+  const btnFecharMatricula = container.querySelector('.btn-fechar-matricula')
+  if (btnFecharMatricula) {
+    btnFecharMatricula.onclick = () => {
+      if (modalMatricula) modalMatricula.style.display = 'none'
+    }
   }
 
   // Fechar modal com botão X
-  container.querySelector('#btn-fechar-modal-matricula').onclick = () => {
-    modalMatricula.style.display = 'none'
+  const btnFecharModalMatricula = container.querySelector('#btn-fechar-modal-matricula')
+  if (btnFecharModalMatricula) {
+    btnFecharModalMatricula.onclick = () => {
+      if (modalMatricula) modalMatricula.style.display = 'none'
+    }
   }
 
-  formMatricula.onsubmit = async (e) => {
-    e.preventDefault()
-    const alunoId = container.querySelector('#vincular-aluno-id').value
-    const turmaId = container.querySelector('#vincular-turma-id').value
+  if (formMatricula) {
+    formMatricula.onsubmit = async (e: Event) => {
+      e.preventDefault()
+      const alunoId = (container.querySelector('#vincular-aluno-id') as HTMLInputElement).value
+      const turmaId = (container.querySelector('#vincular-turma-id') as HTMLSelectElement).value
 
-    const btnSubmit = formMatricula.querySelector('button[type="submit"]')
-    btnSubmit.disabled = true
-    btnSubmit.textContent = 'Matriculando...'
+      const btnSubmit = formMatricula.querySelector('button[type="submit"]') as HTMLButtonElement
+      btnSubmit.disabled = true
+      btnSubmit.textContent = 'Matriculando...'
 
-    const { error } = await AdminService.matricularAluno(alunoId, turmaId)
+      const { error } = await AdminService.matricularAluno(alunoId, turmaId)
 
-    btnSubmit.disabled = false
-    btnSubmit.textContent = 'Matricular'
+      btnSubmit.disabled = false
+      btnSubmit.textContent = 'Matricular'
 
-    if (error) {
-      toast.error('Erro ao matricular: ' + error.message)
-    } else {
-      toast.success('Aluno matriculado com sucesso!')
-      modalMatricula.style.display = 'none'
+      if (error) {
+        toast.error('Erro ao matricular: ' + error.message)
+      } else {
+        toast.success('Aluno matriculado com sucesso!')
+        if (modalMatricula) modalMatricula.style.display = 'none'
+      }
     }
   }
 

@@ -33,7 +33,8 @@ Este documento lista as melhorias de segurança, arquitetura e infraestrutura pl
 
 - [ ] **Multi-tenancy (school_id)**: Adicionar `school_id` em todas as tabelas para suportar múltiplas escolas.
 - [ ] **Painel Super Admin**: Para gerenciar múltiplas instituições clientes.
-- [ ] **Refatorar secretaria.js**: Dividir o arquivo de 54KB em módulos menores.
+- [x] **Refatorar secretaria.js**: Dividir o arquivo de 54KB em módulos menores e migrar para TypeScript.
+  - *Concluído em 13/04/2026*: Migração completa de todas as 22 views para TypeScript (100% do código).
 - [ ] **Testes automatizados**: Implementar testes de integração nos fluxos críticos.
 
 ---

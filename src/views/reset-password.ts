@@ -14,12 +14,12 @@ export function ResetPasswordView(): HTMLElement {
       <form id="reset-password-form">
         <div class="form-group">
           <label class="label" for="new-password">Nova Senha</label>
-          <input type="password" id="new-password" name="new-password" class="input" placeholder="Nova senha (min. 6 caracteres)" minlength="6" required>
+          <input type="password" id="new-password" name="new-password" class="input" placeholder="Nova senha (min. 6 caracteres)" minlength="6" required autocomplete="new-password">
         </div>
 
         <div class="form-group">
           <label class="label" for="confirm-password">Confirmar Nova Senha</label>
-          <input type="password" id="confirm-password" name="confirm-password" class="input" placeholder="Repita a senha" minlength="6" required>
+          <input type="password" id="confirm-password" name="confirm-password" class="input" placeholder="Repita a senha" minlength="6" required autocomplete="new-password">
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%;">Atualizar Senha</button>

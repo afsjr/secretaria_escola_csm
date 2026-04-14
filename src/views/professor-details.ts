@@ -107,21 +107,21 @@ export async function ProfessorDetailsView(professorId: string): Promise<HTMLEle
             <label class="label">Gênero</label>
             <select id="pd-genero" class="input">
               <option value="">--</option>
-              ${createOption('masculino', 'Masculino', dados.genero)}
-              ${createOption('feminino', 'Feminino', dados.genero)}
-              ${createOption('outro', 'Outro', dados.genero)}
-              ${createOption('prefiro_nao_informar', 'Prefiro não informar', dados.genero)}
+              ${createOption('masculino', 'Masculino', dados.genero === 'masculino')}
+              ${createOption('feminino', 'Feminino', dados.genero === 'feminino')}
+              ${createOption('outro', 'Outro', dados.genero === 'outro')}
+              ${createOption('prefiro_nao_informar', 'Prefiro não informar', dados.genero === 'prefiro_nao_informar')}
             </select>
           </div>
           <div class="form-group">
             <label class="label">Estado Civil</label>
             <select id="pd-estado-civil" class="input">
               <option value="">--</option>
-              ${createOption('solteiro', 'Solteiro(a)', dados.estado_civil)}
-              ${createOption('casado', 'Casado(a)', dados.estado_civil)}
-              ${createOption('divorciado', 'Divorciado(a)', dados.estado_civil)}
-              ${createOption('viuvo', 'Viúvo(a)', dados.estado_civil)}
-              ${createOption('uniao_estavel', 'União Estável', dados.estado_civil)}
+              ${createOption('solteiro', 'Solteiro(a)', dados.estado_civil === 'solteiro')}
+              ${createOption('casado', 'Casado(a)', dados.estado_civil === 'casado')}
+              ${createOption('divorciado', 'Divorciado(a)', dados.estado_civil === 'divorciado')}
+              ${createOption('viuvo', 'Viúvo(a)', dados.estado_civil === 'viuvo')}
+              ${createOption('uniao_estavel', 'União Estável', dados.estado_civil === 'uniao_estavel')}
             </select>
           </div>
         </div>

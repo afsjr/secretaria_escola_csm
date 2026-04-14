@@ -26,16 +26,15 @@ export const AcademicService = {
 
   // Buscar todas as turmas (com quantidade de matriculados se possível)
   async getTurmas() {
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from("turmas")
       .select(`
-        id, nome, periodo, status_ingresso,
-        matriculas ( count )
-      `)
+        id, nome, periodo, status_ingresso
+      `, { count: 'exact' })
       .order("periodo", { ascending: false })
       .order("nome", { ascending: true });
 
-    return { data, error };
+    return { data, error, count };
   },
 
   // Criar uma nova Turma

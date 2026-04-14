@@ -14,15 +14,16 @@ export async function ProfileView(profile: ProfileParam): Promise<HTMLElement> {
   container.className = 'profile-view animate-in'
 
   // Buscar dados completos
-  const { data: dadosCompletos, error: erroDados } = await StudentDetailsService.getAlunoCompleto(profile.id) as any
+  const { data: dadosCompletos, error: erroDados } = await StudentDetailsService.getAlunoCompleto(profile.id)
 
   if (erroDados) {
     console.error('Erro ao buscar dados completos:', erroDados)
   }
 
-  const dados = dadosCompletos?.perfil || profile
-  const endereco = dadosCompletos?.endereco || {}
-  const isAluno = dados.perfil === 'aluno'
+const dados = dadosCompletos?.perfil || { id: profile.id, nome_completo: '', email: '', perfil: profile.perfil, cpf: '', telefone: '' }
+  const dadosExtras = dadosCompletos?.perfil as any || {}
+  const enderecoData = dadosCompletos?.endereco as any || {}
+  const isAluno = (dados as any).perfil === 'aluno'
 
   const initials = dados.nome_completo ? escapeHTML(dados.nome_completo.charAt(0).toUpperCase()) : '?'
   const nomeValue = escapeHTML(dados.nome_completo || '')
@@ -31,23 +32,23 @@ export async function ProfileView(profile: ProfileParam): Promise<HTMLElement> {
   const emailValue = escapeHTML(dados.email || '')
   const perfilValue = escapeHTML(dados.perfil || 'aluno')
 
-  // Novos campos
-  const generoValue = dados.genero || ''
-  const dataNascValue = dados.data_nascimento || ''
-  const estadoCivilValue = dados.estado_civil || ''
-  const cidadeNatalValue = escapeHTML(dados.cidade_natal || '')
-  const nacionalidadeValue = escapeHTML(dados.nacionalidade || 'Brasileira')
-  const profissaoValue = escapeHTML(dados.profissao || '')
-  const rgValue = escapeHTML(dados.rg || '')
-  const orgaoExpValue = escapeHTML(dados.orgao_expedidor || '')
-  const celularValue = escapeHTML(dados.celular || dados.telefone_comercial || '')
-  const whatsappValue = escapeHTML(dados.whatsapp || '')
-  const cepValue = escapeHTML(endereco.cep || '')
-  const logradouroValue = escapeHTML(endereco.logradouro || '')
-  const numeroValue = escapeHTML(endereco.numero || '')
-  const bairroValue = escapeHTML(endereco.bairro || '')
-  const cidadeValue = escapeHTML(endereco.cidade || '')
-  const ufValue = escapeHTML(endereco.uf || '')
+  // Novos campos (do PerfilCompleto)
+  const generoValue = dadosExtras.genero || ''
+  const dataNascValue = dadosExtras.data_nascimento || ''
+  const estadoCivilValue = dadosExtras.estado_civil || ''
+  const cidadeNatalValue = escapeHTML(dadosExtras.cidade_natal || '')
+  const nacionalidadeValue = escapeHTML(dadosExtras.nacionalidade || 'Brasileira')
+  const profissaoValue = escapeHTML(dadosExtras.profissao || '')
+  const rgValue = escapeHTML(dadosExtras.rg || '')
+  const orgaoExpValue = escapeHTML(dadosExtras.orgao_expedidor || '')
+  const celularValue = escapeHTML(dadosExtras.celular || dadosExtras.telefone_comercial || '')
+  const whatsappValue = escapeHTML(dadosExtras.whatsapp || '')
+  const cepValue = escapeHTML(enderecoData?.cep || '')
+  const logradouroValue = escapeHTML(enderecoData?.logradouro || '')
+  const numeroValue = escapeHTML(enderecoData?.numero || '')
+  const bairroValue = escapeHTML(enderecoData?.bairro || '')
+  const cidadeValue = escapeHTML(enderecoData?.cidade || '')
+  const ufValue = escapeHTML(enderecoData?.uf || '')
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem;">

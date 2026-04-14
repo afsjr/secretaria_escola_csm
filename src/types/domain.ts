@@ -200,6 +200,39 @@ export interface AlunoComNotas {
 
 export interface DadosAlunoCompleto {
   perfil: UserProfile
+  endereco: Endereco | null
+  responsaveis: unknown[]
+  observacoes: unknown[]
+  matricula: unknown | null
+}
+
+// =====================================================
+// SERVICE RESULT TYPES
+// =====================================================
+
+export interface ServiceResult<T> {
+  data: T | null
+  error: { message: string } | null
+}
+
+export interface ServiceResultList<T> extends ServiceResult<T[]> {
+  count?: number
+}
+
+export interface CreateTurmaResult {
+  id: string
+  nome: string
+  periodo: string
+}
+
+export interface UpdateTurmaResult {
+  id: string
+  nome: string
+  periodo: string
+}
+
+export interface DadosAlunoCompleto {
+  perfil: UserProfile
   matriculas: MatriculaDetalhada[]
  boletim: Boletim[]
   endereco: Endereco | null

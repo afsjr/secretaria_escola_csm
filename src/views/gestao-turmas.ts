@@ -18,9 +18,17 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
   const canManageTurmas = profile.perfil === 'secretaria' || profile.perfil === 'admin' || profile.perfil === 'master_admin'
 
   // Fetch initial data
-  const { data: turmas, error: errorTurmas } = await AcademicService.getTurmas() as any
-  const { data: alunos, error: errorAlunos } = await AcademicService.getAlunos() as any
-  const { data: cursos, error: errorCursos } = await CourseService.getCursosAtivos() as any
+  const turmasResult = await AcademicService.getTurmas()
+  const turmas = turmasResult.data
+  const errorTurmas = turmasResult.error
+
+  const alunosResult = await AcademicService.getAlunos()
+  const alunos = alunosResult.data
+  const errorAlunos = alunosResult.error
+
+  const cursosResult = await CourseService.getCursosAtivos()
+  const cursos = cursosResult.data
+  const errorCursos = cursosResult.error
 
   if (errorTurmas) toast.error('Erro ao carregar turmas: ' + errorTurmas.message)
 
@@ -165,7 +173,8 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     }
 
     btn.disabled = true; btn.textContent = 'Salvando...'
-    const { data: turmaData, error } = await AcademicService.createTurma({ nome, periodo: periodo.trim() }) as any
+    const createResult = await AcademicService.createTurma({ nome, periodo: periodo.trim() })
+    const { data: turmaData, error } = createResult
 
     if (error) { toast.error('Erro: ' + error.message); btn.disabled = false; btn.textContent = 'Registrar Turma' }
     else {
@@ -228,7 +237,8 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
         }
 
         try {
-          const { error } = await AcademicService.updateTurma(turmaId, { nome: novoNome }) as any
+          const updateResult = await AcademicService.updateTurma(turmaId, { nome: novoNome })
+          const { error } = updateResult
 
           if (error) {
             toast.error('Erro ao renomear turma: ' + error.message)

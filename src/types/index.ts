@@ -98,4 +98,4 @@ export type Permission =
 // =====================================================
 
 export type { PerfilCompleto, Endereco, Curso, Turma, Disciplina, Matricula, Boletim, Aula, Solicitacao } from './domain'
-export type { DbResult, DbResultSingle, DbResultList, DadosProfessorCompleto, AlunoComNotas } from './domain'
+export type { DbResult, DbResultSingle, DbResultList, DadosProfessorCompleto, AlunoComNotas, ServiceResult, ServiceResultList, CreateTurmaResult, UpdateTurmaResult } from './domain'

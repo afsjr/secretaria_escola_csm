@@ -29,7 +29,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   container.className = 'secretaria-view animate-in'
 
   const { data: requests, error } = await DocumentsService.getAllOpenRequests()
-  const { data: turmas } = await AdminService.getTurmas()
+  const turmasResult = await AcademicService.getTurmas()
+  const { data: turmas } = turmasResult
   const { data: alunos, error: errorAlunos } = await AdminService.listAlunos()
   const { data: professores, error: errorProfessores } = await ProfessorService.getProfessores()
   const { data: disciplinas, error: errorDisciplinas } = await ProfessorService.getAllDisciplinas()

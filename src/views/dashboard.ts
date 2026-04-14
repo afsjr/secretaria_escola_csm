@@ -169,8 +169,9 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   const contentArea = container.querySelector<HTMLDivElement>('#painel-controle-conteudo')!
   const modalTroca = container.querySelector<HTMLDivElement>('#modal-troca-obrigatoria')!
 
-  // VERIFICAR TROCA OBRIGATÓRIA
-  const needsPasswordChange = session.user?.user_metadata?.force_password_change === true
+  // VERIFICAR TROCA OBRIGATÓRIA (metadata opcional do Supabase)
+  const userMeta = session.user?.user_metadata as { force_password_change?: boolean } | undefined
+  const needsPasswordChange = userMeta?.force_password_change === true
   if (needsPasswordChange) {
     modalTroca.style.display = 'flex'
   }

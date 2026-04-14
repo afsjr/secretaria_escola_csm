@@ -620,24 +620,23 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
         // Buscar matrícula apenas se for aluno
         let turmaInfo: any = null
-        if (userData.perfil === 'aluno') {
-          const { data: matriculas } = await supabase
-            .from('matriculas')
-            .select(`
-              *,
-              turmas(id, nome, periodo, cursos(id, nome))
-            `)
-            .eq('aluno_id', userId)
-            .eq('status_aluno', 'ativo')
-            .limit(1)
-            .maybeSingle()
+        const { data: matriculas } = await supabase
+          .from('matriculas')
+          .select(`
+            *,
+            turmas(id, nome, periodo, cursos(id, nome))
+          `)
+          .eq('aluno_id', userId)
+          .eq('status_aluno', 'ativo')
+          .limit(1)
+          .maybeSingle()
 
-          if (matriculas?.turmas) {
-            turmaInfo = {
-              turma_nome: matriculas.turmas.nome,
-              periodo: matriculas.turmas.periodo,
-              curso_nome: matriculas.turmas.cursos?.nome || 'N/A'
-            }
+        if (userData.perfil === 'aluno' && matriculas?.turmas) {
+          turmaInfo = {
+            turma_nome: matriculas.turmas.nome,
+            periodo: matriculas.turmas.periodo,
+            curso_nome: matriculas.turmas.cursos?.nome || 'N/A',
+            curso_id: matriculas.turmas.cursos?.id
           }
         }
 
@@ -1295,23 +1294,23 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     })
   })
 
-  const btnFecharMatricula = container.querySelector('.btn-fechar-matricula')
+  const btnFecharMatricula = container.querySelector('.btn-fechar-matricula') as HTMLButtonElement
   if (btnFecharMatricula) {
     btnFecharMatricula.onclick = () => {
-      if (modalMatricula) modalMatricula.style.display = 'none'
+      if (modalMatricula) (modalMatricula as HTMLElement).style.display = 'none'
     }
   }
 
   // Fechar modal com botão X
-  const btnFecharModalMatricula = container.querySelector('#btn-fechar-modal-matricula')
+  const btnFecharModalMatricula = container.querySelector('#btn-fechar-modal-matricula') as HTMLButtonElement
   if (btnFecharModalMatricula) {
     btnFecharModalMatricula.onclick = () => {
-      if (modalMatricula) modalMatricula.style.display = 'none'
+      if (modalMatricula) (modalMatricula as HTMLElement).style.display = 'none'
     }
   }
 
   if (formMatricula) {
-    formMatricula.onsubmit = async (e: Event) => {
+    (formMatricula as HTMLFormElement).onsubmit = async (e: Event) => {
       e.preventDefault()
       const alunoId = (container.querySelector('#vincular-aluno-id') as HTMLInputElement).value
       const turmaId = (container.querySelector('#vincular-turma-id') as HTMLSelectElement).value

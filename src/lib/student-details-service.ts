@@ -19,6 +19,7 @@ interface Responsavel {
   telefone?: string
   email?: string
   parentesco?: string
+  financeiro?: boolean
   principal?: boolean
   created_at?: string
 }

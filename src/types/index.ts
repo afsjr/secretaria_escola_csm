@@ -92,3 +92,10 @@ export type Permission =
   | "manage_financeiro"
   | "manage_instituicao"
   | "manage_aulas";
+
+// =====================================================
+// Re-export from domain types
+// =====================================================
+
+export type { PerfilCompleto, Endereco, Curso, Turma, Disciplina, Matricula, Boletim, Aula, Solicitacao } from './domain'
+export type { DbResult, DbResultSingle, DbResultList, DadosProfessorCompleto, AlunoComNotas } from './domain'

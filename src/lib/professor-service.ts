@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { AuditService } from './audit-service'
 import { getUserProfile } from '../auth/session'
+import type { Disciplina, Matricula, Boletim, Aula, DbResult } from '../types'
 
 interface VinculacaoDisciplina {
   disciplinaId: string
@@ -29,6 +30,15 @@ interface AulaData {
   professor_id: string
   data?: string
   conteudo: string
+}
+
+interface AlunoComNotas {
+  matricula_id: string
+  aluno_id: string
+  aluno_nome: string
+  aluno_email: string
+  status: string
+  nota: Boletim | null
 }
 
 export const ProfessorService = {
@@ -119,8 +129,7 @@ export const ProfessorService = {
   // === NOTAS ===
 
   // Buscar notas de uma turma para uma disciplina específica
-  async getNotasDaDisciplina(disciplinaNome: string, turmaId: string) {
-    // Primeiro buscar os alunos da turma
+  async getNotasDaDisciplina(disciplinaNome: string, turmaId: string): Promise<{ data: AlunoComNotas[] | null; error: { message: string } | null }> {
     const { data: matriculas, error: errorMatriculas } = await supabase
       .from('matriculas')
       .select(`
@@ -133,20 +142,20 @@ export const ProfessorService = {
 
     if (errorMatriculas) return { data: null, error: errorMatriculas }
 
-    // Depois buscar as notas de cada aluno para a disciplina
-    const alunosComNotas = await Promise.all(matriculas.map(async (m: any) => {
+    const alunosComNotas: AlunoComNotas[] = await Promise.all(matriculas.map(async (m) => {
+      const perfil = m.perfis as { id: string; nome_completo: string; email: string }
       const { data: nota } = await supabase
         .from('boletim')
         .select('*')
-        .eq('aluno_id', m.perfis.id)
+        .eq('aluno_id', perfil.id)
         .eq('disciplina', disciplinaNome)
         .single()
 
       return {
         matricula_id: m.id,
-        aluno_id: m.perfis.id,
-        aluno_nome: m.perfis.nome_completo,
-        aluno_email: m.perfis.email,
+        aluno_id: perfil.id,
+        aluno_nome: perfil.nome_completo,
+        aluno_email: perfil.email,
         status: m.status_aluno,
         nota: nota || null
       }

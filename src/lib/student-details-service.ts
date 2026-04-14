@@ -9,20 +9,43 @@
  */
 
 import { supabase } from './supabase'
+import type { Endereco, UserProfile, DbResult } from '../types'
 
-interface EnderecoData {
-  [key: string]: any
+interface Responsavel {
+  id?: string
+  aluno_id: string
+  nome: string
+  cpf?: string
+  telefone?: string
+  email?: string
+  parentesco?: string
+  principal?: boolean
+  created_at?: string
 }
 
-interface ResponsavelData {
-  [key: string]: any
+interface Observacao {
+  id?: string
+  aluno_id: string
+  texto: string
+  categoria: string
+  criado_por?: string
+  criado_em?: string
+  criado_por_perfis?: Pick<UserProfile, 'nome_completo' | 'perfil'>
+}
+
+interface DadosAlunoCompleto {
+  perfil: UserProfile
+  endereco: Endereco | null
+  responsaveis: Responsavel[]
+  observacoes: Observacao[]
+  matricula: Record<string, unknown> | null
 }
 
 export const StudentDetailsService = {
 
   // ==================== ENDEREÇO ====================
 
-  async getEndereco(userId: string) {
+  async getEndereco(userId: string): Promise<DbResult<Endereco>> {
     const { data, error } = await supabase
       .from('perfis_enderecos')
       .select('*')
@@ -32,11 +55,10 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async saveEndereco(userId: string, endereco: EnderecoData) {
+  async saveEndereco(userId: string, endereco: Partial<Endereco>): Promise<DbResult<Endereco>> {
     const { data: existing } = await this.getEndereco(userId)
 
     if (existing) {
-      // Atualizar existente
       const { data, error } = await supabase
         .from('perfis_enderecos')
         .update(endereco)
@@ -45,7 +67,6 @@ export const StudentDetailsService = {
         .single()
       return { data, error }
     } else {
-      // Inserir novo
       const { data, error } = await supabase
         .from('perfis_enderecos')
         .insert([{ user_id: userId, ...endereco }])
@@ -55,7 +76,7 @@ export const StudentDetailsService = {
     }
   },
 
-  async deleteEndereco(userId: string) {
+  async deleteEndereco(userId: string): Promise<DbResult<unknown>> {
     const { data, error } = await supabase
       .from('perfis_enderecos')
       .delete()
@@ -66,7 +87,7 @@ export const StudentDetailsService = {
 
   // ==================== RESPONSÁVEIS ====================
 
-  async getResponsaveis(alunoId: string) {
+  async getResponsaveis(alunoId: string): Promise<DbResult<Responsavel[]>> {
     const { data, error } = await supabase
       .from('responsaveis')
       .select('*')
@@ -77,7 +98,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async addResponsavel(alunoId: string, responsavel: ResponsavelData) {
+  async addResponsavel(alunoId: string, responsavel: Partial<Responsavel>): Promise<DbResult<Responsavel>> {
     const { data, error } = await supabase
       .from('responsaveis')
       .insert([{ aluno_id: alunoId, ...responsavel }])
@@ -87,7 +108,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async updateResponsavel(id: string, updates: Record<string, any>) {
+  async updateResponsavel(id: string, updates: Partial<Responsavel>): Promise<DbResult<Responsavel>> {
     const { data, error } = await supabase
       .from('responsaveis')
       .update(updates)
@@ -98,7 +119,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async deleteResponsavel(id: string) {
+  async deleteResponsavel(id: string): Promise<DbResult<unknown>> {
     const { data, error } = await supabase
       .from('responsaveis')
       .delete()
@@ -110,7 +131,7 @@ export const StudentDetailsService = {
 
   // ==================== OBSERVAÇÕES ====================
 
-  async getObservacoes(alunoId: string) {
+  async getObservacoes(alunoId: string): Promise<DbResult<Observacao[]>> {
     const { data, error } = await supabase
       .from('observacoes_aluno')
       .select(`
@@ -123,7 +144,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async addObservacao(alunoId: string, texto: string, categoria: string = 'geral') {
+  async addObservacao(alunoId: string, texto: string, categoria: string = 'geral'): Promise<DbResult<Observacao>> {
     const { data: { session } } = await supabase.auth.getSession()
 
     const { data, error } = await supabase
@@ -140,7 +161,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async updateObservacao(id: string, updates: Record<string, any>) {
+  async updateObservacao(id: string, updates: Partial<Observacao>): Promise<DbResult<Observacao>> {
     const { data, error } = await supabase
       .from('observacoes_aluno')
       .update(updates)
@@ -151,7 +172,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  async deleteObservacao(id: string) {
+  async deleteObservacao(id: string): Promise<DbResult<unknown>> {
     const { data, error } = await supabase
       .from('observacoes_aluno')
       .delete()
@@ -163,35 +184,19 @@ export const StudentDetailsService = {
 
   // ==================== DADOS COMPLETOS ====================
 
-  /**
-   * Busca TODOS os dados de um aluno em uma única chamada
-   */
-  async getAlunoCompleto(alunoId: string) {
-    const result: Record<string, any> = {}
-
-    // Dados pessoais
+  async getAlunoCompleto(alunoId: string): Promise<{ data: DadosAlunoCompleto | null; error: { message: string } | null }> {
     const { data: perfil, error: perfilError } = await supabase
       .from('perfis')
       .select('*')
       .eq('id', alunoId)
       .single()
 
-    if (perfilError) return { error: perfilError }
-    result.perfil = perfil
+    if (perfilError) return { data: null, error: perfilError }
 
-    // Endereço
     const { data: endereco } = await this.getEndereco(alunoId)
-    result.endereco = endereco
-
-    // Responsáveis
     const { data: responsaveis } = await this.getResponsaveis(alunoId)
-    result.responsaveis = responsaveis || []
-
-    // Observações
     const { data: observacoes } = await this.getObservacoes(alunoId)
-    result.observacoes = observacoes || []
 
-    // Matrícula ativa
     const { data: matricula } = await supabase
       .from('matriculas')
       .select(`
@@ -202,15 +207,19 @@ export const StudentDetailsService = {
       .eq('status_aluno', 'ativo')
       .maybeSingle()
 
-    result.matricula = matricula
-
-    return { data: result, error: null }
+    return {
+      data: {
+        perfil,
+        endereco,
+        responsaveis: responsaveis || [],
+        observacoes: observacoes || [],
+        matricula
+      },
+      error: null
+    }
   },
 
-  /**
-   * Salva dados pessoais expandidos
-   */
-  async updateDadosPessoais(userId: string, dados: Record<string, any>) {
+  async updateDadosPessoais(userId: string, dados: Partial<UserProfile>): Promise<DbResult<UserProfile>> {
     const { data, error } = await supabase
       .from('perfis')
       .update(dados)
@@ -221,10 +230,7 @@ export const StudentDetailsService = {
     return { data, error }
   },
 
-  /**
-   * Verifica se aluno é menor de idade
-   */
-  async isMenorDeIdade(alunoId: string) {
+  async isMenorDeIdade(alunoId: string): Promise<boolean | null> {
     const { data } = await supabase
       .rpc('aluno_eh_menor', { aluno_id: alunoId })
 

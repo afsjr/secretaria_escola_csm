@@ -587,9 +587,10 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       btn.classList.add('active')
 
       tabContents.forEach(content => {
-        content.style.display = 'none'
+        (content as HTMLElement).style.display = 'none'
       })
-      container.querySelector(`#tab-${tab}`)!.style.display = 'block'
+      const targetTab = container.querySelector(`#tab-${tab}`) as HTMLElement
+      if (targetTab) targetTab.style.display = 'block'
     })
   })
 
@@ -925,19 +926,19 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
         })
       }
 
-      if (modalVincular) modalVincular.style.display = 'flex'
+      if (modalVincular) (modalVincular as HTMLElement).style.display = 'flex'
     })
   })
 
   if (btnFecharModalVincular) {
     btnFecharModalVincular.addEventListener('click', () => {
-      if (modalVincular) modalVincular.style.display = 'none'
+      if (modalVincular) (modalVincular as HTMLElement).style.display = 'none'
     })
   }
 
   if (btnCancelarVincular) {
     btnCancelarVincular.addEventListener('click', () => {
-      if (modalVincular) modalVincular.style.display = 'none'
+      if (modalVincular) (modalVincular as HTMLElement).style.display = 'none'
     })
   }
 

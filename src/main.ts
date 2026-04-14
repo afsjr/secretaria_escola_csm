@@ -59,7 +59,7 @@ async function router(): Promise<void> {
     } else if (path.startsWith('#/dashboard')) {
       // Pass the subpath to the PainelControleView
       const subPath = path.replace('#/dashboard', '') || '/'
-      app.appendChild(await DashboardView(session, subPath))
+      app.appendChild(await DashboardView(session as any, subPath))
     } else {
       app.innerHTML = '<h1>404 - Página não encontrada</h1>'
     }

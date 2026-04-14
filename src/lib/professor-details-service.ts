@@ -9,20 +9,20 @@
  */
 
 import { supabase } from './supabase'
-
-interface EnderecoData {
-  [key: string]: any
-}
+import type { PerfilCompleto, Endereco, Disciplina, DbResult } from '../types'
 
 export const ProfessorDetailsService = {
 
   // ==================== DADOS PESSOAIS ====================
 
-  async getProfessorCompleto(professorId: string) {
-    const result: Record<string, any> = {}
+  async getProfessorCompleto(professorId: string): Promise<{ data: { perfil: PerfilCompleto; endereco: Endereco | null; disciplinas: Disciplina[]; disciplinasError: { message: string } | null } | null; error: { message: string } | null }> {
+    const result = {
+      perfil: null as PerfilCompleto | null,
+      endereco: null as Endereco | null,
+      disciplinas: [] as Disciplina[],
+      disciplinasError: null as { message: string } | null,
+    }
 
-    // Dados pessoais — QUERY CRÍTICA (se falhar, não há ficha)
-    console.log('[ProfessorDetailsService] Buscando perfil para:', professorId)
     const { data: perfil, error: perfilError } = await supabase
       .from('perfis')
       .select('*')
@@ -30,44 +30,33 @@ export const ProfessorDetailsService = {
       .single()
 
     if (perfilError) {
-      console.error('[ProfessorDetailsService] ERRO ao buscar perfil:', perfilError)
-      return { error: perfilError }
+      return { data: null, error: perfilError }
     }
-    console.log('[ProfessorDetailsService] Perfil encontrado:', perfil?.nome_completo, '| perfil:', perfil?.perfil)
     result.perfil = perfil
 
-    // Endereço — QUERY OPCIONAL (pode não existir)
     const { data: endereco } = await this.getEndereco(professorId)
     result.endereco = endereco
 
-    // Disciplinas do professor — QUERY OPCIONAL (pode falhar por RLS sem bloquear ficha)
-    console.log('[ProfessorDetailsService] Buscando disciplinas para professor:', professorId)
-    try {
-      const { data: disciplinas, error: discError } = await supabase
-        .from('disciplinas')
-        .select(`
-          *,
-          turmas(id, nome, periodo),
-          cursos(id, nome)
-        `)
-        .eq('professor_id', professorId)
-        .order('nome', { ascending: true })
+    const { data: disciplinas, error: discError } = await supabase
+      .from('disciplinas')
+      .select(`
+        *,
+        turmas(id, nome, periodo),
+        cursos(id, nome)
+      `)
+      .eq('professor_id', professorId)
+      .order('nome', { ascending: true })
 
-      if (discError) {
-        console.warn('[ProfessorDetailsService] Disciplinas indisponíveis:', discError.message)
-      }
+    if (discError) {
+      result.disciplinasError = { message: discError.message }
+    } else {
       result.disciplinas = disciplinas || []
-      result.disciplinasError = discError // Sinaliza erro para a view
-    } catch (err: any) {
-      console.warn('[ProfessorDetailsService] Erro inesperado ao buscar disciplinas:', err.message)
-      result.disciplinas = []
-      result.disciplinasError = { message: err.message }
     }
 
     return { data: result, error: null }
   },
 
-  async updateDadosPessoais(userId: string, dados: Record<string, any>) {
+  async updateDadosPessoais(userId: string, dados: Partial<PerfilCompleto>): Promise<DbResult<PerfilCompleto>> {
     const { data, error } = await supabase
       .from('perfis')
       .update(dados)
@@ -80,7 +69,7 @@ export const ProfessorDetailsService = {
 
   // ==================== ENDEREÇO ====================
 
-  async getEndereco(userId: string) {
+  async getEndereco(userId: string): Promise<DbResult<Endereco>> {
     const { data, error } = await supabase
       .from('perfis_enderecos')
       .select('*')
@@ -90,7 +79,7 @@ export const ProfessorDetailsService = {
     return { data, error }
   },
 
-  async saveEndereco(userId: string, endereco: EnderecoData) {
+  async saveEndereco(userId: string, endereco: Partial<Endereco>): Promise<DbResult<Endereco>> {
     const { data: existing } = await this.getEndereco(userId)
 
     if (existing) {

@@ -21,6 +21,11 @@ interface NotaItem {
   rec: number | string;
 }
 
+interface MatriculaAtiva {
+  id: string
+  turmas?: { nome?: string }
+}
+
 export const AcademicService = {
   // === TURMAS ===
 
@@ -108,8 +113,8 @@ export const AcademicService = {
 
     // Se encontrou alguma matrícula ativa, bloqueia a inserção
     if (matriculasAtivas && matriculasAtivas.length > 0) {
-      const nomeTurmaAtual = (matriculasAtivas[0] as any).turmas?.nome ||
-        "outra turma";
+      const primeiraMatricula = matriculasAtivas[0] as MatriculaAtiva
+      const nomeTurmaAtual = primeiraMatricula?.turmas?.nome || "outra turma"
       return {
         error: {
           message:

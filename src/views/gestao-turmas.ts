@@ -294,10 +294,10 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
       ;(btn as HTMLButtonElement).textContent = 'Excluindo...'
 
       try {
-        const { error } = await AcademicService.deleteTurma(turmaId) as any
+        const deleteResult = await AcademicService.deleteTurma(turmaId)
 
-        if (error) {
-          toast.error('Erro ao excluir turma: ' + error.message)
+        if (deleteResult.error) {
+          toast.error('Erro ao excluir turma: ' + deleteResult.error.message)
         } else {
           // Registrar no audit log
           await AuditService.log({
@@ -335,7 +335,8 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
 
   async function loadTurmaAlunos(turmaId: string) {
     tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center;">Carregando Caderneta...</td></tr>'
-    const { data: matriculas, error } = await AcademicService.getAlunosDaTurma(turmaId) as any
+    const matriculasResult = await AcademicService.getAlunosDaTurma(turmaId)
+    const { data: matriculas, error } = matriculasResult
 
     if (error) {
       tabelaAlunos.innerHTML = `<tr><td colspan="4" style="color:red; padding: 1rem;">Erro: ${escapeHTML(error.message)}</td></tr>`
@@ -347,15 +348,16 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
       return
     }
 
-    tabelaAlunos.innerHTML = matriculas.map((m: any) => {
-      const nomeAluno = escapeHTML(m.perfis?.nome_completo || 'Aluno Desconhecido')
-      const emailAluno = escapeHTML(m.perfis?.email || '')
+    tabelaAlunos.innerHTML = matriculas.map((m) => {
+      const alunoData = (m.perfis as unknown[])?.[0] as { id?: string; nome_completo?: string; email?: string; bloqueio_financeiro?: boolean } | undefined
+      const nomeAluno = escapeHTML(alunoData?.nome_completo || 'Aluno Desconhecido')
+      const emailAluno = escapeHTML(alunoData?.email || '')
       const matriculaId = escapeHTML(m.id)
-      const alunoId = escapeHTML(m.perfis.id)
+      const alunoId = escapeHTML(alunoData?.id || '')
       const statusBg = m.status_aluno === 'ativo' ? '#dcfce7' : '#f3f4f6'
-      const bloqueioColor = m.perfis.bloqueio_financeiro ? '#dc2626' : '#22c55e'
-      const bloqueioText = m.perfis.bloqueio_financeiro ? 'INADIMPLENTE' : 'Ok'
-      const checkedAttr = m.perfis.bloqueio_financeiro ? 'checked' : ''
+      const bloqueioColor = alunoData?.bloqueio_financeiro ? '#dc2626' : '#22c55e'
+      const bloqueioText = alunoData?.bloqueio_financeiro ? 'INADIMPLENTE' : 'Ok'
+      const checkedAttr = alunoData?.bloqueio_financeiro ? 'checked' : ''
 
       return `
         <tr style="border-top: 1px solid var(--secondary);">
@@ -365,7 +367,7 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
           </td>
           <td style="padding: 1rem;">
             <label for="status-select-${matriculaId}" style="display:none;">Status Acadêmico</label>
-            <select id="status-select-${matriculaId}" name="status_aluno" class="input status-aluno-select" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" data-bloqueio="${m.perfis.bloqueio_financeiro}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${statusBg};">
+            <select id="status-select-${matriculaId}" name="status_aluno" class="input status-aluno-select" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" data-bloqueio="${alunoData?.bloqueio_financeiro || false}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${statusBg};">
               ${createOption('ativo', 'Ativo Regular', m.status_aluno === 'ativo')}
               ${createOption('trancado', 'Trancado / Inativo', m.status_aluno === 'trancado')}
               ${createOption('evadido', 'Evadido', m.status_aluno === 'evadido')}

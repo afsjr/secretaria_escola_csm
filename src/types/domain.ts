@@ -231,6 +231,27 @@ export interface UpdateTurmaResult {
   periodo: string
 }
 
+// =====================================================
+// SERVICE RESPONSE TYPES (para uso em views)
+// =====================================================
+
+export interface GestaoTurmasResponse {
+  turmas: { id: string; nome: string; periodo: string }[]
+  turmasError?: { message: string }
+  turmaData?: UpdateTurmaResult
+  error?: { message: string }
+}
+
+export interface VinculacaoResponse {
+  error?: { message: string }
+}
+
+export interface MatriculaResponse {
+  id?: string
+  status_aluno?: string
+  error?: { message: string }
+}
+
 export interface DadosAlunoCompleto {
   perfil: UserProfile
   matriculas: MatriculaDetalhada[]

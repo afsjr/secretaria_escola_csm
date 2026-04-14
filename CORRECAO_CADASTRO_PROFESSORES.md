@@ -1,14 +1,15 @@
-# 🔧 Correção: Cadastro de Professores Não Aparecia na Lista
+# 🔧 Correção: Cadastros Não Apareciam na Lista (Professores e Alunos)
 
 ## ❌ Problema Identificado
 
-Ao cadastrar um novo professor no painel de gestão (`#/dashboard/secretaria`), o professor era criado com sucesso no banco de dados (Supabase Auth + tabela `perfis`), mas **não aparecia na lista de professores** exibida no painel.
+Ao cadastrar um novo **professor** ou **aluno** no painel de gestão (`#/dashboard/secretaria`), o usuário era criado com sucesso no banco de dados (Supabase Auth + tabela `perfis`), mas **não aparecia na lista** exibida no painel.
 
 ## 🔍 Causa Raiz
 
 O problema estava no arquivo `/src/views/secretaria.ts`:
 
 1. **Lista carregada uma vez**: A lista de professores era carregada apenas UMA vez durante a inicialização da view (linha 33):
+
    ```typescript
    const { data: professores, error: errorProfessores } = await ProfessorService.getProfessores()
    ```
@@ -17,7 +18,7 @@ O problema estava no arquivo `/src/views/secretaria.ts`:
    - Exibia mensagem de sucesso ✅
    - Limpava o formulário 📝
    - Reabilitava o botão 🔘
-   
+
    **MAS não recarregava a lista de professores**, então o DOM continuava exibindo os dados antigos.
 
 3. **Inconsistência**: O cadastro de alunos também tinha o mesmo problema, mas o de professores era mais crítico porque não havia feedback visual imediato.
@@ -27,6 +28,7 @@ O problema estava no arquivo `/src/views/secretaria.ts`:
 ### Alteração no Arquivo: `src/views/secretaria.ts`
 
 **Antes** (linhas 862-870):
+
 ```typescript
 toast.success('Professor cadastrado com sucesso!')
 
@@ -36,6 +38,7 @@ btnCadastrarProfessor.textContent = 'Cadastrar Professor'
 ```
 
 **Depois** (linhas 862-868):
+
 ```typescript
 toast.success('Professor cadastrado com sucesso!')
 
@@ -72,9 +75,11 @@ setTimeout(() => window.location.reload(), 500)
 
 1. **Service Role Key não configurada**
    - Verifique o arquivo `.env`:
+
      ```env
      VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
      ```
+
    - Se estiver ausente, o `supabaseAdmin` será `null` e o cadastro falhará
 
 2. **E-mail já cadastrado**
@@ -92,11 +97,13 @@ setTimeout(() => window.location.reload(), 500)
 **Se este erro ainda persistir após a correção:**
 
 1. **Verifique o Console (F12)**:
+
    ```javascript
    [ProfessorService] Erro ao buscar professores: ...
    ```
 
 2. **Teste a query manualmente no Supabase SQL Editor**:
+
    ```sql
    SELECT id, nome_completo, email, cpf, telefone, perfil
    FROM perfis
@@ -109,6 +116,7 @@ setTimeout(() => window.location.reload(), 500)
    - Certifique-se de que há políticas permitindo `SELECT` para usuários autenticados com perfil `admin` ou `secretaria`
 
 4. **Execute esta policy se necessário**:
+
    ```sql
    -- Permitir que admin/secretaria vejam todos os perfis
    CREATE POLICY "Admins podem ver todos os perfis"

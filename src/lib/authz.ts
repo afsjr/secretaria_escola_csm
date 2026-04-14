@@ -18,9 +18,9 @@ export const ROLES: Record<string, UserRole> = {
 };
 
 /**
- * Permissões por role
+ * Permissões por role (exportado para testes)
  */
-const PERMISSIONS: Record<string, Permission[]> = {
+export const PERMISSIONS: Record<string, Permission[]> = {
   [ROLES.MASTER_ADMIN]: [
     "view_dashboard",
     "view_colegas",

@@ -193,7 +193,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria)) {
     contentArea.appendChild(await SecretariaView())
   } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria)) {
-    contentArea.appendChild(await GestaoTurmasView())
+    contentArea.appendChild(await GestaoTurmasView({ id: profile?.id || '', perfil: userRole as any }))
   } else if (subPath === '/professor/turmas' && _isProfessor) {
     contentArea.appendChild(await ProfessorTurmasView(profile as UserProfile))
   } else if (subPath === '/professor/alunos' && _isProfessor) {

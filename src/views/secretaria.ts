@@ -302,6 +302,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
                   <tr>
                     <th>Disciplina</th>
                     <th>Módulo</th>
+                    <th>Turma</th>
                     <th>Professor</th>
                   </tr>
                 </thead>
@@ -310,6 +311,9 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
                     <tr>
                       <td>${escapeHTML(d.nome)}</td>
                       <td>${escapeHTML(d.modulo)}</td>
+                      <td>
+                        ${d.turmas?.nome ? `<span class="badge badge-info">${escapeHTML(d.turmas.nome)}</span>` : '<span class="badge badge-warning">Sem turma</span>'}
+                      </td>
                       <td>
                         ${d.perfis?.nome_completo ? `<span class="badge badge-success">${escapeHTML(d.perfis.nome_completo)}</span>` : '<span class="badge badge-warning">Sem professor</span>'}
                       </td>
@@ -808,9 +812,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       toast.success('Aluno cadastrado com sucesso!')
     }
 
-    formCadastro.reset()
-    btnCadastrar.disabled = false
-    btnCadastrar.textContent = 'Cadastrar Aluno'
+    // Recarregar a página para atualizar a lista de alunos
+    setTimeout(() => window.location.reload(), 500)
   })
 
   // =====================================================
@@ -860,9 +863,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
     toast.success('Professor cadastrado com sucesso!')
 
-    formCadastroProfessor.reset()
-    btnCadastrarProfessor.disabled = false
-    btnCadastrarProfessor.textContent = 'Cadastrar Professor'
+    // Recarregar a página para atualizar a lista de professores
+    setTimeout(() => window.location.reload(), 500)
   })
 
   // =====================================================

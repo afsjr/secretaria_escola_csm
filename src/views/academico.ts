@@ -299,6 +299,7 @@ export async function AcademicoView(
           alunoData,
           notasData,
           turmaInfo,
+          { marcaCopia: true },
         );
         PDFService.downloadPDF(
           doc,

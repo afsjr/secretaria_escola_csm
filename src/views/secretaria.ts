@@ -650,11 +650,11 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
               btnEl.textContent = 'Gerar PDF'
               return
             }
-            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo)
+            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
             PDFService.downloadPDF(doc, `declaracao_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           } else {
             // Admin/Professor → Declaração de Vínculo
-            const doc = PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile)
+            const doc = PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile, { marcaCopia: true })
             PDFService.downloadPDF(doc, `declaracao_vinculo_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           }
           toast.success('PDF gerado com sucesso!')
@@ -687,7 +687,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
             return { ...n, modulo: disc?.modulo || 'I Módulo' }
           }) || notas || []
 
-          const doc = PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo)
+          const doc = PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo, { marcaCopia: true })
           PDFService.downloadPDF(doc, `historico_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           toast.success('PDF gerado com sucesso!')
 
@@ -700,7 +700,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
               btnEl.textContent = 'Gerar PDF'
               return
             }
-            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo)
+            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
             PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
           } else {
             // Admin/Professor/Secretaria → Declaração de Vínculo

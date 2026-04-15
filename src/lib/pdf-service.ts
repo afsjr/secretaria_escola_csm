@@ -50,6 +50,36 @@ interface ModulosNotas {
 
 export const PDFService = {
   // =====================================================
+  // HELPERS DE SEGURANÇA
+  // =====================================================
+
+  /**
+   * Mascara CPF para exibição segura
+   * Exibe apenas os 3 primeiros e 2 últimos dígitos: ***.444.777-**
+   */
+  _mascarCPF(cpf: string | undefined): string {
+    if (!cpf) return 'N/A'
+    // Remover pontuação
+    const cpfLimpo = cpf.replace(/\D/g, '')
+    if (cpfLimpo.length !== 11) return 'N/A'
+    return `***.${cpf.substring(3, 6)}.${cpf.substring(6, 9)}-**`
+  },
+
+  /**
+   * Adiciona marca d'água "CÓPIA" ao documento
+   */
+  _adicionarMarcaCopia(doc: jsPDF, pageWidth: number, pageHeight: number) {
+    doc.setTextColor(200, 200, 200)
+    doc.setFontSize(60)
+    doc.setFont('helvetica', 'bold')
+    doc.text('CÓPIA', pageWidth / 2, pageHeight / 2, {
+      align: 'center',
+      angle: 45,
+    })
+    doc.setTextColor(0, 0, 0) // Reset
+  },
+
+  // =====================================================
   // HELPER: CABEÇALHO DINÂMICO (compartilhado por todos os docs)
   // =====================================================
   _renderHeader(
@@ -107,13 +137,20 @@ export const PDFService = {
     alunoData: AlunoData,
     notasData: NotaData[],
     turmaInfo: TurmaInfo,
+    options?: { marcaCopia?: boolean },
   ) {
     const inst = await getHeader();
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginLeft = 15;
     const marginRight = 15;
     const contentWidth = pageWidth - marginLeft - marginRight;
+
+    // --- Marca d'água CÓPIA (se habilitado) ---
+    if (options?.marcaCopia) {
+      this._adicionarMarcaCopia(doc, pageWidth, pageHeight)
+    }
 
     // --- Header ---
     doc.setFillColor(30, 58, 95); // var(--primary)
@@ -298,12 +335,18 @@ export const PDFService = {
   // =====================================================
   // DECLARAÇÃO DE MATRÍCULA (Enrollment Declaration)
   // =====================================================
-  generateDeclaracaoPDF(alunoData: AlunoData, turmaInfo: TurmaInfo) {
+  generateDeclaracaoPDF(alunoData: AlunoData, turmaInfo: TurmaInfo, options?: { marcaCopia?: boolean }) {
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginLeft = 25;
     const marginRight = 25;
     const contentWidth = pageWidth - marginLeft - marginRight;
+
+    // --- Marca d'água CÓPIA (se habilitado) ---
+    if (options?.marcaCopia) {
+      this._adicionarMarcaCopia(doc, pageWidth, pageHeight)
+    }
 
     // --- Header ---
     doc.setFillColor(30, 58, 95);
@@ -341,7 +384,7 @@ export const PDFService = {
     doc.setFont("helvetica", "normal");
 
     const nomeAluno = alunoData.nome_completo || "N/A";
-    const cpfAluno = alunoData.cpf || "N/A";
+    const cpfAluno = this._mascarCPF(alunoData.cpf); // CPF mascarado por segurança
     const cursoNome = turmaInfo?.curso_nome || "Técnico em Enfermagem";
     const turmaNome = turmaInfo?.turma_nome || "N/A";
     const periodo = turmaInfo?.periodo || "";
@@ -352,7 +395,9 @@ export const PDFService = {
     });
 
     const texto =
-      `Declaramos, para os devidos fins, que o(a) aluno(a) ${nomeAluno}, CPF: ${cpfAluno}, encontra-se devidamente matriculado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta instituição de ensino.`;
+      `Declaramos, para os devidos fins, que o(a) aluno(a) ${nomeAluno}, CPF: ${cpfAluno}, encontra-se devidamente matri
+
+culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta instituição de ensino.`;
 
     const splitText = doc.splitTextToSize(texto, contentWidth);
     doc.text(splitText, marginLeft, 75);
@@ -384,12 +429,18 @@ export const PDFService = {
   // DECLARAÇÃO DE VÍNCULO (Employment Declaration)
   // Para Admin/Professor
   // =====================================================
-  generateDeclaracaoVinculoPDF(userData: AlunoData & { perfil?: string }) {
+  generateDeclaracaoVinculoPDF(userData: AlunoData & { perfil?: string }, options?: { marcaCopia?: boolean }) {
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginLeft = 25;
     const marginRight = 25;
     const contentWidth = pageWidth - marginLeft - marginRight;
+
+    // --- Marca d'água CÓPIA (se habilitado) ---
+    if (options?.marcaCopia) {
+      this._adicionarMarcaCopia(doc, pageWidth, pageHeight)
+    }
 
     // --- Header ---
     doc.setFillColor(30, 58, 95);
@@ -427,7 +478,7 @@ export const PDFService = {
     doc.setFont("helvetica", "normal");
 
     const nome = userData.nome_completo || "N/A";
-    const cpf = userData.cpf || "N/A";
+    const cpf = this._mascarCPF(userData.cpf); // CPF mascarado por segurança
     const perfil = userData.perfil;
     const funcao = perfil === "professor"
       ? "docente"
@@ -481,12 +532,19 @@ export const PDFService = {
     alunoData: AlunoData,
     notasData: NotaData[],
     turmaInfo: TurmaInfo,
+    options?: { marcaCopia?: boolean },
   ) {
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginLeft = 15;
     const marginRight = 15;
     const contentWidth = pageWidth - marginLeft - marginRight;
+
+    // --- Marca d'água CÓPIA (se habilitado) ---
+    if (options?.marcaCopia) {
+      this._adicionarMarcaCopia(doc, pageWidth, pageHeight)
+    }
 
     // --- Header ---
     doc.setFillColor(30, 58, 95);
@@ -522,7 +580,7 @@ export const PDFService = {
 
     let currentY = 58;
     doc.text(`Nome: ${alunoData.nome_completo || "N/A"}`, marginLeft, currentY);
-    doc.text(`CPF: ${alunoData.cpf || "N/A"}`, marginLeft + 100, currentY);
+    doc.text(`CPF: ${this._mascarCPF(alunoData.cpf)}`, marginLeft + 100, currentY); // CPF mascarado
     currentY += 6;
     doc.text(
       `Curso: ${turmaInfo?.curso_nome || "Técnico em Enfermagem"}`,
@@ -654,12 +712,18 @@ export const PDFService = {
   // =====================================================
   // TERMO DE ACORDO FINANCEIRO (Financial Settlement)
   // =====================================================
-  generateTermoAcordoPDF(alunoData: AlunoData, acordoData: AcordoData) {
+  generateTermoAcordoPDF(alunoData: AlunoData, acordoData: AcordoData, options?: { marcaCopia?: boolean }) {
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginLeft = 20;
     const marginRight = 20;
     const contentWidth = pageWidth - marginLeft - marginRight;
+
+    // --- Marca d'água CÓPIA (se habilitado) ---
+    if (options?.marcaCopia) {
+      this._adicionarMarcaCopia(doc, pageWidth, pageHeight)
+    }
 
     // --- Header ---
     doc.setFillColor(196, 30, 58); // Vermelho Institucional
@@ -699,7 +763,7 @@ export const PDFService = {
 
     const infoTexto =
       `Pelo presente instrumento particular, de um lado COLÉGIO SANTA MÔNICA, e de outro o(a) Sr(a). ${alunoData.nome_completo}, CPF: ${
-        alunoData.cpf || "____.____.____-___"
+        this._mascarCPF(alunoData.cpf)
       }, responsável pelo(a) aluno(a) supracitado(a), celebram o presente acordo financeiro conforme as condições abaixo descritas:`;
 
     const splitInfo = doc.splitTextToSize(infoTexto, contentWidth);

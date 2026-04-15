@@ -547,6 +547,7 @@ export async function ProfessorTurmasView(
               periodo: "-",
               curso_nome: "Curso Técnico",
             },
+          { marcaCopia: true },
         );
 
         PDFService.downloadPDF(

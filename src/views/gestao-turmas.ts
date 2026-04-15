@@ -349,7 +349,7 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     }
 
     tabelaAlunos.innerHTML = matriculas.map((m) => {
-      const alunoData = (m.perfis as unknown[])?.[0] as { id?: string; nome_completo?: string; email?: string; bloqueio_financeiro?: boolean } | undefined
+      const alunoData = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis as { id?: string; nome_completo?: string; email?: string; bloqueio_financeiro?: boolean } | undefined
       const nomeAluno = escapeHTML(alunoData?.nome_completo || 'Aluno Desconhecido')
       const emailAluno = escapeHTML(alunoData?.email || '')
       const matriculaId = escapeHTML(m.id)

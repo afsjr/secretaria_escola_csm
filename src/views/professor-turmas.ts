@@ -601,7 +601,8 @@ async function loadAlunosDaDisciplina(
     }
 
     // Buscar notas existentes
-    const alunoIds = matriculas.map((m: any) => m.perfis.id);
+    const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
+    const alunoIds = matriculas.map((m: any) => getPerfil(m)?.id).filter(Boolean);
     const { data: notasExistentes } = await supabase
       .from("boletim")
       .select("*")
@@ -616,8 +617,8 @@ async function loadAlunosDaDisciplina(
     tbody.innerHTML = matriculas
       .filter((m: any) => m.status_aluno === "ativo")
       .map((m: any) => {
-        const aluno = m.perfis;
-        const notas = (notasMap[aluno.id] || {}) as NotaExistente;
+        const aluno = getPerfil(m);
+        const notas = (notasMap[aluno?.id || ''] || {}) as NotaExistente;
 
         const faltas = notas.faltas || 0;
         const n1 = notas.n1 || 0;
@@ -647,10 +648,10 @@ async function loadAlunosDaDisciplina(
           : "var(--danger)";
 
         return `
-          <tr data-aluno-id="${aluno.id}" style="border-top: 1px solid var(--secondary);">
+          <tr data-aluno-id="${aluno?.id || ''}" style="border-top: 1px solid var(--secondary);">
             <td style="padding: 0.5rem;">
               <div class="aluno-nome" style="font-weight: 500;">${
-          escapeHTML(aluno.nome_completo)
+          escapeHTML(aluno?.nome_completo || 'Aluno Desconhecido')
         }</div>
             </td>
             <td style="padding: 0.5rem;"><input type="number" class="input input-faltas" value="${faltas}" min="0" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
@@ -887,6 +888,7 @@ async function loadFrequenciaAlunos(
   if (!freqList) return;
 
   try {
+    const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
     const { data: matriculas } = await AcademicService.getAlunosDaTurma(
       turma.id!,
     ) as { data: any[] | null };
@@ -902,17 +904,20 @@ async function loadFrequenciaAlunos(
         ${
       matriculas.filter((m: any) => m.status_aluno === "ativo").map((
         m: any,
-      ) => `
+      ) => {
+        const perfil = getPerfil(m);
+        return `
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--secondary);">
             <span style="font-weight: 500;">${
-        escapeHTML(m.perfis.nome_completo)
+        escapeHTML(perfil?.nome_completo || 'Aluno Desconhecido')
       }</span>
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-              <input type="checkbox" class="freq-checkbox" data-aluno-id="${m.perfis.id}" style="width: 18px; height: 18px;">
+              <input type="checkbox" class="freq-checkbox" data-aluno-id="${perfil?.id || ''}" style="width: 18px; height: 18px;">
               <span style="font-size: 0.85rem; color: var(--text-muted);">Ausente</span>
             </label>
           </div>
-        `).join("")
+        `;
+      }).join("")
     }
       </div>
       <button class="btn btn-primary btn-salvar-frequencia">💾 Salvar Frequência</button>

@@ -143,7 +143,7 @@ export const ProfessorService = {
     if (errorMatriculas) return { data: null, error: errorMatriculas }
 
     const alunosComNotas: AlunoComNotas[] = await Promise.all(matriculas.map(async (m) => {
-      const perfilData = m.perfis?.[0] as { id: string; nome_completo: string; email: string } | undefined
+      const perfilData = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis as { id: string; nome_completo: string; email: string } | undefined
       const perfil = perfilData || { id: '', nome_completo: 'N/A', email: '' }
       const { data: nota } = await supabase
         .from('boletim')

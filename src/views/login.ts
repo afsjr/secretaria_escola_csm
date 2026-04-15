@@ -30,15 +30,9 @@ export function LoginView(): HTMLElement {
       </form>
 
       <div style="margin-top: 1rem;">
-        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 0.5rem; font-weight: 500;">Materiais de Treinamento CSM:</div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button type="button" id="btn-treinamento-guia" class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--bg-page); color: var(--text-main); border: 1px solid #CBD5E1; cursor: pointer;">
-            📄 Guia
-          </button>
-          <button type="button" id="btn-treinamento-slide" class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--bg-page); color: var(--text-main); border: 1px solid #CBD5E1; cursor: pointer;">
-            📺 Slides
-          </button>
-        </div>
+        <button type="button" id="btn-treinamento" class="btn" style="width: 100%; padding: 0.75rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+          📚 Material de Treinamento
+        </button>
       </div>
 
       <div class="auth-footer">
@@ -98,10 +92,10 @@ export function LoginView(): HTMLElement {
     }
   });
 
-  // Training button event listener (Guia)
-  const btnTreinamentoGuia = container.querySelector("#btn-treinamento-guia");
-  if (btnTreinamentoGuia) {
-    btnTreinamentoGuia.addEventListener("click", (e: Event) => {
+  // Training button event listener
+  const btnTreinamento = container.querySelector("#btn-treinamento");
+  if (btnTreinamento) {
+    btnTreinamento.addEventListener("click", (e: Event) => {
       e.preventDefault();
       let baseUrl = window.location.href.split("#")[0].replace(
         "index.html",
@@ -109,20 +103,6 @@ export function LoginView(): HTMLElement {
       );
       if (!baseUrl.endsWith("/")) baseUrl += "/";
       window.open(baseUrl + "apresentacao_treinamento.html", "_blank");
-    });
-  }
-
-  // Training button event listener (Slides)
-  const btnTreinamentoSlide = container.querySelector("#btn-treinamento-slide");
-  if (btnTreinamentoSlide) {
-    btnTreinamentoSlide.addEventListener("click", (e: Event) => {
-      e.preventDefault();
-      let baseUrl = window.location.href.split("#")[0].replace(
-        "index.html",
-        "",
-      );
-      if (!baseUrl.endsWith("/")) baseUrl += "/";
-      window.open(baseUrl + "apresentacao_treinamento_slides.html", "_blank");
     });
   }
 

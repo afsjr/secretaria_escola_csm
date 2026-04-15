@@ -263,13 +263,13 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   }
 
   // Training button event listener
-  const btnTreinamentoSlide = container.querySelector<HTMLDivElement>('#btn-treinamento-slide-sidebar')
-  if (btnTreinamentoSlide) {
-    btnTreinamentoSlide.addEventListener('click', (e: Event) => {
+  const btnTreinamento = container.querySelector<HTMLDivElement>('#btn-treinamento-slide-sidebar')
+  if (btnTreinamento) {
+    btnTreinamento.addEventListener('click', (e: Event) => {
       e.preventDefault();
       let baseUrl = window.location.href.split('#')[0].replace('index.html', '');
       if (!baseUrl.endsWith('/')) baseUrl += '/';
-      window.open(baseUrl + 'apresentacao_treinamento_slides.html', '_blank')
+      window.open(baseUrl + 'apresentacao_treinamento.html', '_blank')
     })
   }
 

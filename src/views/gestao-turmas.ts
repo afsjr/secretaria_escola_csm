@@ -505,6 +505,12 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
       painelMatriculas.style.display = 'block'
 
       loadTurmaAlunos(selectedTurmaId as string)
+
+      // Resetar e carregar notas se estiver na tab Notas
+      const disciplinaSelect = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
+      disciplinaSelect.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>'
+      const tabelaNotas = container.querySelector('#tabela-notas-turma') as HTMLElement
+      tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Selecione uma disciplina para visualizar as notas.</td></tr>'
     })
   })
 
@@ -569,7 +575,9 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
       } else if (tabName === 'notas') {
         tabContentAlunos.style.display = 'none'
         tabContentNotas.style.display = 'block'
-        loadDisciplinasDropdown(selectedTurmaId as string)
+        if (selectedTurmaId) {
+          loadDisciplinasDropdown(selectedTurmaId as string)
+        }
       }
     })
   })

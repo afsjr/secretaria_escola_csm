@@ -579,20 +579,37 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     const disciplinaSelect = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
     disciplinaSelect.innerHTML = '<option value="">-- Carregando disciplinas... --</option>'
 
+    // Primeiro buscar o curso_id da turma
+    const { data: turmaData } = await supabase
+      .from('turmas')
+      .select('curso_id')
+      .eq('id', turmaId)
+      .single()
+
+    const cursoId = turmaData?.curso_id
+
+    if (!cursoId) {
+      disciplinaSelect.innerHTML = '<option value="">Turma sem curso associado</option>'
+      return
+    }
+
+    // Buscar disciplinas por curso_id (todas as disciplinas do curso)
     const { data: disciplinas, error } = await supabase
       .from('disciplinas')
-      .select('id, nome')
-      .eq('turma_id', turmaId)
+      .select('id, nome, modulo')
+      .eq('curso_id', cursoId)
+      .order('modulo', { ascending: true })
       .order('nome', { ascending: true })
 
     if (error || !disciplinas || disciplinas.length === 0) {
-      disciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina encontrada</option>'
+      disciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina encontrada para este curso</option>'
       return
     }
 
     disciplinaSelect.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>' +
       disciplinas.map((d: any) => {
-        return `<option value="${escapeHTML(d.nome)}">${escapeHTML(d.nome)}</option>`
+        const moduloLabel = d.modulo ? `[${d.modulo}] ` : ''
+        return `<option value="${escapeHTML(d.nome)}">${moduloLabel}${escapeHTML(d.nome)}</option>`
       }).join('')
   }
 

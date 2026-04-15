@@ -1023,8 +1023,87 @@
         </div>
     </div>
 
+    <!-- SLIDE NOVO: MÓDULO FINANCEIRO -->
+    <div class="slide conteudo" data-slide="14a">
+        <h1>💰 Módulo Financeiro</h1>
+
+        <p>O módulo financeiro permite gerenciar cobranças, acordos de pagamento e inadimplência dos alunos.</p>
+
+        <h2>Funcionalidades Disponíveis:</h2>
+        <div class="func-grid">
+            <div class="func-item">
+                <h4>📊 Dashboard Financeiro</h4>
+                <p>Visão geral do finança com total de inadimplentes, recuperados e prévus</p>
+            </div>
+            <div class="func-item">
+                <h4>📋 Lista de Cobranças</h4>
+                <p>Visualizar e gerenciar todas as cobranças dos alunos</p>
+            </div>
+            <div class="func-item">
+                <h4>🤝 Acordos de Pagamento</h4>
+                <p>Criar e acompanhar acordos de pagamento parcelado</p>
+            </div>
+            <div class="func-item">
+                <h4>⚙️ Configurações</h4>
+                <p>Definir multas, juros e datas de vencimento</p>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Quem pode acessar:</h3>
+            <p><strong>Secretaria</strong> e <strong>Admin</strong></p>
+        </div>
+    </div>
+
+    <!-- SLIDE NOVO: NOTAS NA SECRETARIA -->
+    <div class="slide conteudo" data-slide="15">
+        <h1>📝-visualização de Notas na Secretaría</h1>
+
+        <p>A secretária pode visualizar as notas dos alunos para fins de verificação e emissão de documentos.</p>
+
+        <h2>Como acessar:</h2>
+        <ol class="passos">
+            <li>Acesse <strong>"Gestão de Turmas"</strong> no menu</li>
+            <li>Selecione a <strong>turma desejada</strong></li>
+            <li>Clique na aba <strong>"Notas"</strong></li>
+            <li>Selecione a <strong>disciplina</strong> para ver as notas</li>
+        </ol>
+
+        <div class="info-box">
+            <h3>🔒 Observações Importantes:</h3>
+            <ul style="margin-left: 1.5rem;">
+                <li>As notas são <strong>somente visualização</strong></li>
+                <li>Para lançar/editar notas, utilize o painel do <strong>Professor</strong></li>
+                <li>CPF dos alunos é mascarado nos documentos (***.444.777-**)</li>
+                <li>Documentos gerados têm marca "CÓPIA" para controle</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SLIDE NOVO: AUDIT LOG -->
+    <div class="slide conteudo" data-slide="16">
+        <h1>📋 Log de Auditoria</h1>
+
+        <p>O sistema registra todas as ações importantes para fins de auditoria e compliance com a LGPD.</p>
+
+        <h2>Registro de Ações:</h2>
+        <ul>
+            <li><strong>Login/Logout:</strong> Entrada e saída de usuários</li>
+            <li><strong>Cadastros:</strong> Criação de novos usuários</li>
+            <li><strong>Alterações:</strong> Mudanças em dados sensíveis</li>
+            <li><strong>Documentos:</strong> Geração de PDFs oficiais</li>
+            <li><strong>Notas:</strong> Lançamento e alterações</li>
+            <li><strong>Financeiro:</strong> Cobranças e acordos</li>
+        </ul>
+
+        <div class="info-box">
+            <h3>🎯 Quem pode acessar:</h3>
+            <p>Apenas <strong>Admin</strong></p>
+        </div>
+    </div>
+
     <!-- SLIDE 14: DICAS IMPORTANTES -->
-    <div class="slide conteudo" data-slide="14">
+    <div class="slide conteudo" data-slide="17">
         <h1>💡 Dicas Importantes para Todos os Perfis</h1>
 
         <h2>👨‍🎓 Para Alunos</h2>
@@ -1058,8 +1137,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 15: ENCERRAMENTO -->
-    <div class="slide capa" data-slide="15">
+    <!-- SLIDE 17: ENCERRAMENTO -->
+    <div class="slide capa" data-slide="17">
         <div class="logo-area">CSM</div>
         <h1>Obrigado pelo Treinamento!</h1>
         <h2>Agora você está pronto para usar o SGE</h2>
@@ -1079,14 +1158,14 @@
     <div class="navegacao">
         <button id="btn-anterior" onclick="previousSlide()" disabled>← Anterior</button>
         <span class="slide-counter">
-            <span id="slide-atual">1</span> / <span id="total-slides">15</span>
+            <span id="slide-atual">1</span> / <span id="total-slides">17</span>
         </span>
         <button id="btn-proximo" onclick="nextSlide()">Próximo →</button>
     </div>
 
     <script>
         let currentSlide = 1;
-        const totalSlides = 15;
+        const totalSlides = 17;
 
         function updateSlide() {
             // Hide all slides

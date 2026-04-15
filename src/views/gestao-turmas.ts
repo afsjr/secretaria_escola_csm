@@ -3,6 +3,7 @@ import { CourseService } from '../lib/course-service'
 import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
+import { supabase } from '../lib/supabase'
 import type { UserRole } from '../types'
 
 interface ProfileParam {
@@ -109,47 +110,98 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
       <!-- Lado Direito: Detalhes da Turma e Matrículas -->
       <div id="painel-matriculas" style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: none;">
         <h2 id="titulo-turma-selecionada" style="margin-bottom: 0.5rem; color: var(--primary); border-bottom: 3px solid var(--accent); padding-bottom: 0.5rem;">Selecione uma Turma</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Gerencie matrículas e o status acadêmico/financeiro para esta turma.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Gerencie matrículas, status acadêmico/financeiro e visualize notas dos alunos.</p>
 
-        <!-- Matricular Aluno - DESTAQUE -->
-        <div style="background: linear-gradient(135deg, #FFF9E6 0%, #FFF4B8 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid var(--accent); box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);">
-          <h4 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-            <span style="font-size: 1.5rem;">🎓</span>
-            Matricular Aluno Existente
-          </h4>
-          <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-            <div class="form-group" style="flex: 1; margin: 0; min-width: 250px;">
-              <label for="aluno-select" class="label" style="font-size: 0.85rem; font-weight: 600;">Selecione o Aluno</label>
-              <select id="aluno-select" name="aluno_select" class="input" style="width: 100%;">
-                <option value="">-- Escolha um Aluno --</option>
-                ${alunosOptions}
-              </select>
+        <!-- Tabs de Navegação -->
+        <div style="display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem;">
+          <button type="button" class="tab-btn active" data-tab="alunos" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; border-bottom: 3px solid var(--primary); margin-bottom: -2px;">
+            👥 Alunos
+          </button>
+          <button type="button" class="tab-btn" data-tab="notas" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
+            📊 Notas
+          </button>
+        </div>
+
+        <!-- Seção: Alunos (Matrículas) -->
+        <div id="tab-content-alunos">
+          <!-- Matricular Aluno - DESTAQUE -->
+          <div style="background: linear-gradient(135deg, #FFF9E6 0%, #FFF4B8 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid var(--accent); box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);">
+            <h4 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.5rem;">🎓</span>
+              Matricular Aluno Existente
+            </h4>
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+              <div class="form-group" style="flex: 1; margin: 0; min-width: 250px;">
+                <label for="aluno-select" class="label" style="font-size: 0.85rem; font-weight: 600;">Selecione o Aluno</label>
+                <select id="aluno-select" name="aluno_select" class="input" style="width: 100%;">
+                  <option value="">-- Escolha um Aluno --</option>
+                  ${alunosOptions}
+                </select>
+              </div>
+              <button id="btn-matricular" class="btn btn-primary" style="background: var(--primary); white-space: nowrap; padding: 0.75rem 1.5rem; font-weight: 600;">
+                <span style="margin-right: 0.5rem;">✓</span> Matricular na Turma
+              </button>
             </div>
-            <button id="btn-matricular" class="btn btn-primary" style="background: var(--primary); white-space: nowrap; padding: 0.75rem 1.5rem; font-weight: 600;">
-              <span style="margin-right: 0.5rem;">✓</span> Matricular na Turma
-            </button>
+          </div>
+
+          <!-- Tabela de Alunos na Turma -->
+          <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.3rem;">📋</span>
+            Diário Oficial (Caderneta)
+          </h3>
+          <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead style="background: var(--primary); color: white; font-size: 0.85rem; text-transform: uppercase;">
+                <tr>
+                  <th style="padding: 1rem;">Nome do Aluno</th>
+                  <th style="padding: 1rem;">Status (Acadêmico)</th>
+                  <th style="padding: 1rem;">Bloqueio Financ.</th>
+                  <th style="padding: 1rem; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-alunos-turma">
+                <tr><td colspan="4" style="padding: 1rem; text-align: center; color: var(--text-muted);">Clique em uma turma ao lado para visualizar os alunos.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Tabela de Alunos na Turma -->
-        <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-          <span style="font-size: 1.3rem;">📋</span>
-          Diário Oficial (Caderneta)
-        </h3>
-        <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead style="background: var(--primary); color: white; font-size: 0.85rem; text-transform: uppercase;">
-              <tr>
-                <th style="padding: 1rem;">Nome do Aluno</th>
-                <th style="padding: 1rem;">Status (Acadêmico)</th>
-                <th style="padding: 1rem;">Bloqueio Financ.</th>
-                <th style="padding: 1rem; text-align: right;">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="tabela-alunos-turma">
-              <tr><td colspan="4" style="padding: 1rem; text-align: center; color: var(--text-muted);">Clique em uma turma ao lado para visualizar os alunos.</td></tr>
-            </tbody>
-          </table>
+        <!-- Seção: Notas (Boletim - Somente Leitura) -->
+        <div id="tab-content-notas" style="display: none;">
+          <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.3rem;">📊</span>
+            Boletim da Turma
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Visualização somente leitura. Para editar notas, utilize o painel do professor.</p>
+
+          <!-- Seletor de Disciplina -->
+          <div class="form-group" style="margin-bottom: 1.5rem; max-width: 300px;">
+            <label for="disciplina-select-notas" class="label">Disciplina</label>
+            <select id="disciplina-select-notas" name="disciplina_select_notas" class="input">
+              <option value="">-- Selecione uma Disciplina --</option>
+            </select>
+          </div>
+
+          <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead style="background: var(--primary); color: white; font-size: 0.8rem; text-transform: uppercase;">
+                <tr>
+                  <th style="padding: 0.75rem; text-align: left;">Aluno</th>
+                  <th style="padding: 0.75rem; text-align: center;">Faltas</th>
+                  <th style="padding: 0.75rem; text-align: center;">N1</th>
+                  <th style="padding: 0.75rem; text-align: center;">N2</th>
+                  <th style="padding: 0.75rem; text-align: center;">N3</th>
+                  <th style="padding: 0.75rem; text-align: center; background: #64748b;">Média</th>
+                  <th style="padding: 0.75rem; text-align: center;">Rec</th>
+                  <th style="padding: 0.75rem; text-align: center; background: #64748b;">Final</th>
+                  <th style="padding: 0.75rem; text-align: center;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-notas-turma">
+                <tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Selecione uma disciplina para visualizar as notas.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -488,6 +540,137 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     }
     btnMatricular.disabled = false; btnMatricular.textContent = 'Adicionar à Turma'
   })
+
+  // 4. Tabs de Navegação (Alunos | Notas)
+  const tabBtns = container.querySelectorAll('.tab-btn')
+  const tabContentAlunos = container.querySelector('#tab-content-alunos') as HTMLElement
+  const tabContentNotas = container.querySelector('#tab-content-notas') as HTMLElement
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabName = btn.getAttribute('data-tab')
+
+      tabBtns.forEach(b => {
+        b.classList.remove('active')
+        b.style.borderBottom = 'none'
+        b.style.marginBottom = '0'
+        b.style.color = 'var(--text-muted)'
+        b.style.fontWeight = '500'
+      })
+      btn.classList.add('active')
+      btn.style.borderBottom = '3px solid var(--primary)'
+      btn.style.marginBottom = '-2px'
+      btn.style.color = 'var(--primary)'
+      btn.style.fontWeight = '600'
+
+      if (tabName === 'alunos') {
+        tabContentAlunos.style.display = 'block'
+        tabContentNotas.style.display = 'none'
+      } else if (tabName === 'notas') {
+        tabContentAlunos.style.display = 'none'
+        tabContentNotas.style.display = 'block'
+        loadDisciplinasDropdown(selectedTurmaId as string)
+      }
+    })
+  })
+
+  // 5. Carregar disciplinas no dropdown de notas
+  async function loadDisciplinasDropdown(turmaId: string) {
+    const disciplinaSelect = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
+    disciplinaSelect.innerHTML = '<option value="">-- Carregando disciplinas... --</option>'
+
+    const { data: disciplinas, error } = await supabase
+      .from('disciplinas')
+      .select('id, nome')
+      .eq('turma_id', turmaId)
+      .order('nome', { ascending: true })
+
+    if (error || !disciplinas || disciplinas.length === 0) {
+      disciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina encontrada</option>'
+      return
+    }
+
+    disciplinaSelect.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>' +
+      disciplinas.map((d: any) => {
+        return `<option value="${escapeHTML(d.nome)}">${escapeHTML(d.nome)}</option>`
+      }).join('')
+  }
+
+  // 6. Listener para mudança de disciplina
+  const disciplinaSelectNotas = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
+  disciplinaSelectNotas.addEventListener('change', async () => {
+    const disciplinaNome = disciplinaSelectNotas.value
+    if (!disciplinaNome || !selectedTurmaId) return
+
+    loadTurmaNotas(selectedTurmaId, disciplinaNome)
+  })
+
+  // 7. Carregar notas dos alunos
+  async function loadTurmaNotas(turmaId: string, disciplinaNome: string) {
+    const tabelaNotas = container.querySelector('#tabela-notas-turma') as HTMLElement
+    tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center;">Carregando notas...</td></tr>'
+
+    const { data: matriculas, error: errorMatriculas } = await AcademicService.getAlunosDaTurma(turmaId)
+
+    if (errorMatriculas || !matriculas || matriculas.length === 0) {
+      tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno matriculado nesta turma.</td></tr>'
+      return
+    }
+
+    const { data: notas, error: errorNotas } = await supabase
+      .from('boletim')
+      .select('*')
+      .eq('disciplina', disciplinaNome)
+
+    if (errorNotas) {
+      tabelaNotas.innerHTML = '<tr><td colspan="9" style="color:red; padding: 1rem;">Erro ao buscar notas: ' + errorNotas.message + '</td></tr>'
+      return
+    }
+
+    const notasMap: Record<string, any> = {}
+    notas?.forEach((n) => { notasMap[n.aluno_id] = n })
+
+    const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
+
+    tabelaNotas.innerHTML = matriculas
+      .filter((m: any) => m.status_aluno === 'ativo')
+      .map((m: any) => {
+        const perfil = getPerfil(m)
+        const nomeAluno = perfil?.nome_completo || 'Aluno Desconhecido'
+        const alunoId = perfil?.id || ''
+        const nota = notasMap[alunoId] || {}
+
+        const n1 = nota.n1 || 0
+        const n2 = nota.n2 || 0
+        const n3 = nota.n3 || 0
+        const rec = nota.rec || 0
+        const faltas = nota.faltas || 0
+
+        const mediaParcial = ((n1 + n2 + n3) / 3)
+        const media = Math.round(mediaParcial * 2) / 2
+        const finalGrade = media >= 7 ? media : Math.round(((media + rec) / 2) * 2) / 2
+        const status = finalGrade >= 6 ? 'Aprovado' : 'Reprovado'
+        const statusColor = status === 'Aprovado' ? 'var(--success-text)' : 'var(--danger-text)'
+
+        return `
+          <tr style="border-top: 1px solid var(--secondary);">
+            <td style="padding: 0.5rem; font-weight: 500;">${escapeHTML(nomeAluno)}</td>
+            <td style="padding: 0.5rem; text-align: center;">${faltas}</td>
+            <td style="padding: 0.5rem; text-align: center;">${n1}</td>
+            <td style="padding: 0.5rem; text-align: center;">${n2}</td>
+            <td style="padding: 0.5rem; text-align: center;">${n3}</td>
+            <td style="padding: 0.5rem; text-align: center; background: #f1f5f9; font-weight: 600;">${media > 0 ? media.toFixed(1) : '-'}</td>
+            <td style="padding: 0.5rem; text-align: center;">${rec}</td>
+            <td style="padding: 0.5rem; text-align: center; background: #f1f5f9; font-weight: 600;">${finalGrade > 0 ? finalGrade.toFixed(1) : '-'}</td>
+            <td style="padding: 0.5rem; text-align: center; color: ${statusColor}; font-weight: 600;">${status}</td>
+          </tr>
+        `
+      }).join('')
+
+    if (tabelaNotas.innerHTML === '') {
+      tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno ativo nesta turma.</td></tr>'
+    }
+  }
 
   return container
 }

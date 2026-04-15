@@ -138,7 +138,7 @@ export const notaSchema = z.object({
 /**
  * Validar CPF (algoritmo brasileiro)
  */
-function validarCPF(cpf: string | undefined): boolean {
+export function validarCPF(cpf: string | undefined): boolean {
   if (!cpf) return true;
 
   // Remover caracteres não numéricos
@@ -174,7 +174,7 @@ function validarCPF(cpf: string | undefined): boolean {
 /**
  * Validar telefone brasileiro
  */
-function validarTelefone(telefone: string | undefined): boolean {
+export function validarTelefone(telefone: string | undefined): boolean {
   if (!telefone) return true;
 
   // Remover caracteres não numéricos

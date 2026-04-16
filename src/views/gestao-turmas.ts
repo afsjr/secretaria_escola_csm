@@ -16,7 +16,7 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
   container.className = 'gestao-turmas-view animate-in'
 
   // Verificar se o usuário tem permissão para editar/excluir turmas
-  const canManageTurmas = profile.perfil === 'secretaria' || profile.perfil === 'admin' || profile.perfil === 'master_admin'
+  const canManageTurmas = profile.perfil === 'secretaria' || profile.perfil === 'coordenacao' || profile.perfil === 'admin' || profile.perfil === 'master_admin'
 
   // Fetch initial data
   const turmasResult = await AcademicService.getTurmas()

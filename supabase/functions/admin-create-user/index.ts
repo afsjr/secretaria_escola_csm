@@ -63,9 +63,9 @@ serve(async (req) => {
       )
     }
 
-    if (perfil.perfil !== "admin" && perfil.perfil !== "secretaria") {
+    if (perfil.perfil !== "admin" && perfil.perfil !== "secretaria" && perfil.perfil !== "coordenacao") {
       return new Response(
-        JSON.stringify({ error: { message: "Acesso negado. Apenas admin/secretaria." } }),
+        JSON.stringify({ error: { message: "Acesso negado. Apenas admin/secretaria/coordenacao." } }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }

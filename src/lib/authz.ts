@@ -3,7 +3,7 @@
  * Atualizada em 2026-04-12: adicionado perfil master_admin.
  *
  * Hierarquia de Acesso (maior → menor):
- * master_admin → admin → secretaria/financeiro → professor → aluno
+ * master_admin → admin → secretaria/coordenacao → professor → aluno
  */
 
 import type { Permission, UserRole } from "../types";
@@ -12,6 +12,7 @@ export const ROLES: Record<string, UserRole> = {
   MASTER_ADMIN: "master_admin", // Proprietário do Sistema — Acesso Total + Configurações
   ADMIN: "admin", // Administrador — Acesso Total exceto Configurações
   SECRETARIA: "secretaria", // Pedagógico Total, Zero Financeiro
+  COORDENACAO: "coordenacao", // Coordenação Pedagógica — Acesso Total Pedagógico
   FINANCEIRO: "financeiro", // Financeiro Total, Pedagógico Consulta
   PROFESSOR: "professor", // Notas/Faltas, Consulta Aluno
   ALUNO: "aluno", // Consulta Própria
@@ -78,6 +79,24 @@ export const PERMISSIONS: Record<string, Permission[]> = {
     "manage_cursos",
     "manage_documentos",
   ],
+  [ROLES.COORDENACAO]: [
+    "view_dashboard",
+    "view_colegas",
+    "view_documentos",
+    "view_matriz",
+    "view_secretaria",
+    "view_turmas",
+    "view_academico",
+    "view_professor",
+    "view_perfil",
+    "manage_users",
+    "manage_turmas",
+    "manage_matriculas",
+    "manage_notas",
+    "manage_cursos",
+    "manage_documentos",
+    "manage_professores",
+  ],
   [ROLES.FINANCEIRO]: [
     "view_dashboard",
     "view_financeiro",
@@ -126,6 +145,8 @@ export const isAdmin = (role: UserRole | undefined | null): boolean =>
   role === ROLES.ADMIN || role === ROLES.MASTER_ADMIN;
 export const isSecretaria = (role: UserRole | undefined | null): boolean =>
   role === ROLES.SECRETARIA;
+export const isCoordenacao = (role: UserRole | undefined | null): boolean =>
+  role === ROLES.COORDENACAO;
 export const isFinanceiro = (role: UserRole | undefined | null): boolean =>
   role === ROLES.FINANCEIRO;
 export const isProfessor = (role: UserRole | undefined | null): boolean =>

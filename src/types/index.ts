@@ -6,6 +6,7 @@ export type UserRole =
   | "master_admin"
   | "admin"
   | "secretaria"
+  | "coordenacao"
   | "financeiro"
   | "professor"
   | "aluno";

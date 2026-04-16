@@ -10,6 +10,7 @@ const PROFILE_ORDER = [
   "aluno",
   "professor",
   "secretaria",
+  "coordenacao",
   "admin",
   "master_admin",
 ];
@@ -18,6 +19,7 @@ const PROFILE_LABELS: Record<string, string> = {
   aluno: "👨‍🎓 Alunos",
   professor: "👨‍🏫 Professores",
   secretaria: "🏢 Secretaria",
+  coordenacao: "📚 Coordenação",
   admin: "🔒 Administradores",
   master_admin: "🛡️ Gestor do Sistema",
 };
@@ -26,6 +28,7 @@ const PROFILE_COLORS: Record<string, string> = {
   aluno: "#3B82F6",
   professor: "#10B981",
   secretaria: "#F59E0B",
+  coordenacao: "#EC4899",
   admin: "#8B5CF6",
   master_admin: "#DC2626",
 };

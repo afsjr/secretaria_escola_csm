@@ -313,6 +313,7 @@ export const PERFIL_LABELS: Record<UserRole, string> = {
   admin: 'Administrador',
   master_admin: 'Gestor do Sistema',
   secretaria: 'Secretaria',
+  coordenacao: 'Coordenação',
   financeiro: 'Financeiro',
   professor: 'Professor',
   aluno: 'Aluno',

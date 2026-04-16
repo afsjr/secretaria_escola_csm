@@ -17,7 +17,7 @@ import { ProfessorRegistrarAulaView } from './professor-registrar-aula'
 import { FinanceiroView } from './financeiro'
 import { ConfiguracoesView } from './configuracoes'
 import { AuditLogView } from './audit-log'
-import { isAdmin, isSecretaria, isFinanceiro, isProfessor, isAluno, isMasterAdmin, canManageInstituicao } from '../lib/authz'
+import { isAdmin, isSecretaria, isFinanceiro, isProfessor, isAluno, isMasterAdmin, canManageInstituicao, isCoordenacao } from '../lib/authz'
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
@@ -36,6 +36,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   const _isMasterAdmin = isMasterAdmin(userRole)
   const _isAdmin = isAdmin(userRole)
   const _isSecretaria = isSecretaria(userRole)
+  const _isCoordenacao = isCoordenacao(userRole)
   const _isFinanceiro = isFinanceiro(userRole)
   const _isProfessor = isProfessor(userRole)
   const _isAluno = isAluno(userRole)
@@ -67,7 +68,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
           Matriz Curricular
         </a>
-        ${_isAdmin || _isSecretaria ? `
+        ${_isAdmin || _isSecretaria || _isCoordenacao ? `
           <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9m3 3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             Painel Secretaria
@@ -191,9 +192,9 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
     contentArea.appendChild(await AuditLogView())
   } else if (subPath === '/financeiro' && (_isFinanceiro || _isAdmin)) {
     contentArea.appendChild(await FinanceiroView())
-  } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria)) {
+  } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria || _isCoordenacao)) {
     contentArea.appendChild(await SecretariaView())
-  } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria)) {
+  } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria || _isCoordenacao)) {
     contentArea.appendChild(await GestaoTurmasView({ id: profile?.id || '', perfil: userRole as any }))
   } else if (subPath === '/professor/turmas' && _isProfessor) {
     contentArea.appendChild(await ProfessorTurmasView(profile as UserProfile))

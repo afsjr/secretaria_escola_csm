@@ -43,5 +43,13 @@ export default defineConfig({
   define: {
     // Garantir que variáveis não-VITE_ não sejam expostas
     'process.env': {}
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+    alias: [
+      { find: /^.\/supabase$/, replacement: './src/test/__mocks__/supabase.ts' }
+    ]
   }
 })

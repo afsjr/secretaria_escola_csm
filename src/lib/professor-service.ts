@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { AuditService } from './audit-service'
 import { getUserProfile } from '../auth/session'
+import { updateWithLock, fetchWithVersion, isConcurrencyError } from './concurrency-control'
 import type { Disciplina, Matricula, Boletim, Aula, DbResult } from '../types'
 
 interface VinculacaoDisciplina {
@@ -39,6 +40,7 @@ interface AlunoComNotas {
   aluno_email: string
   status: string
   nota: Boletim | null
+  versao: number
 }
 
 export const ProfessorService = {
@@ -158,58 +160,141 @@ export const ProfessorService = {
         aluno_nome: perfil.nome_completo,
         aluno_email: perfil.email,
         status: m.status_aluno,
-        nota: nota || null
+        nota: nota || null,
+        versao: nota?.versao ?? 1
       }
     }))
 
     return { data: alunosComNotas, error: null }
   },
 
-  // Salvar nota de um aluno para uma disciplina
-  async salvarNota(alunoId: string, disciplina: string, { faltas, n1, n2, n3, rec }: NotaData) {
-    const { data, error } = await supabase
+  // Salvar nota de um aluno para uma disciplina (com Bloqueio Otimista)
+  async salvarNota(alunoId: string, disciplina: string, { faltas, n1, n2, n3, rec }: NotaData, versaoAtual: number = 1) {
+    // Primeiro, buscar a nota existente para obter o ID
+    const { data: notaExistente } = await supabase
       .from('boletim')
-      .upsert({
-        aluno_id: alunoId,
-        disciplina: disciplina,
-        faltas: parseFloat(faltas as string) || 0,
-        n1: parseFloat(n1 as string) || 0,
-        n2: parseFloat(n2 as string) || 0,
-        n3: parseFloat(n3 as string) || 0,
-        rec: parseFloat(rec as string) || 0
-      }, { onConflict: 'aluno_id, disciplina' })
-      .select()
+      .select('id')
+      .eq('aluno_id', alunoId)
+      .eq('disciplina', disciplina)
+      .single()
 
-    return { data, error }
+    const dadosAtualizados = {
+      aluno_id: alunoId,
+      disciplina: disciplina,
+      faltas: parseFloat(faltas as string) || 0,
+      n1: parseFloat(n1 as string) || 0,
+      n2: parseFloat(n2 as string) || 0,
+      n3: parseFloat(n3 as string) || 0,
+      rec: parseFloat(rec as string) || 0
+    }
+
+    // Se existe, usar updateWithLock; se não, usar insert
+    if (notaExistente?.id) {
+      const resultado = await updateWithLock('boletim', notaExistente.id, dadosAtualizados, versaoAtual)
+      
+      if (resultado.conflict) {
+        await AuditService.log({
+          acao: 'conflito_nota',
+          tabela_afetada: 'boletim',
+          descricao: `Conflito de edição detectado ao salvar nota do aluno ${alunoId} na disciplina "${disciplina}"`,
+          dados_novos: dadosAtualizados
+        })
+      }
+      
+      return { data: resultado.data, error: resultado.error }
+    } else {
+      // Insert sem controle de versão (é um novo registro)
+      const { data, error } = await supabase
+        .from('boletim')
+        .insert([{ ...dadosAtualizados, versao: 1 }])
+        .select()
+        .single()
+
+      return { data, error }
+    }
   },
 
-  // Salvar notas em lote (múltiplos alunos de uma disciplina)
-  async salvarNotasEmLote(disciplina: string, notasArray: NotaLoteItem[]) {
-    const payload = notasArray.map(item => ({
-      aluno_id: item.aluno_id,
-      disciplina: disciplina,
-      faltas: parseFloat(item.faltas as string) || 0,
-      n1: parseFloat(item.n1 as string) || 0,
-      n2: parseFloat(item.n2 as string) || 0,
-      n3: parseFloat(item.n3 as string) || 0,
-      rec: parseFloat(item.rec as string) || 0
-    }))
+  // Salvar notas em lote (múltiplos alunos de uma disciplina) - com Bloqueio Otimista
+  async salvarNotasEmLote(
+    disciplina: string, 
+    notasArray: (NotaLoteItem & { versao?: number })[]
+  ) {
+    const conflitos: string[] = []
+    const erros: any[] = []
 
-    const { error } = await supabase
-      .from('boletim')
-      .upsert(payload, { onConflict: 'aluno_id, disciplina' })
+    // Processar cada nota individualmente para manter controle de versão
+    for (const item of notasArray) {
+      const dadosAtualizados = {
+        aluno_id: item.aluno_id,
+        disciplina: disciplina,
+        faltas: parseFloat(item.faltas as string) || 0,
+        n1: parseFloat(item.n1 as string) || 0,
+        n2: parseFloat(item.n2 as string) || 0,
+        n3: parseFloat(item.n3 as string) || 0,
+        rec: parseFloat(item.rec as string) || 0
+      }
+
+      // Buscar nota existente
+      const { data: notaExistente } = await supabase
+        .from('boletim')
+        .select('id')
+        .eq('aluno_id', item.aluno_id)
+        .eq('disciplina', disciplina)
+        .single()
+
+      const versao = item.versao ?? 1
+
+      if (notaExistente?.id) {
+        const resultado = await updateWithLock('boletim', notaExistente.id, dadosAtualizados, versao)
+        
+        if (resultado.conflict) {
+          conflitos.push(item.aluno_id)
+        } else if (resultado.error) {
+          erros.push({ aluno_id: item.aluno_id, error: resultado.error })
+        }
+      } else {
+        // Insert sem controle de versão (novo registro)
+        const { error: insertError } = await supabase
+          .from('boletim')
+          .insert([{ ...dadosAtualizados, versao: 1 }])
+
+        if (insertError) {
+          erros.push({ aluno_id: item.aluno_id, error: insertError })
+        }
+      }
+    }
 
     // Registrar no log de auditoria
-    if (!error) {
+    if (conflitos.length === 0 && erros.length === 0) {
       await AuditService.log({
-        acao: 'lancar_nota',
+        acao: 'lancar_nota_lote',
         tabela_afetada: 'boletim',
-        descricao: `Notas lançadas para ${notasArray.length} aluno(s) na disciplina "${disciplina}"`,
-        dados_novos: { disciplina, alunos_afetados: notasArray.length, notas: payload }
+        descricao: `Notas lançadas em lote para ${notasArray.length} aluno(s) na disciplina "${disciplina}"`,
+        dados_novos: { disciplina, alunos_afetados: notasArray.length }
       })
     }
 
-    return { error }
+    // Retornar erro se houve conflitos ou erros
+    if (conflitos.length > 0) {
+      return { 
+        error: { 
+          message: `${conflitos.length} conflito(s) detectado(s). Alguns dados foram modificados por outro usuário. Recarregue a página.`,
+          code: 'CONFLICT',
+          detalhes: conflitos
+        } 
+      }
+    }
+
+    if (erros.length > 0) {
+      return { 
+        error: { 
+          message: `Erro ao salvar ${erros.length} nota(s).`,
+          detalhes: erros
+        } 
+      }
+    }
+
+    return { error: null }
   },
 
   // === REGISTRO DE AULAS E FREQUÊNCIA ===

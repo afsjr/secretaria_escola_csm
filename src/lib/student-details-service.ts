@@ -9,6 +9,7 @@
  */
 
 import { supabase } from './supabase'
+import { updateWithLock } from './concurrency-control'
 import type { Endereco, UserProfile, DbResult } from '../types'
 
 interface Responsavel {
@@ -35,7 +36,7 @@ interface Observacao {
 }
 
 interface DadosAlunoCompleto {
-  perfil: UserProfile
+  perfil: UserProfile & { versao?: number }
   endereco: Endereco | null
   responsaveis: Responsavel[]
   observacoes: Observacao[]
@@ -220,15 +221,9 @@ export const StudentDetailsService = {
     }
   },
 
-  async updateDadosPessoais(userId: string, dados: Partial<UserProfile>): Promise<DbResult<UserProfile>> {
-    const { data, error } = await supabase
-      .from('perfis')
-      .update(dados)
-      .eq('id', userId)
-      .select()
-      .single()
-
-    return { data, error }
+  async updateDadosPessoais(userId: string, dados: Partial<UserProfile>, versaoAtual: number = 1): Promise<DbResult<UserProfile>> {
+    const resultado = await updateWithLock('perfis', userId, dados, versaoAtual)
+    return { data: resultado.data, error: resultado.error }
   },
 
   async isMenorDeIdade(alunoId: string): Promise<boolean | null> {

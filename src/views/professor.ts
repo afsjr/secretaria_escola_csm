@@ -33,6 +33,7 @@ interface AlunoNota {
   aluno_id: string;
   aluno_nome: string;
   aluno_email: string;
+  versao?: number;
   nota?: {
     faltas?: number;
     n1?: number;
@@ -549,9 +550,11 @@ export async function ProfessorView(
           n2: string;
           n3: string;
           rec: string;
+          versao: number;
         }[] = [];
         rows.forEach((row) => {
           const alunoId = (row as HTMLElement).getAttribute("data-aluno-id")!;
+          const alunoData = alunosComNotas?.find(a => a.aluno_id === alunoId);
           const faltas =
             (row.querySelector(".faltas-input") as HTMLInputElement).value;
           const n1 =
@@ -563,7 +566,15 @@ export async function ProfessorView(
           const rec =
             (row.querySelector(".rec-input") as HTMLInputElement).value;
 
-          notasArray.push({ aluno_id: alunoId, faltas, n1, n2, n3, rec });
+          notasArray.push({ 
+            aluno_id: alunoId, 
+            faltas, 
+            n1, 
+            n2, 
+            n3, 
+            rec,
+            versao: alunoData?.versao ?? 1 
+          });
         });
 
         const { error } = await ProfessorService.salvarNotasEmLote(
@@ -572,7 +583,15 @@ export async function ProfessorView(
         );
 
         if (error) {
-          toast.error("Erro ao salvar notas: " + error.message);
+          if (error.code === 'CONFLICT') {
+            toast.error("Conflito de edição: alguns dados foram modificados por outro usuário. Recarregue a página e tente novamente.");
+            // Recarregar dados automaticamente
+            setTimeout(async () => {
+              selectDisciplina.dispatchEvent(new Event('change'));
+            }, 2000);
+          } else {
+            toast.error("Erro ao salvar notas: " + error.message);
+          }
         } else {
           toast.success("Todas as notas foram salvas com sucesso!");
         }

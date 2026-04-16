@@ -57,8 +57,10 @@ interface TurmaGroup {
 }
 
 interface NotaExistente {
+  id?: string;
   aluno_id: string;
   disciplina: string;
+  versao?: number;
   faltas?: number;
   n1?: number;
   n2?: number;
@@ -343,7 +345,7 @@ export async function ProfessorTurmasView(
     });
   });
 
-  // Save grades buttons
+// Save grades buttons
   container.querySelectorAll(".btn-salvar-notas").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const disciplinaId = (btn as HTMLButtonElement).getAttribute(
@@ -361,6 +363,9 @@ export async function ProfessorTurmasView(
       rows.forEach((row) => {
         const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
         if (!alunoId) return;
+
+        const notasVersoes = (window as any).__notasVersoes?.[disciplinaNome] || {};
+        const notaExistente = notasVersoes[alunoId];
 
         const faltas =
           (row.querySelector(".input-faltas") as HTMLInputElement)?.value ||
@@ -382,6 +387,7 @@ export async function ProfessorTurmasView(
           n3: parseFloat(n3) || 0,
           rec: parseFloat(rec) || 0,
           aluno_id: alunoId,
+          versao: notaExistente?.versao ?? 1,
         });
       });
       (btn as HTMLButtonElement).disabled = true;
@@ -395,7 +401,12 @@ export async function ProfessorTurmasView(
       (btn as HTMLButtonElement).textContent = "💾 Salvar Notas";
 
       if (error) {
-        toast.error("Erro ao salvar notas: " + error.message);
+        if (error.code === 'CONFLICT') {
+          toast.error("Conflito de edição: alguns dados foram modificados por outro usuário. Recarregue a página.");
+          setTimeout(() => window.location.reload(), 2000);
+        } else {
+          toast.error("Erro ao salvar notas: " + error.message);
+        }
       } else {
         toast.success(`${notasArray.length} notas salvas com sucesso!`);
         // Verificar alertas de média baixa
@@ -606,7 +617,7 @@ async function loadAlunosDaDisciplina(
     const alunoIds = matriculas.map((m: any) => getPerfil(m)?.id).filter(Boolean);
     const { data: notasExistentes } = await supabase
       .from("boletim")
-      .select("*")
+      .select("id, aluno_id, disciplina, versao, faltas, n1, n2, n3, rec")
       .in("aluno_id", alunoIds)
       .eq("disciplina", disciplinaNome) as { data: NotaExistente[] | null };
 
@@ -614,6 +625,10 @@ async function loadAlunosDaDisciplina(
     notasExistentes?.forEach((n) => {
       notasMap[n.aluno_id] = n;
     });
+
+    // Armazenar versões para uso no salvamento
+    (window as any).__notasVersoes = (window as any).__notasVersoes || {};
+    (window as any).__notasVersoes[disciplinaNome] = notasMap;
 
     tbody.innerHTML = matriculas
       .filter((m: any) => m.status_aluno === "ativo")

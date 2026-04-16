@@ -423,17 +423,17 @@ export async function ProfessorView(
                 <td style="text-align: center;">
                   <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
         a.nota?.n1 || ""
-      }" placeholder="—" style="width: 55px; padding: 0.3rem; text-align: center;">
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
                 </td>
                 <td style="text-align: center;">
                   <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
         a.nota?.n2 || ""
-      }" placeholder="—" style="width: 55px; padding: 0.3rem; text-align: center;">
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
                 </td>
                 <td style="text-align: center;">
                   <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
         a.nota?.n3 || ""
-      }" placeholder="—" style="width: 55px; padding: 0.3rem; text-align: center;">
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
                 </td>
                 <td class="media-teoria" style="text-align: center; font-weight: bold; background: #f0f8ff;">
                   —
@@ -441,7 +441,7 @@ export async function ProfessorView(
                 <td style="text-align: center;">
                   <input type="number" class="input rec-input" min="0" max="10" step="0.1" value="${
         a.nota?.rec || ""
-      }" placeholder="—" style="width: 55px; padding: 0.3rem; text-align: center;">
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
                 </td>
                 <td class="media-final" style="text-align: center; font-weight: bold; color: var(--primary); background: #fff8e6;">
                   —

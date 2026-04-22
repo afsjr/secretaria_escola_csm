@@ -24,6 +24,88 @@ const escapeHTML = (str: string | null | undefined): string => {
   }[tag]))
 }
 
+async function handleGerarPDF(
+  userId: string,
+  tipo: string,
+  nomeAluno: string,
+  btnEl: HTMLButtonElement
+): Promise<void> {
+  btnEl.disabled = true
+  btnEl.textContent = 'Gerando...'
+
+  try {
+    const { data: userData } = await AdminService.getUserById(userId)
+    if (!userData) {
+      toast.error('Usuário não encontrado')
+      return
+    }
+
+    const { data: matriculas } = await supabase
+      .from('matriculas')
+      .select('*, turmas(id, nome, periodo, cursos(id, nome))')
+      .eq('aluno_id', userId)
+      .eq('status_aluno', 'ativo')
+      .limit(1)
+      .maybeSingle()
+
+    const isAluno = userData.perfil === 'aluno'
+    let turmaInfo: any = null
+
+    if (isAluno && matriculas?.turmas) {
+      turmaInfo = {
+        turma_nome: matriculas.turmas.nome,
+        periodo: matriculas.turmas.periodo,
+        curso_nome: matriculas.turmas.cursos?.nome || 'N/A',
+        curso_id: matriculas.turmas.cursos?.id
+      }
+    }
+
+    const doc = await gerarDocumentoPDF(userData, tipo, nomeAluno, turmaInfo, isAluno)
+    PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
+    toast.success('PDF gerado com sucesso!')
+  } catch (err: any) {
+    console.error('Erro ao gerar PDF:', err)
+    toast.error('Erro ao gerar PDF: ' + err.message)
+  } finally {
+    btnEl.disabled = false
+    btnEl.textContent = 'Gerar PDF'
+  }
+}
+
+async function gerarDocumentoPDF(
+  userData: any,
+  tipo: string,
+  nomeAluno: string,
+  turmaInfo: any,
+  isAluno: boolean
+): Promise<Uint8Array> {
+  if (tipo.includes('Declaração de Matrícula')) {
+    if (!isAluno) {
+      return PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile, { marcaCopia: true })
+    }
+    if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
+    return PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
+  }
+
+  if (tipo.includes('Histórico Acadêmico') || tipo.includes('Boletim')) {
+    if (!isAluno) throw new Error('Histórico acadêmico disponível apenas para alunos')
+    if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
+    const { data: notas } = await AcademicService.getBoletim(userData.id)
+    const { data: disciplinasCurso } = await CourseService.getDisciplinasDoCurso(turmaInfo.curso_id)
+    const notasComModulo = notas?.map((n: any) => {
+      const disc = disciplinasCurso?.find((d: any) => d.nome === n.disciplina)
+      return { ...n, modulo: disc?.modulo || 'I Módulo' }
+    }) || notas || []
+    return PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo, { marcaCopia: true })
+  }
+
+  if (isAluno) {
+    if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
+    return PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
+  }
+  return PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile)
+}
+
 export async function SecretariaView(): Promise<HTMLDivElement> {
   const container = document.createElement('div')
   container.className = 'secretaria-view animate-in'
@@ -604,116 +686,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       const userId = btn.getAttribute('data-id')!
       const tipo = btn.getAttribute('data-tipo')!
       const nomeAluno = btn.getAttribute('data-nome')!
-
       const btnEl = btn as HTMLButtonElement
-      btnEl.disabled = true
-      btnEl.textContent = 'Gerando...'
-
-      try {
-        // Buscar dados do usuário (qualquer perfil)
-        const { data: userData } = await AdminService.getUserById(userId)
-        if (!userData) {
-          toast.error('Usuário não encontrado')
-          btnEl.disabled = false
-          btnEl.textContent = 'Gerar PDF'
-          return
-        }
-
-        // Buscar matrícula apenas se for aluno
-        let turmaInfo: any = null
-        const { data: matriculas } = await supabase
-          .from('matriculas')
-          .select(`
-            *,
-            turmas(id, nome, periodo, cursos(id, nome))
-          `)
-          .eq('aluno_id', userId)
-          .eq('status_aluno', 'ativo')
-          .limit(1)
-          .maybeSingle()
-
-        if (userData.perfil === 'aluno' && matriculas?.turmas) {
-          turmaInfo = {
-            turma_nome: matriculas.turmas.nome,
-            periodo: matriculas.turmas.periodo,
-            curso_nome: matriculas.turmas.cursos?.nome || 'N/A',
-            curso_id: matriculas.turmas.cursos?.id
-          }
-        }
-
-        // Gerar PDF baseado no tipo de documento e perfil
-        const isDeclMatricula = tipo.includes('Declaração de Matrícula')
-        const isHistorico = tipo.includes('Histórico Acadêmico') || tipo.includes('Boletim')
-        const isAluno = userData.perfil === 'aluno'
-
-        if (isDeclMatricula) {
-          if (isAluno) {
-            if (!turmaInfo) {
-              toast.error('Aluno não possui matrícula ativa')
-              btnEl.disabled = false
-              btnEl.textContent = 'Gerar PDF'
-              return
-            }
-            const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
-            PDFService.downloadPDF(doc, `declaracao_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
-            toast.success('PDF gerado com sucesso!')
-            return
-          }
-          const doc = PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile, { marcaCopia: true })
-          PDFService.downloadPDF(doc, `declaracao_vinculo_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
-          toast.success('PDF gerado com sucesso!')
-          return
-        }
-
-        if (isHistorico) {
-          if (!isAluno) {
-            toast.error('Histórico acadêmico disponível apenas para alunos')
-            btnEl.disabled = false
-            btnEl.textContent = 'Gerar PDF'
-            return
-          }
-          if (!turmaInfo) {
-            toast.error('Aluno não possui matrícula ativa')
-            btnEl.disabled = false
-            btnEl.textContent = 'Gerar PDF'
-            return
-          }
-          const { data: notas } = await AcademicService.getBoletim(userId)
-          const { data: disciplinasCurso } = await CourseService.getDisciplinasDoCurso(
-            turmaInfo?.curso_id || matriculas?.turmas?.cursos?.id
-          )
-          const notasComModulo = notas?.map(n => {
-            const disc = disciplinasCurso?.find((d: any) => d.nome === n.disciplina)
-            return { ...n, modulo: disc?.modulo || 'I Módulo' }
-          }) || notas || []
-          const doc = PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo, { marcaCopia: true })
-          PDFService.downloadPDF(doc, `historico_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
-          toast.success('PDF gerado com sucesso!')
-          return
-        }
-
-        // Outros tipos
-        if (isAluno) {
-          if (!turmaInfo) {
-            toast.error('Aluno não possui matrícula ativa')
-            btnEl.disabled = false
-            btnEl.textContent = 'Gerar PDF'
-            return
-          }
-          const doc = PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
-          PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
-        } else {
-          const doc = PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile)
-          PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
-        }
-        toast.success('PDF gerado com sucesso!')
-      } catch (err: any) {
-        console.error('Erro ao gerar PDF:', err)
-        toast.error('Erro ao gerar PDF: ' + err.message)
-      }
-
-      btnEl.disabled = false
-      btnEl.textContent = 'Gerar PDF'
+      await handleGerarPDF(userId, tipo, nomeAluno, btnEl)
     })
   })
 

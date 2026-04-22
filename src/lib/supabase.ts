@@ -123,11 +123,6 @@ export const supabase: SupabaseClient = (supabaseUrl && supabaseAnonKey)
  * - Service Role Key: https://supabase.com/docs/guides/platform/service-role-keys
  */
 
-// Client Admin (SÓ USAR EM FALLBACK SEGURO)
-export const supabaseAdmin: SupabaseClient | null =
-  (supabaseUrl && import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY)
-    ? createClient(
-      supabaseUrl,
-      import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
-    )
-    : null;
+// Nota: O cliente admin (supabaseAdmin) foi removido do frontend para evitar exposição da Service Role Key.
+// Operações administrativas devem ser realizadas via Edge Functions.
+export const supabaseAdmin = null;

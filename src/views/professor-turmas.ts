@@ -34,6 +34,17 @@ function arredondarNota(nota: number | undefined): number {
   return inteiro + 1.0;
 }
 
+function calcularStatusAluno(mediaParcial: number, notaRec: number): { status: string; mediaCalculada: number } {
+  if (mediaParcial >= 7) {
+    return { status: "Aprovado", mediaCalculada: mediaParcial };
+  }
+  const mediaCalculada = arredondarNota((mediaParcial + notaRec) / 2);
+  return {
+    status: mediaCalculada >= 6 ? "Aprovado" : "Reprovado",
+    mediaCalculada
+  };
+}
+
 interface DisciplinaTurma {
   id: string;
   nome: string;
@@ -647,19 +658,10 @@ async function loadAlunosDaDisciplina(
         const mediaParcial = arredondarNota(
           ((n1 as number) + (n2 as number) + (n3 as number)) / 3,
         );
-        let mediaCalculada = mediaParcial;
-        let statusStr = "";
-
-        if (mediaParcial >= 7) {
-          statusStr = "Aprovado";
-        } else {
-          mediaCalculada = arredondarNota((mediaParcial + nfVal) / 2);
-          statusStr = mediaCalculada >= 6 ? "Aprovado" : "Reprovado";
-        }
+        const { status, mediaCalculada } = calcularStatusAluno(mediaParcial, nfVal);
 
         const media = mediaParcial;
         const finalVal = mediaCalculada;
-        const status = statusStr;
         const statusColor = status === "Aprovado"
           ? "var(--success)"
           : "var(--danger)";
@@ -735,19 +737,10 @@ function recalcularMedia(tbody: HTMLElement, disciplinaId: string): void {
       (parseFloat(n1.toString()) + parseFloat(n2.toString()) +
         parseFloat(n3.toString())) / 3,
     );
-    let mediaCalculada = mediaParcial;
-    let statusStr = "";
-
-    if (mediaParcial >= 7) {
-      statusStr = "Aprovado";
-    } else {
-      mediaCalculada = arredondarNota((mediaParcial + nfVal) / 2);
-      statusStr = mediaCalculada >= 6 ? "Aprovado" : "Reprovado";
-    }
+    const { status, mediaCalculada } = calcularStatusAluno(mediaParcial, nfVal);
 
     const media = mediaParcial;
     const finalVal = mediaCalculada;
-    const status = statusStr;
     const statusColor = status === "Aprovado"
       ? "var(--success)"
       : "var(--danger)";

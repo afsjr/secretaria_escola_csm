@@ -20,6 +20,30 @@ import { formatDateBR } from "../lib/date-utils";
 import { arredondarNota, calcularStatusAluno, calcularMediaParcial } from "../lib/grades-utils";
 import { UserProfile } from "../types";
 
+function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number): string {
+  const { status, mediaCalculada } = calcularStatusAluno(mediaParcial, notas.rec || 0);
+  const statusColor = status === "Aprovado" ? "var(--success)" : "var(--danger)";
+  const recDisabled = mediaParcial >= 7 ? 'disabled title="Média já suficiente para aprovação direta"' : '';
+
+  return `
+    <tr data-aluno-id="${aluno?.id || ''}" style="border-top: 1px solid var(--secondary);">
+      <td style="padding: 0.5rem;">
+        <div class="aluno-nome" style="font-weight: 500;">${escapeHTML(aluno?.nome_completo || 'Aluno Desconhecido')}</div>
+      </td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-faltas" value="${notas.faltas || 0}" min="0" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-n1" value="${notas.n1 || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-n2" value="${notas.n2 || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-n3" value="${notas.n3 || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="media-cell" data-media>${mediaParcial > 0 ? mediaParcial.toFixed(1) : "-"}</td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-rec" value="${notas.rec || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;" ${recDisabled}></td>
+      <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="final-cell" data-final>${mediaCalculada > 0 ? mediaCalculada.toFixed(1) : "-"}</td>
+      <td style="padding: 0.5rem; text-align: center;" class="status-cell" data-status>
+        <span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${escapeHTML(status)}</span>
+      </td>
+    </tr>
+  `;
+}
+
 interface DisciplinaTurma {
   id: string;
   nome: string;
@@ -622,54 +646,8 @@ async function loadAlunosDaDisciplina(
       .map((m: any) => {
         const aluno = getPerfil(m);
         const notas = (notasMap[aluno?.id || ''] || {}) as NotaExistente;
-
-        const faltas = notas.faltas || 0;
-        const n1 = notas.n1 || 0;
-        const n2 = notas.n2 || 0;
-        const n3 = notas.n3 || 0;
-        const rec = notas.rec || 0;
-
-        const nfVal = rec || 0;
-        const mediaParcial = arredondarNota(
-          ((n1 as number) + (n2 as number) + (n3 as number)) / 3,
-        );
-        const { status, mediaCalculada } = calcularStatusAluno(mediaParcial, nfVal);
-
-        const media = mediaParcial;
-        const finalVal = mediaCalculada;
-        const statusColor = status === "Aprovado"
-          ? "var(--success)"
-          : "var(--danger)";
-
-        return `
-          <tr data-aluno-id="${aluno?.id || ''}" style="border-top: 1px solid var(--secondary);">
-            <td style="padding: 0.5rem;">
-              <div class="aluno-nome" style="font-weight: 500;">${
-          escapeHTML(aluno?.nome_completo || 'Aluno Desconhecido')
-        }</div>
-            </td>
-            <td style="padding: 0.5rem;"><input type="number" class="input input-faltas" value="${faltas}" min="0" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
-            <td style="padding: 0.5rem;"><input type="number" class="input input-n1" value="${n1}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
-            <td style="padding: 0.5rem;"><input type="number" class="input input-n2" value="${n2}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
-            <td style="padding: 0.5rem;"><input type="number" class="input input-n3" value="${n3}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
-            <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="media-cell" data-media>${
-          media > 0 ? media.toFixed(1) : "-"
-        }</td>
-            <td style="padding: 0.5rem;"><input type="number" class="input input-rec" value="${rec}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;" ${
-          media >= 7
-            ? 'disabled title="Média já suficiente para aprovação direta"'
-            : ""
-        }></td>
-            <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="final-cell" data-final>${
-          finalVal > 0 ? finalVal.toFixed(1) : "-"
-        }</td>
-            <td style="padding: 0.5rem; text-align: center;" class="status-cell" data-status>
-              <span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${
-          escapeHTML(status)
-        }</span>
-            </td>
-          </tr>
-        `;
+        const mediaParcial = calcularMediaParcial(notas.n1 || 0, notas.n2 || 0, notas.n3 || 0);
+        return renderLinhaAluno(aluno, notas, mediaParcial);
       }).join("");
 
     // Add input listeners to recalculate media

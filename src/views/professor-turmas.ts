@@ -17,33 +17,8 @@ import { supabase } from "../lib/supabase";
 import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
 import { formatDateBR } from "../lib/date-utils";
+import { arredondarNota, calcularStatusAluno, calcularMediaParcial } from "../lib/grades-utils";
 import { UserProfile } from "../types";
-
-/**
- * Arredonda a nota para múltiplos de 0.5 conforme regra:
- * X.1 até X.4 => X.5 ; X.6 até X.9 => (X+1).0
- */
-function arredondarNota(nota: number | undefined): number {
-  if (!nota || nota <= 0) return 0;
-  const inteiro = Math.floor(nota);
-  const decimal = nota - inteiro;
-
-  if (decimal === 0) return nota;
-  if (decimal > 0 && decimal <= 0.4) return inteiro + 0.5;
-  if (decimal > 0.4 && decimal <= 0.5) return inteiro + 0.5;
-  return inteiro + 1.0;
-}
-
-function calcularStatusAluno(mediaParcial: number, notaRec: number): { status: string; mediaCalculada: number } {
-  if (mediaParcial >= 7) {
-    return { status: "Aprovado", mediaCalculada: mediaParcial };
-  }
-  const mediaCalculada = arredondarNota((mediaParcial + notaRec) / 2);
-  return {
-    status: mediaCalculada >= 6 ? "Aprovado" : "Reprovado",
-    mediaCalculada
-  };
-}
 
 interface DisciplinaTurma {
   id: string;

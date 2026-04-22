@@ -1,6 +1,6 @@
 # Arquitetura do Sistema de Gestao Escolar - CSM
 
-## 1. Visao Geral do Sistema
+## 1.  Visao Geral do Sistema
 
 ### 1.1 Nome e Proposito
 

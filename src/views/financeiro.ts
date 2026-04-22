@@ -4,6 +4,7 @@ import { ExcelService } from '../lib/excel-service'
 import { toast } from '../lib/toast'
 import { supabase } from '../lib/supabase'
 import { PDFService } from '../lib/pdf-service'
+import { formatDateTimeBR } from '../lib/date-utils'
 
 const escapeHTML = (str: unknown): string => {
   if (!str) return ''
@@ -256,7 +257,7 @@ export async function FinanceiroView(): Promise<HTMLElement> {
           <input type="checkbox" class="check-debito" data-id="${d.id}" ${d.status === 'atrasado' ? 'checked' : ''} style="width: 20px; height: 20px;">
           <div style="flex: 1;">
             <div style="font-weight: 700;">${escapeHTML(d.descricao)}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Vencimento: ${new Date(d.data_vencimento).toLocaleDateString()}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Vencimento: ${formatDateTimeBR(d.data_vencimento)}</div>
           </div>
           <div style="text-align: right;">
             <div style="font-weight: 800;">R$ ${Number(d.valor_original).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>

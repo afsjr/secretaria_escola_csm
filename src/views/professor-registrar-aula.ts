@@ -12,6 +12,7 @@ import { ProfessorService } from '../lib/professor-service'
 import { CourseService } from '../lib/course-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createBadge } from '../lib/security'
+import { formatDateBR } from '../lib/date-utils'
 
 interface TurmaData {
   turma_nome: string
@@ -217,7 +218,7 @@ async function loadHistoricoAulas(professorId: string, container: HTMLElement): 
           <div style="padding: 1rem; background: var(--secondary); border-radius: 6px; border-left: 4px solid var(--primary);">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
               <div>
-                ${createBadge(new Date(aula.data).toLocaleDateString('pt-BR'))}
+                ${createBadge(formatDateBR(aula.data))}
                 <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 0.5rem;">${escapeHTML(aula.turma_nome)}</span>
               </div>
               <button class="btn-delete-aula" data-aula-id="${aula.id}" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.8rem;">✕</button>

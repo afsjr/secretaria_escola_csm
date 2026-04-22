@@ -11,6 +11,7 @@
 
 import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
+import { formatDateBR } from "../lib/date-utils";
 import { StudentDetailsService } from "../lib/student-details-service";
 import { AcademicService } from "../lib/academic-service";
 
@@ -446,7 +447,7 @@ export async function StudentDetailsView(
                       <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
                         ${createBadge(o.categoria || "geral")}
                         <span style="font-size: 0.8rem; color: var(--text-muted);">${
-          new Date(o.criado_em).toLocaleDateString("pt-BR")
+          formatDateTimeBR(o.criado_em)
         } ${
           o.criado_por_perfis
             ? `- ${escapeHTML(o.criado_por_perfis.nome_completo)}`

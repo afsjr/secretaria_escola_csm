@@ -16,6 +16,7 @@ import { PDFService } from "../lib/pdf-service";
 import { supabase } from "../lib/supabase";
 import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
+import { formatDateBR } from "../lib/date-utils";
 import { UserProfile } from "../types";
 
 /**
@@ -856,7 +857,7 @@ async function loadAulasDaDisciplina(
           <div style="padding: 1rem; background: var(--secondary); border-radius: 6px; display: flex; justify-content: space-between; align-items: start;">
             <div style="flex: 1;">
               <div style="display: flex; gap: 0.5rem; margin-bottom: 0.3rem;">
-                ${createBadge(new Date(aula.data).toLocaleDateString("pt-BR"))}
+                ${createBadge(formatDateBR(aula.data))}
               </div>
               <div style="white-space: pre-wrap; font-size: 0.9rem;">${
         escapeHTML(aula.conteudo)

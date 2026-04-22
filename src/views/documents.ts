@@ -1,6 +1,7 @@
 import { DocumentsService } from '../lib/documents-service'
 import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
+import { formatDateTimeBR } from '../lib/date-utils'
 
 export async function DocumentsView(profile: { id: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
@@ -27,7 +28,7 @@ export async function DocumentsView(profile: { id: string }): Promise<HTMLElemen
       const tipoDisplay = r.tipo?.startsWith('Outros:')
         ? `<span>Outros</span><br><small style="color: var(--text-muted);">${escapeHTML(r.tipo.replace('Outros: ', ''))}</small>`
         : escapeHTML(r.tipo)
-      const dataFormatada = new Date(r.criado_em).toLocaleDateString('pt-BR')
+      const dataFormatada = formatDateTimeBR(r.criado_em)
       const statusBg = r.status === 'pendente' ? '#FEF3C7' : '#D1FAE5'
       const statusColor = r.status === 'pendente' ? '#92400E' : '#065F46'
       const statusBadge = `<span class="badge" style="background: ${statusBg}; color: ${statusColor};">${escapeHTML(r.status)}</span>`

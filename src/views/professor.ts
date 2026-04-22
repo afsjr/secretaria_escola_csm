@@ -1,4 +1,5 @@
 import { ProfessorService } from "../lib/professor-service";
+import { formatDateBR } from "../lib/date-utils";
 import { toast } from "../lib/toast";
 import { UserProfile } from "../types";
 
@@ -724,7 +725,7 @@ export async function ProfessorView(
                   <tr data-aula-id="${a.id}">
                     <td>
                       <div style="font-weight: 600; color: var(--primary);">
-                        ${new Date(a.data).toLocaleDateString("pt-BR")}
+                        ${formatDateBR(a.data)}
                       </div>
                     </td>
                     <td>

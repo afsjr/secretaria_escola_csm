@@ -7,6 +7,7 @@
 
 import { AuditService } from "../lib/audit-service";
 import { escapeHTML } from "../lib/security";
+import { formatDateTimeBR } from "../lib/date-utils";
 
 const ACTION_LABELS: Record<string, string> = {
   "reset_senha": "🔑 Reset de Senha",
@@ -54,17 +55,7 @@ const SEVERITY_COLORS: Record<string, SeverityColors> = {
   "baixa": { bg: "#D1FAE5", text: "#059669", border: "#6EE7B7" },
 };
 
-function formatDateTime(dateStr: string | undefined): string {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return d.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+
 
 function truncate(str: string | undefined, maxLen = 60): string {
   if (!str) return "—";
@@ -107,7 +98,7 @@ function renderLogRow(log: any): string {
         <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${colors.text};"></span>
       </td>
       <td style="font-size: 0.85rem; white-space: nowrap;">
-        ${formatDateTime(log.created_at)}
+        ${formatDateTimeBR(log.created_at)}
       </td>
       <td>
         <div style="display: flex; align-items: center; gap: 0.5rem;">

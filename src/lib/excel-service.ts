@@ -5,6 +5,7 @@
  * a partir de dados JSON.
  */
 import * as XLSX from 'xlsx'
+import { formatDateTimeBR } from './date-utils'
 
 export interface ExportColumn {
   header: string
@@ -133,7 +134,7 @@ export class ExcelService {
     const formattedAlunos = alunos.map(aluno => ({
       ...aluno,
       bloqueio_financeiro: aluno.bloqueio_financeiro ? 'Bloqueado' : 'Ativo',
-      created_at: aluno.created_at ? new Date(aluno.created_at).toLocaleDateString('pt-BR') : '-'
+      created_at: aluno.created_at ? formatDateTimeBR(aluno.created_at) : '-'
     }))
 
     this.exportToExcel(formattedAlunos, `alunos_${this.getDateStamp()}`, columns, 'Alunos')
@@ -155,7 +156,7 @@ export class ExcelService {
       ...sol,
       aluno_nome: sol.perfis?.nome_completo || 'N/A',
       aluno_email: sol.perfis?.email || '',
-      created_at: sol.created_at ? new Date(sol.created_at).toLocaleDateString('pt-BR') : '-'
+      created_at: sol.created_at ? formatDateTimeBR(sol.created_at) : '-'
     }))
 
     this.exportToExcel(formattedSolicitacoes, `solicitacoes_${this.getDateStamp()}`, columns, 'Solicitações')
@@ -175,7 +176,7 @@ export class ExcelService {
 
     const formattedProfessores = professores.map(prof => ({
       ...prof,
-      created_at: prof.created_at ? new Date(prof.created_at).toLocaleDateString('pt-BR') : '-'
+      created_at: prof.created_at ? formatDateTimeBR(prof.created_at) : '-'
     }))
 
     this.exportToExcel(formattedProfessores, `professores_${this.getDateStamp()}`, columns, 'Professores')
@@ -215,8 +216,8 @@ export class ExcelService {
     const formattedRegistros = registros.map(reg => ({
       ...reg,
       valor: reg.valor ? `R$ ${reg.valor.toFixed(2)}` : '-',
-      vencimento: reg.vencimento ? new Date(reg.vencimento).toLocaleDateString('pt-BR') : '-',
-      data_pagamento: reg.data_pagamento ? new Date(reg.data_pagamento).toLocaleDateString('pt-BR') : '-'
+      vencimento: reg.vencimento ? formatDateTimeBR(reg.vencimento) : '-',
+      data_pagamento: reg.data_pagamento ? formatDateTimeBR(reg.data_pagamento) : '-'
     }))
 
     this.exportToExcel(formattedRegistros, `financeiro_${this.getDateStamp()}`, columns, 'Financeiro')

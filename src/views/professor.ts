@@ -490,39 +490,29 @@ export async function ProfessorView(
           }
         });
 
-        let mediaTeoria: number | null = count > 0 ? (sum / count) : null;
-
-        if (mediaTeoria !== null) {
-          (mediaTeoriaCell as HTMLElement).textContent = mediaTeoria.toFixed(1);
-          (mediaTeoriaCell as HTMLElement).style.color = mediaTeoria >= 7
-            ? "var(--success)"
-            : "var(--danger)";
-          (mediaTeoriaCell as HTMLElement).style.fontWeight = "bold";
-        } else {
+        if (count === 0) {
           (mediaTeoriaCell as HTMLElement).textContent = "—";
           (mediaTeoriaCell as HTMLElement).style.color = "inherit";
-        }
-
-        const recVal = parseFloat(recInput.value);
-        if (!isNaN(recVal) && recVal > 0 && mediaTeoria !== null) {
-          const mediaFinalVal = (mediaTeoria + recVal) / 2;
-          (mediaFinalCell as HTMLElement).textContent = mediaFinalVal.toFixed(
-            1,
-          );
-          (mediaFinalCell as HTMLElement).style.color = mediaFinalVal >= 7
-            ? "var(--success)"
-            : "var(--danger)";
-          (mediaFinalCell as HTMLElement).style.fontWeight = "bold";
-        } else if (mediaTeoria !== null) {
-          (mediaFinalCell as HTMLElement).textContent = mediaTeoria.toFixed(1);
-          (mediaFinalCell as HTMLElement).style.color = mediaTeoria >= 7
-            ? "var(--success)"
-            : "var(--danger)";
-          (mediaFinalCell as HTMLElement).style.fontWeight = "bold";
-        } else {
           (mediaFinalCell as HTMLElement).textContent = "—";
           (mediaFinalCell as HTMLElement).style.color = "inherit";
+          return;
         }
+
+        const mediaTeoria = sum / count;
+        const colorTeoria = mediaTeoria >= 7 ? "var(--success)" : "var(--danger)";
+
+        (mediaTeoriaCell as HTMLElement).textContent = mediaTeoria.toFixed(1);
+        (mediaTeoriaCell as HTMLElement).style.color = colorTeoria;
+        (mediaTeoriaCell as HTMLElement).style.fontWeight = "bold";
+
+        const recVal = parseFloat(recInput.value);
+        const hasRec = !isNaN(recVal) && recVal > 0;
+        const mediaFinalVal = hasRec ? (mediaTeoria + recVal) / 2 : mediaTeoria;
+        const colorFinal = mediaFinalVal >= 7 ? "var(--success)" : "var(--danger)";
+
+        (mediaFinalCell as HTMLElement).textContent = mediaFinalVal.toFixed(1);
+        (mediaFinalCell as HTMLElement).style.color = colorFinal;
+        (mediaFinalCell as HTMLElement).style.fontWeight = "bold";
       };
 
       notasInputs.forEach((input) =>
@@ -586,16 +576,13 @@ export async function ProfessorView(
         if (error) {
           if (error.code === 'CONFLICT') {
             toast.error("Conflito de edição: alguns dados foram modificados por outro usuário. Recarregue a página e tente novamente.");
-            // Recarregar dados automaticamente
-            setTimeout(async () => {
-              selectDisciplina.dispatchEvent(new Event('change'));
-            }, 2000);
+            setTimeout(() => selectDisciplina.dispatchEvent(new Event('change')), 2000);
           } else {
             toast.error("Erro ao salvar notas: " + error.message);
           }
-        } else {
-          toast.success("Todas as notas foram salvas com sucesso!");
+          return;
         }
+        toast.success("Todas as notas foram salvas com sucesso!");
 
         btnSalvarTodas.disabled = false;
         btnSalvarTodas.innerHTML = `

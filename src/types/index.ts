@@ -20,6 +20,7 @@ export interface UserProfile {
   telefone?: string;
   created_at?: string;
   updated_at?: string;
+  primeiro_acesso?: boolean;
 }
 
 export interface Session {

@@ -6,6 +6,7 @@ import { DashboardView } from './views/dashboard'
 import { HomeView } from './views/home'
 import { ForgotPasswordView } from './views/forgot-password'
 import { ResetPasswordView } from './views/reset-password'
+import { ForceChangePasswordView } from './views/force-change-password'
 
 const app = document.querySelector('#app') as HTMLElement | null
 
@@ -16,40 +17,60 @@ if (!app) {
 
 async function router(): Promise<void> {
   const hash = window.location.hash || '#/'
-  const path = hash.split('&')[0].split('?')[0]  // Strip query/hash params from recovery URL
+  const path = hash.split('&')[0].split('?')[0]
 
   if (!app) return
 
   try {
     const { data: { session } } = await supabase.auth.getSession()
 
-    // Clear app immediately after getting session (or error)
     app.innerHTML = ''
 
-  // Handle Supabase recovery redirect: #access_token=...&type=recovery
-  const isRecoveryFlow = hash.includes('type=recovery') || hash.includes('type=email')
+    const isRecoveryFlow = hash.includes('type=recovery') || hash.includes('type=email')
 
-  if (isRecoveryFlow && path !== '#/reset-password') {
-    console.log('[router] Detected recovery flow, redirecting to #/reset-password')
-    window.location.hash = '#/reset-password'
-    return
-  }
+    if (isRecoveryFlow && path !== '#/reset-password') {
+      console.log('[router] Detected recovery flow, redirecting to #/reset-password')
+      window.location.hash = '#/reset-password'
+      return
+    }
 
-  // Protected route logic
-  if (path.startsWith('#/dashboard') && !session) {
-    window.location.hash = '#/'
-    return
-  }
+    // Check if user needs to change password (primeiro acesso)
+    let precisaTrocarSenha = false
+    if (session) {
+      const { data: perfil } = await supabase
+        .from('perfis')
+        .select('primeiro_acesso')
+        .eq('id', session.user.id)
+        .single()
+      
+      if (perfil?.primeiro_acesso === true && path !== '#/force-change-password') {
+        console.log('[router] Usuário precisa trocar senha (primeiro acesso)')
+        app.appendChild(ForceChangePasswordView({ userId: session.user.id }))
+        return
+      }
+    }
 
-  // Auth routing (if already logged in, skip auth screens)
-  // EXCEPTION: do NOT redirect from reset-password even if session exists (recovery flow)
-  const isAuthRoute = path === '#/' || path === '#/signup' || path === '#/forgot-password'
-  if (isAuthRoute && session) {
-    window.location.hash = '#/dashboard'
-    return
-  }
+    if (path.startsWith('#/dashboard') && !session) {
+      window.location.hash = '#/'
+      return
+    }
 
-    // Render view
+    const isAuthRoute = path === '#/' || path === '#/signup' || path === '#/forgot-password'
+    if (isAuthRoute && session) {
+      window.location.hash = '#/dashboard'
+      return
+    }
+
+    // Force password change route
+    if (path === '#/force-change-password') {
+      if (!session) {
+        window.location.hash = '#/'
+        return
+      }
+      app.appendChild(ForceChangePasswordView({ userId: session.user.id }))
+      return
+    }
+
     try {
       if (path === '#/') {
         app.appendChild(LoginView())

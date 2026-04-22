@@ -11,9 +11,46 @@
 
 import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
-import { formatDateBR } from "../lib/date-utils";
+import { formatDateBR, formatDateTimeBR } from "../lib/date-utils";
 import { StudentDetailsService } from "../lib/student-details-service";
 import { AcademicService } from "../lib/academic-service";
+
+const generoLabels: Record<string, string> = {
+  "masculino": "Masculino",
+  "feminino": "Feminino",
+  "outro": "Outro",
+  "prefiro_nao_informar": "Prefiro não informar",
+};
+
+const estadoCivilLabels: Record<string, string> = {
+  "solteiro": "Solteiro(a)",
+  "casado": "Casado(a)",
+  "divorciado": "Divorciado(a)",
+  "viuvo": "Viúvo(a)",
+  "uniao_estavel": "União Estável",
+};
+
+function calcularIdade(dataNascimento: string): number | string {
+  if (!dataNascimento) return "-";
+  const nasc = new Date(dataNascimento);
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const mesDiff = hoje.getMonth() - nasc.getMonth();
+  if (mesDiff < 0 || (mesDiff === 0 && hoje.getDate() < nasc.getDate())) {
+    idade--;
+  }
+  return idade;
+}
+
+function getInitials(nomeCompleto: string): string {
+  return nomeCompleto?.charAt(0).toUpperCase() || "?";
+}
+
+function renderBadgeStatus(matriculas: any): string {
+  if (!matriculas) return createBadge("Sem matrícula ativa", "badge");
+  const turma = matriculas.turmas;
+  return createBadge(`Turma: ${escapeHTML(turma?.nome || "N/A")}`, "badge");
+}
 
 interface Responsavel {
   id: string;
@@ -107,44 +144,11 @@ export async function StudentDetailsView(
   const matricula = dadosCompletos!.matricula;
   const turma = matricula?.turmas;
 
-  // Calcular idade
-  let idade: number | string = "-";
-  if (dados.data_nascimento) {
-    const nasc = new Date(dados.data_nascimento);
-    const hoje = new Date();
-    idade = hoje.getFullYear() - nasc.getFullYear();
-    const mesDiff = hoje.getMonth() - nasc.getMonth();
-    if (mesDiff < 0 || (mesDiff === 0 && hoje.getDate() < nasc.getDate())) {
-      idade--;
-    }
-  }
-
-  const isMenor = dados.data_nascimento && idade !== "-" &&
-    (idade as number) < 18;
-
-  const initials = dados.nome_completo
-    ? escapeHTML(dados.nome_completo.charAt(0).toUpperCase())
-    : "?";
-
-  // Gênero label
-  const generoLabels: Record<string, string> = {
-    "masculino": "Masculino",
-    "feminino": "Feminino",
-    "outro": "Outro",
-    "prefiro_nao_informar": "Prefiro não informar",
-  };
+  const idade = calcularIdade(dados.data_nascimento);
+  const isMenor = typeof idade === "number" && idade < 18;
+  const initials = getInitials(dados.nome_completo);
   const generoLabel = generoLabels[dados.genero as string] || "-";
-
-  // Estado civil label
-  const estadoCivilLabels: Record<string, string> = {
-    "solteiro": "Solteiro(a)",
-    "casado": "Casado(a)",
-    "divorciado": "Divorciado(a)",
-    "viuvo": "Viúvo(a)",
-    "uniao_estavel": "União Estável",
-  };
-  const estadoCivilLabel = estadoCivilLabels[dados.estado_civil as string] ||
-    "-";
+  const estadoCivilLabel = estadoCivilLabels[dados.estado_civil as string] || "-";
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">

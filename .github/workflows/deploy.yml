@@ -27,9 +27,15 @@ jobs:
       - name: Construir Projeto (Build) 🏗️
         run: |
           echo "🔧 Configurando variáveis de ambiente..."
-          export VITE_SUPABASE_URL="https://cfybsocrydeziibonvbd.supabase.co"
-          export VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmeWJzb2NyeWRlemlpYm9udmJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjYxNjksImV4cCI6MjA5MDU0MjE2OX0.iBjdBeegHl8-RDmdsew1jbLjF9kyUm-loh4SUAVNLSc"
-          export VITE_SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmeWJzb2NyeWRlemlpYm9udmJkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDk2NjE2OSwiZXhwIjoyMDkwNTQyMTY5fQ.iYszfZxeS9fHnsuPYKLzVhu188ZBtg3sFkEaAoGYg_A"
+          echo "   -> Variáveis de ambiente são injetadas automaticamente via Vercel Environment Variables"
+          echo "   -> Para funcionamento em produção, configure as variáveis em:"
+          echo "      Settings > Environment Variables > Production"
+          echo ""
+          echo "   -> Variáveis necessárias:"
+          echo "      - VITE_SUPABASE_URL"
+          echo "      - VITE_SUPABASE_ANON_KEY"
+          echo "      - VITE_SUPABASE_SERVICE_ROLE_KEY (para reset de senha)"
+          echo ""
           echo "🔨 Executando build..."
           npm run build
           echo "✅ Build concluído!"

@@ -52,7 +52,7 @@ export const ProfessorService = {
       .from('disciplinas')
       .select(`
         *,
-        turmas(id, nome, periodo)
+        turmas(id, nome, periodo, cursos(id, nome))
       `)
       .eq('professor_id', professorId)
       .order('modulo', { ascending: true })

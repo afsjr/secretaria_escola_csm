@@ -37,16 +37,24 @@ async function router(): Promise<void> {
     // Check if user needs to change password (primeiro acesso)
     let precisaTrocarSenha = false
     if (session) {
-      const { data: perfil } = await supabase
-        .from('perfis')
-        .select('primeiro_acesso')
-        .eq('id', session.user.id)
-        .single()
+      // Verificar se usuário já completou a troca de senha nesta sessão
+      const senhaTrocadaNaSessao = sessionStorage.getItem('senha_trocada_sucesso')
       
-      if (perfil?.primeiro_acesso === true && path !== '#/force-change-password') {
-        console.log('[router] Usuário precisa trocar senha (primeiro acesso)')
-        app.appendChild(ForceChangePasswordView({ userId: session.user.id }))
-        return
+      if (senhaTrocadaNaSessao) {
+        console.log('[router] Senha trocada nesta sessão, removendo flag')
+        sessionStorage.removeItem('senha_trocada_sucesso')
+      } else {
+        const { data: perfil } = await supabase
+          .from('perfis')
+          .select('primeiro_acesso')
+          .eq('id', session.user.id)
+          .single()
+        
+        if (perfil?.primeiro_acesso === true && path !== '#/force-change-password') {
+          console.log('[router] Usuário precisa trocar senha (primeiro acesso)')
+          app.appendChild(ForceChangePasswordView({ userId: session.user.id }))
+          return
+        }
       }
     }
 

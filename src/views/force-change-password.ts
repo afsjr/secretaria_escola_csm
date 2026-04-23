@@ -65,13 +65,27 @@ export function ForceChangePasswordView(param: ForceChangePasswordParam): HTMLEl
         return
       }
 
-      const { error: updateError } = await supabase
-        .from('perfis')
-        .update({ primeiro_acesso: false })
-        .eq('id', param.userId)
+      console.log('Senha atualizada, marcando primeiro_acesso = false')
 
-      if (updateError) {
-        console.error('Erro ao atualizar flag primeiro_acesso:', updateError)
+      try {
+        const { error: updateError } = await supabase
+          .from('perfis')
+          .update({ primeiro_acesso: false })
+          .eq('id', param.userId)
+
+        if (updateError) {
+          console.error('Erro ao atualizar flag primeiro_acesso:', updateError)
+          toast.error('Erro ao finalizar cadastro. Entre em contato com a secretaria.')
+          submitBtn.disabled = false
+          submitBtn.textContent = 'Criar Senha e Acessar'
+          return
+        }
+
+        console.log('primeiro_acesso atualizado com sucesso')
+      sessionStorage.setItem('senha_trocada_sucesso', 'true')
+      console.log('Flag senha_trocada_sucesso definido na sessão')
+      } catch (updateErr) {
+        console.error('Exceção ao atualizar primeiro_acesso:', updateErr)
       }
 
       toast.success('Senha criada com sucesso!')

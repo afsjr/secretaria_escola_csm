@@ -26,16 +26,11 @@ jobs:
 
       - name: Construir Projeto (Build) 🏗️
         run: |
-          echo "🔧 Configurando variáveis de ambiente..."
-          echo "   -> Variáveis de ambiente são injetadas automaticamente via Vercel Environment Variables"
-          echo "   -> Para funcionamento em produção, configure as variáveis em:"
-          echo "      Settings > Environment Variables > Production"
-          echo ""
-          echo "   -> Variáveis necessárias:"
-          echo "      - VITE_SUPABASE_URL"
-          echo "      - VITE_SUPABASE_ANON_KEY"
-          echo "      - VITE_SUPABASE_SERVICE_ROLE_KEY (para reset de senha)"
-          echo ""
+          echo "🔧 Configurando variáveis de ambiente via GitHub Secrets..."
+          export VITE_SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          export VITE_SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          export VITE_SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+          echo "✅ Variáveis configuradas"
           echo "🔨 Executando build..."
           npm run build
           echo "✅ Build concluído!"

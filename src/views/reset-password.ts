@@ -27,6 +27,48 @@ export function ResetPasswordView(): HTMLElement {
     </div>
   `
 
+  // Processar token de recovery da URL
+  const processRecoveryToken = async () => {
+    // Extrair token da URL (pode estar no hash ou query string)
+    const hash = window.location.hash.substring(1)
+    const params = new URLSearchParams(hash)
+    
+    const accessToken = params.get('access_token')
+    const refreshToken = params.get('refresh_token')
+    const type = params.get('type')
+
+    console.log('Processando token de recovery:', { 
+      hasAccessToken: !!accessToken, 
+      hasRefreshToken: !!refreshToken, 
+      type 
+    })
+
+    if (accessToken && type === 'recovery') {
+      try {
+        // Trocar token temporário por sessão
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || ''
+        })
+
+        console.log('setSession result:', { 
+          hasSession: !!data.session, 
+          hasError: !!error,
+          errorMessage: error?.message 
+        })
+
+        if (error) {
+          console.error('Erro ao processar token:', error)
+        }
+      } catch (err) {
+        console.error('Exceção ao processar token:', err)
+      }
+    }
+  }
+
+  // Executar processamento do token
+  processRecoveryToken()
+
   const form = container.querySelector('#reset-password-form') as HTMLFormElement
   form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
@@ -61,29 +103,6 @@ export function ResetPasswordView(): HTMLElement {
       submitBtn.textContent = 'Atualizar Senha'
     }
   })
-
-  // Verificar token de recovery automaticamente ao carregar
-  setTimeout(async () => {
-    const { data: { session }, error } = await supabase.auth.getSession()
-    console.log('Reset password - Session check:', { 
-      hasSession: !!session, 
-      hasError: !!error,
-      errorMessage: error?.message,
-      expiresAt: session?.expires_at
-    })
-    
-    // Se não há sessão mas há hash de recovery, tentar processar
-    if (!session && (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token='))) {
-      console.log('Tentando processar token de recovery...')
-      // O Supabase deve processar automaticamente o token da URL
-      // Se não funcionar, o usuário verá a mensagem de erro
-    }
-    
-    if (!session && !error) {
-      // Sessão null mas sem erro - pode ser normal em flows de recovery
-      console.log('Sessão nula mas sem erro - aguardando processamento do token')
-    }
-  }, 500)
 
   return container
 }

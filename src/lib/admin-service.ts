@@ -51,11 +51,12 @@ async function callEdgeFunction(functionName: string, payload: Record<string, un
 
   try {
     const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+    const accessToken = session.access_token
 
     const response = await fetch(`${EDGE_FUNCTIONS_BASE_URL}/${functionName}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${anonKey}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         'apikey': anonKey,
         'x-client-info': 'supabase-js-v2'

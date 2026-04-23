@@ -2,16 +2,35 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 // CORS restrito ao domínio do sistema
-const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") || "http://localhost:5173"
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://sistemacsm.vercel.app",
+  "https://afsjr.github.io",
+  "https://afsjr.github.io/secretaria_escola_csm"
+]
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": allowedOrigin,
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Max-Age": "86400",
+const getCorsHeaders = (requestOrigin: string | null) => {
+  let origin = allowedOrigins[0]
+  if (requestOrigin) {
+    if (allowedOrigins.includes(requestOrigin)) {
+      origin = requestOrigin
+    } else if (requestOrigin.includes('vercel.app')) {
+      origin = requestOrigin
+    }
+  }
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Max-Age": "86400",
+  }
 }
 
 serve(async (req) => {
+  const requestOrigin = req.headers.get("Origin")
+  const corsHeaders = getCorsHeaders(requestOrigin)
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders })
@@ -50,20 +69,20 @@ serve(async (req) => {
     }
 
     // Verificar se o usuário tem role admin ou secretaria
-    const { data: perfil, error: perfilError } = await supabaseAdmin
+    const { data: userPerfil, error: perfilError } = await supabaseAdmin
       .from("perfis")
       .select("perfil")
       .eq("id", user.id)
       .single()
 
-    if (perfilError || !perfil) {
+    if (perfilError || !userPerfil) {
       return new Response(
         JSON.stringify({ error: { message: "Perfil não encontrado." } }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }
 
-    if (perfil.perfil !== "admin" && perfil.perfil !== "secretaria" && perfil.perfil !== "coordenacao") {
+    if (userPerfil.perfil !== "admin" && userPerfil.perfil !== "secretaria" && userPerfil.perfil !== "coordenacao") {
       return new Response(
         JSON.stringify({ error: { message: "Acesso negado. Apenas admin/secretaria/coordenacao." } }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -84,7 +103,7 @@ serve(async (req) => {
     }
 
     // Forçar perfil para 'aluno' (não confiar no input do cliente)
-    const perfil = "aluno"
+    const forcedPerfil = "aluno"
 
     // Step 1: Criar usuário no Supabase Auth
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
@@ -112,7 +131,7 @@ serve(async (req) => {
         email: email,
         cpf: cpf || null,
         telefone: telefone || null,
-        perfil: perfil // Forçado pelo servidor, não pelo cliente
+        perfil: forcedPerfil
       }])
 
     if (profileError) {

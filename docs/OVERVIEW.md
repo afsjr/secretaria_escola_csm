@@ -6,8 +6,8 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 
 ### 🚀 Acesso
 
-- **Local:** <http://localhost:5173/secretaria_escola_csm/>
-- **Produção:** (URL de produção após deploy)
+- **Local:** http://localhost:5173/secretaria_escola_csm/
+- **Produção:** https://afsjr.github.io/secretaria_escola_csm/
 
 ---
 
@@ -72,8 +72,8 @@ Sistema completo para gestão escolar técnica, desenvolvido para o Centro de Sa
 
 | Função | Finalidade | Autorização |
 |--------|-----------|-------------|
-| `admin-create-user` | Criar usuário com perfil | Apenas admin/secretaria (verificado no servidor) |
-| **Perfil forçado** | Sempre cria como `aluno` (não confia no input do cliente) | ✅ |
+| `admin-create-user` | Criar usuário com perfil | Apenas admin/secretaria/coordenacao |
+| `admin-reset-password` | Resetar senha de usuários | Apenas admin/secretaria/coordenacao |
 
 ### Proteção Contra Ameaças
 

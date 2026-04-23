@@ -109,13 +109,11 @@ export async function ProfessorTurmasView(
   }
 
   // Buscar disciplinas do professor
-  console.log('Buscando disciplinas para professor:', profile.id)
   const { data: disciplinas, error: discError } = await ProfessorService
     .getDisciplinasDoProfessor(profile.id) as {
       data: DisciplinaTurma[] | null;
+      error: { message: string } | null;
     };
-  
-  console.log('Disciplinas encontradas:', { count: disciplinas?.length, disciplinas, error: discError })
 
   // Agrupar disciplinas por turma
   const turmasMap: Record<string, TurmaGroup> = {};

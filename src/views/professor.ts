@@ -576,7 +576,7 @@ export async function ProfessorView(
         if (error) {
           if (error.code === 'CONFLICT') {
             toast.error("Conflito de edição: alguns dados foram modificados por outro usuário. Recarregue a página e tente novamente.");
-            setTimeout(() => selectDisciplina.dispatchEvent(new Event('change')), 2000);
+            setTimeout(() => selectDisciplinaNotas.dispatchEvent(new Event('change')), 2000);
           } else {
             toast.error("Erro ao salvar notas: " + error.message);
           }

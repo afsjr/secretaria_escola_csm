@@ -94,13 +94,65 @@ export const ProfessorService = {
     const errors: any[] = []
 
     for (const v of vinculacoes) {
+      let disciplinaId = v.disciplinaId
+
+      // Se tem turma definida, verificar se já existe uma disciplina com o mesmo nome para essa turma
+      if (v.turmaId) {
+        // Buscar os dados da disciplina base para copiar
+        const { data: disciplinaBase, error: errorBase } = await supabase
+          .from('disciplinas')
+          .select('nome, modulo, carga_horaria, curso_id')
+          .eq('id', v.disciplinaId)
+          .single()
+
+        if (errorBase) {
+          errors.push(errorBase)
+          continue
+        }
+
+        // Verificar se já existe disciplina com mesmo nome + turma
+        const { data: existente } = await supabase
+          .from('disciplinas')
+          .select('id')
+          .eq('nome', disciplinaBase.nome)
+          .eq('turma_id', v.turmaId)
+          .single()
+
+        if (existente) {
+          // Já existe, atualizar vínculo
+          disciplinaId = existente.id
+        } else {
+          // Criar nova disciplina para essa turma
+          const { data: nova, error: errorNova } = await supabase
+            .from('disciplinas')
+            .insert({
+              nome: disciplinaBase.nome,
+              modulo: disciplinaBase.modulo,
+              carga_horaria: disciplinaBase.carga_horaria,
+              curso_id: disciplinaBase.curso_id,
+              professor_id: professorId,
+              turma_id: v.turmaId,
+              created_at: new Date().toISOString()
+            })
+            .select()
+            .single()
+
+          if (errorNova) {
+            errors.push(errorNova)
+            continue
+          }
+          disciplinaId = nova.id
+        }
+      }
+
+      // Atualizar vínculo do professor
       const { data, error } = await supabase
         .from('disciplinas')
         .update({
           professor_id: professorId,
           turma_id: v.turmaId || null
         })
-        .eq('id', v.disciplinaId)
+        .eq('id', disciplinaId)
         .select()
 
       if (error) {

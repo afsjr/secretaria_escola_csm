@@ -29,13 +29,21 @@
   "keywords": [],
   "author": "Antigravity Senior Web Dev",
   "license": "ISC",
-  "dependencies": {
+"dependencies": {
     "@supabase/supabase-js": "^2.101.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
-    "vite": "^8.0.3",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/jspdf": "^1.3.3",
+    "@types/node": "^25.6.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "terser": "^5.46.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.4"
   },
   "devDependencies": {
     "@types/jspdf": "^1.3.3",

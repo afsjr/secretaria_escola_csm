@@ -311,7 +311,15 @@ export const AdminService = {
           body: JSON.stringify({ targetUserId: userId })
         })
 
+        console.log('Reset password request:', {
+          url: `${EDGE_FUNCTIONS_BASE_URL}/admin-reset-password`,
+          userId,
+          accessToken: accessToken ? 'present' : 'missing',
+          responseStatus: response.status
+        })
+
         const result = await response.json()
+        console.log('Reset password result:', result)
 
         if (!response.ok) {
           const errorMsg = result.error?.message || result.message || `Erro do Servidor: ${response.status}`

@@ -41,6 +41,8 @@ serve(async (req) => {
     )
 
     const authHeader = req.headers.get("Authorization")
+    console.log('Auth header presente:', !!authHeader)
+    
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: { message: "Não autorizado." } }),
@@ -49,12 +51,14 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "")
+    console.log('Token extraído,长度:', token.length)
     
     const supabaseVerify = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     )
     const { data: { user }, error: authError } = await supabaseVerify.auth.getUser(token)
+    console.log('Auth verify:', { userId: user?.id, authError })
     
     if (authError || !user) {
       return new Response(
@@ -68,6 +72,8 @@ serve(async (req) => {
       .select("perfil")
       .eq("id", user.id)
       .single()
+
+    console.log('Perfil buscar:', { perfil: userPerfil?.perfil, perfilError })
 
     if (perfilError || !userPerfil) {
       return new Response(
@@ -122,8 +128,9 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Erro geral no reset:', error)
     return new Response(
-      JSON.stringify({ error: { message: "Erro interno do servidor." } }),
+      JSON.stringify({ error: { message: "Erro interno do servidor: " + (error as Error).message } }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
   }

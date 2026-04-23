@@ -83,7 +83,17 @@ serve(async (req) => {
       )
     }
 
-    const { targetUserId } = await req.json()
+    let targetUserId = null
+    try {
+      const body = await req.json()
+      targetUserId = body?.targetUserId
+    } catch (e) {
+      console.error('Erro ao fazer parse do JSON:', e)
+      return new Response(
+        JSON.stringify({ error: { message: "Erro ao processar dados da requisição." } }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
 
     if (!targetUserId) {
       return new Response(
@@ -91,6 +101,8 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }
+
+    console.log('Resetando senha para usuário:', targetUserId)
 
     const { data, error } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, {
       password: "csm1983#",

@@ -294,7 +294,7 @@ export const AdminService = {
         const { data: { session } } = await supabase.auth.getSession()
         
         if (!session) {
-          return { error: { message: 'Usuário não autenticado.' } }
+          return { error: { message: 'Usuário não autenticado. Faça login novamente.' } }
         }
 
         const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
@@ -314,7 +314,15 @@ export const AdminService = {
         const result = await response.json()
 
         if (!response.ok) {
-          return { error: result.error || { message: `Erro do Servidor: ${response.status}` } }
+          const errorMsg = result.error?.message || result.message || `Erro do Servidor: ${response.status}`
+          console.error('Erro reset password:', { 
+            status: response.status, 
+            statusText: response.statusText,
+            result, 
+            errorMsg,
+            url: `${EDGE_FUNCTIONS_BASE_URL}/admin-reset-password`
+          })
+          return { error: { message: errorMsg } }
         }
 
         // Registrar no log de auditoria
@@ -328,7 +336,8 @@ export const AdminService = {
 
         return { data: result.data, error: null }
       } catch (error: any) {
-        return { error: { message: `Erro de comunicação: ${error.message}.` } }
+        console.error('Erro comunicação reset password:', error)
+        return { error: { message: `Erro de comunicação: ${error.message}` } }
       }
     }
 

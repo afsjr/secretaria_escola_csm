@@ -179,6 +179,8 @@ export async function DirectoryView(): Promise<HTMLElement> {
 
         const { error } = await AdminService.resetUserPassword(id, nome);
 
+        console.log('Resultado reset senha:', { error, id, nome });
+
         if (error) {
           toast.error("Erro ao resetar: " + error.message);
           (btn as HTMLButtonElement).disabled = false;

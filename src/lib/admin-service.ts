@@ -288,12 +288,56 @@ export const AdminService = {
    * E marca como troca obrigatória no próximo acesso
    */
   async resetUserPassword(userId: string, userName: string) {
+    // Tentar via Edge Function
+    if (EDGE_FUNCTIONS_BASE_URL) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          return { error: { message: 'Usuário não autenticado.' } }
+        }
+
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+        const accessToken = session.access_token
+
+        const response = await fetch(`${EDGE_FUNCTIONS_BASE_URL}/admin-reset-password`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'apikey': anonKey,
+            'x-client-info': 'supabase-js-v2'
+          },
+          body: JSON.stringify({ targetUserId: userId })
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+          return { error: result.error || { message: `Erro do Servidor: ${response.status}` } }
+        }
+
+        // Registrar no log de auditoria
+        await AuditService.log({
+          acao: 'reset_senha',
+          tabela_afetada: 'perfis',
+          registro_id: userId,
+          descricao: `Senha resetada para ${userName || 'usuário'}`,
+          dados_novos: { force_password_change: true, action: 'password_reset_to_default' }
+        })
+
+        return { data: result.data, error: null }
+      } catch (error: any) {
+        return { error: { message: `Erro de comunicação: ${error.message}.` } }
+      }
+    }
+
+    // Fallback (não deveria ser usado em produção)
     if (!supabaseAdmin) {
-      return { error: { message: 'Acesso Administrativo não configurado (.env / VITE_SUPABASE_SERVICE_ROLE_KEY).' } }
+      return { error: { message: 'Edge Functions não configuradas.' } }
     }
 
     try {
-      // Buscar dados atuais antes do reset (para log)
       const { data: dadosAtuais } = await supabase
         .from('perfis')
         .select('perfil, nome_completo')
@@ -305,16 +349,17 @@ export const AdminService = {
         user_metadata: { force_password_change: true }
       })
 
-      // Registrar no log de auditoria
-      if (!error) {
-        await AuditService.log({
-          acao: 'reset_senha',
-          tabela_afetada: 'perfis',
-          registro_id: userId,
-          descricao: `Senha resetada para ${userName || dadosAtuais?.nome_completo || 'usuário'} (perfil: ${dadosAtuais?.perfil || 'desconhecido'})`,
-          dados_novos: { force_password_change: true, action: 'password_reset_to_default' }
-        })
+      if (error) {
+        return { error }
       }
+
+      await AuditService.log({
+        acao: 'reset_senha',
+        tabela_afetada: 'perfis',
+        registro_id: userId,
+        descricao: `Senha resetada para ${userName || dadosAtuais?.nome_completo || 'usuário'} (perfil: ${dadosAtuais?.perfil || 'desconhecido'})`,
+        dados_novos: { force_password_change: true, action: 'password_reset_to_default' }
+      })
 
       return { data, error }
     } catch (err: any) {

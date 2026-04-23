@@ -92,7 +92,7 @@ serve(async (req) => {
     // === FIM DA VERIFICAÇÃO ===
 
     // Ler dados do request
-    const { email, password, nomeCompleto, cpf, telefone } = await req.json()
+    const { email, password, nomeCompleto, cpf, telefone, perfil } = await req.json()
 
     // Validar dados básicos
     if (!email || !password || !nomeCompleto) {
@@ -102,8 +102,10 @@ serve(async (req) => {
       )
     }
 
-    // Forçar perfil para 'aluno' (não confiar no input do cliente)
-    const forcedPerfil = "aluno"
+    // Usar perfil enviado pelo cliente (admin confia na sua própria requisição)
+    // Validar que perfil é um dos valores permitidos
+    const allowedPerfis = ['aluno', 'professor', 'admin', 'secretaria', 'coordenacao']
+    const forcedPerfil = (perfil && allowedPerfis.includes(perfil)) ? perfil : 'aluno'
 
     // Step 1: Criar usuário no Supabase Auth
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({

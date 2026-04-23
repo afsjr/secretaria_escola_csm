@@ -31,16 +31,6 @@ export function ResetPasswordView(): HTMLElement {
   form.addEventListener('submit', async (e: Event) => {
     e.preventDefault()
 
-    // Verificar se há sessão válida (recovery token)
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      toast.error('Link de recuperação expirado. Solicite um novo link.')
-      setTimeout(() => {
-        window.location.hash = '#/forgot-password'
-      }, 3000)
-      return
-    }
-
     const newPassword = (form.querySelector('#new-password') as HTMLInputElement).value
     const confirmPassword = (form.querySelector('#confirm-password') as HTMLInputElement).value
 
@@ -60,8 +50,6 @@ export function ResetPasswordView(): HTMLElement {
         toast.error('Erro ao atualizar senha: ' + error.message)
       } else {
         toast.success('Senha atualizada com sucesso! Faça login.')
-        // Sign out após update para forçar novo login
-        await supabase.auth.signOut()
         setTimeout(() => {
           window.location.hash = '#/'
         }, 2000)
@@ -73,6 +61,29 @@ export function ResetPasswordView(): HTMLElement {
       submitBtn.textContent = 'Atualizar Senha'
     }
   })
+
+  // Verificar token de recovery automaticamente ao carregar
+  setTimeout(async () => {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    console.log('Reset password - Session check:', { 
+      hasSession: !!session, 
+      hasError: !!error,
+      errorMessage: error?.message,
+      expiresAt: session?.expires_at
+    })
+    
+    // Se não há sessão mas há hash de recovery, tentar processar
+    if (!session && (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token='))) {
+      console.log('Tentando processar token de recovery...')
+      // O Supabase deve processar automaticamente o token da URL
+      // Se não funcionar, o usuário verá a mensagem de erro
+    }
+    
+    if (!session && !error) {
+      // Sessão null mas sem erro - pode ser normal em flows de recovery
+      console.log('Sessão nula mas sem erro - aguardando processamento do token')
+    }
+  }, 500)
 
   return container
 }

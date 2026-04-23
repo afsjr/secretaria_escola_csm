@@ -34,6 +34,9 @@ async function router(): Promise<void> {
       return
     }
 
+    // Se já está na página de reset-password, deixar renderizar normalmente
+    // O token de recovery será processado automaticamente pelo Supabase
+
     // Check if user needs to change password (primeiro acesso)
     let precisaTrocarSenha = false
     if (session) {

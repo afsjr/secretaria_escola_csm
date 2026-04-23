@@ -26,9 +26,10 @@ export async function logout() {
 }
 
 export async function resetPassword(email: string) {
-  // URL dinâmica baseada no path atual do deploy (local ou produção)
   const basePath = window.location.pathname.replace(/\/$/, '')
   const redirectTo = `${window.location.origin}${basePath}/#/reset-password`
+
+  console.log('Reset password redirectTo:', redirectTo)
 
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
@@ -47,13 +48,18 @@ export async function getSession() {
   const { data: { session }, error } = await supabase.auth.getSession();
 
   if (session) {
-    // Verificar se a sessão expirou
-    const sessionAge = Date.now() -
-      new Date(session.expires_at * 1000).getTime();
-    if (sessionAge > SESSION_TIMEOUT_MS) {
-      await logout();
-      toast.error("Sessão expirada por inatividade. Faça login novamente.");
-      return { session: null, error: { message: "Session expired" } };
+    // Verificar se é sessão de recovery (tokens de recovery têm vida útil curta)
+    const isRecoveryFlow = window.location.hash.includes('type=recovery') || window.location.hash.includes('type=email')
+    
+    if (!isRecoveryFlow) {
+      // Só verifica timeout normal para sessões regulares
+      const sessionAge = Date.now() -
+        new Date(session.expires_at * 1000).getTime();
+      if (sessionAge > SESSION_TIMEOUT_MS) {
+        await logout();
+        toast.error("Sessão expirada por inatividade. Faça login novamente.");
+        return { session: null, error: { message: "Session expired" } };
+      }
     }
   }
 

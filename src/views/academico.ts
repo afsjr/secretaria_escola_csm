@@ -163,6 +163,7 @@ export async function AcademicoView(
                   <th style="padding: 1rem; text-align: center;">Média Teoria</th>
                   <th style="padding: 1rem; text-align: center;">Recup.</th>
                   <th style="padding: 1rem; text-align: center;">Média Final</th>
+                  ${isAdmin && modulo.nome === 'II Módulo' ? '<th style="padding: 1rem; text-align: center; background: var(--accent); color: var(--primary);">Estágio</th>' : ''}
                 </tr>
               </thead>
               <tbody>
@@ -180,6 +181,14 @@ export async function AcademicoView(
                     <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f9fafb;" class="media-teoria">-</td>
                     <td style="padding: 0.5rem;"><input type="number" id="rec_${prefix}" name="rec_${prefix}" aria-label="Nota de Recuperação em ${disciplina}" min="0" max="10" step="0.1" class="input rec-input" style="padding: 0.4rem; font-size: 0.85rem; text-align: center;" placeholder="0.0"></td>
                     <td style="padding: 0.5rem; text-align: center; font-weight: bold; color: var(--primary);" class="media-final">-</td>
+                    ${isAdmin && modulo.nome === 'II Módulo' ? `
+                    <td style="padding: 0.5rem; background: #fef3c7;">
+                      <select id="estagio_${prefix}" name="estagio_${prefix}" class="input" style="padding: 0.4rem; font-size: 0.75rem; text-align: center;">
+                        <option value="">--</option>
+                        <option value="AP" ${nota?.nota_estagio === 'AP' ? 'selected' : ''}>AP</option>
+                        <option value="REP" ${nota?.nota_estagio === 'REP' ? 'selected' : ''}>REP</option>
+                      </select>
+                    </td>` : ''}
                   </tr>
                 `;
       }).join("")
@@ -397,6 +406,7 @@ export async function AcademicoView(
       const arrayNotas: any[] = [];
       container.querySelectorAll(".disciplina-row").forEach((row) => {
         const disciplina = (row as HTMLElement).getAttribute("data-disciplina");
+        const modulo = (row as HTMLElement).getAttribute("data-modulo");
         const faltas =
           (row.querySelector(".faltas-input") as HTMLInputElement).value;
         const n1 =
@@ -406,8 +416,12 @@ export async function AcademicoView(
         const n3 =
           (row.querySelectorAll(".nota-input")[2] as HTMLInputElement).value;
         const rec = (row.querySelector(".rec-input") as HTMLInputElement).value;
+        
+        // Captura campo de estágio (só para II Módulo)
+        const estagioSelect = row.querySelector("select[name^='estagio_']") as HTMLSelectElement;
+        const nota_estagio = estagioSelect ? estagioSelect.value : null;
 
-        arrayNotas.push({ disciplina, faltas, n1, n2, n3, rec });
+        arrayNotas.push({ disciplina, modulo, faltas, n1, n2, n3, rec, nota_estagio });
       });
 
       const { error } = await AcademicService.saveBoletim(

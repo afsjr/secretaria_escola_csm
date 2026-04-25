@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS cursos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
     descricao TEXT,
+    tipo TEXT DEFAULT 'tecnico' CHECK (tipo IN ('saude', 'tecnico', 'outro')),
     ativo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -59,6 +60,8 @@ CREATE TABLE IF NOT EXISTS boletim (
     n2 DECIMAL DEFAULT 0,
     n3 DECIMAL DEFAULT 0,
     rec DECIMAL DEFAULT 0,
+    nota_estagio TEXT CHECK (nota_estagio IN ('AP', 'REP')),
+    estagio_parecer TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(aluno_id, disciplina)
 );

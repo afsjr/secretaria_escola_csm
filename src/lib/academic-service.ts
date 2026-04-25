@@ -14,11 +14,13 @@ interface MatriculaPayload {
 
 interface NotaItem {
   disciplina: string;
+  modulo?: string;
   faltas: number | string;
   n1: number | string;
   n2: number | string;
   n3: number | string;
   rec: number | string;
+  nota_estagio?: string;
 }
 
 interface MatriculaAtiva {
@@ -209,7 +211,7 @@ export const AcademicService = {
 
   // Salvar a grade inteira de disciplinas no banco do aluno
   async saveBoletim(aluno_id: string, notasArray: NotaItem[]) {
-    // Array deve ser no modelo: [{ disciplina: 'Anatomia e Fisiologia Humana', faltas: 2, n1: 7.5, n2: 8, n3: 0, rec: 0 }, ...]
+    // Array deve ser no modelo: [{ disciplina: 'Anatomia e Fisiologia Humana', faltas: 2, n1: 7.5, n2: 8, n3: 0, rec: 0, nota_estagio: 'AP' }, ...]
 
     const payload = notasArray.map((item) => ({
       aluno_id,
@@ -219,6 +221,7 @@ export const AcademicService = {
       n2: parseFloat(item.n2 as string) || 0,
       n3: parseFloat(item.n3 as string) || 0,
       rec: parseFloat(item.rec as string) || 0,
+      ...(item.nota_estagio ? { nota_estagio: item.nota_estagio } : {}),
     }));
 
     // upsert = update if exists, insert Se novo (precisa da constraint 'aluno_id, disciplina' que acabamos de criar)

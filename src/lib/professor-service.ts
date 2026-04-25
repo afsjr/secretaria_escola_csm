@@ -15,6 +15,8 @@ interface NotaData {
   n2: number | string
   n3: number | string
   rec: number | string
+  nota_estagio?: string
+  estagio_parecer?: string
 }
 
 interface NotaLoteItem {
@@ -24,6 +26,8 @@ interface NotaLoteItem {
   n2: number | string
   n3: number | string
   rec: number | string
+  nota_estagio?: string
+  estagio_parecer?: string
 }
 
 interface AulaData {

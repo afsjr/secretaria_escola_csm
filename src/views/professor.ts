@@ -721,9 +721,14 @@ export async function ProfessorView(
                       </div>
                     </td>
                     <td>
-                      <button class="btn btn-remover-aula" data-id="${a.id}" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.7rem; padding: 0.3rem 0.5rem; border-radius: 4px; cursor: pointer;">
-                        Remover
-                      </button>
+                      <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-editar-aula" data-id="${a.id}" data-conteudo="${escapeHTML(a.conteudo).replace(/"/g, '&quot;')}" data-data="${a.data}" style="background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 0.7rem; padding: 0.3rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                          Editar
+                        </button>
+                        <button class="btn btn-remover-aula" data-id="${a.id}" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.7rem; padding: 0.3rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                          Remover
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 `).join("")
@@ -783,6 +788,90 @@ export async function ProfessorView(
         `;
       });
     }
+
+    // Lógica de editar aula - Modal
+    const btnsEditarAula = tabelaAulasContainer.querySelectorAll(".btn-editar-aula");
+    btnsEditarAula.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const aulaId = btn.getAttribute("data-id");
+        const conteudo = btn.getAttribute("data-conteudo") || "";
+        const data = btn.getAttribute("data-data") || "";
+
+        const existingModal = document.getElementById("modal-edit-aula-prof");
+        if (existingModal) existingModal.remove();
+
+        const modal = document.createElement("div");
+        modal.id = "modal-edit-aula-prof";
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+        `;
+
+        modal.innerHTML = `
+          <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <h3 style="margin: 0 0 1.5rem 0; color: var(--text-main);">Editar Aula</h3>
+            <form id="form-edit-aula-prof">
+              <div class="form-group">
+                <label class="label" for="edit-aula-data">Data da Aula</label>
+                <input type="date" id="edit-aula-data" class="input" value="${data}" required>
+              </div>
+              <div class="form-group">
+                <label class="label" for="edit-aula-conteudo">Conteúdo Ministrado</label>
+                <textarea id="edit-aula-conteudo" class="input" rows="6" required>${conteudo}</textarea>
+              </div>
+              <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar Alterações</button>
+                <button type="button" id="btn-cancel-edit" class="btn" style="flex: 1; background: var(--secondary); color: var(--text-main);">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const closeModal = () => modal.remove();
+        modal.querySelector("#btn-cancel-edit")?.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        modal.querySelector("#form-edit-aula-prof")?.addEventListener("submit", async (e: Event) => {
+          e.preventDefault();
+          const novaData = (modal.querySelector("#edit-aula-data") as HTMLInputElement).value;
+          const novoConteudo = (modal.querySelector("#edit-aula-conteudo") as HTMLTextAreaElement).value;
+
+          if (!novaData || !novoConteudo) {
+            toast.error("Preencha todos os campos!");
+            return;
+          }
+
+          const submitBtn = modal.querySelector('button[type="submit"]') as HTMLButtonElement;
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Salvando...";
+
+          try {
+            const { error } = await ProfessorService.atualizarAula(aulaId!, { data: novaData, conteudo: novoConteudo });
+            if (error) throw error;
+            toast.success("Aula atualizada com sucesso!");
+            closeModal();
+            selectDisciplinaAulas.dispatchEvent(new Event("change"));
+          } catch (err: any) {
+            toast.error("Erro ao atualizar: " + err.message);
+          }
+
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Salvar Alterações";
+        });
+      });
+    });
 
     // Lógica de remover aula
     const btnsRemoverAula = tabelaAulasContainer.querySelectorAll(

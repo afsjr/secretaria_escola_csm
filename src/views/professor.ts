@@ -230,7 +230,7 @@ export async function ProfessorView(
     <div id="painel-aulas">
       <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
         <div style="margin-bottom: 1.5rem;">
-          <h3 style="margin: 0 0 0.5rem 0; color: var(--text-main);">Registro de Aulas</h3>
+          <h3 style="margin: 0 0 0.5rem 0; color: var(--text-main);">Diário de Aulas</h3>
           <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Registre o conteúdo ministrado em cada aula.</p>
         </div>
 
@@ -274,7 +274,7 @@ export async function ProfessorView(
     <div class="tabs-container">
       <button class="tab-btn active" data-tab="disciplinas">Minhas Disciplinas</button>
       <button class="tab-btn" data-tab="notas">Lançar Notas</button>
-      <button class="tab-btn" data-tab="aulas">Registro de Aulas</button>
+      <button class="tab-btn" data-tab="aulas">Diário de Aulas</button>
     </div>
 
     <div id="tab-disciplinas" class="tab-content">

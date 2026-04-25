@@ -168,14 +168,11 @@ export async function ProfessorTurmasView(
           </summary>
 
           <div style="padding: 1.5rem;">
-            <!-- Tabs: Notas | Aulas | Frequência -->
+            <!-- Tabs: Notas | Frequência -->
             <div class="tabs-container" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
               <button class="tab-btn active" data-tab="notas-${
       turma.id || "sem-turma"
     }" style="padding: 0.5rem 1rem; border: none; background: var(--secondary); color: var(--text-main); cursor: pointer; border-radius: 4px 4px 0 0;">📊 Lançar Notas</button>
-              <button class="tab-btn" data-tab="aulas-${
-      turma.id || "sem-turma"
-    }" style="padding: 0.5rem 1rem; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 4px 4px 0 0;">📅 Registrar Aula</button>
               <button class="tab-btn" data-tab="frequencia-${
       turma.id || "sem-turma"
     }" style="padding: 0.5rem 1rem; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 4px 4px 0 0;">✓ Frequência</button>
@@ -229,60 +226,6 @@ export async function ProfessorTurmasView(
                 </fieldset>
               `).join("")
     }
-            </div>
-
-            <!-- Tab: Aulas -->
-            <div class="tab-content" id="tab-aulas-${
-      turma.id || "sem-turma"
-    }" style="display: none;">
-              <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                <h4 style="margin-bottom: 1rem;">Registrar Nova Aula</h4>
-                <form class="form-registrar-aula" data-turma-id="${
-      turma.id || ""
-    }">
-                  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
-                    <div class="form-group">
-                      <label class="label" for="aula-data-${
-      turma.id || "sem-turma"
-    }">Data</label>
-                      <input type="date" id="aula-data-${
-      turma.id || "sem-turma"
-    }" name="data" class="input" value="${
-      new Date().toISOString().split("T")[0]
-    }" required>
-                    </div>
-                    <div class="form-group">
-                      <label class="label" for="aula-disciplina-${
-      turma.id || "sem-turma"
-    }">Disciplina</label>
-                      <select id="aula-disciplina-${
-      turma.id || "sem-turma"
-    }" name="disciplina_id" class="input" required>
-                        <option value="">Selecione</option>
-                        ${
-      turma.disciplinas.map((d) =>
-        `<option value="${d.id}">${escapeHTML(d.nome)}</option>`
-      ).join("")
-    }
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="label" for="aula-conteudo-${
-      turma.id || "sem-turma"
-    }">Conteúdo Ministrado</label>
-                    <textarea id="aula-conteudo-${
-      turma.id || "sem-turma"
-    }" name="conteudo" class="input" rows="3" placeholder="Descreva o conteúdo da aula, atividades realizadas, dúvidas frequentes..." required></textarea>
-                  </div>
-                  <button type="submit" class="btn btn-primary">📅 Registrar Aula</button>
-                </form>
-              </div>
-
-              <h4 style="margin-bottom: 0.5rem;">Aulas Registradas</h4>
-              <div class="aulas-list" data-turma-id="${turma.id || ""}">
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Carregando aulas...</p>
-              </div>
             </div>
 
             <!-- Tab: Frequência -->
@@ -427,58 +370,9 @@ export async function ProfessorTurmasView(
     });
   });
 
-  // Register lesson forms
-  container.querySelectorAll(".form-registrar-aula").forEach((form) => {
-    form.addEventListener("submit", async (e: Event) => {
-      e.preventDefault();
-
-      const disciplinaId = (form.querySelector(
-        'select[name="disciplina_id"]',
-      ) as HTMLSelectElement).value;
-      const data =
-        (form.querySelector('input[name="data"]') as HTMLInputElement).value;
-      const conteudo =
-        (form.querySelector('textarea[name="conteudo"]') as HTMLTextAreaElement)
-          .value;
-
-      if (!disciplinaId || !data || !conteudo) {
-        toast.error("Preencha todos os campos!");
-        return;
-      }
-
-      const submitBtn = form.querySelector(
-        'button[type="submit"]',
-      ) as HTMLButtonElement;
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Registrando...";
-
-      const { error } = await ProfessorService.registrarAula({
-        disciplina_id: disciplinaId,
-        professor_id: profile.id,
-        data,
-        conteudo,
-      });
-
-      submitBtn.disabled = false;
-      submitBtn.textContent = "📅 Registrar Aula";
-
-      if (error) {
-        toast.error("Erro ao registrar aula: " + error.message);
-      } else {
-        toast.success("Aula registrada com sucesso!");
-        (form as HTMLFormElement).reset();
-        const aulasList = form.closest(".tab-content")?.querySelector(
-          ".aulas-list",
-        ) as HTMLElement;
-        if (aulasList) loadAulasDaDisciplina(disciplinaId, container);
-      }
-    });
-  });
-
-  // Load aulas for first discipline of each turma
+  // Load frequency for first discipline of each turma
   turmas.forEach((turma) => {
     if (turma.disciplinas.length > 0) {
-      loadAulasDaDisciplina(turma.disciplinas[0].id, container);
       loadFrequenciaAlunos(turma, container);
     }
   });
@@ -775,7 +669,7 @@ function verificarAlertasBaixa(tbody: HTMLElement, disciplinaId: string): void {
 }
 
 /**
- * Carrega aulas registradas de uma disciplina
+ * Carrega frequência de alunos de uma turma
  */
 async function loadAulasDaDisciplina(
   disciplinaId: string,

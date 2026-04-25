@@ -582,6 +582,183 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     `
   }
 
+  const renderNotasEBoletim = (): string => `
+    <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+      <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Notas e Estágio</h3>
+      <p style="margin: 0 0 1.5rem 0; color: var(--text-muted); font-size: 0.9rem;">Gerencie as notas e estágio dos alunos.</p>
+      
+      <div class="form-group">
+        <label class="label" for="notas-aluno-select">Selecione o Aluno:</label>
+        <select id="notas-aluno-select" class="input">
+          <option value="">-- Escolha um aluno --</option>
+        </select>
+      </div>
+      
+      <button id="btn-carregar-notas" class="btn btn-primary" disabled>Carregar Notas</button>
+      
+      <div id="notas-content" style="margin-top: 1.5rem; display: none;">
+        <!-- Notas serão carregadas aqui -->
+      </div>
+    </div>
+    
+    <script>
+      (function() {
+        const select = document.getElementById('notas-aluno-select');
+        const btnCarregar = document.getElementById('btn-carregar-notas');
+        const content = document.getElementById('notas-content');
+        
+        if (!select || !btnCarregar) return;
+        
+        // Carregar lista de alunos
+        (async function() {
+          const { data: alunos } = await supabase
+            .from('perfis')
+            .select('id, nome_completo, email')
+            .eq('perfil', 'aluno')
+            .order('nome_completo');
+          
+          if (alunos) {
+            select.innerHTML = '<option value="">-- Escolha um aluno --</option>' +
+              alunos.map(a => '<option value="' + a.id + '">' + a.nome_completo + ' (' + a.email + ')</option>').join('');
+          }
+        })();
+        
+        select.addEventListener('change', () => {
+          btnCarregar.disabled = !select.value;
+          content.style.display = 'none';
+        });
+        
+        btnCarregar.addEventListener('click', async () => {
+          const alunoId = select.value;
+          if (!alunoId) return;
+          
+          btnCarregar.textContent = 'Carregando...';
+          
+          // Buscar notas e informações do alumno
+          const { data: notas } = await supabase
+            .from('boletim')
+            .select('*')
+            .eq('aluno_id', alunoId);
+          
+          const { data: aluno } = await supabase
+            .from('perfis')
+            .select('nome_completo')
+            .eq('id', alunoId)
+            .single();
+          
+          const { data: matricula } = await supabase
+            .from('matriculas')
+            .select('turmas(nome, cursos(nome))')
+            .eq('aluno_id', alunoId)
+            .eq('status_aluno', 'ativo')
+            .single();
+          
+          const turmaNome = matricula?.turmas?.nome || '-';
+          const cursoNome = matricula?.turmas?.cursos?.nome || '-';
+          
+          if (!notas || notas.length === 0) {
+            content.innerHTML = '<p style="color: var(--text-muted);">Nenhuma nota encontrada para este aluno.</p>';
+            content.style.display = 'block';
+            btnCarregar.textContent = 'Carregar Notas';
+            return;
+          }
+          
+          // Agrupar por modulo (baseado no nome da disciplina)
+          const modulos = {
+            'I Módulo': [],
+            'II Módulo': [],
+            'III Módulo': []
+          };
+          
+          notas.forEach(n => {
+            const disc = n.disciplina || '';
+            if (disc.includes('Psicologia') || disc.includes('Nutrição') || disc.includes('Português') || 
+                disc.includes('Matemática') || disc.includes('Microbiologia') || disc.includes('Higiene') || 
+                disc.includes('Ética') || disc.includes('Anatomia')) {
+              modulos['I Módulo'].push(n);
+            } else if (disc.includes('Introdução') || disc.includes('Enfermagem Médica') || 
+                      disc.includes('Farmacologia') || disc.includes('Cirúrgica') || 
+                      disc.includes('Adm')) {
+              modulos['II Módulo'].push(n);
+            } else {
+              modulos['III Módulo'].push(n);
+            }
+          });
+          
+          content.innerHTML = '<div style="background: var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">' +
+            '<p><strong>Aluno:</strong> ' + (aluno?.nome_completo || '-') + '</p>' +
+            '<p><strong>Curso:</strong> ' + cursoNome + '</p>' +
+            '<p><strong>Turma:</strong> ' + turmaNome + '</p>' +
+            '</div>' +
+            Object.entries(modulos).map(([modulo, discNotas]) => {
+              if (!discNotas.length) return '';
+              return '<div style="margin-bottom: 1.5rem;">' +
+                '<h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">' + modulo + '</h4>' +
+                '<table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">' +
+                '<thead style="background: var(--secondary);">' +
+                '<tr>' +
+                '<th style="padding: 0.5rem; text-align: left;">Disciplina</th>' +
+                '<th style="padding: 0.5rem; text-align: center;">Faltas</th>' +
+                '<th style="padding: 0.5rem; text-align: center;">N1</th>' +
+                '<th style="padding: 0.5rem; text-align: center;">N2</th>' +
+                '<th style="padding: 0.5rem; text-align: center;">N3</th>' +
+                '<th style="padding: 0.5rem; text-align: center;">Rec</th>' +
+                '<th style="padding: 0.5rem; text-align: center; background: #fef3c7;">Estágio</th>' +
+                '<th style="padding: 0.5rem; text-align: center;">Ação</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                discNotas.map(n => '<tr>' +
+                  '<td style="padding: 0.5rem;">' + n.disciplina + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center;">' + (n.faltas || 0) + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center;">' + (n.n1 || 0) + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center;">' + (n.n2 || 0) + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center;">' + (n.n3 || 0) + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center;">' + (n.rec || 0) + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center; background: #fef3c7;">' + 
+                    (n.nota_estagio ? n.nota_estagio : '-') + '</td>' +
+                  '<td style="padding: 0.5rem; text-align: center;">' +
+                    '<button class="btn-editar-nota" data-id="' + n.id + '" ' +
+                    'data-nota_estagio="' + (n.nota_estagio || '') + '" ' +
+                    'style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Editar</button>' +
+                  '</td>' +
+                  '</tr>').join('') +
+                '</tbody>' +
+                '</table>' +
+                '</div>';
+            }).join('') +
+            '<p style="color: var(--text-muted); font-size: 0.8rem;">Clique em "Editar" para alterar o.status de estágio (AP/REP).</p>';
+          
+          content.style.display = 'block';
+          btnCarregar.textContent = 'Carregar Notas';
+          
+          // Handler para botões editar
+          content.querySelectorAll('.btn-editar-nota').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const notaId = btn.getAttribute('data-id');
+              const atual = btn.getAttribute('data-nota_estagio');
+              const novo = atual === 'AP' ? 'REP' : 'AP';
+              
+              if (!confirm('Mudar estágio para ' + novo + '?')) return;
+              
+              const { error } = await supabase
+                .from('boletim')
+                .update({ nota_estagio: novo })
+                .eq('id', notaId);
+              
+              if (error) {
+                alert('Erro: ' + error.message);
+              } else {
+                alert('Estágio atualizado!');
+                btnCarregar.click(); // Recarregar
+              }
+            });
+          });
+        });
+      })();
+    </script>
+  `;
+
   const renderModalMatricula = (): string => `
     <div id="modal-matricular-aluno" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
       <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); max-width: 500px; width: 90%; box-shadow: var(--shadow-lg); border-top: 5px solid var(--accent);">
@@ -624,6 +801,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
     <div class="tabs-container">
       <button class="tab-btn active" data-tab="solicitacoes">Solicitações</button>
+      <button class="tab-btn" data-tab="notas">Notas/Estágio</button>
       <button class="tab-btn" data-tab="cadastro">Cadastrar Aluno</button>
       <button class="tab-btn" data-tab="gerenciar">Gerenciar Alunos</button>
       <button class="tab-btn" data-tab="cadastro-professor">Cadastrar Professor</button>
@@ -653,6 +831,10 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
     <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;">
       ${renderGerenciarCursos()}
+    </div>
+
+    <div id="tab-notas" class="tab-content" style="display: none;">
+      ${renderNotasEBoletim()}
     </div>
 
     ${renderModalMatricula()}

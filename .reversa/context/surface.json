@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-04-30T13:30:00Z",
+  "project_root": "/Users/itouch/Documents/projetos_escola/teste_REVERSA/secretaria_escola_csm",
+  "languages": [
+    { "name": "TypeScript", "extensions": [".ts"], "file_count": 69 },
+    { "name": "SQL", "extensions": [".sql"], "file_count": 6 },
+    { "name": "Markdown", "extensions": [".md"], "file_count": 11 },
+    { "name": "HTML", "extensions": [".html"], "file_count": 2 },
+    { "name": "CSS", "extensions": [".css"], "file_count": 1 }
+  ],
+  "primary_language": "TypeScript",
+  "frameworks": [
+    { "name": "Vite", "version": "8.0.3", "source": "package.json" },
+    { "name": "Supabase", "version": "^2.101.0", "source": "package.json" },
+    { "name": "Vitest", "version": "4.1.4", "source": "package.json" }
+  ],
+  "package_manager": "npm",
+  "entry_points": [
+    { "path": "src/main.ts", "type": "frontend_entry" },
+    { "path": "index.html", "type": "html_entry" }
+  ],
+  "config_files": [
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vercel.json"
+  ],
+  "database_hints": [
+    { "path": "supabase/schema.sql", "type": "sql_schema" },
+    { "path": "supabase/", "type": "migrations_dir" }
+  ],
+  "test_framework": "Vitest",
+  "test_file_count": 10,
+  "modules": [
+    "auth",
+    "components",
+    "lib",
+    "views",
+    "types",
+    "styles"
+  ],
+  "total_files": 97
+}

@@ -26,3 +26,7 @@ yarn-error.log*
 *.sln
 *.sw?
 .vercel
+
+# Reversa
+.reversa/config.user.toml
+_reversa_sdd/

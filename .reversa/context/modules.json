@@ -1,0 +1,206 @@
+{
+  "generated_at": "2026-04-30T13:32:00Z",
+  "modules": [
+    {
+      "name": "auth",
+      "path": "src/auth",
+      "purpose": "Gerenciamento de autenticação, sessões e perfis de usuário.",
+      "primary_files": [
+        "src/auth/session.ts",
+        "src/auth/signup-handler.ts",
+        "src/types/index.ts"
+      ],
+      "functions": [
+        {
+          "name": "login",
+          "file": "src/auth/session.ts",
+          "params": ["email: string", "password: string"],
+          "returns": "Promise<SupabaseResponse>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "registerUser",
+          "file": "src/auth/signup-handler.ts",
+          "params": ["RegisterUserInput"],
+          "returns": "Promise<SupabaseResponse>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "getSession",
+          "file": "src/auth/session.ts",
+          "params": [],
+          "returns": "Promise<{session, error}>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "UserProfile",
+          "fields": [
+            { "name": "id", "type": "string", "required": true },
+            { "name": "email", "type": "string", "required": true },
+            { "name": "nome_completo", "type": "string", "required": true },
+            { "name": "perfil", "type": "UserRole", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Timeout de sessão por inatividade de 30 minutos.",
+          "location": "src/auth/session.ts:6",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Redirecionamento forçado para troca de senha no primeiro acesso.",
+          "location": "src/main.ts:56",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["lib/supabase", "lib/toast"],
+      "algorithms": [
+        {
+          "name": "Session Timeout Check",
+          "description": "Intervalo de 1 minuto que valida a expiração da sessão no frontend.",
+          "confidence": "confirmed"
+        }
+      ],
+      "complexity": "low"
+    },
+    {
+      "name": "components",
+      "path": "src/components",
+      "purpose": "Componentes de interface reutilizáveis baseados em template strings.",
+      "primary_files": [
+        "src/components/modal.ts",
+        "src/components/tabela-alunos.ts",
+        "src/components/tabela-professores.ts"
+      ],
+      "functions": [
+        {
+          "name": "createModal",
+          "file": "src/components/modal.ts",
+          "params": ["ModalProps"],
+          "returns": "string (HTML)",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "showConfirm",
+          "file": "src/components/modal.ts",
+          "params": ["titulo", "mensagem"],
+          "returns": "Promise<boolean>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "ModalProps",
+          "fields": [
+            { "name": "id", "type": "string", "required": true },
+            { "name": "titulo", "type": "string", "required": true },
+            { "name": "conteudo", "type": "string", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Sanitização obrigatória de inputs via escapeHTML.",
+          "location": "src/components/modal.ts:30",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["lib/security"],
+      "algorithms": [],
+      "complexity": "low"
+    },
+    {
+      "name": "lib",
+      "path": "src/lib",
+      "purpose": "Serviços de infraestrutura, domínio, auditoria e utilitários core.",
+      "primary_files": [
+        "src/lib/academic-service.ts",
+        "src/lib/financeiro-service.ts",
+        "src/lib/admin-service.ts",
+        "src/lib/authz.ts"
+      ],
+      "functions": [
+        {
+          "name": "updateWithLock",
+          "file": "src/lib/concurrency-control.ts",
+          "params": ["table", "id", "data", "currentVersion"],
+          "returns": "Promise<ConcurrencyResult>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "hasPermission",
+          "file": "src/lib/authz.ts",
+          "params": ["userRole", "permission"],
+          "returns": "boolean",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Bloqueio de matrícula ativa em múltiplas turmas.",
+          "location": "src/lib/academic-service.ts:107",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Prevenção de escalada de privilégios na edição de perfil.",
+          "location": "src/lib/admin-service.ts:269",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["lib/supabase", "lib/audit-service"],
+      "algorithms": [
+        {
+          "name": "Optimistic Locking",
+          "description": "Controle de concorrência via versão incremental.",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "CSM Grade Rounding",
+          "description": "Regra de arredondamento específica para médias escolares.",
+          "confidence": "confirmed"
+        }
+      ],
+      "complexity": "high"
+    },
+    {
+      "name": "views",
+      "path": "src/views",
+      "purpose": "Componentes de tela, lógica de interface e fluxos de navegação.",
+      "primary_files": [
+        "src/views/secretaria.ts",
+        "src/views/professor.ts",
+        "src/views/financeiro.ts",
+        "src/views/login.ts"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Exigência de troca de senha no primeiro acesso.",
+          "location": "src/views/force-change-password.ts",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Cálculo de multa (2%) e juros (1%) em negociações financeiras.",
+          "location": "src/views/financeiro.ts:225",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["lib", "auth/session"],
+      "algorithms": [
+        {
+          "name": "Client-side Average Calculation",
+          "description": "Cálculo de médias escolares em tempo real para feedback do professor.",
+          "confidence": "confirmed"
+        }
+      ],
+      "complexity": "medium"
+    }
+  ]
+}

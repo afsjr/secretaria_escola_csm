@@ -1,0 +1,78 @@
+{
+  "version": "1.2.14",
+  "project": "reversa_secretaria",
+  "user_name": "adelino",
+  "chat_language": "pt-br",
+  "doc_language": "Português",
+  "answer_mode": "chat",
+  "doc_level": "completo",
+  "output_folder": "_reversa_sdd",
+  "phase": "concluido",
+  "completed": ["reconhecimento", "escavacao", "interpretacao", "geracao", "revisao"],
+  "pending": [],
+  "checkpoints": {
+    "scout": {
+      "completed_at": "2026-04-30T13:30:00Z",
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/dependencies.md",
+        ".reversa/context/surface.json"
+      ]
+    },
+    "archaeologist": {
+      "modules_analyzed": ["auth", "components", "lib", "views"],
+      "modules_pending": []
+    },
+    "detective": {
+      "completed_at": "2026-04-30T13:46:00Z",
+      "artifacts": ["domain.md", "permissions.md", "state-machines.md", "adrs/"]
+    },
+    "architect": {
+      "completed_at": "2026-04-30T13:46:00Z",
+      "artifacts": ["c4-context.md", "c4-containers.md", "c4-components.md", "erd-complete.md", "architecture.md", "traceability/"]
+    },
+    "writer": {
+      "completed_at": "2026-04-30T14:18:00Z",
+      "artifacts": ["sdd/", "openapi/", "user-stories/", "traceability/code-spec-matrix.md"]
+    }
+  },
+  "engines": [
+    "antigravity",
+    "opencode"
+  ],
+  "agents": [
+    "reversa",
+    "reversa-scout",
+    "reversa-archaeologist",
+    "reversa-detective",
+    "reversa-architect",
+    "reversa-writer",
+    "reversa-reviewer",
+    "reversa-visor",
+    "reversa-data-master",
+    "reversa-design-system",
+    "reversa-agents-help",
+    "reversa-reconstructor"
+  ],
+  "created_files": [
+    ".agents/skills/reversa",
+    ".agents/skills/reversa-scout",
+    ".agents/skills/reversa-archaeologist",
+    ".agents/skills/reversa-detective",
+    ".agents/skills/reversa-architect",
+    ".agents/skills/reversa-writer",
+    ".agents/skills/reversa-reviewer",
+    ".agents/skills/reversa-visor",
+    ".agents/skills/reversa-data-master",
+    ".agents/skills/reversa-design-system",
+    ".agents/skills/reversa-agents-help",
+    ".agents/skills/reversa-reconstructor",
+    "AGENTS.md",
+    ".reversa/state.json",
+    ".reversa/config.toml",
+    ".reversa/config.user.toml",
+    ".reversa/plan.md",
+    ".reversa/version",
+    ".reversa/_config/manifest.yaml"
+  ]
+}

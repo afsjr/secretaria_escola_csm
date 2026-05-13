@@ -33,15 +33,51 @@ const mockWindow = {
   document: {
     body: {
       innerHTML: '',
-      appendChild: vi.fn(),
+      appendChild: vi.fn(function(el) {
+        if (this === mockWindow.document.body) {
+          // Simulate appending to body
+        }
+        return el;
+      }),
       removeChild: vi.fn()
     },
-    createElement: vi.fn(() => ({
-      appendChild: vi.fn(),
-      style: {}
-    })),
-    getElementById: vi.fn(),
-    querySelector: vi.fn(),
+    createElement: vi.fn((tag) => {
+      const el: any = {
+        tagName: tag.toUpperCase(),
+        className: '',
+        innerHTML: '',
+        style: {},
+        setAttribute: vi.fn(),
+        getAttribute: vi.fn(),
+        appendChild: vi.fn((child) => child),
+        querySelector: vi.fn(() => mockWindow.document.createElement('div')),
+        querySelectorAll: vi.fn(() => []),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dataset: {},
+        classList: {
+          add: vi.fn((cls) => { el.className += ' ' + cls; }),
+          remove: vi.fn(),
+          contains: vi.fn(() => false),
+        },
+        dispatchEvent: vi.fn(),
+        click: vi.fn(),
+      };
+      
+      if (tag.toLowerCase() === 'template') {
+        const firstChild = mockWindow.document.createElement('div');
+        el.content = { firstChild };
+        // Sync innerHTML to firstChild for testing purposes
+        Object.defineProperty(el, 'innerHTML', {
+          set: (val) => { firstChild.innerHTML = val; },
+          get: () => firstChild.innerHTML
+        });
+      }
+      
+      return el;
+    }),
+    getElementById: vi.fn(() => mockWindow.document.createElement('div')),
+    querySelector: vi.fn(() => mockWindow.document.createElement('div')),
     querySelectorAll: vi.fn(() => [])
   }
 }

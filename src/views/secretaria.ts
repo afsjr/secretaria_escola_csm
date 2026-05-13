@@ -8,103 +8,15 @@ import { AcademicService } from '../lib/academic-service'
 import { ExcelService } from '../lib/excel-service'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
-import { StudentDetailsView } from './student-details'
-import { ProfessorDetailsView } from './professor-details'
 import { StudentDetailsService } from '../lib/student-details-service'
+import { RequestTableComponent } from '../components/RequestTable'
+import { renderTemplate } from '../lib/dom-utils'
+import { escapeHTML as globalEscapeHTML } from '../lib/security'
 
-// Helper para prevenir XSS
-const escapeHTML = (str: string | null | undefined): string => {
-  if (!str) return ''
-  return String(str).replace(/[&<>'"]/g, tag => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    "'": '&#39;',
-    '"': '&quot;'
-  }[tag]))
-}
+// Usar utilitário global de segurança
+const escapeHTML = globalEscapeHTML
 
-async function handleGerarPDF(
-  userId: string,
-  tipo: string,
-  nomeAluno: string,
-  btnEl: HTMLButtonElement
-): Promise<void> {
-  btnEl.disabled = true
-  btnEl.textContent = 'Gerando...'
-
-  try {
-    const { data: userData } = await AdminService.getUserById(userId)
-    if (!userData) {
-      toast.error('Usuário não encontrado')
-      return
-    }
-
-    const { data: matriculas } = await supabase
-      .from('matriculas')
-      .select('*, turmas(id, nome, periodo, cursos(id, nome))')
-      .eq('aluno_id', userId)
-      .eq('status_aluno', 'ativo')
-      .limit(1)
-      .maybeSingle()
-
-    const isAluno = userData.perfil === 'aluno'
-    let turmaInfo: any = null
-
-    if (isAluno && matriculas?.turmas) {
-      turmaInfo = {
-        turma_nome: matriculas.turmas.nome,
-        periodo: matriculas.turmas.periodo,
-        curso_nome: matriculas.turmas.cursos?.nome || 'N/A',
-        curso_id: matriculas.turmas.cursos?.id
-      }
-    }
-
-    const doc = await gerarDocumentoPDF(userData, tipo, nomeAluno, turmaInfo, isAluno)
-    PDFService.downloadPDF(doc, `documento_${nomeAluno.replace(/\s+/g, '_')}.pdf`)
-    toast.success('PDF gerado com sucesso!')
-  } catch (err: any) {
-    console.error('Erro ao gerar PDF:', err)
-    toast.error('Erro ao gerar PDF: ' + err.message)
-  } finally {
-    btnEl.disabled = false
-    btnEl.textContent = 'Gerar PDF'
-  }
-}
-
-async function gerarDocumentoPDF(
-  userData: any,
-  tipo: string,
-  nomeAluno: string,
-  turmaInfo: any,
-  isAluno: boolean
-): Promise<Uint8Array> {
-  if (tipo.includes('Declaração de Matrícula')) {
-    if (!isAluno) {
-      return PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile, { marcaCopia: true })
-    }
-    if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
-    return PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
-  }
-
-  if (tipo.includes('Histórico Acadêmico') || tipo.includes('Boletim')) {
-    if (!isAluno) throw new Error('Histórico acadêmico disponível apenas para alunos')
-    if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
-    const { data: notas } = await AcademicService.getBoletim(userData.id)
-    const { data: disciplinasCurso } = await CourseService.getDisciplinasDoCurso(turmaInfo.curso_id)
-    const notasComModulo = notas?.map((n: any) => {
-      const disc = disciplinasCurso?.find((d: any) => d.nome === n.disciplina)
-      return { ...n, modulo: disc?.modulo || 'I Módulo' }
-    }) || notas || []
-    return PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo, { marcaCopia: true })
-  }
-
-  if (isAluno) {
-    if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
-    return PDFService.generateDeclaracaoPDF(userData as UserProfile, turmaInfo, { marcaCopia: true })
-  }
-  return PDFService.generateDeclaracaoVinculoPDF(userData as UserProfile)
-}
+// PDF logic moved to RequestTableComponent or PDFService
 
 export async function SecretariaView(): Promise<HTMLDivElement> {
   const container = document.createElement('div')
@@ -120,57 +32,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
   if (errorAlunos) toast.error('Erro ao carregar alunos: ' + errorAlunos.message)
 
-  const renderRequests = (): string => {
-    if (error) return `<p class="error-text">Erro ao carregar solicitações.</p>`
-    if (!requests || requests.length === 0) return '<p>Não há solicitações pendentes no momento.</p>'
-
-    return `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="margin: 0;">Solicitações de Documentos</h3>
-        <button id="btn-export-solicitacoes" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
-          📊 Exportar Excel
-        </button>
-      </div>
-      <div class="table-responsive bg-white rounded-lg shadow-sm mt-4">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Aluno</th>
-              <th>Documento</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${requests.map(r => `
-              <tr id="req-row-${r.id}">
-                <td>
-                  <div class="fw-600 text-main">${escapeHTML(r.perfis?.nome_completo || 'N/A')}</div>
-                  <div class="text-sm text-muted">${escapeHTML(r.perfis?.email || '')}</div>
-                </td>
-                <td>${escapeHTML(r.tipo)}</td>
-                <td class="status-cell">
-                  <span class="badge ${r.status === 'pendente' ? 'badge-warning' : 'badge-success'}">
-                    ${escapeHTML(r.status)}
-                  </span>
-                </td>
-                <td class="action-cell">
-                  <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-primary btn-sm generate-pdf-btn" data-id="${r.user_id}" data-tipo="${escapeHTML(r.tipo)}" data-nome="${escapeHTML(r.perfis?.nome_completo || '')}">
-                      Gerar PDF
-                    </button>
-                    ${r.status === 'pendente' ? `
-                      <button class="btn btn-primary btn-sm approve-btn" data-id="${r.id}" style="background: var(--success);">Concluir</button>
-                    ` : ''}
-                  </div>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `
-  }
+  container.appendChild(await RequestTableComponent())
 
   const renderGerenciarAlunos = (): string => {
     if (errorAlunos) return `<p class="error-text">Erro ao carregar alunos.</p>`
@@ -810,7 +672,6 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     </div>
 
     <div id="tab-solicitacoes" class="tab-content">
-      ${renderRequests()}
     </div>
 
     <div id="tab-cadastro" class="tab-content" style="display: none;">
@@ -859,55 +720,10 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     })
   })
 
-  // =====================================================
-  // GERAR PDF DE DOCUMENTOS
-  // =====================================================
-  const generatePdfBtns = container.querySelectorAll('.generate-pdf-btn')
-  generatePdfBtns.forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const userId = btn.getAttribute('data-id')!
-      const tipo = btn.getAttribute('data-tipo')!
-      const nomeAluno = btn.getAttribute('data-nome')!
-      const btnEl = btn as HTMLButtonElement
-      await handleGerarPDF(userId, tipo, nomeAluno, btnEl)
-    })
-  })
-
-  // =====================================================
-  // APROVAÇÃO DE DOCUMENTOS
-  // =====================================================
-  const approveBtns = container.querySelectorAll('.approve-btn')
-  approveBtns.forEach(btn => {
-    (btn as HTMLButtonElement).onclick = async () => {
-      const id = btn.getAttribute('data-id')!
-      const btnEl = btn as HTMLButtonElement
-      btnEl.disabled = true
-      btnEl.textContent = 'Processando...'
-
-      const { error } = await DocumentsService.updateStatus(id, 'concluído')
-
-      if (error) {
-        toast.error('Erro ao atualizar status: ' + error.message)
-        btnEl.disabled = false
-        btnEl.textContent = 'Concluir'
-      } else {
-        toast.success('Documento concluído com sucesso!')
-
-        const row = container.querySelector(`#req-row-${id}`)
-        if (row) {
-          const statusCell = row.querySelector('.status-cell')
-          const actionCell = row.querySelector('.action-cell')
-
-          if (statusCell) {
-            statusCell.innerHTML = `<span class="badge badge-success">concluído</span>`
-          }
-          if (actionCell) {
-            actionCell.innerHTML = '<span class="text-muted">---</span>'
-          }
-        }
-      }
-    }
-  })
+  const tabSolicitacoes = container.querySelector('#tab-solicitacoes') as HTMLElement
+  if (tabSolicitacoes) {
+    tabSolicitacoes.appendChild(await RequestTableComponent())
+  }
 
   // =====================================================
   // CADASTRO DE ALUNO

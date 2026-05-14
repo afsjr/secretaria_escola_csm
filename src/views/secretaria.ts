@@ -11,6 +11,8 @@ import { toast } from '../lib/toast'
 import { StudentDetailsService } from '../lib/student-details-service'
 import { RequestTableComponent } from '../components/RequestTable'
 import { CadastroAlunoTab } from '../components/Tabs/CadastroAlunoTab'
+import { StudentDetailsView } from './student-details'
+import { ProfessorDetailsView } from './professor-details'
 import { renderTemplate } from '../lib/dom-utils'
 import { escapeHTML as globalEscapeHTML } from '../lib/security'
 

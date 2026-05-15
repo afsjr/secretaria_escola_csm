@@ -1,65 +1,103 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SecretariaView } from './secretaria'
 import { AcademicService } from '../lib/academic-service'
+import { DocumentsService } from '../lib/documents-service'
+import { AdminService } from '../lib/admin-service'
 
-// Mocks exaustivos
+// Mocks de todas as dependências externas
 vi.mock('../lib/documents-service', () => ({ DocumentsService: { getAllOpenRequests: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
-vi.mock('../lib/admin-service', () => ({ AdminService: { listAlunos: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
+vi.mock('../lib/admin-service', () => ({ AdminService: { listAlunos: vi.fn().mockResolvedValue({ data: [], error: null }), getAlunoById: vi.fn(), updateAluno: vi.fn() } }))
 vi.mock('../lib/professor-service', () => ({ ProfessorService: { getProfessores: vi.fn().mockResolvedValue({ data: [], error: null }), getAllDisciplinas: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
 vi.mock('../lib/course-service', () => ({ CourseService: { getCursos: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
 vi.mock('../lib/academic-service', () => ({
   AcademicService: {
-    getTurmas: vi.fn().mockResolvedValue({ data: [], error: null }),
-    getAlunosDaTurma: vi.fn().mockResolvedValue({ data: [], error: null }),
-    getBoletim: vi.fn().mockResolvedValue({ data: [], error: null }),
-    upsertNotaEstagio: vi.fn().mockResolvedValue({ data: {}, error: null }),
-    getDisciplinasDaTurma: vi.fn().mockResolvedValue({ data: { disciplinas: [] }, error: null })
+    getTurmas: vi.fn(),
+    getAlunosDaTurma: vi.fn(),
+    getBoletim: vi.fn(),
+    upsertNotaEstagio: vi.fn(),
+    getDisciplinasDaTurma: vi.fn()
   }
 }))
 vi.mock('../lib/toast', () => ({ toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() } }))
 vi.mock('../lib/security', () => ({ escapeHTML: vi.fn((str) => str) }))
-vi.mock('../lib/excel-service', () => ({ ExcelService: { exportSolicitacoes: vi.fn(), exportAlunos: vi.fn(), exportProfessores: vi.fn() } }))
-vi.mock('../lib/pdf-service', () => ({ PDFService: { generateBoletimPDF: vi.fn() } }))
 vi.mock('../components/RequestTable', () => ({ RequestTableComponent: vi.fn().mockResolvedValue(document.createElement('div')) }))
 vi.mock('../components/Tabs/CadastroAlunoTab', () => ({ CadastroAlunoTab: vi.fn().mockReturnValue(document.createElement('div')) }))
 vi.mock('../components/Tabs/CadastroProfessorTab', () => ({ CadastroProfessorTab: vi.fn().mockReturnValue(document.createElement('div')) }))
-vi.mock('./student-details', () => ({ StudentDetailsView: vi.fn().mockResolvedValue(document.createElement('div')) }))
-vi.mock('./professor-details', () => ({ ProfessorDetailsView: vi.fn().mockResolvedValue(document.createElement('div')) }))
 
-describe('SecretariaView - Raio-X de Eventos', () => {
-  it('deve registrar o listener de change no select de turma', async () => {
-    // Espionar o registro de eventos
-    const addEventListenerSpy = vi.spyOn(HTMLElement.prototype, 'addEventListener')
-    
-    const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1' }]
+describe('SecretariaView - Notas de Estágio', () => {
+  const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1' }]
+  const mockAlunos = [{ perfis: { id: 'aluno-1', nome_completo: 'João Aluno' } }]
+  const mockDisciplinas = [
+    { id: 'disc-1', nome: 'Enfermagem Médica', modulo: '2' },
+    { id: 'disc-2', nome: 'Anatomia', modulo: '1' }
+  ]
+
+  beforeEach(() => {
+    vi.clearAllMocks()
     vi.mocked(AcademicService.getTurmas).mockResolvedValue({ data: mockTurmas, error: null })
-
-    const view = await SecretariaView()
-    
-    // Procurar se houve um addEventListener('change', ...) em um elemento com o ID correto
-    const changeRegistration = addEventListenerSpy.mock.calls.find(call => {
-      const [type] = call
-      const target = call.currentTarget || (call as any).target // Depende da implementação do Vitest/JSDOM
-      // Infelizmente o spy no prototype não nos dá o 'this' facilmente, 
-      // mas podemos verificar se o select de turma tem listeners anexados se usarmos um wrapper
-      return type === 'change'
+    vi.mocked(AcademicService.getAlunosDaTurma).mockResolvedValue({ data: mockAlunos, error: null })
+    vi.mocked(AcademicService.getDisciplinasDaTurma).mockResolvedValue({ 
+      data: { turma: mockTurmas[0], disciplinas: mockDisciplinas }, 
+      error: null 
     })
+    vi.mocked(AcademicService.getBoletim).mockResolvedValue({ data: [], error: null })
+    vi.mocked(AcademicService.upsertNotaEstagio).mockResolvedValue({ data: {} as any, error: null })
+  })
 
-    // Forma mais confiável: disparar e ver se o AcademicService é chamado
+  it('deve realizar o fluxo completo de lançamento de nota de estágio', async () => {
+    const view = await SecretariaView()
+    document.body.appendChild(view) // Anexar ao body para garantir visibilidade no JSDOM
+
     const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
-    expect(selectTurma).not.toBeNull()
-    
+    const selectAluno = view.querySelector('#notas-aluno-select') as HTMLSelectElement
+    const selectDisciplina = view.querySelector('#notas-disciplina-select') as HTMLSelectElement
+    const btnCarregar = view.querySelector('#btn-carregar-notas') as HTMLButtonElement
+
+    // 1. Selecionar Turma
     selectTurma.value = 'turma-1'
     selectTurma.dispatchEvent(new Event('change', { bubbles: true }))
 
-    // Se o evento não disparou, vamos tentar chamar a lógica manualmente para ver se há erro nela
     await vi.waitFor(() => {
-      if (AcademicService.getAlunosDaTurma.mock.calls.length === 0) {
-        throw new Error('O listener de change não foi executado. Verifique se ele foi registrado.')
-      }
-    }, { timeout: 1000 }).catch(err => {
-       console.log('DOM Atual:', view.innerHTML.substring(0, 500) + '...')
-       throw err
+      expect(AcademicService.getAlunosDaTurma).toHaveBeenCalledWith('turma-1')
+      expect(selectAluno.disabled).toBe(false)
     })
+
+    // 2. Selecionar Aluno
+    selectAluno.value = 'aluno-1'
+    selectAluno.dispatchEvent(new Event('change', { bubbles: true }))
+
+    await vi.waitFor(() => {
+      expect(AcademicService.getBoletim).toHaveBeenCalledWith('aluno-1')
+      expect(selectDisciplina.disabled).toBe(false)
+    })
+
+    // 3. Selecionar Disciplina
+    expect(selectDisciplina.innerHTML).toContain('Enfermagem Médica')
+    expect(selectDisciplina.innerHTML).toContain('Anatomia (Sem Estágio)')
+
+    selectDisciplina.value = 'Enfermagem Médica'
+    selectDisciplina.dispatchEvent(new Event('change', { bubbles: true }))
+
+    await vi.waitFor(() => {
+      expect(btnCarregar.disabled).toBe(false)
+    })
+    btnCarregar.click()
+
+    // 4. Salvar Nota
+    await vi.waitFor(() => {
+      expect(view.querySelector('#input-nota-estagio')).not.toBeNull()
+    })
+
+    const inputNota = view.querySelector('#input-nota-estagio') as HTMLInputElement
+    const btnSalvar = view.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
+
+    inputNota.value = '9.0'
+    btnSalvar.click()
+
+    await vi.waitFor(() => {
+      expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'Enfermagem Médica', 9)
+    })
+
+    document.body.removeChild(view)
   })
 })

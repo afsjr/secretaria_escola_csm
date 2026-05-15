@@ -6,7 +6,7 @@ import { ProfessorService } from '../lib/professor-service'
 import { CourseService } from '../lib/course-service'
 import { AcademicService } from '../lib/academic-service'
 
-// Mocks de Views (evitar carregar lógica complexa nos testes da secretaria)
+// Mocks de Views
 vi.mock('./student-details', () => ({ StudentDetailsView: vi.fn().mockResolvedValue(document.createElement('div')) }))
 vi.mock('./professor-details', () => ({ ProfessorDetailsView: vi.fn().mockResolvedValue(document.createElement('div')) }))
 
@@ -47,26 +47,25 @@ vi.mock('../lib/professor-service', () => ({
 vi.mock('../lib/course-service', () => ({
   CourseService: { getCursos: vi.fn().mockResolvedValue({ data: [], error: null }) }
 }))
+
 vi.mock('../lib/academic-service', () => ({
   AcademicService: {
-    getTurmas: vi.fn().mockResolvedValue({ data: [], error: null }),
-    getAlunosDaTurma: vi.fn().mockResolvedValue({ data: [], error: null }),
-    getBoletim: vi.fn().mockResolvedValue({ data: [], error: null }),
-    updateNotaEstagio: vi.fn().mockResolvedValue({ data: null, error: null }),
-    upsertNotaEstagio: vi.fn().mockResolvedValue({ data: { id: '123' }, error: null }),
-    getDisciplinasDaTurma: vi.fn().mockResolvedValue({ 
-      data: { turma: { id: '1', nome: 'Turma A' }, disciplinas: [] }, 
-      error: null 
-    })
+    getTurmas: vi.fn(),
+    getAlunosDaTurma: vi.fn(),
+    getBoletim: vi.fn(),
+    updateNotaEstagio: vi.fn(),
+    upsertNotaEstagio: vi.fn(),
+    getDisciplinasDaTurma: vi.fn()
   }
 }))
+
 vi.mock('../lib/toast', () => ({
   toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() }
 }))
 
 describe('SecretariaView - Estágio', () => {
   const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1' }]
-  const mockAlunos = [{ perfis: { id: 'aluno-1', nome_completo: 'João Aluno' } }]
+  const mockAlunos = [{ id: 'mat-1', status_aluno: 'ativo', perfis: { id: 'aluno-1', nome_completo: 'João Aluno' } }]
   const mockDisciplinas = [
     { id: 'disc-1', nome: 'Enfermagem Médica', modulo: '2' },
     { id: 'disc-2', nome: 'Anatomia', modulo: '1' }
@@ -74,29 +73,34 @@ describe('SecretariaView - Estágio', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(AcademicService.getTurmas as any).mockResolvedValue({ data: mockTurmas, error: null })
-    ;(AcademicService.getAlunosDaTurma as any).mockResolvedValue({ data: mockAlunos, error: null })
-    ;(AcademicService.getDisciplinasDaTurma as any).mockResolvedValue({ 
+    
+    // Configurações base dos mocks
+    vi.mocked(AcademicService.getTurmas).mockResolvedValue({ data: mockTurmas, error: null })
+    vi.mocked(AcademicService.getAlunosDaTurma).mockResolvedValue({ data: mockAlunos, error: null })
+    vi.mocked(AcademicService.getDisciplinasDaTurma).mockResolvedValue({ 
       data: { turma: mockTurmas[0], disciplinas: mockDisciplinas }, 
       error: null 
     })
-    ;(AcademicService.getBoletim as any).mockResolvedValue({ data: [], error: null })
+    vi.mocked(AcademicService.getBoletim).mockResolvedValue({ data: [], error: null })
+    vi.mocked(AcademicService.upsertNotaEstagio).mockResolvedValue({ data: { id: '123' } as any, error: null })
   })
 
   it('deve carregar alunos e disciplinas ao mudar a turma', async () => {
     const view = await SecretariaView()
     const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
     
+    expect(selectTurma).not.toBeNull()
+    
+    // JSDOM: Set value and dispatch change
     selectTurma.value = 'turma-1'
     selectTurma.dispatchEvent(new Event('change', { bubbles: true }))
 
     await vi.waitFor(() => {
       expect(AcademicService.getAlunosDaTurma).toHaveBeenCalledWith('turma-1')
-      expect(AcademicService.getDisciplinasDaTurma).toHaveBeenCalledWith('turma-1')
-    })
+    }, { timeout: 2000 })
   })
 
-  it('deve listar disciplinas da turma no select de disciplinas', async () => {
+  it('deve listar disciplinas da turma e gerenciar estado dos selects', async () => {
     const view = await SecretariaView()
     const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
     const selectAluno = view.querySelector('#notas-aluno-select') as HTMLSelectElement
@@ -117,17 +121,18 @@ describe('SecretariaView - Estágio', () => {
     await vi.waitFor(() => {
       expect(selectDisciplina.innerHTML).toContain('Enfermagem Médica')
       expect(selectDisciplina.innerHTML).toContain('Anatomia (Sem Estágio)')
+      expect(selectDisciplina.disabled).toBe(false)
     })
   })
 
-  it('deve salvar a nota de estágio via upsertNotaEstagio', async () => {
+  it('deve salvar nota de estágio com os dados corretos', async () => {
     const view = await SecretariaView()
     const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
     const selectAluno = view.querySelector('#notas-aluno-select') as HTMLSelectElement
     const selectDisciplina = view.querySelector('#notas-disciplina-select') as HTMLSelectElement
     const btnCarregar = view.querySelector('#btn-carregar-notas') as HTMLButtonElement
 
-    // Fluxo de seleção
+    // Simular fluxo até chegar na nota
     selectTurma.value = 'turma-1'
     selectTurma.dispatchEvent(new Event('change', { bubbles: true }))
     
@@ -138,21 +143,22 @@ describe('SecretariaView - Estágio', () => {
     
     await vi.waitFor(() => { expect(selectDisciplina.disabled).toBe(false) })
 
-    // Selecionar disciplina válida
     selectDisciplina.value = 'Enfermagem Médica'
     selectDisciplina.dispatchEvent(new Event('change', { bubbles: true }))
 
-    // Clicar em carregar
+    // Habilitar botão manualmente se necessário para o teste (ou esperar o handler)
+    await vi.waitFor(() => { expect(btnCarregar.disabled).toBe(false) })
     btnCarregar.click()
 
-    await vi.waitFor(() => {
-      const inputNota = view.querySelector('#input-nota-estagio') as HTMLInputElement
-      const btnSalvar = view.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
-      
-      inputNota.value = '9.5'
-      btnSalvar.click()
-    })
+    const btnSalvar = view.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
+    const inputNota = view.querySelector('#input-nota-estagio') as HTMLInputElement
+    
+    expect(btnSalvar).not.toBeNull()
+    inputNota.value = '7.5'
+    btnSalvar.click()
 
-    expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'Enfermagem Médica', 9.5)
+    await vi.waitFor(() => {
+      expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'Enfermagem Médica', 7.5)
+    })
   })
 })

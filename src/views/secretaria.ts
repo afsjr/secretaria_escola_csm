@@ -409,8 +409,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
   const renderNotasEBoletim = (): string => `
     <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-      <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Notas e Estágio</h3>
-      <p style="margin: 0 0 1.5rem 0; color: var(--text-muted); font-size: 0.9rem;">Gerencie as notas e estágio dos alunos.</p>
+      <h3 style="margin: 0 0 1rem 0; color: var(--text-main);">Notas de Estágio</h3>
+      <p style="margin: 0 0 1.5rem 0; color: var(--text-muted); font-size: 0.9rem;">Lançar notas de estágio (0-10) por disciplina.</p>
       
       <div class="form-group">
         <label class="label" for="notas-turma-select">Selecione a Turma:</label>
@@ -427,17 +427,40 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
         </select>
       </div>
       
-      <button id="btn-carregar-notas" class="btn btn-primary" disabled>Carregar Notas</button>
+      <div class="form-group">
+        <label class="label" for="notas-disciplina-select">Selecione a Disciplina:</label>
+        <select id="notas-disciplina-select" class="input" disabled>
+          <option value="">-- Escolha uma disciplina --</option>
+        </select>
+      </div>
+      
+      <button id="btn-carregar-notas" class="btn btn-primary" disabled>Carregar Estágio</button>
       
       <div id="notas-content" style="margin-top: 1.5rem; display: none;">
-        <!-- Notas serão carregadas aqui -->
+        <!-- Nota de estágio será carregada aqui -->
       </div>
     </div>
     
     <script>
       (function() {
+        // Função para identificar se a disciplina tem estágio
+        function disciplinaTemEstagio(disciplinaNome, modulo) {
+          if (modulo === 'I Módulo' || modulo === '1' || modulo?.toString().startsWith('1')) {
+            return false
+          }
+          if (modulo === 'II Módulo' || modulo === '2' || modulo?.toString().startsWith('2')) {
+            const nome = disciplinaNome.toLowerCase()
+            if (nome.includes('farmacologia') || nome.includes('adm')) {
+              return false
+            }
+            return true
+          }
+          return true
+        }
+        
         const turmaSelect = document.getElementById('notas-turma-select');
         const select = document.getElementById('notas-aluno-select');
+        const disciplinaSelect = document.getElementById('notas-disciplina-select');
         const btnCarregar = document.getElementById('btn-carregar-notas');
         const content = document.getElementById('notas-content');
         

@@ -6,7 +6,7 @@ import { CourseService } from '../lib/course-service'
 import { PDFService } from '../lib/pdf-service'
 import { AcademicService } from '../lib/academic-service'
 import { ExcelService } from '../lib/excel-service'
-import { supabase, supabase as supabaseClient } from '../lib/supabase'
+
 import { toast } from '../lib/toast'
 import { StudentDetailsService } from '../lib/student-details-service'
 import { RequestTableComponent } from '../components/RequestTable'
@@ -543,28 +543,6 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
           
           content.style.display = 'block';
           btnCarregar.textContent = 'Carregar Notas';
-          
-          // Handler para botões editar
-          content.querySelectorAll('.btn-editar-nota').forEach(btn => {
-            btn.addEventListener('click', async () => {
-              const notaId = btn.getAttribute('data-id');
-              const atual = btn.getAttribute('data-nota_estagio');
-              const novo = atual === 'AP' ? 'REP' : 'AP';
-              
-              if (!confirm('Mudar estágio para ' + novo + '?')) return;
-              
-              const { error } = await supabase
-                .then(r => r.data)
-                .then(async () => {
-                  const updateResult = await window.AcademicService.saveBoletim(alunoId, notas || [])
-                  if (updateResult.error) {
-                    alert('Erro: ' + updateResult.error.message)
-              } else {
-                alert('Estágio atualizado!');
-                btnCarregar.click(); // Recarregar
-              }
-            });
-          });
         });
       })();
     </script>

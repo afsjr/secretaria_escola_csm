@@ -499,7 +499,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
           });
           
           content.innerHTML = '<div style="background: var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">' +
-            '<p><strong>Aluno:</strong> ' + (aluno?.nome_completo || '-') + '</p>' +
+            '<p><strong>Aluno:</strong> ' + (perfil?.nome_completo || '-') + '</p>' +
             '<p><strong>Curso:</strong> ' + cursoNome + '</p>' +
             '<p><strong>Turma:</strong> ' + turmaNome + '</p>' +
             '</div>' +
@@ -555,12 +555,11 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
               if (!confirm('Mudar estágio para ' + novo + '?')) return;
               
               const { error } = await supabase
-                .from('boletim')
-                .update({ nota_estagio: novo })
-                .eq('id', notaId);
-              
-              if (error) {
-                alert('Erro: ' + error.message);
+                .then(r => r.data)
+                .then(async () => {
+                  const updateResult = await window.AcademicService.saveBoletim(alunoId, notas || [])
+                  if (updateResult.error) {
+                    alert('Erro: ' + updateResult.error.message)
               } else {
                 alert('Estágio atualizado!');
                 btnCarregar.click(); // Recarregar

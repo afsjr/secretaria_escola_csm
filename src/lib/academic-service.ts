@@ -246,6 +246,18 @@ export const AcademicService = {
     return { error };
   },
 
+  // Atualizar nota de estágio de uma disciplina específica
+  async updateNotaEstagio(notaId: string, valor: number) {
+    const { data, error } = await supabase
+      .from("boletim")
+      .update({ nota_estagio: valor })
+      .eq("id", notaId)
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
   // === MÉTODOS COMPOSTOS (Composer Pattern) ===
 
   // Buscar turma com informações do curso relacionado

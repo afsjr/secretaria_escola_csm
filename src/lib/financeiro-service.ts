@@ -123,5 +123,35 @@ export const FinanceiroService = {
       config[c.chave] = Number(c.valor)
     })
     return { data: config, error: null }
+  },
+
+  /**
+   * Busca todos os pagamentos.
+   */
+  async getAllPagamentos() {
+    const { data, error } = await supabase
+      .from('pagamentos')
+      .select('*')
+
+    return { data, error }
+  },
+
+  /**
+   * Cria um novo pagamento/débito.
+   */
+  async createPagamento(payload: {
+    aluno_id: string
+    descricao: string
+    valor_original: string | number
+    data_vencimento: string
+    status: string
+  }) {
+    const { data, error } = await supabase
+      .from('pagamentos')
+      .insert(payload)
+      .select()
+      .single()
+
+    return { data, error }
   }
 }

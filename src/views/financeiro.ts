@@ -2,7 +2,6 @@ import { FinanceiroService } from '../lib/financeiro-service'
 import { AdminService } from '../lib/admin-service'
 import { ExcelService } from '../lib/excel-service'
 import { toast } from '../lib/toast'
-import { supabase } from '../lib/supabase'
 import { PDFService } from '../lib/pdf-service'
 import { formatDateTimeBR } from '../lib/date-utils'
 
@@ -33,7 +32,8 @@ export async function FinanceiroView(): Promise<HTMLElement> {
   const configs = configRes.data || { multa_atraso: 0.02, juros_mensal: 0.01 }
 
   // Buscar pagamentos ativos
-  const { data: todosPagamentos } = await supabase.from('pagamentos').select('*') as any
+  const pagamentosRes = await FinanceiroService.getAllPagamentos()
+  const todosPagamentos = pagamentosRes.data
 
   const renderDashboard = (): string => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -354,8 +354,8 @@ export async function FinanceiroView(): Promise<HTMLElement> {
        data_vencimento: (container.querySelector('#lancar-data') as HTMLInputElement).value,
        status: new Date((container.querySelector('#lancar-data') as HTMLInputElement).value) < new Date() ? 'atrasado' : 'pendente'
     }
-    const { error } = await supabase.from('pagamentos').insert(payload)
-    if (error) toast.error((error as any).message)
+    const { error } = await FinanceiroService.createPagamento(payload)
+    if (error) toast.error(error.message)
     else { toast.success('Lançamento realizado!'); window.location.reload() }
   }
 

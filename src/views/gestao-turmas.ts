@@ -3,7 +3,6 @@ import { CourseService } from '../lib/course-service'
 import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
-import { supabase } from '../lib/supabase'
 import type { UserRole } from '../types'
 
 interface ProfileParam {
@@ -587,35 +586,21 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     const disciplinaSelect = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
     disciplinaSelect.innerHTML = '<option value="">-- Carregando disciplinas... --</option>'
 
-    // Primeiro buscar o curso_id da turma
-    const { data: turmaData } = await supabase
-      .from('turmas')
-      .select('curso_id')
-      .eq('id', turmaId)
-      .single()
+    const result = await AcademicService.getDisciplinasDaTurma(turmaId)
+    const { data: disciplinasData, error } = result
 
-    const cursoId = turmaData?.curso_id
-
-    if (!cursoId) {
-      disciplinaSelect.innerHTML = '<option value="">Turma sem curso associado</option>'
+    if (error) {
+      disciplinaSelect.innerHTML = `<option value="">Erro: ${escapeHTML(error.message)}</option>`
       return
     }
 
-    // Buscar disciplinas por curso_id (todas as disciplinas do curso)
-    const { data: disciplinas, error } = await supabase
-      .from('disciplinas')
-      .select('id, nome, modulo')
-      .eq('curso_id', cursoId)
-      .order('modulo', { ascending: true })
-      .order('nome', { ascending: true })
-
-    if (error || !disciplinas || disciplinas.length === 0) {
+    if (!disciplinasData?.disciplinas || disciplinasData.disciplinas.length === 0) {
       disciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina encontrada para este curso</option>'
       return
     }
 
     disciplinaSelect.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>' +
-      disciplinas.map((d: any) => {
+      disciplinasData.disciplinas.map((d) => {
         const moduloLabel = d.modulo ? `[${d.modulo}] ` : ''
         return `<option value="${escapeHTML(d.nome)}">${moduloLabel}${escapeHTML(d.nome)}</option>`
       }).join('')
@@ -635,29 +620,24 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     const tabelaNotas = container.querySelector('#tabela-notas-turma') as HTMLElement
     tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center;">Carregando notas...</td></tr>'
 
-    const { data: matriculas, error: errorMatriculas } = await AcademicService.getAlunosDaTurma(turmaId)
+    const result = await AcademicService.getNotasCompletasTurma(turmaId, disciplinaNome)
+    const { data, error } = result
 
-    if (errorMatriculas || !matriculas || matriculas.length === 0) {
+    if (error) {
+      tabelaNotas.innerHTML = `<tr><td colspan="9" style="color:red; padding: 1rem;">Erro ao buscar notas: ${escapeHTML(error.message)}</td></tr>`
+      return
+    }
+
+    if (!data?.alunos || data.alunos.length === 0) {
       tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno matriculado nesta turma.</td></tr>'
       return
     }
 
-    const { data: notas, error: errorNotas } = await supabase
-      .from('boletim')
-      .select('*')
-      .eq('disciplina', disciplinaNome)
-
-    if (errorNotas) {
-      tabelaNotas.innerHTML = '<tr><td colspan="9" style="color:red; padding: 1rem;">Erro ao buscar notas: ' + errorNotas.message + '</td></tr>'
-      return
-    }
-
-    const notasMap: Record<string, any> = {}
-    notas?.forEach((n) => { notasMap[n.aluno_id] = n })
+    const { notasMap } = data
 
     const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
 
-    tabelaNotas.innerHTML = matriculas
+    tabelaNotas.innerHTML = data.alunos
       .filter((m: any) => m.status_aluno === 'ativo')
       .map((m: any) => {
         const perfil = getPerfil(m)

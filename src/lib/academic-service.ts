@@ -28,6 +28,20 @@ interface MatriculaAtiva {
   turmas?: { nome?: string }
 }
 
+interface TurmaComCurso {
+  id: string
+  nome: string
+  periodo: string
+  curso_id: string | null
+  cursos?: { id: string; nome: string }[]
+}
+
+interface DisciplinaItem {
+  id: string
+  nome: string
+  modulo: string | null
+}
+
 export const AcademicService = {
   // === TURMAS ===
 
@@ -230,5 +244,132 @@ export const AcademicService = {
       .upsert(payload, { onConflict: "aluno_id, disciplina" });
 
     return { error };
+  },
+
+  // === MÉTODOS COMPOSTOS (Composer Pattern) ===
+
+  // Buscar turma com informações do curso relacionado
+  async getTurmaWithCurso(turmaId: string) {
+    const { data, error } = await supabase
+      .from("turmas")
+      .select(`
+        id, nome, periodo, curso_id,
+        cursos(id, nome)
+      `)
+      .eq("id", turmaId)
+      .single();
+
+    if (!data) return { data: null, error }
+
+    const turmaData: TurmaComCurso = {
+      id: data.id,
+      nome: data.nome,
+      periodo: data.periodo,
+      curso_id: data.curso_id,
+      cursos: data.cursos as TurmaComCurso['cursos']
+    }
+
+    return { data: turmaData, error };
+  },
+
+  // Buscar disciplinas de um curso específico
+  async getDisciplinasPorCurso(cursoId: string) {
+    const { data, error } = await supabase
+      .from("disciplinas")
+      .select("id, nome, modulo")
+      .eq("curso_id", cursoId)
+      .order("modulo", { ascending: true })
+      .order("nome", { ascending: true });
+
+    return { data: data as DisciplinaItem[] | null, error };
+  },
+
+  // Buscar notas de uma disciplina específica
+  async getNotasPorDisciplina(disciplinaNome: string) {
+    const { data, error } = await supabase
+      .from("boletim")
+      .select("*")
+      .eq("disciplina", disciplinaNome);
+
+    return { data, error };
+  },
+
+  // Método composto: Buscar disciplinas de uma turma
+  // Orchestras: getTurmaWithCurso + getDisciplinasPorCurso
+  async getDisciplinasDaTurma(turmaId: string) {
+    const { data: turmaData, error: turmaError } = await this.getTurmaWithCurso(turmaId);
+
+    if (turmaError) {
+      return { data: null, error: turmaError };
+    }
+
+    if (!turmaData?.curso_id) {
+      return {
+        data: null,
+        error: { message: "Turma sem curso associado" }
+      };
+    }
+
+    const { data: disciplinas, error: disciplinasError } = await this.getDisciplinasPorCurso(turmaData.curso_id);
+
+    if (disciplinasError) {
+      return { data: null, error: disciplinasError };
+    }
+
+    return {
+      data: {
+        turma: {
+          id: turmaData.id,
+          nome: turmaData.nome,
+          periodo: turmaData.periodo,
+          curso_id: turmaData.curso_id
+        },
+        disciplinas: disciplinas || []
+      },
+      error: null
+    };
+  },
+
+  // Método composto: Buscar notas completas de uma turma para uma disciplina
+  // Orchestras: getAlunosDaTurma + getNotasPorDisciplina
+  async getNotasCompletasTurma(turmaId: string, disciplinaNome: string) {
+    const { data: matriculas, error: matriculasError } = await this.getAlunosDaTurma(turmaId);
+
+    if (matriculasError) {
+      return { data: null, error: matriculasError };
+    }
+
+    if (!matriculas || matriculas.length === 0) {
+      return {
+        data: {
+          alunos: [],
+          notasMap: {},
+          totalAtivos: 0
+        },
+        error: null
+      };
+    }
+
+    const { data: notas, error: notasError } = await this.getNotasPorDisciplina(disciplinaNome);
+
+    if (notasError) {
+      return { data: null, error: notasError };
+    }
+
+    const notasMap: Record<string, any> = {};
+    notas?.forEach((n) => {
+      notasMap[n.aluno_id] = n;
+    });
+
+    const ativos = matriculas.filter((m) => m.status_aluno === "ativo");
+
+    return {
+      data: {
+        alunos: matriculas,
+        notasMap,
+        totalAtivos: ativos.length
+      },
+      error: null
+    };
   },
 };

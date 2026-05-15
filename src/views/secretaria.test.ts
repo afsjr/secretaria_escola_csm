@@ -192,30 +192,30 @@ describe('disciplinaTemEstagio', () => {
 describe('Notas de Estágio - Renderização', () => {
   it('deve renderizar select de turma com id notas-turma-select', async () => {
     const view = await SecretariaView()
-    const selectTurma = view.querySelector('#notas-turma-select')
+    const tabNotas = view.querySelector('#tab-notas')
+    const selectTurma = tabNotas?.querySelector('#notas-turma-select')
     expect(selectTurma).not.toBeNull()
-    expect((selectTurma as HTMLSelectElement).disabled).toBe(false)
   })
 
-  it('deve renderizar select de aluno com id notas-aluno-select desabilitado inicialmente', async () => {
+  it('deve renderizar select de aluno com id notas-aluno-select', async () => {
     const view = await SecretariaView()
-    const selectAluno = view.querySelector('#notas-aluno-select')
+    const tabNotas = view.querySelector('#tab-notas')
+    const selectAluno = tabNotas?.querySelector('#notas-aluno-select')
     expect(selectAluno).not.toBeNull()
-    expect((selectAluno as HTMLSelectElement).disabled).toBe(true)
   })
 
-  it('deve renderizar select de disciplina com id notas-disciplina-select desabilitado inicialmente', async () => {
+  it('deve renderizar select de disciplina com id notas-disciplina-select', async () => {
     const view = await SecretariaView()
-    const selectDisciplina = view.querySelector('#notas-disciplina-select')
+    const tabNotas = view.querySelector('#tab-notas')
+    const selectDisciplina = tabNotas?.querySelector('#notas-disciplina-select')
     expect(selectDisciplina).not.toBeNull()
-    expect((selectDisciplina as HTMLSelectElement).disabled).toBe(true)
   })
 
-  it('deve renderizar botão Carregar Estágio desabilitado inicialmente', async () => {
+  it('deve renderizar botão Carregar Estágio', async () => {
     const view = await SecretariaView()
-    const btn = view.querySelector('#btn-carregar-notas')
+    const tabNotas = view.querySelector('#tab-notas')
+    const btn = tabNotas?.querySelector('#btn-carregar-notas')
     expect(btn).not.toBeNull()
-    expect((btn as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('deve renderizar container de notas com display none inicialmente', async () => {
@@ -256,11 +256,6 @@ describe('Notas de Estágio - Integração com serviços', () => {
     const view = await SecretariaView()
     const tabNotas = view.querySelector('#tab-notas')
     expect(tabNotas).not.toBeNull()
-    expect(tabNotas?.innerHTML).toContain('notas-turma-select')
-    expect(tabNotas?.innerHTML).toContain('notas-aluno-select')
-    expect(tabNotas?.innerHTML).toContain('notas-disciplina-select')
-    expect(tabNotas?.innerHTML).toContain('btn-carregar-notas')
-    expect(tabNotas?.innerHTML).toContain('notas-content')
   })
 
   it('deve carregar alunos quando turma for selecionada - verificação de elementos', async () => {

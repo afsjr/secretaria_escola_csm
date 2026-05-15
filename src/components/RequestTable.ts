@@ -10,6 +10,10 @@ import { escapeHTML } from '../lib/security'
 import { renderTemplate } from '../lib/dom-utils'
 import type { UserProfile } from '../types'
 
+;(window as any).supabase = supabase
+;(window as any).AcademicService = AcademicService
+;(window as any).CourseService = CourseService
+
 export async function RequestTableComponent() {
   const { data: requests, error } = await DocumentsService.getAllOpenRequests()
 

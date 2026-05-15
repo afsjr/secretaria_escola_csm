@@ -6,7 +6,7 @@ import { CourseService } from '../lib/course-service'
 import { PDFService } from '../lib/pdf-service'
 import { AcademicService } from '../lib/academic-service'
 import { ExcelService } from '../lib/excel-service'
-import { supabase } from '../lib/supabase'
+import { supabase, supabase as supabaseClient } from '../lib/supabase'
 import { toast } from '../lib/toast'
 import { StudentDetailsService } from '../lib/student-details-service'
 import { RequestTableComponent } from '../components/RequestTable'
@@ -16,6 +16,10 @@ import { StudentDetailsView } from './student-details'
 import { ProfessorDetailsView } from './professor-details'
 import { renderTemplate } from '../lib/dom-utils'
 import { escapeHTML as globalEscapeHTML } from '../lib/security'
+
+;(window as any).supabase = supabaseClient
+;(window as any).AcademicService = AcademicService
+;(window as any).StudentDetailsService = StudentDetailsService
 
 // Usar utilitário global de segurança
 const escapeHTML = globalEscapeHTML

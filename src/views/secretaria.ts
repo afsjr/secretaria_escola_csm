@@ -692,6 +692,11 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     tabCadastro.appendChild(CadastroAlunoTab({ turmas: turmas ?? null }))
   }
 
+  const tabCadastroProfessor = container.querySelector('#tab-cadastro-professor') as HTMLElement
+  if (tabCadastroProfessor) {
+    tabCadastroProfessor.appendChild(CadastroProfessorTab())
+  }
+
   // =====================================================
   // CADASTRO DE PROFESSOR
   // =====================================================

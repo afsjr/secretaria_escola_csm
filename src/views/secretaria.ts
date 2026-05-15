@@ -437,11 +437,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
         
         // Carregar lista de alunos
         (async function() {
-          const { data: alunos } = await supabase
-            .from('perfis')
-            .select('id, nome_completo, email')
-            .eq('perfil', 'aluno')
-            .order('nome_completo');
+          const result = await window.AcademicService.getAlunos()
+          const alunos = result.data
           
           if (alunos) {
             select.innerHTML = '<option value="">-- Escolha um aluno --</option>' +
@@ -460,24 +457,14 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
           
           btnCarregar.textContent = 'Carregando...';
           
-          // Buscar notas e informações do alumno
-          const { data: notas } = await supabase
-            .from('boletim')
-            .select('*')
-            .eq('aluno_id', alunoId);
-          
-          const { data: aluno } = await supabase
-            .from('perfis')
-            .select('nome_completo')
-            .eq('id', alunoId)
-            .single();
-          
-          const { data: matricula } = await supabase
-            .from('matriculas')
-            .select('turmas(nome, cursos(nome))')
-            .eq('aluno_id', alunoId)
-            .eq('status_aluno', 'ativo')
-            .single();
+          // Buscar notas e informações do aluno usando StudentDetailsService
+          const notasResult = await window.AcademicService.getBoletim(alunoId)
+          const notas = notasResult.data
+
+          const alunoResult = await window.StudentDetailsService.getAlunoCompleto(alunoId)
+          const aluno = alunoResult.data
+          const perfil = aluno?.perfil
+          const matricula = aluno?.matricula
           
           const turmaNome = matricula?.turmas?.nome || '-';
           const cursoNome = matricula?.turmas?.cursos?.nome || '-';

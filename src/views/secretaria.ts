@@ -23,6 +23,21 @@ import { escapeHTML as globalEscapeHTML } from '../lib/security'
 // Usar utilitário global de segurança
 const escapeHTML = globalEscapeHTML
 
+function disciplinaTemEstagio(disciplinaNome: string, modulo: string | null | undefined): boolean {
+  if (!modulo) return false
+  if (modulo === 'I Módulo' || modulo === '1' || modulo.toString().startsWith('1')) {
+    return false
+  }
+  if (modulo === 'II Módulo' || modulo === '2' || modulo.toString().startsWith('2')) {
+    const nome = disciplinaNome.toLowerCase()
+    if (nome.includes('farmacologia') || nome.includes('adm')) {
+      return false
+    }
+    return true
+  }
+  return true
+}
+
 // PDF logic moved to RequestTableComponent or PDFService
 
 export async function SecretariaView(): Promise<HTMLDivElement> {
@@ -1111,6 +1126,140 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       } catch (err: any) {
         toast.error('Erro ao exportar: ' + err.message)
       }
+    })
+  }
+
+  // =====================================================
+  // NOTAS DE ESTÁGIO - Handlers TypeScript
+  // =====================================================
+  const notasTurmaSelect = container.querySelector('#notas-turma-select') as HTMLSelectElement
+  const notasAlunoSelect = container.querySelector('#notas-aluno-select') as HTMLSelectElement
+  const notasDisciplinaSelect = container.querySelector('#notas-disciplina-select') as HTMLSelectElement
+  const btnCarregarEstagio = container.querySelector('#btn-carregar-notas') as HTMLButtonElement
+  const notasContent = container.querySelector('#notas-content') as HTMLElement
+
+  if (notasTurmaSelect) {
+    notasTurmaSelect.addEventListener('change', async () => {
+      const turmaId = notasTurmaSelect.value
+
+      notasAlunoSelect.innerHTML = '<option value="">-- Escolha um aluno --</option>'
+      notasAlunoSelect.disabled = true
+      notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>'
+      notasDisciplinaSelect.disabled = true
+      btnCarregarEstagio.disabled = true
+      notasContent.style.display = 'none'
+
+      if (!turmaId) return
+
+      const { data: alunosTurma } = await AcademicService.getAlunosDaTurma(turmaId)
+
+      if (alunosTurma && alunosTurma.length > 0) {
+        notasAlunoSelect.innerHTML = '<option value="">-- Escolha um aluno --</option>' +
+          alunosTurma.map(m => {
+            const perfil = (m as any).perfis
+            if (!perfil) return ''
+            return `<option value="${perfil.id}">${escapeHTML(perfil.nome_completo)}</option>`
+          }).join('')
+        notasAlunoSelect.disabled = false
+      } else {
+        notasAlunoSelect.innerHTML = '<option value="">Nenhum aluno nesta turma</option>'
+      }
+    })
+  }
+
+  if (notasAlunoSelect) {
+    notasAlunoSelect.addEventListener('change', async () => {
+      const alunoId = notasAlunoSelect.value
+
+      notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>'
+      notasDisciplinaSelect.disabled = true
+      btnCarregarEstagio.disabled = true
+      notasContent.style.display = 'none'
+
+      if (!alunoId) return
+
+      const { data: notasAluno } = await AcademicService.getBoletim(alunoId)
+
+      if (notasAluno && notasAluno.length > 0) {
+        const disciplinasComEstagio = notasAluno.filter(n => {
+          const disc = disciplinas?.find(d => d.nome === n.disciplina)
+          return disc && disciplinaTemEstagio(n.disciplina, disc.modulo)
+        })
+
+        if (disciplinasComEstagio.length > 0) {
+          notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>' +
+            disciplinasComEstagio.map(n => `<option value="${n.id}|${escapeHTML(n.disciplina)}">${escapeHTML(n.disciplina)}</option>`).join('')
+          notasDisciplinaSelect.disabled = false
+        } else {
+          notasDisciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina com estágio</option>'
+        }
+      } else {
+        notasDisciplinaSelect.innerHTML = '<option value="">Aluno sem notas cadastradas</option>'
+      }
+    })
+  }
+
+  if (notasDisciplinaSelect) {
+    notasDisciplinaSelect.addEventListener('change', () => {
+      btnCarregarEstagio.disabled = !notasDisciplinaSelect.value
+    })
+  }
+
+  if (btnCarregarEstagio) {
+    btnCarregarEstagio.addEventListener('click', () => {
+      const valor = notasDisciplinaSelect.value
+      if (!valor) return
+
+      const [notaId, nomeDisciplina] = valor.split('|')
+
+      const notasAluno = notasAlunoSelect.value
+      if (!notasAluno) return
+
+      AcademicService.getBoletim(notasAluno).then(({ data }) => {
+        const notaAtual = data?.find(n => n.id === notaId)
+        const notaEstagio = notaAtual?.nota_estagio ?? ''
+
+        notasContent.innerHTML = `
+          <div style="background: var(--secondary); padding: 1rem; border-radius: 8px;">
+            <p style="margin: 0 0 1rem 0; font-weight: 600;">Disciplina: ${escapeHTML(nomeDisciplina)}</p>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <label style="font-weight: 500;">Nota de Estágio (0-10):</label>
+              <input type="number" id="input-nota-estagio" class="input" 
+                min="0" max="10" step="0.1" value="${notaEstagio}" 
+                style="width: 100px;">
+              <button id="btn-salvar-nota-estagio" class="btn btn-primary btn-sm">Salvar</button>
+            </div>
+          </div>
+        `
+        notasContent.style.display = 'block'
+
+        const btnSalvar = container.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
+        const inputNota = container.querySelector('#input-nota-estagio') as HTMLInputElement
+
+        if (btnSalvar && inputNota) {
+          btnSalvar.addEventListener('click', async () => {
+            const novaNota = parseFloat(inputNota.value)
+            if (isNaN(novaNota) || novaNota < 0 || novaNota > 10) {
+              toast.error('Nota deve estar entre 0 e 10')
+              return
+            }
+
+            btnSalvar.disabled = true
+            btnSalvar.textContent = 'Salvando...'
+
+            const { error } = await AcademicService.updateNotaEstagio(notaId, novaNota)
+
+            btnSalvar.disabled = false
+            btnSalvar.textContent = 'Salvar'
+
+            if (error) {
+              toast.error('Erro ao salvar: ' + error.message)
+            } else {
+              toast.success('Nota de estágio salva com sucesso!')
+            }
+          })
+        }
+      })
     })
   }
 

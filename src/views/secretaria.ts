@@ -1138,21 +1138,38 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   const btnCarregarEstagio = container.querySelector('#btn-carregar-notas') as HTMLButtonElement
   const notasContent = container.querySelector('#notas-content') as HTMLElement
 
+  // Estado local: disciplinas da turma selecionada e cache do boletim
+  let disciplinasDaTurmaAtual: Array<{ id: string; nome: string; modulo: string | null }> = []
+  let boletimCache: any[] | null = null
+
   if (notasTurmaSelect) {
     notasTurmaSelect.addEventListener('change', async () => {
       const turmaId = notasTurmaSelect.value
 
+      // Reset cascata
       notasAlunoSelect.innerHTML = '<option value="">-- Escolha um aluno --</option>'
       notasAlunoSelect.disabled = true
       notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>'
       notasDisciplinaSelect.disabled = true
       btnCarregarEstagio.disabled = true
       notasContent.style.display = 'none'
+      disciplinasDaTurmaAtual = []
+      boletimCache = null
 
       if (!turmaId) return
 
-      const { data: alunosTurma } = await AcademicService.getAlunosDaTurma(turmaId)
+      // Carregar alunos e disciplinas da turma em paralelo
+      const [alunosResult, disciplinasResult] = await Promise.all([
+        AcademicService.getAlunosDaTurma(turmaId),
+        AcademicService.getDisciplinasDaTurma(turmaId)
+      ])
 
+      // Guardar disciplinas da turma para uso no filtro de estágio
+      if (disciplinasResult.data?.disciplinas) {
+        disciplinasDaTurmaAtual = disciplinasResult.data.disciplinas
+      }
+
+      const alunosTurma = alunosResult.data
       if (alunosTurma && alunosTurma.length > 0) {
         notasAlunoSelect.innerHTML = '<option value="">-- Escolha um aluno --</option>' +
           alunosTurma.map(m => {
@@ -1175,14 +1192,17 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       notasDisciplinaSelect.disabled = true
       btnCarregarEstagio.disabled = true
       notasContent.style.display = 'none'
+      boletimCache = null
 
       if (!alunoId) return
 
       const { data: notasAluno } = await AcademicService.getBoletim(alunoId)
+      boletimCache = notasAluno
 
       if (notasAluno && notasAluno.length > 0) {
+        // Usar disciplinas da turma selecionada (não o global do ProfessorService)
         const disciplinasComEstagio = notasAluno.filter(n => {
-          const disc = disciplinas?.find(d => d.nome === n.disciplina)
+          const disc = disciplinasDaTurmaAtual.find(d => d.nome === n.disciplina)
           return disc && disciplinaTemEstagio(n.disciplina, disc.modulo)
         })
 
@@ -1212,54 +1232,55 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
       const [notaId, nomeDisciplina] = valor.split('|')
 
-      const notasAluno = notasAlunoSelect.value
-      if (!notasAluno) return
+      // Usar cache do boletim em vez de fazer nova query
+      const notaAtual = boletimCache?.find((n: any) => n.id === notaId)
+      const notaEstagio = notaAtual?.nota_estagio ?? ''
 
-      AcademicService.getBoletim(notasAluno).then(({ data }) => {
-        const notaAtual = data?.find(n => n.id === notaId)
-        const notaEstagio = notaAtual?.nota_estagio ?? ''
-
-        notasContent.innerHTML = `
-          <div style="background: var(--secondary); padding: 1rem; border-radius: 8px;">
-            <p style="margin: 0 0 1rem 0; font-weight: 600;">Disciplina: ${escapeHTML(nomeDisciplina)}</p>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-              <label style="font-weight: 500;">Nota de Estágio (0-10):</label>
-              <input type="number" id="input-nota-estagio" class="input" 
-                min="0" max="10" step="0.1" value="${notaEstagio}" 
-                style="width: 100px;">
-              <button id="btn-salvar-nota-estagio" class="btn btn-primary btn-sm">Salvar</button>
-            </div>
+      notasContent.innerHTML = `
+        <div style="background: var(--secondary); padding: 1rem; border-radius: 8px;">
+          <p style="margin: 0 0 1rem 0; font-weight: 600;">Disciplina: ${escapeHTML(nomeDisciplina)}</p>
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <label style="font-weight: 500;">Nota de Estágio (0-10):</label>
+            <input type="number" id="input-nota-estagio" class="input" 
+              min="0" max="10" step="0.1" value="${notaEstagio}" 
+              style="width: 100px;">
+            <button id="btn-salvar-nota-estagio" class="btn btn-primary btn-sm">Salvar</button>
           </div>
-        `
-        notasContent.style.display = 'block'
+        </div>
+      `
+      notasContent.style.display = 'block'
 
-        const btnSalvar = container.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
-        const inputNota = container.querySelector('#input-nota-estagio') as HTMLInputElement
+      const btnSalvar = container.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
+      const inputNota = container.querySelector('#input-nota-estagio') as HTMLInputElement
 
-        if (btnSalvar && inputNota) {
-          btnSalvar.addEventListener('click', async () => {
-            const novaNota = parseFloat(inputNota.value)
-            if (isNaN(novaNota) || novaNota < 0 || novaNota > 10) {
-              toast.error('Nota deve estar entre 0 e 10')
-              return
+      if (btnSalvar && inputNota) {
+        btnSalvar.addEventListener('click', async () => {
+          const novaNota = parseFloat(inputNota.value)
+          if (isNaN(novaNota) || novaNota < 0 || novaNota > 10) {
+            toast.error('Nota deve estar entre 0 e 10')
+            return
+          }
+
+          btnSalvar.disabled = true
+          btnSalvar.textContent = 'Salvando...'
+
+          const { error } = await AcademicService.updateNotaEstagio(notaId, novaNota)
+
+          btnSalvar.disabled = false
+          btnSalvar.textContent = 'Salvar'
+
+          if (error) {
+            toast.error('Erro ao salvar: ' + error.message)
+          } else {
+            toast.success('Nota de estágio salva com sucesso!')
+            // Atualizar cache local
+            if (boletimCache) {
+              const idx = boletimCache.findIndex((n: any) => n.id === notaId)
+              if (idx >= 0) boletimCache[idx].nota_estagio = novaNota
             }
-
-            btnSalvar.disabled = true
-            btnSalvar.textContent = 'Salvando...'
-
-            const { error } = await AcademicService.updateNotaEstagio(notaId, novaNota)
-
-            btnSalvar.disabled = false
-            btnSalvar.textContent = 'Salvar'
-
-            if (error) {
-              toast.error('Erro ao salvar: ' + error.message)
-            } else {
-              toast.success('Nota de estágio salva com sucesso!')
-            }
-          })
-        }
-      })
+          }
+        })
+      }
     })
   }
 

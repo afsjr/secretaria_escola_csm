@@ -17,7 +17,6 @@ import { ProfessorDetailsView } from './professor-details'
 import { renderTemplate } from '../lib/dom-utils'
 import { escapeHTML as globalEscapeHTML } from '../lib/security'
 
-;(window as any).supabase = supabaseClient
 ;(window as any).AcademicService = AcademicService
 ;(window as any).StudentDetailsService = StudentDetailsService
 

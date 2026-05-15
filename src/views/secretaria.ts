@@ -1203,25 +1203,32 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       console.log('[Estágio Debug] Notas do Aluno:', notasAluno)
       console.log('[Estágio Debug] Disciplinas da Turma:', disciplinasDaTurmaAtual)
 
-      // NOVIDADE: Filtramos direto das disciplinas da TURMA
-      const disciplinasComEstagio = disciplinasDaTurmaAtual.filter(d => 
-        disciplinaTemEstagio(d.nome, d.modulo)
-      )
-
-      if (disciplinasComEstagio.length > 0) {
+      // AGORA: Mostramos TODAS as disciplinas para você ter certeza que carregou
+      if (disciplinasDaTurmaAtual && disciplinasDaTurmaAtual.length > 0) {
         notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>' +
-          disciplinasComEstagio.map(d => `<option value="${escapeHTML(d.nome)}">${escapeHTML(d.nome)}</option>`).join('')
+          disciplinasDaTurmaAtual.map(d => {
+            const permite = disciplinaTemEstagio(d.nome, d.modulo)
+            const sufixo = permite ? '' : ' (Sem Estágio)'
+            return `<option value="${escapeHTML(d.nome)}" data-permite="${permite}">${escapeHTML(d.nome)}${sufixo}</option>`
+          }).join('')
         notasDisciplinaSelect.disabled = false
       } else {
-        console.warn('[Estágio Debug] Nenhuma disciplina da turma passou no filtro de Estágio (Módulo/Nome).')
-        notasDisciplinaSelect.innerHTML = '<option value="">Turma sem disciplinas de estágio (Verifique Módulo)</option>'
+        console.warn('[Estágio Debug] Turma sem disciplinas vinculadas no curso.')
+        notasDisciplinaSelect.innerHTML = '<option value="">Turma sem disciplinas cadastradas</option>'
       }
     })
   }
 
   if (notasDisciplinaSelect) {
     notasDisciplinaSelect.addEventListener('change', () => {
-      btnCarregarEstagio.disabled = !notasDisciplinaSelect.value
+      const option = notasDisciplinaSelect.selectedOptions[0]
+      const permite = option?.getAttribute('data-permite') === 'true'
+      
+      btnCarregarEstagio.disabled = !notasDisciplinaSelect.value || !permite
+      
+      if (notasDisciplinaSelect.value && !permite) {
+        toast.warning('Esta disciplina não possui estágio configurado (Módulo 1 ou Disciplina Teórica).')
+      }
     })
   }
 

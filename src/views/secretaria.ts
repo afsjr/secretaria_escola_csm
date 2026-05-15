@@ -413,8 +413,16 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       <p style="margin: 0 0 1.5rem 0; color: var(--text-muted); font-size: 0.9rem;">Gerencie as notas e estágio dos alunos.</p>
       
       <div class="form-group">
+        <label class="label" for="notas-turma-select">Selecione a Turma:</label>
+        <select id="notas-turma-select" class="input">
+          <option value="">-- Escolha uma turma --</option>
+          ${turmas ? turmas.map(t => '<option value="' + t.id + '">' + t.nome + ' (' + t.periodo + ')</option>').join('') : ''}
+        </select>
+      </div>
+      
+      <div class="form-group">
         <label class="label" for="notas-aluno-select">Selecione o Aluno:</label>
-        <select id="notas-aluno-select" class="input">
+        <select id="notas-aluno-select" class="input" disabled>
           <option value="">-- Escolha um aluno --</option>
         </select>
       </div>
@@ -428,22 +436,51 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     
     <script>
       (function() {
+        const turmaSelect = document.getElementById('notas-turma-select');
         const select = document.getElementById('notas-aluno-select');
         const btnCarregar = document.getElementById('btn-carregar-notas');
         const content = document.getElementById('notas-content');
         
         if (!select || !btnCarregar) return;
         
-        // Carregar lista de alunos
-        (async function() {
-          const result = await window.AcademicService.getAlunos()
-          const alunos = result.data
+        // Carregar alunos quando selecionar turma
+        turmaSelect.addEventListener('change', async () => {
+          const turmaId = turmaSelect.value
           
-          if (alunos) {
+          if (!turmaId) {
+            select.innerHTML = '<option value="">-- Escolha um aluno --</option>'
+            select.disabled = true
+            btnCarregar.disabled = true
+            return
+          }
+          
+          select.disabled = true
+          select.innerHTML = '<option value="">Carregando alunos...</option>'
+          
+          // Buscar alunos da turma selecionada
+          const result = await window.AcademicService.getAlunosDaTurma(turmaId)
+          const matriculas = result.data
+          
+          if (matriculas && matriculas.length > 0) {
+            const alunos = matriculas.map(m => ({
+              id: m.perfis?.[0]?.id || m.perfis?.id,
+              nome_completo: m.perfis?.[0]?.nome_completo || m.perfis?.nome_completo || 'Aluno',
+              email: m.perfis?.[0]?.email || m.perfis?.email || ''
+            }))
+            
             select.innerHTML = '<option value="">-- Escolha um aluno --</option>' +
               alunos.map(a => '<option value="' + a.id + '">' + a.nome_completo + ' (' + a.email + ')</option>').join('');
+            select.disabled = false
+          } else {
+            select.innerHTML = '<option value="">Nenhum aluno nesta turma</option>'
+            select.disabled = true
           }
-        })();
+        });
+        
+        select.addEventListener('change', () => {
+          btnCarregar.disabled = !select.value;
+          content.style.display = 'none';
+        });
         
         select.addEventListener('change', () => {
           btnCarregar.disabled = !select.value;

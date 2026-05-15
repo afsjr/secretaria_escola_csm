@@ -1196,25 +1196,25 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
       if (!alunoId) return
 
+      // Carregamos o boletim apenas para ver se já existem notas para preencher o campo
       const { data: notasAluno } = await AcademicService.getBoletim(alunoId)
       boletimCache = notasAluno
 
-      if (notasAluno && notasAluno.length > 0) {
-        // Usar disciplinas da turma selecionada (não o global do ProfessorService)
-        const disciplinasComEstagio = notasAluno.filter(n => {
-          const disc = disciplinasDaTurmaAtual.find(d => d.nome === n.disciplina)
-          return disc && disciplinaTemEstagio(n.disciplina, disc.modulo)
-        })
+      console.log('[Estágio Debug] Notas do Aluno:', notasAluno)
+      console.log('[Estágio Debug] Disciplinas da Turma:', disciplinasDaTurmaAtual)
 
-        if (disciplinasComEstagio.length > 0) {
-          notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>' +
-            disciplinasComEstagio.map(n => `<option value="${n.id}|${escapeHTML(n.disciplina)}">${escapeHTML(n.disciplina)}</option>`).join('')
-          notasDisciplinaSelect.disabled = false
-        } else {
-          notasDisciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina com estágio</option>'
-        }
+      // NOVIDADE: Filtramos direto das disciplinas da TURMA
+      const disciplinasComEstagio = disciplinasDaTurmaAtual.filter(d => 
+        disciplinaTemEstagio(d.nome, d.modulo)
+      )
+
+      if (disciplinasComEstagio.length > 0) {
+        notasDisciplinaSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>' +
+          disciplinasComEstagio.map(d => `<option value="${escapeHTML(d.nome)}">${escapeHTML(d.nome)}</option>`).join('')
+        notasDisciplinaSelect.disabled = false
       } else {
-        notasDisciplinaSelect.innerHTML = '<option value="">Aluno sem notas cadastradas</option>'
+        console.warn('[Estágio Debug] Nenhuma disciplina da turma passou no filtro de Estágio (Módulo/Nome).')
+        notasDisciplinaSelect.innerHTML = '<option value="">Turma sem disciplinas de estágio (Verifique Módulo)</option>'
       }
     })
   }
@@ -1227,14 +1227,15 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
   if (btnCarregarEstagio) {
     btnCarregarEstagio.addEventListener('click', () => {
-      const valor = notasDisciplinaSelect.value
-      if (!valor) return
+      const nomeDisciplina = notasDisciplinaSelect.value
+      if (!nomeDisciplina) return
 
-      const [notaId, nomeDisciplina] = valor.split('|')
+      const alunoId = notasAlunoSelect.value
+      if (!alunoId) return
 
-      // Usar cache do boletim em vez de fazer nova query
-      const notaAtual = boletimCache?.find((n: any) => n.id === notaId)
-      const notaEstagio = notaAtual?.nota_estagio ?? ''
+      // Procuramos se já existe essa disciplina no boletim do aluno
+      const notaExistente = boletimCache?.find((n: any) => n.disciplina === nomeDisciplina)
+      const notaEstagio = notaExistente?.nota_estagio ?? ''
 
       notasContent.innerHTML = `
         <div style="background: var(--secondary); padding: 1rem; border-radius: 8px;">
@@ -1264,7 +1265,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
           btnSalvar.disabled = true
           btnSalvar.textContent = 'Salvando...'
 
-          const { error } = await AcademicService.updateNotaEstagio(notaId, novaNota)
+          // Usamos UPSERT: Se não existir, ele cria o registro no boletim
+          const { error } = await AcademicService.upsertNotaEstagio(alunoId, nomeDisciplina, novaNota)
 
           btnSalvar.disabled = false
           btnSalvar.textContent = 'Salvar'
@@ -1274,9 +1276,12 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
           } else {
             toast.success('Nota de estágio salva com sucesso!')
             // Atualizar cache local
-            if (boletimCache) {
-              const idx = boletimCache.findIndex((n: any) => n.id === notaId)
-              if (idx >= 0) boletimCache[idx].nota_estagio = novaNota
+            if (!boletimCache) boletimCache = []
+            const idx = boletimCache.findIndex((n: any) => n.disciplina === nomeDisciplina)
+            if (idx >= 0) {
+              boletimCache[idx].nota_estagio = novaNota
+            } else {
+              boletimCache.push({ disciplina: nomeDisciplina, nota_estagio: novaNota })
             }
           }
         })

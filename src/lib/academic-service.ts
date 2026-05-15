@@ -246,7 +246,22 @@ export const AcademicService = {
     return { error };
   },
 
-  // Atualizar nota de estágio de uma disciplina específica
+  // Atualizar ou Criar nota de estágio de uma disciplina específica
+  async upsertNotaEstagio(alunoId: string, disciplinaNome: string, valor: number) {
+    const { data, error } = await supabase
+      .from("boletim")
+      .upsert({ 
+        aluno_id: alunoId, 
+        disciplina: disciplinaNome, 
+        nota_estagio: valor 
+      }, { onConflict: "aluno_id, disciplina" })
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Atualizar nota de estágio por ID (legado)
   async updateNotaEstagio(notaId: string, valor: number) {
     const { data, error } = await supabase
       .from("boletim")

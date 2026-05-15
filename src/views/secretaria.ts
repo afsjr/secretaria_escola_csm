@@ -698,76 +698,80 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   const formCadastroProfessor = container.querySelector('#form-cadastro-professor') as HTMLFormElement
   const btnCadastrarProfessor = container.querySelector('#btn-cadastrar-professor') as HTMLButtonElement
 
-  formCadastroProfessor.addEventListener('submit', async (e: Event) => {
-    e.preventDefault()
+  if (formCadastroProfessor && btnCadastrarProfessor) {
+    formCadastroProfessor.addEventListener('submit', async (e: Event) => {
+      e.preventDefault()
 
-    const nomeCompleto = (container.querySelector('#professor-nome') as HTMLInputElement).value.trim()
-    const email = (container.querySelector('#professor-email') as HTMLInputElement).value.trim()
-    const cpf = (container.querySelector('#professor-cpf') as HTMLInputElement).value.trim()
-    const telefone = (container.querySelector('#professor-telefone') as HTMLInputElement).value.trim()
-    const senha = (container.querySelector('#professor-senha') as HTMLInputElement).value
+      const nomeCompleto = (container.querySelector('#professor-nome') as HTMLInputElement)?.value?.trim()
+      const email = (container.querySelector('#professor-email') as HTMLInputElement)?.value?.trim()
+      const cpf = (container.querySelector('#professor-cpf') as HTMLInputElement)?.value?.trim()
+      const telefone = (container.querySelector('#professor-telefone') as HTMLInputElement)?.value?.trim()
+      const senha = (container.querySelector('#professor-senha') as HTMLInputElement)?.value
 
-    if (!nomeCompleto || !email || !senha) {
-      toast.error('Preencha os campos obrigatórios.')
-      return
-    }
+      if (!nomeCompleto || !email || !senha) {
+        toast.error('Preencha os campos obrigatórios.')
+        return
+      }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
-    if (!passwordRegex.test(senha)) {
-      toast.error('Senha inválida: Mínimo 8 caracteres com letras e números.')
-      return
-    }
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+      if (!passwordRegex.test(senha)) {
+        toast.error('Senha inválida: Mínimo 8 caracteres com letras e números.')
+        return
+      }
 
-    btnCadastrarProfessor.disabled = true
-    btnCadastrarProfessor.textContent = 'Cadastrando...'
+      btnCadastrarProfessor.disabled = true
+      btnCadastrarProfessor.textContent = 'Cadastrando...'
 
-    const { data, error } = await AdminService.createUserByAdmin({
-      email,
-      password: senha,
-      nomeCompleto,
-      cpf,
-      telefone,
-      perfil: 'professor'
+      const { data, error } = await AdminService.createUserByAdmin({
+        email,
+        password: senha,
+        nomeCompleto,
+        cpf,
+        telefone,
+        perfil: 'professor'
+      })
+
+      if (error) {
+        toast.error('Erro ao cadastrar: ' + error.message)
+        btnCadastrarProfessor.disabled = false
+        btnCadastrarProfessor.textContent = 'Cadastrar Professor'
+        return
+      }
+
+      toast.success('Professor cadastrado com sucesso!')
+
+      setTimeout(() => window.location.reload(), 500)
     })
-
-    if (error) {
-      toast.error('Erro ao cadastrar: ' + error.message)
-      btnCadastrarProfessor.disabled = false
-      btnCadastrarProfessor.textContent = 'Cadastrar Professor'
-      return
-    }
-
-    toast.success('Professor cadastrado com sucesso!')
-
-    // Recarregar a página para atualizar a lista de professores
-    setTimeout(() => window.location.reload(), 500)
-  })
+  }
 
   // =====================================================
   // VER FICHA DO PROFESSOR
   // =====================================================
   const btnsVerFichaProf = container.querySelectorAll('.btn-ver-ficha-prof')
   btnsVerFichaProf.forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const professorId = btn.getAttribute('data-id')!
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        const professorId = btn.getAttribute('data-id')
 
-      console.log('[Ficha Professor] Abrindo ficha para ID:', professorId)
-      const btnEl = btn as HTMLButtonElement
-      btnEl.disabled = true
-      btnEl.textContent = '...'
+        if (!professorId) return
+        console.log('[Ficha Professor] Abrindo ficha para ID:', professorId)
+        const btnEl = btn as HTMLButtonElement
+        btnEl.disabled = true
+        btnEl.textContent = '...'
 
-      try {
-        const detailsView = await ProfessorDetailsView(professorId)
-        container.innerHTML = ''
-        container.appendChild(detailsView)
-      } catch (err: any) {
-        console.error('[Ficha Professor] Erro completo:', err)
-        toast.error('Erro ao carregar ficha: ' + err.message)
-      }
+        try {
+          const detailsView = await ProfessorDetailsView(professorId)
+          container.innerHTML = ''
+          container.appendChild(detailsView)
+        } catch (err: any) {
+          console.error('[Ficha Professor] Erro completo:', err)
+          toast.error('Erro ao carregar ficha: ' + err.message)
+        }
 
-      btnEl.disabled = false
-      btnEl.textContent = 'Ficha'
-    })
+        btnEl.disabled = false
+        btnEl.textContent = 'Ficha'
+      })
+    }
   })
 
   // =====================================================

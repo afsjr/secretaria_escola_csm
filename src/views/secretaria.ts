@@ -11,6 +11,7 @@ import { toast } from '../lib/toast'
 import { StudentDetailsService } from '../lib/student-details-service'
 import { RequestTableComponent } from '../components/RequestTable'
 import { CadastroAlunoTab } from '../components/Tabs/CadastroAlunoTab'
+import { CadastroProfessorTab } from '../components/Tabs/CadastroProfessorTab'
 import { StudentDetailsView } from './student-details'
 import { ProfessorDetailsView } from './professor-details'
 import { renderTemplate } from '../lib/dom-utils'
@@ -641,7 +642,6 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     </div>
 
     <div id="tab-cadastro-professor" class="tab-content" style="display: none;">
-      ${renderCadastroProfessor()}
     </div>
 
     <div id="tab-gerenciar-professores" class="tab-content" style="display: none;">

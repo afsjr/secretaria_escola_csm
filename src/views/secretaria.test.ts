@@ -279,3 +279,113 @@ describe('Notas de Estágio - Integração com serviços', () => {
     expect(selectDisciplina).not.toBeNull()
   })
 })
+
+describe('Notas de Estágio - Fluxo de Integração', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    
+    // Configura mocks padrão para os testes de fluxo
+    const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1' }]
+    const mockAlunos = [{ perfis: { id: 'aluno-1', nome_completo: 'João Aluno' } }]
+    const mockDisciplinas = [
+      { id: 'disc-1', nome: 'Enfermagem Médica', modulo: '2' },
+      { id: 'disc-2', nome: 'Anatomia', modulo: '1' }
+    ]
+
+    ;(AcademicService.getTurmas as any).mockResolvedValue({ data: mockTurmas, error: null })
+    ;(AcademicService.getAlunosDaTurma as any).mockResolvedValue({ data: mockAlunos, error: null })
+    ;(AcademicService.getDisciplinasDaTurma as any).mockResolvedValue({ 
+      data: { turma: mockTurmas[0], disciplinas: mockDisciplinas }, 
+      error: null 
+    })
+    ;(AcademicService.getBoletim as any).mockResolvedValue({ data: [], error: null })
+  })
+
+  it('deve carregar alunos e disciplinas ao selecionar uma turma', async () => {
+    const view = await SecretariaView()
+    const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
+    
+    // Simular seleção de turma
+    selectTurma.value = 'turma-1'
+    selectTurma.dispatchEvent(new Event('change'))
+
+    // Aguardar promessas
+    await vi.waitFor(() => {
+      expect(AcademicService.getAlunosDaTurma).toHaveBeenCalledWith('turma-1')
+      expect(AcademicService.getDisciplinasDaTurma).toHaveBeenCalledWith('turma-1')
+    })
+  })
+
+  it('deve mostrar "(Sem Estágio)" para disciplinas do 1º módulo', async () => {
+    const view = await SecretariaView()
+    const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
+    const selectDisciplina = view.querySelector('#notas-disciplina-select') as HTMLSelectElement
+    
+    selectTurma.value = 'turma-1'
+    await selectTurma.dispatchEvent(new Event('change'))
+    
+    // Simular seleção de aluno para triggar o preenchimento de disciplinas
+    const selectAluno = view.querySelector('#notas-aluno-select') as HTMLSelectElement
+    selectAluno.value = 'aluno-1'
+    await selectAluno.dispatchEvent(new Event('change'))
+
+    expect(selectDisciplina.innerHTML).toContain('Enfermagem Médica')
+    expect(selectDisciplina.innerHTML).toContain('Anatomia (Sem Estágio)')
+  })
+
+  it('deve desabilitar botão Carregar para disciplinas sem estágio e mostrar aviso', async () => {
+    const view = await SecretariaView()
+    const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
+    const selectDisciplina = view.querySelector('#notas-disciplina-select') as HTMLSelectElement
+    const btnCarregar = view.querySelector('#btn-carregar-notas') as HTMLButtonElement
+    const { toast } = await import('../lib/toast')
+
+    // Carregar dados
+    selectTurma.value = 'turma-1'
+    await selectTurma.dispatchEvent(new Event('change'))
+    
+    // Selecionar disciplina sem estágio (Anatomia - Módulo 1)
+    // No mock, o valor do select é o nome da disciplina
+    selectDisciplina.innerHTML = '<option value="Anatomia" data-permite="false">Anatomia (Sem Estágio)</option>'
+    selectDisciplina.value = 'Anatomia'
+    selectDisciplina.dispatchEvent(new Event('change'))
+
+    expect(btnCarregar.disabled).toBe(true)
+    expect(toast.warning).toHaveBeenCalledWith(expect.stringContaining('não possui estágio configurado'))
+  })
+
+  it('deve chamar upsertNotaEstagio ao salvar uma nota', async () => {
+    const view = await SecretariaView()
+    const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
+    const selectDisciplina = view.querySelector('#notas-disciplina-select') as HTMLSelectElement
+    const btnCarregar = view.querySelector('#btn-carregar-notas') as HTMLButtonElement
+
+    // 1. Setup da seleção
+    selectTurma.value = 'turma-1'
+    await selectTurma.dispatchEvent(new Event('change'))
+    
+    const selectAluno = view.querySelector('#notas-aluno-select') as HTMLSelectElement
+    selectAluno.value = 'aluno-1'
+    await selectAluno.dispatchEvent(new Event('change'))
+
+    selectDisciplina.innerHTML = '<option value="Enfermagem Médica" data-permite="true">Enfermagem Médica</option>'
+    selectDisciplina.value = 'Enfermagem Médica'
+    selectDisciplina.dispatchEvent(new Event('change'))
+
+    // 2. Carregar interface de nota
+    btnCarregar.disabled = false
+    btnCarregar.click()
+
+    // 3. Preencher nota e salvar
+    await vi.waitFor(() => {
+      const inputNota = view.querySelector('#input-nota-estagio') as HTMLInputElement
+      const btnSalvar = view.querySelector('#btn-salvar-nota-estagio') as HTMLButtonElement
+      
+      expect(inputNota).not.toBeNull()
+      inputNota.value = '8.5'
+      btnSalvar.click()
+    })
+
+    expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'Enfermagem Médica', 8.5)
+  })
+})

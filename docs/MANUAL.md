@@ -2,8 +2,8 @@
 
 ## CSM - Colégio Santa Mônica
 
-**Versão: 4.0**
-**Última Atualização: 02/04/2026**
+**Versão: 5.0 (Edição Modular)**
+**Última Atualização: 16/05/2026**
 
 ---
 
@@ -350,98 +350,44 @@ Conteúdo: Introdução à Anatomia Humana - Sistema Esquelético
 
 1. Faça login com e-mail de secretaria/admin
 2. No menu lateral, clique em **"Painel da Secretaria"**
-3. Você verá o painel com 5 abas:
-   - **Solicitações**: Pedidos de documentos
-   - **Cadastrar Aluno**: Criar novas contas de alunos
-   - **Gerenciar Alunos**: Visualizar e editar alunos
-   - **Cadastrar Professor**: Criar novas contas de professores
-   - **Gerenciar Professores**: Vincular professores a disciplinas
+3. O painel agora é **totalmente modular**, dividido em abas de fácil acesso:
+   - **Visão Geral**: Dashboard com estatísticas em tempo real (Alunos, Professores, Turmas e Solicitações).
+   - **Solicitações**: Pedidos de documentos (Declarações, Históricos).
+   - **Notas/Estágio**: Lançamento de notas com validação automática de elegibilidade para estágio.
+   - **Cadastrar Aluno**: Criar novas contas de alunos.
+   - **Gerenciar Alunos**: Busca avançada e **Visão 360°** do status do aluno.
+   - **Cadastrar Professor**: Criar novas contas de professores.
+   - **Gerenciar Professores**: Vinculação rápida de disciplinas e turmas.
+   - **Gerenciar Cursos**: Administração dos ciclos de vida dos cursos técnicos.
 
-### 5.2 Processando Solicitações de Documentos
+### 5.2 Dashboard de Visão Geral (Monitoramento em Tempo Real)
 
-Quando um usuário (aluno, professor ou administrador) solicita um documento, ele aparece nesta aba.
+A nova aba "Visão Geral" permite que a secretaria tenha um panorama imediato da escola:
+- **KPIs**: Total de alunos ativos, professores vinculados, turmas em andamento e solicitações pendentes.
+- **Status dos Cursos**: Lista resumida da situação de cada curso técnico.
+- **Ações Rápidas**: Atalhos para as operações mais comuns (Cadastro, Lançamento de Notas).
 
-**Como processar:**
+### 5.3 Processando Solicitações de Documentos
 
-1. Na aba **"Solicitações"**, você verá a lista de pedidos
-2. Para cada pedido, você verá:
-   - Nome do solicitante
-   - Tipo de documento solicitado
-   - Status (Pendente ou Concluído)
-3. Clique no botão **"Gerar PDF"** para criar o documento automaticamente
-4. O PDF será baixado automaticamente para seu computador
-5. **Imprima o documento** e entregue ao solicitante
-6. Clique no botão **"Concluir"** para finalizar o pedido
+A aba **"Solicitações"** agora utiliza o `RequestTableComponent`, garantindo que os pedidos sejam processados em ordem e com download instantâneo do PDF oficial.
 
-**Tipos de documentos suportados:**
+### 5.4 Visão 360° do Aluno (Gerenciar Alunos)
 
-| Solicitante | Tipo de Documento | O que é gerado |
-|-------------|-------------------|----------------|
-| **Aluno** | Declaração de Matrícula | PDF com dados do curso e turma |
-| **Aluno** | Histórico Acadêmico | PDF com todas as notas e situação |
-| **Professor** | Declaração de Vínculo | PDF com função docente |
-| **Admin** | Declaração de Vínculo | PDF com função administrativa |
-| **Secretaria** | Declaração de Vínculo | PDF com função na secretaria |
+Ao acessar "Gerenciar Alunos", você verá badges visuais coloridos para cada estudante:
+- 🟢 **Financeiro**: Indica se o aluno está regular ou bloqueado.
+- 🔵 **Estágio**: Informa o status da vida acadêmica prática do aluno.
+- 🟡 **Documentos**: Alerta sobre pendências na documentação física.
 
-> 💡 **Dica**: O sistema gera automaticamente o PDF correto baseado no perfil do solicitante. Alunos recebem documentos acadêmicos, enquanto funcionários recebem declarações de vínculo.
+**Ações Rápidas por Ícone:**
+- 👁️ **Ver Ficha**: Abre o perfil completo detalhado.
+- ✏️ **Editar**: Atualiza dados cadastrais e endereço.
+- 🎓 **Matricular**: Vincula o aluno a uma nova turma instantaneamente.
 
-### 5.3 Cadastrando Novos Alunos
+### 5.5 Gestão de Notas e Elegibilidade para Estágio
 
-Quando um novo aluno chega à escola, você precisa cadastrá-lo no sistema.
-
-**Como cadastrar:**
-
-1. Na aba **"Cadastrar Aluno"**, preencha:
-   - **Nome Completo**: Nome completo do aluno
-   - **E-mail**: E-mail que será usado para login
-   - **CPF**: Número do CPF (opcional)
-   - **Telefone/WhatsApp**: Número para contato (opcional)
-   - **Senha**: Senha de acesso (mínimo 6 caracteres)
-   - **Turma**: Selecione uma turma para matricular (opcional)
-2. Clique em **"Cadastrar Aluno"**
-
-> ⚠️ **Importante**: Guarde a senha criada e informe ao aluno. Ele poderá alterar depois.
-
-### 5.4 Gerenciando Alunos
-
-Esta aba permite visualizar e editar dados dos alunos cadastrados.
-
-**Como usar:**
-
-1. Na aba **"Gerenciar Alunos"**, você verá a lista de todos os alunos
-2. Use o campo de **busca** para encontrar alunos por nome ou CPF
-3. Para editar um aluno:
-   - Clique no botão **"Editar"** ao lado do nome
-   - Altere os dados desejados (nome, CPF, telefone)
-   - Clique em **"Salvar Alterações"**
-
-### 5.5 Cadastrando Novos Professores
-
-Quando um novo professor chega à escola, você precisa cadastrá-lo no sistema.
-
-**Como cadastrar:**
-
-1. Na aba **"Cadastrar Professor"**, preencha:
-   - **Nome Completo**: Nome completo do professor
-   - **E-mail**: E-mail que será usado para login
-   - **CPF**: Número do CPF (opcional)
-   - **Telefone/WhatsApp**: Número para contato (opcional)
-   - **Senha**: Senha de acesso (mínimo 6 caracteres)
-2. Clique em **"Cadastrar Professor"**
-
-### 5.6 Gerenciando Professores
-
-Esta aba permite vincular professores às disciplinas e turmas.
-
-**Como vincular:**
-
-1. Na aba **"Gerenciar Professores"**, você verá a lista de professores
-2. Clique no botão **"Vincular Disciplinas"** ao lado do nome do professor
-3. No modal que aparece, você verá uma tabela com todas as disciplinas
-4. Para cada disciplina:
-   - Marque a caixa de seleção **"Selecionar"**
-   - Escolha a **turma** no campo dropdown
-5. Clique em **"Salvar Vinculação"**
+Na aba **"Notas/Estágio"**, o sistema implementa regras de negócio automáticas:
+- **Bloqueio de Estágio**: Disciplinas do 1º módulo ou Teóricas do 2º módulo são marcadas com ⚠️ **Sem Estágio**.
+- **Lançamento Seguro**: O sistema impede o lançamento de notas de estágio para disciplinas não elegíveis, evitando erros de registro no histórico.
 
 > 💡 **Dica**: Você pode vincular um professor a várias disciplinas de uma vez.
 

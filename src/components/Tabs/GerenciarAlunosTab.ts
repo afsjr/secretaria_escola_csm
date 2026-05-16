@@ -21,17 +21,17 @@ export function GerenciarAlunosTab({ alunos, turmas, onRefresh }: GerenciarAluno
 
   const renderStats = () => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
-        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Total de Alunos</div>
-        <div style="font-size: 2rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem;">${totalAlunos}</div>
+      <div class="stat-card">
+        <div class="stat-label">Total de Alunos</div>
+        <div class="stat-value">${totalAlunos}</div>
       </div>
-      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--success);">
-        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Financeiro OK</div>
-        <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-top: 0.5rem;">${regularFinanc}</div>
+      <div class="stat-card" style="border-bottom: 4px solid var(--success);">
+        <div class="stat-label">Financeiro OK</div>
+        <div class="stat-value" style="color: var(--success);">${regularFinanc}</div>
       </div>
-      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--danger);">
-        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Bloqueios</div>
-        <div style="font-size: 2rem; font-weight: 700; color: var(--danger); margin-top: 0.5rem;">${bloqueadosFinanc}</div>
+      <div class="stat-card" style="border-bottom: 4px solid var(--danger);">
+        <div class="stat-label">Bloqueios</div>
+        <div class="stat-value" style="color: var(--danger);">${bloqueadosFinanc}</div>
       </div>
     </div>
   `
@@ -75,14 +75,14 @@ export function GerenciarAlunosTab({ alunos, turmas, onRefresh }: GerenciarAluno
                     <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                       <!-- Financeiro -->
                       ${aluno.bloqueio_financeiro 
-                        ? '<span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-size: 0.65rem; padding: 2px 8px;">🔴 Bloqueado</span>' 
-                        : '<span class="badge" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 0.65rem; padding: 2px 8px;">🟢 Regular</span>'}
+                        ? '<span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">🔴 Bloqueado</span>' 
+                        : '<span class="badge" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">🟢 Regular</span>'}
                       
                       <!-- Estágio -->
-                      <span class="badge" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 0.65rem; padding: 2px 8px;">🔵 Estágio: OK</span>
+                      <span class="badge" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">🔵 Estágio: OK</span>
                       
                       <!-- Docs -->
-                      <span class="badge" style="background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; font-size: 0.65rem; padding: 2px 8px;">🟡 Docs Pend.</span>
+                      <span class="badge" style="background: #fffbeb; color: #d97706; border: 1px solid #fef3c7;">🟡 Docs Pend.</span>
                     </div>
                   </td>
                   <td style="text-align: right;">

@@ -17,44 +17,44 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
   const renderContent = () => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
       <!-- Card Alunos -->
-      <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-bottom: 4px solid var(--primary);">
+      <div class="stat-card">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Alunos Ativos</div>
-            <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">${stats.alunos}</div>
+            <div class="stat-label">Alunos Ativos</div>
+            <div class="stat-value">${stats.alunos}</div>
           </div>
           <span style="font-size: 2rem;">👥</span>
         </div>
       </div>
 
       <!-- Card Professores -->
-      <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-bottom: 4px solid var(--success);">
+      <div class="stat-card" style="border-bottom: 4px solid var(--success);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Docentes</div>
-            <div style="font-size: 2.5rem; font-weight: 800; color: var(--success); margin-top: 0.5rem;">${stats.professores}</div>
+            <div class="stat-label">Docentes</div>
+            <div class="stat-value" style="color: var(--success);">${stats.professores}</div>
           </div>
           <span style="font-size: 2rem;">👨‍🏫</span>
         </div>
       </div>
 
       <!-- Card Solicitações -->
-      <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-bottom: 4px solid var(--danger);">
+      <div class="stat-card" style="border-bottom: 4px solid var(--danger);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Solicitações Abertas</div>
-            <div style="font-size: 2.5rem; font-weight: 800; color: var(--danger); margin-top: 0.5rem;">${stats.solicitacoesPendentes}</div>
+            <div class="stat-label">Solicitações</div>
+            <div class="stat-value" style="color: var(--danger);">${stats.solicitacoesPendentes}</div>
           </div>
           <span style="font-size: 2rem;">📩</span>
         </div>
       </div>
 
       <!-- Card Turmas -->
-      <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-bottom: 4px solid var(--info);">
+      <div class="stat-card" style="border-bottom: 4px solid var(--info);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Turmas Ativas</div>
-            <div style="font-size: 2.5rem; font-weight: 800; color: var(--info); margin-top: 0.5rem;">${stats.turmas}</div>
+            <div class="stat-label">Turmas Ativas</div>
+            <div class="stat-value" style="color: var(--info);">${stats.turmas}</div>
           </div>
           <span style="font-size: 2rem;">🏫</span>
         </div>

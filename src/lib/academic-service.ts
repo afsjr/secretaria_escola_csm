@@ -189,5 +189,51 @@ export const AcademicService = {
       },
       error: null
     };
+  },
+
+  // Buscar boletim completo de um aluno
+  async getBoletim(alunoId: string) {
+    const { data, error } = await supabase
+      .from("boletim")
+      .select(`
+        *,
+        disciplinas_base (id, nome, modulo)
+      `)
+      .eq("aluno_id", alunoId);
+    return { data, error };
+  },
+
+  // Salvar nota de estágio (Fluxo Secretaria)
+  async upsertNotaEstagio(alunoId: string, disciplinaBaseId: string, nota: number) {
+    // 1. Verificar se já existe registro
+    const { data: existente } = await supabase
+      .from("boletim")
+      .select("id, versao")
+      .eq("aluno_id", alunoId)
+      .eq("disciplina_base_id", disciplinaBaseId)
+      .single();
+
+    if (existente) {
+      const { data, error } = await supabase
+        .from("boletim")
+        .update({ 
+          nota_estagio: nota,
+          versao: (existente.versao || 1) + 1
+        })
+        .eq("id", existente.id)
+        .select();
+      return { data, error };
+    } else {
+      const { data, error } = await supabase
+        .from("boletim")
+        .insert([{ 
+          aluno_id: alunoId, 
+          disciplina_base_id: disciplinaBaseId,
+          nota_estagio: nota,
+          versao: 1
+        }])
+        .select();
+      return { data, error };
+    }
   }
 };

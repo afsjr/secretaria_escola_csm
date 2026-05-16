@@ -3,8 +3,8 @@ import { AdminService } from '../lib/admin-service'
 import { ProfessorService } from '../lib/professor-service'
 import { CourseService } from '../lib/course-service'
 import { AcademicService } from '../lib/academic-service'
-import { ExcelService } from '../lib/excel-service'
 import { toast } from '../lib/toast'
+import { safeHTML } from '../lib/security'
 import { RequestTableComponent } from '../components/RequestTable'
 import { CadastroAlunoTab } from '../components/Tabs/CadastroAlunoTab'
 import { CadastroProfessorTab } from '../components/Tabs/CadastroProfessorTab'
@@ -42,8 +42,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   const cursos = cursosResult.data || []
   const requests = requestsResult.data || []
 
-  // 2. Estrutura Base (HTML)
-  container.innerHTML = `
+  // 2. Estrutura Base (Segura)
+  container.innerHTML = safeHTML`
     <header class="view-header" style="display: flex; align-items: center; gap: 1.5rem; background: linear-gradient(to right, white, transparent); padding: 1.5rem; border-radius: 16px; margin-bottom: 2.5rem; border-left: 6px solid var(--primary);">
       <div style="font-size: 3rem; background: var(--secondary); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: var(--shadow-sm);">🏫</div>
       <div>
@@ -89,75 +89,40 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   })
 
   // 4. Injeção de Componentes Modulares
-  
-  // Aba Overview
-  const tabOverview = container.querySelector('#tab-overview')
-  if (tabOverview) {
-    tabOverview.appendChild(OverviewTab({
-      stats: {
-        alunos: alunos.length,
-        professores: professores.length,
-        turmas: turmas.length,
-        cursos: cursos.length,
-        solicitacoesPendentes: requests.length
-      },
-      cursos
-    }))
+  const inject = (id: string, component: Node) => {
+    const el = container.querySelector(id)
+    if (el) el.appendChild(component)
   }
 
-  // Aba Solicitações
-  const tabSolicitacoes = container.querySelector('#tab-solicitacoes')
-  if (tabSolicitacoes) {
-    tabSolicitacoes.appendChild(await RequestTableComponent())
-  }
+  inject('#tab-overview', OverviewTab({
+    stats: {
+      alunos: alunos.length,
+      professores: professores.length,
+      turmas: turmas.length,
+      solicitacoesPendentes: requests.length
+    },
+    cursos
+  }))
 
-  // Aba Notas/Estágio
-  const tabNotas = container.querySelector('#tab-notas')
-  if (tabNotas) {
-    tabNotas.appendChild(NotasEstagioTab({ turmas }))
-  }
-
-  // Aba Cadastro Aluno
-  const tabCadastro = container.querySelector('#tab-cadastro')
-  if (tabCadastro) {
-    tabCadastro.appendChild(CadastroAlunoTab({ turmas }))
-  }
-
-  // Aba Gerenciar Alunos
-  const tabGerenciar = container.querySelector('#tab-gerenciar')
-  if (tabGerenciar) {
-    tabGerenciar.appendChild(GerenciarAlunosTab({
-      alunos,
-      turmas,
-      onRefresh: () => window.location.reload()
-    }))
-  }
-
-  // Aba Cadastro Professor
-  const tabCadProf = container.querySelector('#tab-cadastro-professor')
-  if (tabCadProf) {
-    tabCadProf.appendChild(CadastroProfessorTab())
-  }
-
-  // Aba Gerenciar Professores
-  const tabGerProfs = container.querySelector('#tab-gerenciar-professores')
-  if (tabGerProfs) {
-    tabGerProfs.appendChild(GerenciarProfessoresTab({
-      professores,
-      disciplinas,
-      turmas,
-      onRefresh: () => window.location.reload()
-    }))
-  }
-
-  // Aba Gerenciar Cursos
-  const tabGerCursos = container.querySelector('#tab-gerenciar-cursos')
-  if (tabGerCursos) {
-    tabGerCursos.appendChild(GerenciarCursosTab({
-      cursos,
-      onRefresh: () => window.location.reload()
-    }))
-  }
+  inject('#tab-solicitacoes', await RequestTableComponent())
+  inject('#tab-notas', NotasEstagioTab({ turmas }))
+  inject('#tab-cadastro', CadastroAlunoTab({ turmas }))
+  inject('#tab-gerenciar', GerenciarAlunosTab({
+    alunos,
+    turmas,
+    onRefresh: () => window.location.reload()
+  }))
+  inject('#tab-cadastro-professor', CadastroProfessorTab())
+  inject('#tab-gerenciar-professores', GerenciarProfessoresTab({
+    professores,
+    disciplinas,
+    turmas,
+    onRefresh: () => window.location.reload()
+  }))
+  inject('#tab-gerenciar-cursos', GerenciarCursosTab({
+    cursos,
+    onRefresh: () => window.location.reload()
+  }))
 
   return container
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treinamento SGE 5.0 - Colégio Santa Mônica</title>
+    <title>Apresentação SGE 5.0 - Colégio Santa Mônica</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,23 +17,18 @@
             --danger: #ef4444;
             --text-main: #1f2937;
             --text-muted: #6b7280;
-            --bg-body: #f8fafc;
+            --bg-body: #f1f5f9;
             --bg-card: #ffffff;
-            --radius: 16px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --radius: 20px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Outfit', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
-            line-height: 1.6;
             overflow: hidden;
         }
 
@@ -45,29 +40,24 @@
 
         .slide {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             padding: 4rem;
             display: none;
             flex-direction: column;
             justify-content: center;
             background: var(--bg-body);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .slide.active {
-            display: flex;
-            animation: slideIn 0.6s ease-out;
+        .slide.active { display: flex; animation: slideReveal 0.8s ease-out; }
+
+        @keyframes slideReveal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* Capa Estilizada */
+        /* Capas e Headers */
         .slide.capa {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
@@ -75,314 +65,299 @@
             align-items: center;
         }
 
-        .logo-badge {
-            width: 140px;
-            height: 140px;
-            background: white;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            margin-bottom: 2rem;
-            transform: rotate(-5deg);
+        .logo-box {
+            width: 120px; height: 120px;
+            background: white; border-radius: 25px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; font-weight: 800; color: var(--primary);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            margin-bottom: 1.5rem;
         }
 
-        .slide.capa h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            margin-bottom: 1rem;
-        }
-
-        .slide.capa h2 {
-            font-size: 1.8rem;
-            color: var(--secondary);
-            font-weight: 300;
-            margin-bottom: 3rem;
-        }
-
-        .version-pill {
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: 100px;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Conteúdo Geral */
         .slide h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 2rem;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            font-size: 3.5rem; font-weight: 800; color: var(--primary);
+            margin-bottom: 1rem; letter-spacing: -0.04em;
         }
 
-        .content-grid {
+        .slide h2 {
+            font-size: 1.5rem; color: var(--text-muted);
+            margin-bottom: 2rem; font-weight: 400;
+        }
+
+        /* Grid de Módulos */
+        .module-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .card {
-            background: var(--bg-card);
-            padding: 2.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border-top: 6px solid var(--primary);
-        }
-
-        .feature-list {
-            list-style: none;
-        }
-
-        .feature-list li {
-            padding: 1rem 0;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.15rem;
-        }
-
-        .feature-list li:last-child { border-bottom: none; }
-
-        .feature-list li i {
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        /* Badges 360 */
-        .badge-demo {
-            display: inline-flex;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-
-        .badge {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: 1px solid transparent;
-        }
-
-        .badge.green { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
-        .badge.blue { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
-        .badge.red { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
-
-        /* Navegação Inferior */
-        .nav-bar {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(12px);
-            padding: 0.8rem 2rem;
-            border-radius: 100px;
-            display: flex;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            align-items: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            z-index: 1000;
-        }
-
-        .nav-bar button {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            transition: transform 0.2s;
-        }
-
-        .nav-bar button:hover:not(:disabled) {
-            transform: scale(1.2);
-            color: var(--secondary);
-        }
-
-        .nav-bar button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .progress-info {
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        /* Destaque de Segurança */
-        .security-banner {
-            background: #1e293b;
-            color: white;
-            padding: 2rem;
-            border-radius: var(--radius);
             margin-top: 2rem;
         }
 
-        .security-banner h3 {
-            color: #38bdf8;
-            margin-bottom: 1rem;
+        .module-card {
+            background: white; padding: 2rem; border-radius: var(--radius);
+            box-shadow: var(--shadow); border-left: 8px solid var(--primary);
+            transition: transform 0.3s;
         }
 
-        @media (max-width: 1024px) {
-            .content-grid { grid-template-columns: 1fr; }
-            .slide { padding: 2rem; }
-            .slide h1 { font-size: 2rem; }
+        .module-card:hover { transform: translateY(-10px); }
+
+        .module-card h3 {
+            color: var(--primary-dark); font-size: 1.5rem; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.8rem;
+        }
+
+        .step-list { list-style: none; }
+        .step-list li {
+            padding: 0.8rem 0; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: flex-start; gap: 1rem;
+        }
+        .step-list li b { color: var(--primary); min-width: 20px; }
+
+        /* Badges 360 Stylized */
+        .badge-system {
+            background: #1e293b; color: white; padding: 3rem; border-radius: 30px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;
+        }
+
+        .badge-item {
+            background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 15px;
+            display: flex; align-items: center; gap: 1.5rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1.2rem; border-radius: 100px; font-weight: 800; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+
+        .badge.success { background: var(--success); color: white; }
+        .badge.info { background: #3b82f6; color: white; }
+        .badge.warning { background: var(--warning); color: white; }
+
+        /* Navegação */
+        .navigation {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            background: #0f172a; padding: 0.8rem 2.5rem; border-radius: 100px;
+            display: flex; gap: 3rem; align-items: center; z-index: 1000;
+        }
+
+        .nav-btn {
+            background: none; border: none; color: white; font-size: 1.2rem;
+            cursor: pointer; transition: 0.2s;
+        }
+
+        .nav-btn:hover:not(:disabled) { color: var(--secondary); transform: scale(1.1); }
+        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+        .slide-num { color: white; font-weight: 600; min-width: 60px; text-align: center; }
+
+        /* Security Highlight */
+        .shield-banner {
+            border: 4px solid var(--primary); padding: 2.5rem; border-radius: 30px;
+            position: relative; overflow: hidden;
+        }
+        .shield-banner::after {
+            content: "🛡️"; position: absolute; right: -20px; bottom: -20px;
+            font-size: 10rem; opacity: 0.1;
         }
     </style>
 </head>
 
 <body>
     <div class="slide-container">
+        
         <!-- SLIDE 1: CAPA -->
         <div class="slide capa active" data-slide="1">
-            <div class="logo-badge">CSM</div>
-            <h1>SGE Premium 5.0</h1>
-            <h2>Nova Experiência de Gestão Modular</h2>
-            <div class="version-pill">Versão 2026.1 - Edição Secretaria</div>
+            <div class="logo-box">CSM</div>
+            <h1>SGE 5.0: Apresentação Modular</h1>
+            <h2 style="color: var(--secondary)">A Nova Era da Gestão Acadêmica no Colégio Santa Mônica</h2>
+            <p>Use as setas do teclado para navegar</p>
         </div>
 
-        <!-- SLIDE 2: FILOSOFIA MODULAR -->
+        <!-- SLIDE 2: FILOSOFIA DO SISTEMA -->
         <div class="slide" data-slide="2">
-            <h1>🧩 Arquitetura Modular</h1>
-            <div class="content-grid">
-                <div class="card">
-                    <h3>O que mudou?</h3>
-                    <p style="margin-top: 1rem;">O sistema deixou de ser um bloco único e agora funciona através de <strong>Componentes Independentes</strong>.</p>
-                    <ul class="feature-list" style="margin-top: 1.5rem;">
-                        <li><i>✓</i> Carregamento ultra-rápido</li>
-                        <li><i>✓</i> Interface limpa e focada na tarefa</li>
-                        <li><i>✓</i> Estabilidade garantida por testes automatizados</li>
-                        <li><i>✓</i> Navegação fluida sem recarregar a página</li>
-                    </ul>
+            <h1>🧩 A Revolução Modular</h1>
+            <h2>De um monólito estático para um ecossistema fluido</h2>
+            <div class="module-grid">
+                <div class="module-card">
+                    <h3>🏗️ Componentização</h3>
+                    <p>Cada parte do sistema (Boletim, Cadastro, Financeiro) é um módulo independente. Se um cresce, o sistema não quebra.</p>
                 </div>
-                <div>
-                    <img src="https://img.icons8.com/clouds/500/layers.png" style="width: 100%; max-width: 300px; display: block; margin: 0 auto;">
+                <div class="module-card">
+                    <h3>⚡ Velocidade</h3>
+                    <p>Carregamento inteligente: o sistema só processa o que você está vendo agora, economizando banda e tempo.</p>
+                </div>
+                <div class="module-card">
+                    <h3>💎 Design Premium</h3>
+                    <p>Focado na experiência do usuário, com tipografia moderna e cores que reduzem o cansaço visual.</p>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 3: VISÃO 360º DO ALUNO -->
+        <!-- SLIDE 3: MÓDULO ACADÊMICO (NOTAS) -->
         <div class="slide" data-slide="3">
-            <h1>👁️ Monitoramento 360º</h1>
-            <div class="card">
-                <h3>Indicadores em Tempo Real</h3>
-                <p>Agora a secretaria e os professores possuem uma visão instantânea da situação de cada aluno através de Badges Dinâmicos:</p>
-                
-                <div style="margin-top: 2rem; display: grid; gap: 1.5rem;">
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <span class="badge green">🟢 Regular</span>
-                        <span>Situação financeira em dia</span>
-                    </div>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <span class="badge blue">🔵 Estágio: OK</span>
-                        <span>Notas de estágio concluídas e aprovadas</span>
-                    </div>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <span class="badge red">🔴 Bloqueado</span>
-                        <span>Pendência financeira ou documental crítica</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 4: NOVO PAINEL SECRETARIA -->
-        <div class="slide" data-slide="4">
-            <h1>🏫 Painel da Secretaria</h1>
-            <div class="content-grid">
-                <div class="card">
-                    <h3>Abas de Trabalho</h3>
-                    <ul class="feature-list">
-                        <li><strong>Visão Geral:</strong> Dashboard com estatísticas 360º</li>
-                        <li><strong>Notas/Estágio:</strong> Gestão acadêmica avançada</li>
-                        <li><strong>Gerenciar Alunos:</strong> Busca rápida e ficha individual</li>
-                        <li><strong>Solicitações:</strong> Fila de documentos com 1-click</li>
+            <h1>🎓 Módulo Acadêmico Inteligente</h1>
+            <h2>Precisão total no cálculo de desempenho</h2>
+            <div class="module-grid">
+                <div class="card" style="border-top: 6px solid var(--success)">
+                    <h3>Lançamento Automatizado</h3>
+                    <ul class="step-list">
+                        <li><b>1</b> Seleção rápida por turma e disciplina.</li>
+                        <li><b>2</b> Cálculo instantâneo de Média Parcial (N1, N2, N3).</li>
+                        <li><b>3</b> Gestão de Recuperação com arredondamento técnico.</li>
+                        <li><b>4</b> Fechamento de Status (Aprovado / Reprovado).</li>
                     </ul>
                 </div>
-                <div class="card" style="border-top-color: var(--secondary);">
-                    <h3>Dica de Produtividade</h3>
-                    <p>Use a <strong>Busca Dinâmica</strong> na aba Gerenciar Alunos. O filtro é instantâneo e busca por nome, CPF ou e-mail enquanto você digita.</p>
+                <div class="card" style="border-top: 6px solid var(--warning)">
+                    <h3>Diferencial Técnico</h3>
+                    <p>O sistema segue rigorosamente as regras do CSM para arredondamento de notas e critérios de aprovação, eliminando erros manuais.</p>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 5: SEGURANÇA MÁXIMA -->
-        <div class="slide" data-slide="5">
-            <h1>🛡️ Segurança e Privacidade</h1>
-            <div class="security-banner">
-                <h3>Blindagem de Dados (CSM Shield)</h3>
-                <p>O SGE 5.0 implementa as tecnologias mais modernas de proteção de dados:</p>
-                <ul class="feature-list" style="margin-top: 1.5rem; color: #cbd5e1;">
-                    <li style="border-color: #334155;"><strong>Anti-XSS:</strong> Sanitização automática de todos os dados exibidos.</li>
-                    <li style="border-color: #334155;"><strong>RLS (Row Level Security):</strong> O banco de dados garante que um aluno NUNCA veja dados de outro.</li>
-                    <li style="border-color: #334155;"><strong>Edge Functions:</strong> Operações administrativas sensíveis ocorrem em ambiente isolado no servidor.</li>
-                </ul>
+        <!-- SLIDE 4: MONITORAMENTO 360º (BADGES) -->
+        <div class="slide" data-slide="4">
+            <h1>👁️ Visão 360º em Tempo Real</h1>
+            <h2>Informação estratégica sem precisar abrir fichas</h2>
+            <div class="badge-system">
+                <div class="badge-item">
+                    <span class="badge success">🟢 Regular</span>
+                    <p>Financeiro em dia e Documentação completa.</p>
+                </div>
+                <div class="badge-item">
+                    <span class="badge info">🔵 Estágio: OK</span>
+                    <p>Parecer de estágio concluído e aprovado.</p>
+                </div>
+                <div class="badge-item">
+                    <span class="badge warning">🟡 Docs Pend.</span>
+                    <p>Aluno com pendência de documentos na secretaria.</p>
+                </div>
+                <div class="badge-item">
+                    <span class="badge success" style="background: var(--primary)">🔴 Bloqueado</span>
+                    <p>Bloqueio financeiro ativo - Ação necessária.</p>
+                </div>
             </div>
         </div>
 
-        <!-- SLIDE 6: CONCLUSÃO -->
-        <div class="slide capa" data-slide="6">
-            <div class="logo-badge">CSM</div>
-            <h1>Pronto para Começar?</h1>
-            <h2>O SGE 5.0 está ativo e esperando por você.</h2>
-            <button onclick="window.close()" style="margin-top: 2rem; background: var(--secondary); color: var(--primary-dark); border: none; padding: 1rem 3rem; border-radius: 100px; font-weight: 800; cursor: pointer; font-size: 1.2rem;">ACESSAR PLATAFORMA</button>
+        <!-- SLIDE 5: MÓDULO FINANCEIRO INTEGRADO -->
+        <div class="slide" data-slide="5">
+            <h1>💰 Gestão Financeira Transparente</h1>
+            <h2>Sincronia total entre secretaria e tesouraria</h2>
+            <div class="module-grid">
+                <div class="module-card">
+                    <h3>Pagamentos</h3>
+                    <p>Histórico completo de mensalidades, taxas e materiais com status visual (Pago/Pendente).</p>
+                </div>
+                <div class="module-card" style="border-left-color: var(--secondary)">
+                    <h3>Acordos</h3>
+                    <p>Módulo de parcelamento e acordos financeiros com emissão de termos automáticos.</p>
+                </div>
+                <div class="module-card">
+                    <h3>Configurações</h3>
+                    <p>Gestão centralizada de juros, multas e valores de cursos.</p>
+                </div>
+            </div>
         </div>
+
+        <!-- SLIDE 6: MÓDULO PROFESSOR (DIÁRIO) -->
+        <div class="slide" data-slide="6">
+            <h1>👨‍🏫 Diário de Classe Digital</h1>
+            <h2>A rotina docente simplificada e produtiva</h2>
+            <div class="content-grid" style="grid-template-columns: 2fr 1fr">
+                <div class="card">
+                    <ul class="feature-list">
+                        <li><strong>Registro de Aulas:</strong> Cadastro rápido de conteúdos ministrados.</li>
+                        <li><strong>Controle de Frequência:</strong> Chamada digital integrada ao boletim.</li>
+                        <li><strong>Minhas Turmas:</strong> Visão consolidada de todas as disciplinas atribuídas.</li>
+                        <li><strong>Ficha do Aluno:</strong> Acesso rápido ao histórico de desempenho.</li>
+                    </ul>
+                </div>
+                <div style="text-align: center">
+                    <img src="https://img.icons8.com/clouds/500/teacher.png" style="width: 100%">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: MÓDULO DE DOCUMENTOS (SECRETARIA) -->
+        <div class="slide" data-slide="7">
+            <h1>📄 Central de Documentos</h1>
+            <h2>Fim da burocracia: Documentos em segundos</h2>
+            <div class="module-grid">
+                <div class="module-card">
+                    <h3>Fila de Solicitações</h3>
+                    <p>A secretaria visualiza todos os pedidos de alunos em uma fila única com prioridade.</p>
+                </div>
+                <div class="module-card">
+                    <h3>Geração de PDF</h3>
+                    <p>Declarações, Históricos e Atestados gerados com layout oficial do CSM automaticamente.</p>
+                </div>
+                <div class="module-card">
+                    <h3>Histórico de Emissões</h3>
+                    <p>Controle total de quem emitiu qual documento e quando.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: SEGURANÇA (CSM SHIELD) -->
+        <div class="slide" data-slide="8">
+            <h1>🛡️ Segurança: CSM Shield</h1>
+            <h2>Proteção de dados em nível governamental</h2>
+            <div class="shield-banner">
+                <div class="module-grid">
+                    <div>
+                        <h3>Anti-XSS & Injeção</h3>
+                        <p>O sistema sanitiza 100% dos dados. Mesmo se um hacker tentar injetar código, o SGE o neutraliza instantaneamente.</p>
+                    </div>
+                    <div>
+                        <h3>RLS (Segurança de Linha)</h3>
+                        <p>A proteção está na raiz do banco de dados. Um usuário só tem acesso físico aos dados que lhe pertencem.</p>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; border-top: 1px solid var(--primary); padding-top: 1.5rem">
+                    <p><strong>Conformidade LGPD:</strong> Gestão ética e segura das informações sensíveis dos alunos e colaboradores.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: CONCLUSÃO E PRÓXIMOS PASSOS -->
+        <div class="slide capa" data-slide="9">
+            <div class="logo-box">CSM</div>
+            <h1>Sistema Operacional</h1>
+            <h2>Eficiência técnica. Excelência pedagógica.</h2>
+            <div style="margin-top: 3rem">
+                <button onclick="window.close()" style="background: var(--secondary); color: var(--primary-dark); border: none; padding: 1.2rem 4rem; border-radius: 100px; font-size: 1.5rem; font-weight: 800; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3)">INICIAR ACESSO</button>
+            </div>
+        </div>
+
     </div>
 
-    <div class="nav-bar">
-        <button id="prevBtn" disabled>◀</button>
-        <div class="progress-info"><span id="current">1</span> / 6</div>
-        <button id="nextBtn">▶</button>
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" disabled>◀</button>
+        <div class="slide-num"><span id="curr">1</span> / 9</div>
+        <button class="nav-btn" id="nextBtn">▶</button>
     </div>
 
     <script>
-        let currentSlide = 1;
-        const totalSlides = 6;
+        let curr = 1;
+        const total = 9;
 
         const slides = document.querySelectorAll('.slide');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const currentSpan = document.getElementById('current');
+        const prev = document.getElementById('prevBtn');
+        const next = document.getElementById('nextBtn');
+        const currSpan = document.getElementById('curr');
 
-        function updateSlide() {
+        function update() {
             slides.forEach(s => s.classList.remove('active'));
-            document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
-            
-            currentSpan.innerText = currentSlide;
-            prevBtn.disabled = currentSlide === 1;
-            nextBtn.disabled = currentSlide === totalSlides;
+            document.querySelector(`.slide[data-slide="${curr}"]`).classList.add('active');
+            currSpan.innerText = curr;
+            prev.disabled = curr === 1;
+            next.disabled = curr === total;
         }
 
-        nextBtn.onclick = () => {
-            if (currentSlide < totalSlides) {
-                currentSlide++;
-                updateSlide();
-            }
-        };
+        next.onclick = () => { if(curr < total) { curr++; update(); } };
+        prev.onclick = () => { if(curr > 1) { curr--; update(); } };
 
-        prevBtn.onclick = () => {
-            if (currentSlide > 1) {
-                currentSlide--;
-                updateSlide();
-            }
-        };
-
-        // Atalhos de teclado
         document.onkeydown = (e) => {
-            if (e.key === "ArrowRight") nextBtn.onclick();
-            if (e.key === "ArrowLeft") prevBtn.onclick();
+            if (e.key === "ArrowRight") next.onclick();
+            if (e.key === "ArrowLeft") prev.onclick();
         };
     </script>
 </body>

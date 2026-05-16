@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase'
 import { DocumentsService } from '../lib/documents-service'
 import { AdminService } from '../lib/admin-service'
 import { ProfessorService } from '../lib/professor-service'
@@ -23,14 +24,15 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     turmasResult,
     alunosResult,
     professoresResult,
-    disciplinasResult,
+    matrizResult,
     cursosResult,
     requestsResult
   ] = await Promise.all([
     AcademicService.getTurmas(),
     AdminService.listAlunos(),
     ProfessorService.getProfessores(),
-    ProfessorService.getAllDisciplinas(),
+    // Agora buscamos as disciplinas do catálogo (matriz) de todos os cursos
+    supabase.from('disciplinas_base').select('*'),
     CourseService.getCursos(),
     DocumentsService.getAllOpenRequests()
   ])
@@ -38,7 +40,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   const turmas = turmasResult.data || []
   const alunos = alunosResult.data || []
   const professores = professoresResult.data || []
-  const disciplinas = disciplinasResult.data || []
+  const disciplinas = (matrizResult as any).data || []
   const cursos = cursosResult.data || []
   const requests = requestsResult.data || []
 

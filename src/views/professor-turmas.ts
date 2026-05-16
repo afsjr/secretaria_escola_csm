@@ -90,11 +90,15 @@ export async function ProfessorTurmasView(
   const container = document.createElement("div");
   container.className = "professor-turmas-view animate-in";
 
-  // Buscar turmas do professor
-  const { data: turmasDoProfessor } = await ProfessorService
-    .getTurmasDoProfessor(profile.id);
+  // Buscar disciplinas/ofertas do professor
+  const { data: disciplinas, error: discError } = await ProfessorService
+    .getDisciplinasDoProfessor(profile.id);
 
-  if (!turmasDoProfessor || turmasDoProfessor.length === 0) {
+  if (discError) {
+    toast.error('Erro ao carregar turmas: ' + discError.message);
+  }
+
+  if (!disciplinas || disciplinas.length === 0) {
     container.innerHTML = `
       <header style="margin-bottom: 2rem;">
         <h1 style="font-size: 2rem; color: var(--text-main);">Minhas Turmas</h1>
@@ -108,27 +112,29 @@ export async function ProfessorTurmasView(
     return container;
   }
 
-  // Buscar disciplinas do professor
-  const { data: disciplinas, error: discError } = await ProfessorService
-    .getDisciplinasDoProfessor(profile.id) as {
-      data: DisciplinaTurma[] | null;
-      error: { message: string } | null;
-    };
-
-  // Agrupar disciplinas por turma
+  // Agrupar disciplinas por turma (utilizando a nova estrutura de relacionamento)
   const turmasMap: Record<string, TurmaGroup> = {};
-  disciplinas?.forEach((d) => {
-    const turmaKey = d.turma_id || "sem-turma";
-    if (!turmasMap[turmaKey]) {
-      turmasMap[turmaKey] = {
-        id: d.turma_id,
-        nome: d.turmas?.nome || "Sem turma definida",
-        periodo: d.turmas?.periodo || "-",
-        curso: d.cursos?.nome || "-",
+  disciplinas.forEach((d: any) => {
+    const turma = d.turmas;
+    const discBase = d.disciplinas_base;
+    if (!turma || !discBase) return;
+
+    if (!turmasMap[turma.id]) {
+      turmasMap[turma.id] = {
+        id: turma.id,
+        nome: turma.nome,
+        periodo: turma.periodo || "-",
+        curso: turma.turmas?.cursos?.nome || turma.cursos?.nome || "Curso Técnico",
         disciplinas: [],
       };
     }
-    turmasMap[turmaKey].disciplinas.push(d);
+    
+    turmasMap[turma.id].disciplinas.push({
+      id: d.id, // ID da oferta (turma_disciplina)
+      nome: discBase.nome,
+      modulo: discBase.modulo,
+      disciplina_base_id: discBase.id // Para busca de notas
+    } as any);
   });
 
   const turmas = Object.values(turmasMap);
@@ -218,9 +224,10 @@ export async function ProfessorTurmasView(
 
                     <div style="display: flex; justify-content: space-between; margin-top: 1rem; align-items: center;">
                       <div id="alertas-${disc.id}" style="font-size: 0.85rem;"></div>
-                      <button class="btn btn-primary btn-salvar-notas" data-disciplina-id="${disc.id}" data-disciplina-nome="${
-        escapeHTML(disc.nome)
-      }">💾 Salvar Notas</button>
+                      <button class="btn btn-primary btn-salvar-notas" 
+                        data-disciplina-id="${disc.id}" 
+                        data-disciplina-base-id="${(disc as any).disciplina_base_id}"
+                        data-disciplina-nome="${escapeHTML(disc.nome)}">💾 Salvar Notas</button>
                     </div>
                   </div>
                 </fieldset>
@@ -296,21 +303,18 @@ export async function ProfessorTurmasView(
   // Load students for each discipline
   turmas.forEach((turma) => {
     turma.disciplinas.forEach((disc) => {
-      loadAlunosDaDisciplina(disc.id, disc.nome, turma, container);
+      loadAlunosDaDisciplina(disc, turma, container);
     });
   });
 
 // Save grades buttons
   container.querySelectorAll(".btn-salvar-notas").forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const disciplinaId = (btn as HTMLButtonElement).getAttribute(
-        "data-disciplina-id",
-      )!;
-      const disciplinaNome = (btn as HTMLButtonElement).getAttribute(
-        "data-disciplina-nome",
-      )!;
+      const ofertaId = (btn as HTMLButtonElement).getAttribute("data-disciplina-id")!;
+      const discBaseId = (btn as HTMLButtonElement).getAttribute("data-disciplina-base-id")!;
+      
       const tbody = container.querySelector(
-        `.notas-tbody[data-disciplina-id="${disciplinaId}"]`,
+        `.notas-tbody[data-disciplina-id="${ofertaId}"]`,
       ) as HTMLElement;
       const rows = tbody.querySelectorAll("tr");
 
@@ -319,39 +323,31 @@ export async function ProfessorTurmasView(
         const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
         if (!alunoId) return;
 
-        const notasVersoes = (window as any).__notasVersoes?.[disciplinaNome] || {};
+        // Recuperar versão correta do mapa global usando o ID da oferta
+        const notasVersoes = (window as any).__notasVersoes?.[ofertaId] || {};
         const notaExistente = notasVersoes[alunoId];
 
-        const faltas =
-          (row.querySelector(".input-faltas") as HTMLInputElement)?.value ||
-          "0";
-        const n1 =
-          (row.querySelector(".input-n1") as HTMLInputElement)?.value || "0";
-        const n2 =
-          (row.querySelector(".input-n2") as HTMLInputElement)?.value || "0";
-        const n3 =
-          (row.querySelector(".input-n3") as HTMLInputElement)?.value || "0";
-        const rec =
-          (row.querySelector(".input-rec") as HTMLInputElement)?.value || "0";
+        const faltas = (row.querySelector(".input-faltas") as HTMLInputElement)?.value || "0";
+        const n1 = (row.querySelector(".input-n1") as HTMLInputElement)?.value || "0";
+        const n2 = (row.querySelector(".input-n2") as HTMLInputElement)?.value || "0";
+        const n3 = (row.querySelector(".input-n3") as HTMLInputElement)?.value || "0";
+        const rec = (row.querySelector(".input-rec") as HTMLInputElement)?.value || "0";
 
         notasArray.push({
-          disciplina: disciplinaNome,
+          aluno_id: alunoId,
           faltas: parseFloat(faltas) || 0,
           n1: parseFloat(n1) || 0,
           n2: parseFloat(n2) || 0,
           n3: parseFloat(n3) || 0,
           rec: parseFloat(rec) || 0,
-          aluno_id: alunoId,
           versao: notaExistente?.versao ?? 1,
         });
       });
+
       (btn as HTMLButtonElement).disabled = true;
       (btn as HTMLButtonElement).textContent = "Salvando...";
 
-      const { error } = await ProfessorService.salvarNotasEmLote(
-        disciplinaNome,
-        notasArray,
-      );
+      const { error } = await ProfessorService.salvarNotasEmLote(discBaseId, notasArray);
       (btn as HTMLButtonElement).disabled = false;
       (btn as HTMLButtonElement).textContent = "💾 Salvar Notas";
 
@@ -489,11 +485,12 @@ export async function ProfessorTurmasView(
  * Carrega alunos de uma disciplina e popula a tabela de notas
  */
 async function loadAlunosDaDisciplina(
-  disciplinaId: string,
-  disciplinaNome: string,
+  disc: any,
   turma: TurmaGroup,
   container: HTMLElement,
 ): Promise<void> {
+  const disciplinaId = disc.id; // ID da oferta
+  const disciplinaNome = disc.nome;
   const tbody = container.querySelector(
     `.notas-tbody[data-disciplina-id="${disciplinaId}"]`,
   ) as HTMLElement;
@@ -518,14 +515,14 @@ async function loadAlunosDaDisciplina(
       return;
     }
 
-    // Buscar notas existentes
+    // Buscar notas existentes vinculadas ao disciplina_base_id
     const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
     const alunoIds = matriculas.map((m: any) => getPerfil(m)?.id).filter(Boolean);
     const { data: notasExistentes } = await supabase
       .from("boletim")
       .select("id, aluno_id, disciplina, versao, faltas, n1, n2, n3, rec")
       .in("aluno_id", alunoIds)
-      .eq("disciplina", disciplinaNome) as { data: NotaExistente[] | null };
+      .eq("disciplina_base_id", (disc as any).disciplina_base_id) as { data: NotaExistente[] | null };
 
     const notasMap: Record<string, NotaExistente> = {};
     notasExistentes?.forEach((n) => {
@@ -534,7 +531,7 @@ async function loadAlunosDaDisciplina(
 
     // Armazenar versões para uso no salvamento
     (window as any).__notasVersoes = (window as any).__notasVersoes || {};
-    (window as any).__notasVersoes[disciplinaNome] = notasMap;
+    (window as any).__notasVersoes[(disc as any).id] = notasMap;
 
     tbody.innerHTML = matriculas
       .filter((m: any) => m.status_aluno === "ativo")

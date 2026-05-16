@@ -57,14 +57,9 @@ export async function ProfessorView(
   const container = document.createElement("div");
   container.className = "professor-view animate-in";
 
-  // Buscar disciplinas do professor com turmas vinculadas
+  // Buscar ofertas (turma + disciplina) do professor
   const { data: disciplinas, error: errorDisciplinas } = await ProfessorService
-    .getDisciplinasDoProfessor(profile.id) as {
-      data: DisciplinaData[] | null;
-      error: { message: string } | null;
-    };
-  const { data: turmasDoProfessor, error: errorTurmas } = await ProfessorService
-    .getTurmasDoProfessor(profile.id);
+    .getDisciplinasDoProfessor(profile.id);
 
   if (errorDisciplinas) {
     toast.error("Erro ao carregar disciplinas: " + errorDisciplinas.message);
@@ -760,7 +755,7 @@ export async function ProfessorView(
         btn.textContent = "Registrando...";
 
         const { error } = await ProfessorService.registrarAula({
-          disciplina_id: disciplinaId,
+          turma_disciplina_id: disciplinaId, // No UI disciplinaId refere-se ao ID da oferta
           professor_id: profile.id,
           data: data,
           conteudo: conteudo,

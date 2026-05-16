@@ -156,6 +156,31 @@ export const ProfessorService = {
     }
   },
 
+  // Salvar várias notas de uma vez (Batch)
+  async salvarNotasEmLote(disciplinaBaseId: string, notas: any[]) {
+    // Buscar nome da disciplina uma vez só
+    const { data: discBase } = await supabase
+      .from('disciplinas_base')
+      .select('nome')
+      .eq('id', disciplinaBaseId)
+      .single()
+
+    const promises = notas.map(n => 
+      this.salvarNota(n.aluno_id, disciplinaBaseId, {
+        faltas: n.faltas,
+        n1: n.n1,
+        n2: n.n2,
+        n3: n.n3,
+        rec: n.rec
+      }, n.versao)
+    )
+
+    const results = await Promise.all(promises)
+    const error = results.find(r => r.error)?.error
+
+    return { data: results.map(r => r.data), error }
+  },
+
   // === REGISTRO DE AULAS ===
 
   // Registrar aula vinculada à oferta (turma_disciplina)

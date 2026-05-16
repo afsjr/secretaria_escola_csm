@@ -152,7 +152,7 @@ export const AcademicService = {
       })
       .map(d => ({
         id: d.id,
-        nome: `[V4] ${(d.disciplinas_base as any).nome.trim()}`,
+        nome: (d.disciplinas_base as any).nome.trim(),
         modulo: (d.disciplinas_base as any).modulo,
         professor_nome: (d.perfis as any)?.nome_completo || 'Sem professor',
         disciplina_base_id: d.disciplina_base_id

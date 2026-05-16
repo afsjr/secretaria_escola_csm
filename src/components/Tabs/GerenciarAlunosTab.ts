@@ -1,4 +1,4 @@
-import { safeHTML, escapeHTML } from '../../lib/security'
+import { escapeHTML } from '../../lib/security'
 
 interface Aluno {
   id: string
@@ -39,24 +39,24 @@ export function GerenciarAlunosTab({
   const bloqueadosFinanc = alunos.filter(a => a.bloqueio_financeiro).length
   const regularFinanc = totalAlunos - bloqueadosFinanc
 
-  const renderStats = () => safeHTML`
+  const renderStats = () => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
       <div class="stat-card">
         <div class="stat-label">Total de Alunos</div>
-        <div class="stat-value">${totalAlunos}</div>
+        <div class="stat-value">${escapeHTML(String(totalAlunos))}</div>
       </div>
       <div class="stat-card" style="border-bottom: 4px solid var(--success);">
         <div class="stat-label">Financeiro OK</div>
-        <div class="stat-value" style="color: var(--success);">${regularFinanc}</div>
+        <div class="stat-value" style="color: var(--success);">${escapeHTML(String(regularFinanc))}</div>
       </div>
       <div class="stat-card" style="border-bottom: 4px solid var(--danger);">
         <div class="stat-label">Bloqueios</div>
-        <div class="stat-value" style="color: var(--danger);">${bloqueadosFinanc}</div>
+        <div class="stat-value" style="color: var(--danger);">${escapeHTML(String(bloqueadosFinanc))}</div>
       </div>
     </div>
   `
 
-  const renderTable = () => safeHTML`
+  const renderTable = () => `
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h3 style="margin: 0;">Lista de Alunos</h3>
@@ -77,27 +77,27 @@ export function GerenciarAlunosTab({
             </tr>
           </thead>
           <tbody>
-            ${alunos.map(aluno => safeHTML`
+            ${alunos.map(aluno => `
               <tr>
                 <td>
                   <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="avatar-circle">${aluno.nome_completo.charAt(0).toUpperCase()}</div>
+                    <div class="avatar-circle">${escapeHTML(aluno.nome_completo.charAt(0).toUpperCase())}</div>
                     <div>
-                      <div style="font-weight: 600;">${aluno.nome_completo}</div>
-                      <div style="font-size: 0.75rem; color: var(--text-muted);">CPF: ${aluno.cpf || '---'}</div>
+                      <div style="font-weight: 600;">${escapeHTML(aluno.nome_completo)}</div>
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">CPF: ${escapeHTML(aluno.cpf || '---')}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <div style="font-size: 0.85rem;">${aluno.email}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">${aluno.telefone || '---'}</div>
+                  <div style="font-size: 0.85rem;">${escapeHTML(aluno.email)}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHTML(aluno.telefone || '---')}</div>
                 </td>
                 <td>
                   <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                     <!-- Financeiro -->
                     ${aluno.bloqueio_financeiro 
-                      ? safeHTML`<span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">🔴 Bloqueado</span>`
-                      : safeHTML`<span class="badge" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">🟢 Regular</span>`}
+                      ? `<span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">🔴 Bloqueado</span>`
+                      : `<span class="badge" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">🟢 Regular</span>`}
                     
                     <!-- Estágio -->
                     <span class="badge" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">🔵 Estágio: OK</span>

@@ -1,4 +1,4 @@
-import { safeHTML } from '../../lib/security'
+import { escapeHTML } from '../../lib/security'
 
 interface Professor {
   id: string
@@ -36,20 +36,20 @@ export function GerenciarProfessoresTab({
   const container = document.createElement('div')
   container.className = 'animate-in'
 
-  const renderStats = () => safeHTML`
+  const renderStats = () => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
       <div class="stat-card">
         <div class="stat-label">Professores Cadastrados</div>
-        <div class="stat-value">${professores.length}</div>
+        <div class="stat-value">${escapeHTML(String(professores.length))}</div>
       </div>
       <div class="stat-card" style="border-bottom: 4px solid var(--accent);">
         <div class="stat-label">Disciplinas Ativas</div>
-        <div class="stat-value" style="color: var(--accent);">${disciplinas.length}</div>
+        <div class="stat-value" style="color: var(--accent);">${escapeHTML(String(disciplinas.length))}</div>
       </div>
     </div>
   `
 
-  const renderTable = () => safeHTML`
+  const renderTable = () => `
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h3 style="margin: 0;">Corpo Docente</h3>
@@ -66,19 +66,19 @@ export function GerenciarProfessoresTab({
             </tr>
           </thead>
           <tbody>
-            ${professores.map(p => safeHTML`
+            ${professores.map(p => `
               <tr>
                 <td>
                   <div style="display: flex; align-items: center; gap: 12px;">
                     <div class="avatar-circle" style="background: var(--primary); color: white;">
-                      ${p.nome_completo.charAt(0).toUpperCase()}
+                      ${escapeHTML(p.nome_completo.charAt(0).toUpperCase())}
                     </div>
-                    <div style="font-weight: 600;">${p.nome_completo}</div>
+                    <div style="font-weight: 600;">${escapeHTML(p.nome_completo)}</div>
                   </div>
                 </td>
                 <td>
-                  <div style="font-size: 0.85rem;">${p.email}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">${p.telefone || '---'}</div>
+                  <div style="font-size: 0.85rem;">${escapeHTML(p.email)}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHTML(p.telefone || '---')}</div>
                 </td>
                 <td style="text-align: right;">
                   <button class="btn btn-sm" style="background: var(--bg-app); border: 1px solid var(--border);" title="Vincular Disciplinas">
@@ -97,6 +97,7 @@ export function GerenciarProfessoresTab({
     ${renderStats()}
     ${renderTable()}
   `
+
 
   setTimeout(() => {
     container.querySelector('#btn-refresh-professores')?.addEventListener('click', () => onRefresh?.())

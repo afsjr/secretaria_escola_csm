@@ -120,7 +120,7 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
           disciplinasDaTurmaAtual.map(d => {
             const permite = disciplinaTemEstagio(d.nome, d.modulo)
             const sufixo = permite ? '' : ' (⚠️ Sem Estágio)'
-            return `<option value="${escapeHTML(d.nome)}" data-permite="${permite}">${escapeHTML(d.nome)}${sufixo}</option>`
+            return `<option value="${d.disciplina_base_id}" data-nome="${escapeHTML(d.nome)}" data-permite="${permite}">${escapeHTML(d.nome)}${sufixo}</option>`
           }).join('')
         disciplinaSelect.disabled = false
       } else {
@@ -142,11 +142,12 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
   })
 
   btnCarregar.addEventListener('click', () => {
-    const nomeDisciplina = disciplinaSelect.value
+    const discBaseId = disciplinaSelect.value
+    const nomeDisciplina = disciplinaSelect.selectedOptions[0]?.getAttribute('data-nome') || ''
     const alunoId = alunoSelect.value
-    if (!nomeDisciplina || !alunoId) return
+    if (!discBaseId || !alunoId) return
 
-    const notaExistente = boletimCache?.find((n: any) => n.disciplina === nomeDisciplina)
+    const notaExistente = boletimCache?.find((n: any) => n.disciplina_base_id === discBaseId)
     const notaEstagio = notaExistente?.nota_estagio ?? ''
 
     contentArea.innerHTML = `
@@ -177,18 +178,18 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
       btnSalvar.textContent = '⌛ Salvando...'
 
       try {
-        const { error } = await AcademicService.upsertNotaEstagio(alunoId, nomeDisciplina, novaNota)
+        const { error } = await AcademicService.upsertNotaEstagio(alunoId, discBaseId, novaNota)
         if (error) throw error
         
         toast.success('Nota de estágio salva com sucesso!')
         
         // Atualizar cache local
         if (!boletimCache) boletimCache = []
-        const idx = boletimCache.findIndex((n: any) => n.disciplina === nomeDisciplina)
+        const idx = boletimCache.findIndex((n: any) => n.disciplina_base_id === discBaseId)
         if (idx >= 0) {
           boletimCache[idx].nota_estagio = novaNota
         } else {
-          boletimCache.push({ disciplina: nomeDisciplina, nota_estagio: novaNota })
+          boletimCache.push({ disciplina_base_id: discBaseId, nota_estagio: novaNota })
         }
       } catch (err: any) {
         toast.error('Erro ao salvar nota: ' + err.message)

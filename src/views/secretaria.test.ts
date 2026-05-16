@@ -8,7 +8,12 @@ import { disciplinaTemEstagio } from '../lib/grades-utils'
 // Mocks de todas as dependências externas
 vi.mock('../lib/documents-service', () => ({ DocumentsService: { getAllOpenRequests: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
 vi.mock('../lib/admin-service', () => ({ AdminService: { listAlunos: vi.fn().mockResolvedValue({ data: [], error: null }), getAlunoById: vi.fn(), updateAluno: vi.fn() } }))
-vi.mock('../lib/professor-service', () => ({ ProfessorService: { getProfessores: vi.fn().mockResolvedValue({ data: [], error: null }), getAllDisciplinas: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
+vi.mock('../lib/professor-service', () => ({ 
+  ProfessorService: { 
+    getProfessores: vi.fn().mockResolvedValue({ data: [], error: null }), 
+    getDisciplinasDoProfessor: vi.fn().mockResolvedValue({ data: [], error: null }) 
+  } 
+}))
 vi.mock('../lib/course-service', () => ({ CourseService: { getCursos: vi.fn().mockResolvedValue({ data: [], error: null }) } }))
 vi.mock('../lib/academic-service', () => ({
   AcademicService: {
@@ -49,8 +54,8 @@ describe('SecretariaView - Integração Estágio', () => {
   const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1' }]
   const mockAlunos = [{ perfis: { id: 'aluno-1', nome_completo: 'João Aluno' } }]
   const mockDisciplinas = [
-    { id: 'disc-1', nome: 'Enfermagem Médica', modulo: '2' },
-    { id: 'disc-2', nome: 'Anatomia', modulo: '1' }
+    { id: 'oferta-1', disciplina_base_id: 'base-1', nome: 'Enfermagem Médica', modulo: '2' },
+    { id: 'oferta-2', disciplina_base_id: 'base-2', nome: 'Anatomia', modulo: '1' }
   ]
 
   beforeEach(() => {
@@ -58,7 +63,7 @@ describe('SecretariaView - Integração Estágio', () => {
     vi.mocked(AcademicService.getTurmas).mockResolvedValue({ data: mockTurmas, error: null })
     vi.mocked(AcademicService.getAlunosDaTurma).mockResolvedValue({ data: mockAlunos, error: null })
     vi.mocked(AcademicService.getDisciplinasDaTurma).mockResolvedValue({ 
-      data: { turma: mockTurmas[0], disciplinas: mockDisciplinas }, 
+      data: { disciplinas: mockDisciplinas } as any, 
       error: null 
     })
     vi.mocked(AcademicService.getBoletim).mockResolvedValue({ data: [], error: null })
@@ -68,6 +73,10 @@ describe('SecretariaView - Integração Estágio', () => {
   it('deve realizar o fluxo completo de lançamento de nota', async () => {
     const view = await SecretariaView()
     document.body.appendChild(view)
+
+    // Simular clique na tab de estágio para carregar o componente
+    const tabBtn = view.querySelector('[data-tab="estagio"]') as HTMLButtonElement
+    tabBtn?.click()
 
     const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement
     const selectAluno = view.querySelector('#notas-aluno-select') as HTMLSelectElement
@@ -87,7 +96,7 @@ describe('SecretariaView - Integração Estágio', () => {
     // 3. Disciplina (validar regra visual de Sem Estágio)
     expect(selectDisciplina.innerHTML).toContain('Anatomia (⚠️ Sem Estágio)')
     
-    selectDisciplina.value = 'Enfermagem Médica'
+    selectDisciplina.value = 'base-1'
     selectDisciplina.dispatchEvent(new Event('change', { bubbles: true }))
     await vi.waitFor(() => expect(btnCarregar.disabled).toBe(false))
     
@@ -103,7 +112,7 @@ describe('SecretariaView - Integração Estágio', () => {
     btnSalvar.click()
 
     await vi.waitFor(() => {
-      expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'Enfermagem Médica', 10)
+      expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'base-1', 10)
     })
 
     document.body.removeChild(view)

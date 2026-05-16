@@ -12,6 +12,7 @@ import { GerenciarAlunosTab } from '../components/Tabs/GerenciarAlunosTab'
 import { GerenciarProfessoresTab } from '../components/Tabs/GerenciarProfessoresTab'
 import { GerenciarCursosTab } from '../components/Tabs/GerenciarCursosTab'
 import { NotasEstagioTab } from '../components/Tabs/NotasEstagioTab'
+import { OverviewTab } from '../components/Tabs/OverviewTab'
 
 export async function SecretariaView(): Promise<HTMLDivElement> {
   const container = document.createElement('div')
@@ -45,11 +46,12 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   container.innerHTML = `
     <header class="view-header">
       <h1 class="title">Painel da Secretaria</h1>
-      <p class="subtitle">Gerencie solicitações, alunos, professores e cursos técnicos.</p>
+      <p class="subtitle">Gestão técnica modularizada e monitoramento em tempo real.</p>
     </header>
 
     <div class="tabs-container">
-      <button class="tab-btn active" data-tab="solicitacoes">Solicitações</button>
+      <button class="tab-btn active" data-tab="overview">Visão Geral</button>
+      <button class="tab-btn" data-tab="solicitacoes">Solicitações</button>
       <button class="tab-btn" data-tab="notas">Notas/Estágio</button>
       <button class="tab-btn" data-tab="cadastro">Cadastrar Aluno</button>
       <button class="tab-btn" data-tab="gerenciar">Gerenciar Alunos</button>
@@ -58,7 +60,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       <button class="tab-btn" data-tab="gerenciar-cursos">Gerenciar Cursos</button>
     </div>
 
-    <div id="tab-solicitacoes" class="tab-content"></div>
+    <div id="tab-overview" class="tab-content"></div>
+    <div id="tab-solicitacoes" class="tab-content" style="display: none;"></div>
     <div id="tab-notas" class="tab-content" style="display: none;"></div>
     <div id="tab-cadastro" class="tab-content" style="display: none;"></div>
     <div id="tab-gerenciar" class="tab-content" style="display: none;"></div>
@@ -84,7 +87,22 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
   // 4. Injeção de Componentes Modulares
   
-  // Aba Solicitações (Usa RequestTableComponent)
+  // Aba Overview
+  const tabOverview = container.querySelector('#tab-overview')
+  if (tabOverview) {
+    tabOverview.appendChild(OverviewTab({
+      stats: {
+        alunos: alunos.length,
+        professores: professores.length,
+        turmas: turmas.length,
+        cursos: cursos.length,
+        solicitacoesPendentes: requests.length
+      },
+      cursos
+    }))
+  }
+
+  // Aba Solicitações
   const tabSolicitacoes = container.querySelector('#tab-solicitacoes')
   if (tabSolicitacoes) {
     tabSolicitacoes.appendChild(await RequestTableComponent())

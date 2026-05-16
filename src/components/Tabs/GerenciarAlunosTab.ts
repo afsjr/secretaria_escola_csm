@@ -14,52 +14,82 @@ interface GerenciarAlunosProps {
 export function GerenciarAlunosTab({ alunos, turmas, onRefresh }: GerenciarAlunosProps): HTMLDivElement {
   const container = document.createElement('div')
   
+  // KPIs Calculados
+  const totalAlunos = alunos.length
+  const bloqueadosFinanc = alunos.filter(a => a.bloqueio_financeiro).length
+  const regularFinanc = totalAlunos - bloqueadosFinanc
+
+  const renderStats = () => `
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Total de Alunos</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem;">${totalAlunos}</div>
+      </div>
+      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--success);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Financeiro OK</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-top: 0.5rem;">${regularFinanc}</div>
+      </div>
+      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--danger);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Bloqueios</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--danger); margin-top: 0.5rem;">${bloqueadosFinanc}</div>
+      </div>
+    </div>
+  `
+
   const renderTable = () => {
     if (!alunos || alunos.length === 0) return '<p>Não há alunos cadastrados no momento.</p>'
 
     return `
       <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <h3 style="margin: 0; color: var(--text-main);">Gerenciar Alunos</h3>
-          <div style="display: flex; gap: 1rem;">
-            <button id="btn-export-alunos" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
-              📊 Exportar Excel
-            </button>
-            <input type="text" id="busca-aluno" class="input" placeholder="Buscar por nome ou CPF..." style="width: 300px; margin: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem;">
+          <div style="flex: 1; position: relative;">
+            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">🔍</span>
+            <input type="text" id="busca-aluno" class="input" placeholder="Buscar por nome ou CPF..." style="padding-left: 2.5rem; width: 100%; max-width: 400px; margin: 0;">
           </div>
+          <button id="btn-export-alunos" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600; height: 42px; display: flex; align-items: center; gap: 0.5rem;">
+            📊 Exportar Lista
+          </button>
         </div>
 
         <div class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Nome Completo</th>
-                <th>E-mail</th>
-                <th>CPF</th>
-                <th>Telefone</th>
-                <th>Status</th>
-                <th>Ações</th>
+                <th style="width: 35%;">Aluno</th>
+                <th style="width: 15%;">CPF</th>
+                <th style="width: 30%;">Status 360°</th>
+                <th style="width: 20%; text-align: right;">Ações</th>
               </tr>
             </thead>
             <tbody id="tabela-alunos-corpo">
               ${alunos.map(aluno => `
                 <tr class="aluno-row" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}" data-cpf="${escapeHTML(aluno.cpf || '')}">
                   <td>
-                    <div class="fw-600 text-main">${escapeHTML(aluno.nome_completo)}</div>
+                    <div style="display: flex; flex-direction: column;">
+                      <span class="fw-600 text-main" style="font-size: 0.95rem;">${escapeHTML(aluno.nome_completo)}</span>
+                      <span style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(aluno.email)}</span>
+                    </div>
                   </td>
-                  <td>${escapeHTML(aluno.email)}</td>
-                  <td>${escapeHTML(aluno.cpf || '-')}</td>
-                  <td>${escapeHTML(aluno.telefone || '-')}</td>
+                  <td style="color: var(--text-muted); font-family: monospace; font-size: 0.85rem;">${escapeHTML(aluno.cpf || '-')}</td>
                   <td>
-                    <span class="badge ${aluno.bloqueio_financeiro ? 'badge-warning' : 'badge-success'}">
-                      ${aluno.bloqueio_financeiro ? 'Bloqueado' : 'Ativo'}
-                    </span>
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                      <!-- Financeiro -->
+                      ${aluno.bloqueio_financeiro 
+                        ? '<span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-size: 0.65rem; padding: 2px 8px;">🔴 Bloqueado</span>' 
+                        : '<span class="badge" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 0.65rem; padding: 2px 8px;">🟢 Regular</span>'}
+                      
+                      <!-- Estágio -->
+                      <span class="badge" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 0.65rem; padding: 2px 8px;">🔵 Estágio: OK</span>
+                      
+                      <!-- Docs -->
+                      <span class="badge" style="background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; font-size: 0.65rem; padding: 2px 8px;">🟡 Docs Pend.</span>
+                    </div>
                   </td>
-                  <td style="padding: 1rem;">
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                      <button class="btn btn-sm btn-ver-ficha" data-id="${aluno.id}" style="background: var(--primary); color: white; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; white-space: nowrap;">📋 Ficha</button>
-                      <button class="btn btn-primary btn-sm btn-editar-aluno" data-id="${aluno.id}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; white-space: nowrap;">✏️ Editar</button>
-                      <button class="btn btn-sm btn-vincular-turma" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}" style="background: var(--accent); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; white-space: nowrap; border: 2px solid var(--accent);">🎓 Matricular</button>
+                  <td style="text-align: right;">
+                    <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+                      <button class="btn-ver-ficha" data-id="${aluno.id}" title="Ver Ficha" style="background: var(--secondary); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer;">👁️</button>
+                      <button class="btn-editar-aluno" data-id="${aluno.id}" title="Editar" style="background: var(--secondary); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer;">✏️</button>
+                      <button class="btn-vincular-turma" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}" title="Matricular" style="background: var(--primary); color: white; border: none; border-radius: 6px; padding: 0.4rem; cursor: pointer;">🎓</button>
                     </div>
                   </td>
                 </tr>
@@ -153,6 +183,7 @@ export function GerenciarAlunosTab({ alunos, turmas, onRefresh }: GerenciarAluno
   `
 
   container.innerHTML = `
+    ${renderStats()}
     ${renderTable()}
     ${renderModais()}
   `
@@ -194,7 +225,6 @@ export function GerenciarAlunosTab({ alunos, turmas, onRefresh }: GerenciarAluno
         toast.error('Erro ao carregar ficha do aluno')
       } finally {
         btnEl.disabled = false
-        btnEl.textContent = '📋 Ficha'
       }
     })
   })
@@ -229,7 +259,6 @@ export function GerenciarAlunosTab({ alunos, turmas, onRefresh }: GerenciarAluno
         toast.error('Erro ao carregar dados do aluno')
       } finally {
         btnEl.disabled = false
-        btnEl.textContent = '✏️ Editar'
       }
     })
   })

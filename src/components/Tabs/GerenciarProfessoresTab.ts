@@ -14,14 +14,37 @@ interface GerenciarProfessoresProps {
 export function GerenciarProfessoresTab({ professores, disciplinas, turmas, onRefresh }: GerenciarProfessoresProps): HTMLDivElement {
   const container = document.createElement('div')
   
+  // KPIs Calculados
+  const totalProfs = professores.length
+  const discsSemProf = disciplinas.filter(d => !d.professor_id).length
+  const totalTurmas = turmas.length
+
+  const renderStats = () => `
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Total de Professores</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem;">${totalProfs}</div>
+      </div>
+      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--accent);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Disciplinas Vagas</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 0.5rem;">${discsSemProf}</div>
+      </div>
+      <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 4px solid var(--info);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Turmas Ativas</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-top: 0.5rem;">${totalTurmas}</div>
+      </div>
+    </div>
+  `
+
   const renderList = () => `
+    ${renderStats()}
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
       <!-- Lista de Professores -->
       <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h3 style="margin: 0; color: var(--text-main);">Professores Cadastrados</h3>
-          <button id="btn-export-professores" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
-            📊 Exportar Excel
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3 style="margin: 0; color: var(--text-main);">Corpo Docente</h3>
+          <button id="btn-export-professores" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600; height: 36px;">
+            📊 Exportar
           </button>
         </div>
 
@@ -30,21 +53,24 @@ export function GerenciarProfessoresTab({ professores, disciplinas, turmas, onRe
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Nome</th>
-                  <th>E-mail</th>
-                  <th>Ações</th>
+                  <th style="width: 60%;">Professor</th>
+                  <th style="width: 40%; text-align: right;">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 ${professores.map(p => `
                   <tr>
                     <td>
-                      <div class="fw-600 text-main">${escapeHTML(p.nome_completo)}</div>
+                      <div style="display: flex; flex-direction: column;">
+                        <span class="fw-600 text-main" style="font-size: 0.95rem;">${escapeHTML(p.nome_completo)}</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(p.email)}</span>
+                      </div>
                     </td>
-                    <td>${escapeHTML(p.email)}</td>
-                    <td style="display: flex; gap: 0.3rem;">
-                      <button class="btn btn-sm btn-ver-ficha-prof" data-id="${p.id}" style="background: var(--primary); color: white; font-size: 0.7rem; padding: 0.3rem 0.6rem; border-radius: 4px;">📋 Ficha</button>
-                      <button class="btn btn-primary btn-sm btn-vincular-disciplinas" data-id="${p.id}" data-nome="${escapeHTML(p.nome_completo)}" style="font-size: 0.7rem; padding: 0.3rem 0.6rem; border-radius: 4px;">🔗 Vincular Disciplinas</button>
+                    <td style="text-align: right;">
+                      <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+                        <button class="btn-ver-ficha-prof" data-id="${p.id}" title="Ver Ficha" style="background: var(--secondary); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer;">👁️</button>
+                        <button class="btn-vincular-disciplinas" data-id="${p.id}" data-nome="${escapeHTML(p.nome_completo)}" title="Vincular Disciplinas" style="background: var(--primary); color: white; border: none; border-radius: 6px; padding: 0.4rem; cursor: pointer;">🔗</button>
+                      </div>
                     </td>
                   </tr>
                 `).join('')}
@@ -175,7 +201,6 @@ export function GerenciarProfessoresTab({ professores, disciplinas, turmas, onRe
         toast.error('Erro ao carregar ficha: ' + err.message)
       } finally {
         btnEl.disabled = false
-        btnEl.textContent = '📋 Ficha'
       }
     })
   })

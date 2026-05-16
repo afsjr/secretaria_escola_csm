@@ -5,83 +5,95 @@ interface CursoData {
   descricao?: string
 }
 
-interface DisciplinaData {
+interface DisciplinaBaseData {
   nome: string
   modulo: string
   cursoId: string
+  cargaHoraria?: number
 }
 
 export const CourseService = {
 
-  // Buscar todos os cursos
+  // =====================================================
+  // CURSOS
+  // =====================================================
+
   async getCursos() {
     const { data, error } = await supabase
       .from('cursos')
       .select('*')
       .order('nome', { ascending: true })
-
     return { data, error }
   },
 
-  // Buscar cursos ativos
   async getCursosAtivos() {
     const { data, error } = await supabase
       .from('cursos')
       .select('*')
       .eq('ativo', true)
       .order('nome', { ascending: true })
-
     return { data, error }
   },
 
-  // Criar novo curso
   async createCurso({ nome, descricao }: CursoData) {
     const { data, error } = await supabase
       .from('cursos')
       .insert([{ nome, descricao }])
       .select()
       .single()
-
     return { data, error }
   },
 
-  // Atualizar curso
-  async updateCurso(cursoId: string, updates: Record<string, any>) {
-    const { data, error } = await supabase
-      .from('cursos')
-      .update(updates)
-      .eq('id', cursoId)
-      .select()
-      .single()
-
-    return { data, error }
-  },
-
-  // Desativar curso (soft delete)
   async desativarCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('cursos')
       .update({ ativo: false })
       .eq('id', cursoId)
-      .select()
-      .single()
-
     return { data, error }
   },
 
-  // Reativar curso
   async reativarCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('cursos')
       .update({ ativo: true })
       .eq('id', cursoId)
-      .select()
-      .single()
-
     return { data, error }
   },
 
-  // Buscar turmas de um curso específico
+  // =====================================================
+  // MATRIZ CURRICULAR (Disciplinas Base)
+  // =====================================================
+
+  // Buscar todas as disciplinas do catálogo de um curso
+  async getMatrizCurricular(cursoId: string) {
+    const { data, error } = await supabase
+      .from('disciplinas_base')
+      .select('*')
+      .eq('curso_id', cursoId)
+      .order('modulo', { ascending: true })
+      .order('nome', { ascending: true })
+    return { data, error }
+  },
+
+  // Adicionar disciplina ao catálogo do curso
+  async addDisciplinaAoCatalogo({ nome, modulo, cursoId, cargaHoraria = 40 }: DisciplinaBaseData) {
+    const { data, error } = await supabase
+      .from('disciplinas_base')
+      .insert([{ 
+        nome, 
+        modulo, 
+        curso_id: cursoId,
+        carga_horaria: cargaHoraria 
+      }])
+      .select()
+      .single()
+    return { data, error }
+  },
+
+  // =====================================================
+  // TURMAS E OFERTAS (Alocações)
+  // =====================================================
+
   async getTurmasDoCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('turmas')
@@ -91,51 +103,45 @@ export const CourseService = {
       `)
       .eq('curso_id', cursoId)
       .order('periodo', { ascending: false })
-      .order('nome', { ascending: true })
-
     return { data, error }
   },
 
-  // Buscar disciplinas de um curso específico
-  async getDisciplinasDoCurso(cursoId: string) {
+  // Buscar o que uma turma específica está cursando (Ofertas)
+  async getOfertasDaTurma(turmaId: string) {
     const { data, error } = await supabase
-      .from('disciplinas')
+      .from('turma_disciplinas')
       .select(`
         *,
-        turmas(id, nome, periodo),
-        perfis!disciplinas_professor_id_fkey(id, nome_completo)
+        disciplinas_base (id, nome, modulo, carga_horaria),
+        perfis (id, nome_completo)
       `)
-      .eq('curso_id', cursoId)
-      .order('modulo', { ascending: true })
-      .order('nome', { ascending: true })
-
+      .eq('turma_id', turmaId)
     return { data, error }
   },
 
-  // Criar disciplina para um curso
-  async createDisciplina({ nome, modulo, cursoId }: DisciplinaData) {
+  // Criar uma nova oferta (Vincular disciplina do catálogo a uma turma e professor)
+  async criarOfertaDisciplina(turmaId: string, disciplinaBaseId: string, professorId?: string) {
     const { data, error } = await supabase
-      .from('disciplinas')
-      .insert([{ nome, modulo, curso_id: cursoId }])
+      .from('turma_disciplinas')
+      .insert([{
+        turma_id: turmaId,
+        disciplina_base_id: disciplinaBaseId,
+        professor_id: professorId
+      }])
       .select()
       .single()
-
     return { data, error }
   },
 
-  // Atualizar curso de uma turma
-  async vincularTurmaAoCurso(turmaId: string, cursoId: string) {
+  // Atualizar professor de uma oferta
+  async atribuirProfessorAEstrutura(ofertaId: string, professorId: string) {
     const { data, error } = await supabase
-      .from('turmas')
-      .update({ curso_id: cursoId })
-      .eq('id', turmaId)
-      .select()
-      .single()
-
+      .from('turma_disciplinas')
+      .update({ professor_id: professorId })
+      .eq('id', ofertaId)
     return { data, error }
   },
 
-  // Buscar curso de uma turma
   async getCursoDaTurma(turmaId: string) {
     const { data, error } = await supabase
       .from('turmas')
@@ -145,7 +151,7 @@ export const CourseService = {
       `)
       .eq('id', turmaId)
       .single()
-
     return { data, error }
   }
 }
+

@@ -117,11 +117,11 @@ export async function MatrizView(): Promise<HTMLElement> {
     const { data: cursosData } = await CourseService.getCursosAtivos()
     cursos = cursosData || []
 
-    // Load disciplines for each course
+    // Load disciplines from the new Matriz Curricular table
     for (const curso of cursos) {
-      const { data: disciplinas } = await CourseService.getDisciplinasDoCurso(curso.id)
+      const { data: disciplinas } = await CourseService.getMatrizCurricular(curso.id)
       if (disciplinas && disciplinas.length > 0) {
-        disciplinasPorCurso[curso.nome] = disciplinas as DisciplinaData[]
+        disciplinasPorCurso[curso.nome] = disciplinas as any[]
       }
     }
   } catch (err) {

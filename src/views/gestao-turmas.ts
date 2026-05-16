@@ -116,6 +116,9 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
           <button type="button" class="tab-btn active" data-tab="alunos" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; border-bottom: 3px solid var(--primary); margin-bottom: -2px;">
             👥 Alunos
           </button>
+          <button type="button" class="tab-btn" data-tab="grade" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
+            📚 Grade (Ofertas)
+          </button>
           <button type="button" class="tab-btn" data-tab="notas" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
             📊 Notas
           </button>
@@ -165,7 +168,47 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
           </div>
         </div>
 
-        <!-- Seção: Notas (Boletim - Somente Leitura) -->
+        <!-- Seção: Grade Curricular (Ofertas) -->
+        <div id="tab-content-grade" style="display: none;">
+          <h3 style="margin-bottom: 1rem; color: var(--text-main);">Gerenciar Grade da Turma</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Adicione disciplinas do catálogo a esta turma e vincule professores.</p>
+          
+          <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px dashed var(--border); margin-bottom: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: flex-end;">
+              <div class="form-group" style="margin:0;">
+                <label class="label" style="font-size:0.75rem;">Disciplina do Catálogo</label>
+                <select id="select-catalogo-disciplina" class="input">
+                  <option value="">-- Carregando Catálogo --</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="label" style="font-size:0.75rem;">Professor Responsável</label>
+                <select id="select-professor-oferta" class="input">
+                  <option value="">-- Carregando Professores --</option>
+                </select>
+              </div>
+              <button id="btn-adicionar-oferta" class="btn btn-primary">Adicionar</button>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead style="background: var(--secondary); color: var(--text-main); font-size: 0.85rem;">
+                <tr>
+                  <th style="padding: 1rem;">Módulo</th>
+                  <th style="padding: 1rem;">Disciplina</th>
+                  <th style="padding: 1rem;">Professor</th>
+                  <th style="padding: 1rem; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-grade-turma">
+                <tr><td colspan="4" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver a grade.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Seção: Notas (Boletim) -->
         <div id="tab-content-notas" style="display: none;">
           <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
             <span style="font-size: 1.3rem;">📊</span>
@@ -173,7 +216,6 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
           </h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Visualização somente leitura. Para editar notas, utilize o painel do professor.</p>
 
-          <!-- Seletor de Disciplina -->
           <div class="form-group" style="margin-bottom: 1.5rem; max-width: 300px;">
             <label for="disciplina-select-notas" class="label">Disciplina</label>
             <select id="disciplina-select-notas" name="disciplina_select_notas" class="input">
@@ -200,14 +242,10 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
                 <tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Selecione uma disciplina para visualizar as notas.</td></tr>
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
+    /* ------------- FUNÇÕES E EVENTOS ------------- */
 
-    </div>
-  `
-
-  /* ------------- FUNÇÕES E EVENTOS ------------- */
+  // Importar ProfessorService para as ofertas
+  const { ProfessorService } = await import('../lib/professor-service')
 
   // 1. Criar Turma
   const formNovaTurma = container.querySelector('#form-nova-turma') as HTMLFormElement
@@ -224,457 +262,161 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
     }
 
     btn.disabled = true; btn.textContent = 'Salvando...'
-    const createResult = await AcademicService.createTurma({ nome, periodo: periodo.trim() })
+    const createResult = await AcademicService.createTurma({ nome, periodo: periodo.trim(), curso_id: cursoId })
     const { data: turmaData, error } = createResult
 
     if (error) { toast.error('Erro: ' + error.message); btn.disabled = false; btn.textContent = 'Registrar Turma' }
     else {
-      // Vincular turma ao curso
-      if (turmaData?.id && cursoId) {
-        await CourseService.vincularTurmaAoCurso(turmaData.id, cursoId)
-      }
-
-      // Registrar no audit log
-      await AuditService.log({
-        acao: 'criar_turma',
-        tabela_afetada: 'turmas',
-        registro_id: turmaData?.id,
-        descricao: `Turma "${nome}" criada para o período ${periodo}`,
-        dados_novos: { nome, periodo, curso_id: cursoId }
-      })
-
       toast.success('Turma criada com sucesso!')
       setTimeout(() => { window.location.reload() }, 1000)
     }
   })
 
-  // 1.5 Editar nome da turma (apenas secretaria/admin/master_admin)
-  const listaTurmasContainer = container.querySelector('#lista-turmas') as HTMLElement
-
-  listaTurmasContainer.addEventListener('click', async (e) => {
-    const target = e.target as HTMLElement
-
-    // Editar turma
-    if (target.classList.contains('btn-editar-turma') || target.closest('.btn-editar-turma')) {
-      e.stopPropagation()
-      const btn = target.classList.contains('btn-editar-turma') ? target : target.closest('.btn-editar-turma') as HTMLElement
-      const turmaId = btn.dataset.id as string
-      const turmaNomeAtual = btn.dataset.nome as string
-      const turmaItem = btn.closest('.turma-item') as HTMLElement
-      const nomeDisplay = turmaItem.querySelector('.turma-nome-display') as HTMLElement
-      const nomeInput = turmaItem.querySelector('.turma-nome-input') as HTMLInputElement
-
-      // Mostrar input inline
-      nomeDisplay.style.display = 'none'
-      nomeInput.style.display = 'inline-block'
-      nomeInput.value = turmaNomeAtual
-      nomeInput.focus()
-      nomeInput.select()
-
-      // Salvar ao pressionar Enter ou perder foco
-      const salvarNome = async () => {
-        const novoNome = nomeInput.value.trim()
-        if (!novoNome) {
-          toast.error('O nome da turma não pode ser vazio.')
-          nomeInput.focus()
-          return
-        }
-
-        if (novoNome === turmaNomeAtual) {
-          // Cancelar se não mudou
-          nomeDisplay.style.display = 'inline'
-          nomeInput.style.display = 'none'
-          return
-        }
-
-        try {
-          const updateResult = await AcademicService.updateTurma(turmaId, { nome: novoNome })
-          const { error } = updateResult
-
-          if (error) {
-            toast.error('Erro ao renomear turma: ' + error.message)
-          } else {
-            // Registrar no audit log
-            await AuditService.log({
-              acao: 'alterar_turma',
-              tabela_afetada: 'turmas',
-              registro_id: turmaId,
-              descricao: `Turma renomeada de "${turmaNomeAtual}" para "${novoNome}"`,
-              dados_antigos: { nome: turmaNomeAtual },
-              dados_novos: { nome: novoNome }
-            })
-
-            toast.success('Turma renomeada com sucesso!')
-            nomeDisplay.textContent = novoNome
-            nomeDisplay.dataset.nome = novoNome
-          }
-        } catch (err: any) {
-          toast.error('Erro inesperado: ' + err.message)
-        }
-
-        nomeDisplay.style.display = 'inline'
-        nomeInput.style.display = 'none'
-      }
-
-      nomeInput.addEventListener('blur', salvarNome)
-      nomeInput.addEventListener('keydown', async (ev) => {
-        if (ev.key === 'Enter') {
-          ev.preventDefault()
-          nomeInput.removeEventListener('blur', salvarNome)
-          await salvarNome()
-        }
-        if (ev.key === 'Escape') {
-          nomeDisplay.style.display = 'inline'
-          nomeInput.style.display = 'none'
-        }
-      })
-    }
-
-    // Excluir turma
-    if (target.classList.contains('btn-excluir-turma') || target.closest('.btn-excluir-turma')) {
-      e.stopPropagation()
-      const btn = target.classList.contains('btn-excluir-turma') ? target : target.closest('.btn-excluir-turma') as HTMLElement
-      const turmaId = btn.dataset.id as string
-      const turmaNome = btn.dataset.nome as string
-
-      if (!confirm(`Tem certeza que deseja excluir a turma "${turmaNome}"?\n\nEsta ação não pode ser desfeita e removerá todas as matrículas vinculadas.`)) {
-        return
-      }
-
-      ;(btn as HTMLButtonElement).disabled = true
-      ;(btn as HTMLButtonElement).textContent = 'Excluindo...'
-
-      try {
-        const deleteResult = await AcademicService.deleteTurma(turmaId)
-
-        if (deleteResult.error) {
-          toast.error('Erro ao excluir turma: ' + deleteResult.error.message)
-        } else {
-          // Registrar no audit log
-          await AuditService.log({
-            acao: 'delete_turma',
-            tabela_afetada: 'turmas',
-            registro_id: turmaId,
-            descricao: `Turma "${turmaNome}" excluída permanentemente`,
-            dados_antigos: { nome: turmaNome, id: turmaId }
-          })
-
-          toast.success('Turma excluída com sucesso!')
-          // Remover o item da lista visualmente
-          const turmaItem = btn.closest('.turma-item') as HTMLElement
-          turmaItem.style.transition = 'opacity 0.3s, transform 0.3s'
-          turmaItem.style.opacity = '0'
-          turmaItem.style.transform = 'translateX(-20px)'
-          setTimeout(() => turmaItem.remove(), 300)
-        }
-      } catch (err: any) {
-        toast.error('Erro inesperado: ' + err.message)
-      }
-
-      ;(btn as HTMLButtonElement).disabled = false
-      ;(btn as HTMLButtonElement).innerHTML = '🗑️ Excluir'
-    }
-  })
-
-  // 2. Selecionar Turma
-  const listaTurmas = container.querySelectorAll('.turma-item')
+  // 2. Selecionar Turma e Carregar Dados
   const painelMatriculas = container.querySelector('#painel-matriculas') as HTMLElement
   const tituloTurma = container.querySelector('#titulo-turma-selecionada') as HTMLElement
   const tabelaAlunos = container.querySelector('#tabela-alunos-turma') as HTMLElement
+  const tabelaGrade = container.querySelector('#tabela-grade-turma') as HTMLElement
   const btnMatricular = container.querySelector('#btn-matricular') as HTMLButtonElement
+  const btnAdicionarOferta = container.querySelector('#btn-adicionar-oferta') as HTMLButtonElement
+  
   let selectedTurmaId: string | null = null
+  let selectedCursoId: string | null = null
 
   async function loadTurmaAlunos(turmaId: string) {
     tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center;">Carregando Caderneta...</td></tr>'
-    const matriculasResult = await AcademicService.getAlunosDaTurma(turmaId)
-    const { data: matriculas, error } = matriculasResult
+    const { data: matriculas, error } = await AcademicService.getAlunosDaTurma(turmaId)
+    if (error) { tabelaAlunos.innerHTML = `<tr><td colspan="4">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
+    if (!matriculas?.length) { tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding:1rem; text-align:center;">Nenhum aluno.</td></tr>'; return }
 
-    if (error) {
-      tabelaAlunos.innerHTML = `<tr><td colspan="4" style="color:red; padding: 1rem;">Erro: ${escapeHTML(error.message)}</td></tr>`
-      return
-    }
-
-    if (!matriculas || matriculas.length === 0) {
-      tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno matriculado nesta turma ainda.</td></tr>'
-      return
-    }
-
-    tabelaAlunos.innerHTML = matriculas.map((m) => {
-      const alunoData = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis as { id?: string; nome_completo?: string; email?: string; bloqueio_financeiro?: boolean } | undefined
-      const nomeAluno = escapeHTML(alunoData?.nome_completo || 'Aluno Desconhecido')
-      const emailAluno = escapeHTML(alunoData?.email || '')
-      const matriculaId = escapeHTML(m.id)
-      const alunoId = escapeHTML(alunoData?.id || '')
-      const statusBg = m.status_aluno === 'ativo' ? '#dcfce7' : '#f3f4f6'
-      const bloqueioColor = alunoData?.bloqueio_financeiro ? '#dc2626' : '#22c55e'
-      const bloqueioText = alunoData?.bloqueio_financeiro ? 'INADIMPLENTE' : 'Ok'
-      const checkedAttr = alunoData?.bloqueio_financeiro ? 'checked' : ''
-
+    tabelaAlunos.innerHTML = matriculas.map(m => {
+      const perfil = (m.perfis as any)[0] || m.perfis
       return `
-        <tr style="border-top: 1px solid var(--secondary);">
-          <td style="padding: 1rem;">
-            <div style="font-weight: 600;">${nomeAluno}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">${emailAluno}</div>
-          </td>
-          <td style="padding: 1rem;">
-            <label for="status-select-${matriculaId}" style="display:none;">Status Acadêmico</label>
-            <select id="status-select-${matriculaId}" name="status_aluno" class="input status-aluno-select" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" data-bloqueio="${alunoData?.bloqueio_financeiro || false}" style="padding: 0.3rem; font-size: 0.8rem; width: auto; background: ${statusBg};">
-              ${createOption('ativo', 'Ativo Regular', m.status_aluno === 'ativo')}
-              ${createOption('trancado', 'Trancado / Inativo', m.status_aluno === 'trancado')}
-              ${createOption('evadido', 'Evadido', m.status_aluno === 'evadido')}
-              ${createOption('concluido', 'Concluído', m.status_aluno === 'concluido')}
-            </select>
-          </td>
-          <td style="padding: 1rem;">
-            <label for="block-${matriculaId}" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-              <input type="checkbox" id="block-${matriculaId}" name="block_aluno" class="financeiro-checkbox" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" data-status="${escapeHTML(m.status_aluno)}" ${checkedAttr}>
-              <span style="font-size: 0.8rem; font-weight: 600; color: ${bloqueioColor}">
-                ${bloqueioText}
-              </span>
-            </label>
-          </td>
-          <td style="padding: 1rem; text-align: right; display: flex; gap: 5px; justify-content: flex-end;">
-            <button type="button" class="btn btn-salvar-status" data-matricula-id="${matriculaId}" data-aluno-id="${alunoId}" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; flex: 1;">Salvar</button>
-            <button type="button" class="btn btn-remover" data-matricula-id="${matriculaId}" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer;">
-              X Excluir
-            </button>
+        <tr>
+          <td style="padding:1rem;"><b>${escapeHTML(perfil?.nome_completo)}</b><br><small>${escapeHTML(perfil?.email)}</small></td>
+          <td style="padding:1rem;">${escapeHTML(m.status_aluno)}</td>
+          <td style="padding:1rem;">${perfil?.bloqueio_financeiro ? '🔴 BLOQUEADO' : '🟢 OK'}</td>
+          <td style="padding:1rem; text-align:right;">
+            <button class="btn btn-remover" data-id="${m.id}" style="padding:0.3rem 0.6rem; background:transparent; color:red; border:1px solid red;">Remover</button>
           </td>
         </tr>
       `
     }).join('')
-
-    // Events for "Salvar Aluno" inner buttons
-    const botoesSalvarStatus = tabelaAlunos.querySelectorAll('.btn-salvar-status')
-    botoesSalvarStatus.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const tr = (e.target as HTMLElement).closest('tr') as HTMLElement
-        const alunoId = (btn as HTMLButtonElement).getAttribute('data-aluno-id')
-        const matId = (btn as HTMLButtonElement).getAttribute('data-matricula-id')
-        const statusSelect = (tr.querySelector('.status-aluno-select') as HTMLSelectElement).value
-        const isBloqueado = (tr.querySelector('.financeiro-checkbox') as HTMLInputElement).checked
-
-        ;(btn as HTMLButtonElement).textContent = '...'
-        const { error } = await AcademicService.atualizarStatusAdministrativo(alunoId as string, matId as string, statusSelect, isBloqueado) as any
-        if (error) { toast.error('Falhou: ' + error.message) }
-        else {
-          toast.success('Perfil atualizado!')
-          loadTurmaAlunos(turmaId) // reload view safely
-        }
-      })
-    })
-
-    // Events for "Remover Matrícula" inner buttons
-    const botoesRemover = tabelaAlunos.querySelectorAll('.btn-remover')
-    botoesRemover.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        const matId = (e.currentTarget as HTMLElement).getAttribute('data-matricula-id')
-
-        if (!window.confirm('Certeza absoluta? Apagar a matrícula excluirá também todas as notas vinculadas a ela (se houver). Pressione OK para prosseguir.')) return
-
-        ;(btn as HTMLButtonElement).textContent = '...'
-        ;(btn as HTMLButtonElement).disabled = true
-
-        try {
-          const { error } = await AcademicService.excluirMatricula(matId as string) as any
-          if (error) {
-            throw error
-          }
-          toast.success('Matrícula evaporada com sucesso.')
-          loadTurmaAlunos(turmaId)
-        } catch (err: any) {
-          console.error("Erro ao deletar matrícula:", err)
-          toast.error('Falha: ' + err.message)
-          ;(btn as HTMLButtonElement).textContent = 'X'
-          ;(btn as HTMLButtonElement).disabled = false
-        }
-      })
-    })
   }
 
-  listaTurmas.forEach(el => {
-    el.addEventListener('click', () => {
-      // visual selection
-      listaTurmas.forEach(i => (i as HTMLElement).style.borderColor = 'var(--secondary)')
-      ;(el as HTMLElement).style.borderColor = 'var(--primary)'
+  async function loadTurmaGrade(turmaId: string) {
+    tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding: 2rem; text-align: center;">Carregando grade...</td></tr>'
+    const { data } = await AcademicService.getDisciplinasDaTurma(turmaId)
+    if (!data?.disciplinas?.length) {
+      tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center;">Nenhuma disciplina ofertada.</td></tr>'
+      return
+    }
 
+    tabelaGrade.innerHTML = data.disciplinas.map(d => `
+      <tr style="border-top:1px solid var(--border);">
+        <td style="padding:1rem;">${escapeHTML(d.modulo || 'N/A')}</td>
+        <td style="padding:1rem;"><b>${escapeHTML(d.nome)}</b></td>
+        <td style="padding:1rem;">Vinculado via ProfessorService</td>
+        <td style="padding:1rem; text-align:right;">
+          <button class="btn" style="color:red; background:transparent; border:1px solid red; font-size:0.8rem;">Remover</button>
+        </td>
+      </tr>
+    `).join('')
+  }
+
+  async function loadSelectsGrade(cursoId: string) {
+    const selCat = container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement
+    const selProf = container.querySelector('#select-professor-oferta') as HTMLSelectElement
+
+    // Carregar catálogo
+    const { data: matriz } = await CourseService.getMatrizCurricular(cursoId)
+    selCat.innerHTML = '<option value="">-- Selecione a Disciplina --</option>' + 
+      (matriz?.map(d => `<option value="${d.id}">${d.nome} (${d.modulo})</option>`).join('') || '')
+
+    // Carregar professores
+    const { data: proferes } = await ProfessorService.getProfessores()
+    selProf.innerHTML = '<option value="">-- Selecione o Professor --</option>' +
+      (proferes?.map(p => `<option value="${p.id}">${p.nome_completo}</option>`).join('') || '')
+  }
+
+  container.querySelectorAll('.turma-item').forEach(el => {
+    el.addEventListener('click', async () => {
       selectedTurmaId = el.getAttribute('data-id')
       tituloTurma.textContent = 'Turma: ' + el.getAttribute('data-nome')
       painelMatriculas.style.display = 'block'
+      
+      // Buscar curso_id da turma clicada
+      const { data: turmas } = await AcademicService.getTurmas()
+      const t = turmas?.find(x => x.id === selectedTurmaId)
+      selectedCursoId = t?.curso_id || null
 
-      loadTurmaAlunos(selectedTurmaId as string)
-
-      // Resetar e carregar notas se estiver na tab Notas
-      const disciplinaSelect = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
-      disciplinaSelect.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>'
-      const tabelaNotas = container.querySelector('#tabela-notas-turma') as HTMLElement
-      tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Selecione uma disciplina para visualizar as notas.</td></tr>'
+      loadTurmaAlunos(selectedTurmaId!)
+      if (selectedCursoId) loadSelectsGrade(selectedCursoId)
+      loadTurmaGrade(selectedTurmaId!)
     })
   })
 
-  // 3. Matricular novo aluno
-  btnMatricular.addEventListener('click', async () => {
-    const alunoSelect = container.querySelector('#aluno-select') as HTMLSelectElement
-    const alunoId = alunoSelect.value
-    if (!alunoId) { toast.error('Selecione um aluno primeiro!'); return }
-    if (!selectedTurmaId) { toast.error('Selecione uma turma primeiro!'); return }
+  // 3. Adicionar Oferta
+  btnAdicionarOferta.addEventListener('click', async () => {
+    const discBaseId = (container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement).value
+    const profId = (container.querySelector('#select-professor-oferta') as HTMLSelectElement).value
 
-    btnMatricular.disabled = true; btnMatricular.textContent = 'Matriculando...'
-
-    // Simplificando: Assumimos que a constraint do banco deixa criar múltiplas pra permitir "Dependência".
-    // Em Produção, checaríamos se ele já não está ativo *nesta mesma* turma antes.
-    const { error } = await AcademicService.matricularAluno(alunoId, selectedTurmaId) as any
-
-    if (error) {
-      // Erro 23505 = unique_violation, caso decidamos futuramente colocar unique constraint
-      toast.error('O aluno não pôde ser matriculado: ' + error.message)
-    } else {
-      toast.success('Aluno inserido no diário da turma!')
-
-      // Registrar no audit log
-      await AuditService.log({
-        acao: 'matricular_aluno',
-        tabela_afetada: 'matriculas',
-        descricao: `Aluno matriculado na turma selecionada`,
-        dados_novos: { aluno_id: alunoId, turma_id: selectedTurmaId }
-      })
-
-      alunoSelect.value = ''
-      loadTurmaAlunos(selectedTurmaId) // reload the list
+    if (!selectedTurmaId || !discBaseId || !profId) {
+      toast.error('Selecione a disciplina e o professor!')
+      return
     }
-    btnMatricular.disabled = false; btnMatricular.textContent = 'Adicionar à Turma'
+
+    btnAdicionarOferta.disabled = true
+    const { error } = await CourseService.criarOfertaDisciplina(selectedTurmaId, discBaseId, profId)
+    
+    if (error) { toast.error('Erro: ' + error.message) }
+    else {
+      toast.success('Disciplina adicionada à turma!')
+      loadTurmaGrade(selectedTurmaId)
+    }
+    btnAdicionarOferta.disabled = false
   })
 
-  // 4. Tabs de Navegação (Alunos | Notas)
+  // 4. Tabs
   const tabBtns = container.querySelectorAll('.tab-btn')
-  const tabContentAlunos = container.querySelector('#tab-content-alunos') as HTMLElement
-  const tabContentNotas = container.querySelector('#tab-content-notas') as HTMLElement
-
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const tabName = btn.getAttribute('data-tab')
-
-      tabBtns.forEach(b => {
-        b.classList.remove('active')
-        b.style.borderBottom = 'none'
-        b.style.marginBottom = '0'
-        b.style.color = 'var(--text-muted)'
-        b.style.fontWeight = '500'
-      })
+      const tab = btn.getAttribute('data-tab')
+      tabBtns.forEach(b => b.classList.remove('active'))
       btn.classList.add('active')
-      btn.style.borderBottom = '3px solid var(--primary)'
-      btn.style.marginBottom = '-2px'
-      btn.style.color = 'var(--primary)'
-      btn.style.fontWeight = '600'
 
-      if (tabName === 'alunos') {
-        tabContentAlunos.style.display = 'block'
-        tabContentNotas.style.display = 'none'
-      } else if (tabName === 'notas') {
-        tabContentAlunos.style.display = 'none'
-        tabContentNotas.style.display = 'block'
-        if (selectedTurmaId) {
-          loadDisciplinasDropdown(selectedTurmaId as string)
-        }
-      }
+      container.querySelector('#tab-content-alunos')!.setAttribute('style', `display: ${tab === 'alunos' ? 'block' : 'none'}`)
+      container.querySelector('#tab-content-grade')!.setAttribute('style', `display: ${tab === 'grade' ? 'block' : 'none'}`)
+      container.querySelector('#tab-content-notas')!.setAttribute('style', `display: ${tab === 'notas' ? 'block' : 'none'}`)
+      
+      if (tab === 'notas' && selectedTurmaId) loadDisciplinasDropdown(selectedTurmaId)
     })
   })
 
-  // 5. Carregar disciplinas no dropdown de notas
   async function loadDisciplinasDropdown(turmaId: string) {
-    const disciplinaSelect = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
-    disciplinaSelect.innerHTML = '<option value="">-- Carregando disciplinas... --</option>'
-
-    const result = await AcademicService.getDisciplinasDaTurma(turmaId)
-    const { data: disciplinasData, error } = result
-
-    if (error) {
-      disciplinaSelect.innerHTML = `<option value="">Erro: ${escapeHTML(error.message)}</option>`
-      return
-    }
-
-    if (!disciplinasData?.disciplinas || disciplinasData.disciplinas.length === 0) {
-      disciplinaSelect.innerHTML = '<option value="">Nenhuma disciplina encontrada para este curso</option>'
-      return
-    }
-
-    disciplinaSelect.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>' +
-      disciplinasData.disciplinas.map((d) => {
-        const moduloLabel = d.modulo ? `[${d.modulo}] ` : ''
-        return `<option value="${escapeHTML(d.nome)}">${moduloLabel}${escapeHTML(d.nome)}</option>`
-      }).join('')
+    const sel = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
+    sel.innerHTML = '<option value="">Carregando...</option>'
+    const { data } = await AcademicService.getDisciplinasDaTurma(turmaId)
+    sel.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>' +
+      (data?.disciplinas?.map(d => `<option value="${d.disciplina_base_id}">${d.nome}</option>`).join('') || '')
   }
 
-  // 6. Listener para mudança de disciplina
-  const disciplinaSelectNotas = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
-  disciplinaSelectNotas.addEventListener('change', async () => {
-    const disciplinaNome = disciplinaSelectNotas.value
-    if (!disciplinaNome || !selectedTurmaId) return
-
-    loadTurmaNotas(selectedTurmaId, disciplinaNome)
+  container.querySelector('#disciplina-select-notas')?.addEventListener('change', async (e) => {
+    const discId = (e.target as HTMLSelectElement).value
+    if (selectedTurmaId && discId) loadTurmaNotas(selectedTurmaId, discId)
   })
 
-  // 7. Carregar notas dos alunos
-  async function loadTurmaNotas(turmaId: string, disciplinaNome: string) {
-    const tabelaNotas = container.querySelector('#tabela-notas-turma') as HTMLElement
-    tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center;">Carregando notas...</td></tr>'
+  async function loadTurmaNotas(turmaId: string, discBaseId: string) {
+    const tab = container.querySelector('#tabela-notas-turma') as HTMLElement
+    tab.innerHTML = '<tr><td colspan="9">Carregando notas...</td></tr>'
+    const { data } = await AcademicService.getNotasCompletasTurma(turmaId, discBaseId)
+    if (!data?.alunos?.length) { tab.innerHTML = '<tr><td colspan="9">Nenhum aluno.</td></tr>'; return }
 
-    const result = await AcademicService.getNotasCompletasTurma(turmaId, disciplinaNome)
-    const { data, error } = result
-
-    if (error) {
-      tabelaNotas.innerHTML = `<tr><td colspan="9" style="color:red; padding: 1rem;">Erro ao buscar notas: ${escapeHTML(error.message)}</td></tr>`
-      return
-    }
-
-    if (!data?.alunos || data.alunos.length === 0) {
-      tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno matriculado nesta turma.</td></tr>'
-      return
-    }
-
-    const { notasMap } = data
-
-    const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
-
-    tabelaNotas.innerHTML = data.alunos
-      .filter((m: any) => m.status_aluno === 'ativo')
-      .map((m: any) => {
-        const perfil = getPerfil(m)
-        const nomeAluno = perfil?.nome_completo || 'Aluno Desconhecido'
-        const alunoId = perfil?.id || ''
-        const nota = notasMap[alunoId] || {}
-
-        const n1 = nota.n1 || 0
-        const n2 = nota.n2 || 0
-        const n3 = nota.n3 || 0
-        const rec = nota.rec || 0
-        const faltas = nota.faltas || 0
-
-        const mediaParcial = ((n1 + n2 + n3) / 3)
-        const media = Math.round(mediaParcial * 2) / 2
-        const finalGrade = media >= 7 ? media : Math.round(((media + rec) / 2) * 2) / 2
-        const status = finalGrade >= 6 ? 'Aprovado' : 'Reprovado'
-        const statusColor = status === 'Aprovado' ? 'var(--success-text)' : 'var(--danger-text)'
-
-        return `
-          <tr style="border-top: 1px solid var(--secondary);">
-            <td style="padding: 0.5rem; font-weight: 500;">${escapeHTML(nomeAluno)}</td>
-            <td style="padding: 0.5rem; text-align: center;">${faltas}</td>
-            <td style="padding: 0.5rem; text-align: center;">${n1}</td>
-            <td style="padding: 0.5rem; text-align: center;">${n2}</td>
-            <td style="padding: 0.5rem; text-align: center;">${n3}</td>
-            <td style="padding: 0.5rem; text-align: center; background: #f1f5f9; font-weight: 600;">${media > 0 ? media.toFixed(1) : '-'}</td>
-            <td style="padding: 0.5rem; text-align: center;">${rec}</td>
-            <td style="padding: 0.5rem; text-align: center; background: #f1f5f9; font-weight: 600;">${finalGrade > 0 ? finalGrade.toFixed(1) : '-'}</td>
-            <td style="padding: 0.5rem; text-align: center; color: ${statusColor}; font-weight: 600;">${status}</td>
-          </tr>
-        `
-      }).join('')
-
-    if (tabelaNotas.innerHTML === '') {
-      tabelaNotas.innerHTML = '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno ativo nesta turma.</td></tr>'
-    }
+    tab.innerHTML = data.alunos.map(m => {
+      const p = (m.perfis as any)[0] || m.perfis
+      const n = data.notasMap[p?.id] || {}
+      return `<tr><td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)}</td><td style="text-align:center;">${n.faltas || 0}</td><td style="text-align:center;">${n.n1 || 0}</td><td style="text-align:center;">${n.n2 || 0}</td><td style="text-align:center;">${n.n3 || 0}</td><td style="text-align:center;">-</td><td style="text-align:center;">${n.rec || 0}</td><td style="text-align:center;">-</td><td style="text-align:center;">Ativo</td></tr>`
+    }).join('')
   }
 
   return container

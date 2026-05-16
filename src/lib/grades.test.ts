@@ -5,59 +5,14 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { 
+  arredondarNota, 
+  calcularMediaParcial, 
+  calcularNotaFinal, 
+  calcularStatusAluno 
+} from './grades-utils'
 
-/**
- * Arredonda a nota para múltiplos de 0.5 conforme regra:
- * X.1 até X.4 => X.5
- * X.6 até X.9 => (X+1).0
- *
- * @example
- * 7.3 => 7.5
- * 7.7 => 8.0
- * 7.5 => 7.5
- * 7.0 => 7.0
- */
-function arredondarNota(nota: number | undefined): number {
-  if (!nota || nota <= 0) return 0
-  const inteiro = Math.floor(nota)
-  const decimal = nota - inteiro
-
-  if (decimal === 0) return nota
-  if (decimal > 0 && decimal <= 0.4) return inteiro + 0.5
-  if (decimal > 0.4 && decimal <= 0.5) return inteiro + 0.5
-  return inteiro + 1.0
-}
-
-/**
- * Calcula a média parcial (média das 3 notas)
- */
-function calcularMediaParcial(n1: number, n2: number, n3: number): number {
-  if (n1 === 0 && n2 === 0 && n3 === 0) return 0
-  return (n1 + n2 + n3) / 3
-}
-
-/**
- * Calcula a nota final considerando recuperação
- * Se média >= 7, approved direto
- * Se média < 7, usa (média + rec) / 2
- * Usa arredondarNota para garantir múltiplos de 0.5
- */
-function calcularNotaFinal(mediaParcial: number, rec: number): number {
-  if (mediaParcial >= 7) return arredondarNota(mediaParcial)
-  if (rec <= 0) return arredondarNota(mediaParcial)
-  const notaComRec = (mediaParcial + rec) / 2
-  return arredondarNota(notaComRec)
-}
-
-/**
- * Retorna status do aluno baseado na nota final
- * Aprovado: nota final >= 6
- * Reprovado: nota final < 6
- */
-function calcularStatus(final: number): string {
-  if (final >= 6) return 'Aprovado'
-  return 'Reprovado'
-}
+// As definições locais foram removidas para garantir que estamos testando o código real de grades-utils.ts.
 
 // =====================================================
 // TESTES: arredondarNota
@@ -212,23 +167,23 @@ describe('calcularNotaFinal', () => {
 })
 
 // =====================================================
-// TESTES: calcularStatus
+// TESTES: calcularStatusAluno
 // =====================================================
-describe('calcularStatus', () => {
+describe('calcularStatusAluno', () => {
   it('deve retornar Aprovado para nota >= 6', () => {
-    expect(calcularStatus(6)).toBe('Aprovado')
-    expect(calcularStatus(7)).toBe('Aprovado')
-    expect(calcularStatus(10)).toBe('Aprovado')
+    expect(calcularStatusAluno(6)).toBe('Aprovado')
+    expect(calcularStatusAluno(7)).toBe('Aprovado')
+    expect(calcularStatusAluno(10)).toBe('Aprovado')
   })
 
   it('deve retornar Reprovado para nota < 6', () => {
-    expect(calcularStatus(5.9)).toBe('Reprovado')
-    expect(calcularStatus(5)).toBe('Reprovado')
-    expect(calcularStatus(0)).toBe('Reprovado')
+    expect(calcularStatusAluno(5.9)).toBe('Reprovado')
+    expect(calcularStatusAluno(5)).toBe('Reprovado')
+    expect(calcularStatusAluno(0)).toBe('Reprovado')
   })
 
   it('deve retornar Aprovado para nota exatamente 6', () => {
-    expect(calcularStatus(6)).toBe('Aprovado')
+    expect(calcularStatusAluno(6)).toBe('Aprovado')
   })
 })
 
@@ -241,7 +196,7 @@ describe('Cenários Reais de Notas', () => {
     const media = calcularMediaParcial(7, 8, 9)
     const roundedMedia = arredondarNota(media)
     const final = calcularNotaFinal(roundedMedia, 0)
-    const status = calcularStatus(final)
+    const status = calcularStatusAluno(final)
 
     expect(media).toBe(8)
     expect(roundedMedia).toBe(8)
@@ -254,7 +209,7 @@ describe('Cenários Reais de Notas', () => {
     const media = calcularMediaParcial(5, 6, 5)
     const roundedMedia = arredondarNota(media)
     const final = calcularNotaFinal(roundedMedia, 7)
-    const status = calcularStatus(final)
+    const status = calcularStatusAluno(final)
 
     expect(roundedMedia).toBe(5.5)
     expect(final).toBe(6.5) // Agora usa arredondarNota, então 6.25 -> 6.5
@@ -265,7 +220,7 @@ describe('Cenários Reais de Notas', () => {
     const media = calcularMediaParcial(4, 5, 4)
     const roundedMedia = arredondarNota(media)
     const final = calcularNotaFinal(roundedMedia, 5)
-    const status = calcularStatus(final)
+    const status = calcularStatusAluno(final)
 
     expect(roundedMedia).toBe(4.5)
     expect(final).toBe(5)
@@ -276,7 +231,7 @@ describe('Cenários Reais de Notas', () => {
     const media = calcularMediaParcial(10, 10, 10)
     const roundedMedia = arredondarNota(media)
     const final = calcularNotaFinal(roundedMedia, 10)
-    const status = calcularStatus(final)
+    const status = calcularStatusAluno(final)
 
     expect(media).toBe(10)
     expect(roundedMedia).toBe(10)

@@ -1,76 +1,41 @@
-# 💎 Standard Skill: Padrão de Engenharia e Design CSM
+# 🎯 CSM Standard Skill: Manual de Excelência Técnica e Visual
 
-Este documento define as melhores práticas e padrões arquiteturais estabelecidos durante o desenvolvimento do SGE CSM (Sistema de Gestão Escolar). Utilize estas diretrizes para manter a consistência em todos os projetos do ecossistema.
-
----
-
-## 🎨 1. Estética e Design (Premium UX)
-- **Paleta de Cores**: Usar contrastes profundos. Preferência por `#C41E3A` (Vermelho Institucional), tons de cinza escuro para componentes e branco puro para texto sobre fundo escuro.
-- **Micro-animações**: Sempre implementar `animate-in` nas transições de visualização.
-- **Feedback Visual**: Uso obrigatório do `toast` para qualquer ação assíncrona (sucesso/erro).
-- **Glassmorphism**: Modais devem usar `backdrop-filter: blur(5px)` e fundos semi-transparentes.
-
-## 🔐 2. Segurança e Autenticação
-- **Política de Senhas**: Mínimo 8 caracteres, obrigatório conter letras e números.
-- **Primeiro Acesso**: Sempre implementar a flag `force_password_change`. Bloquear o sistema até que o usuário defina uma senha pessoal.
-- **Proteção Admin**: Nunca permitir que usuários de nível inferior (Secretaria/Staff) alterem ou resetem credenciais de nível superior (Admin).
-- **Gestão de Chaves**: Jamais commitar arquivos `.env`. Usar `.gitignore` rigorosamente.
-
-## 🏗️ 3. Arquitetura de Código (Pattern)
-- **Service Layer**: Toda interação com Banco de Dados/API deve estar em arquivos `*-service.ts` (Ex: `AdminService`, `FinanceiroService`). Nunca chamar o Supabase diretamente de dentro da View.
-- **View Pattern**: Views devem ser funções assíncronas que retornam um elemento `DOM` (container), facilitando o carregamento dinâmico sem reloads de página.
-- **Fallback Administrativo**: Em sistemas baseados em Supabase, sempre prever um `supabaseAdmin` (Service Role) isolado para ações que o usuário comum não tem permissão de realizar via RLS.
-
-## 📄 4. Geração de Documentos
-- **PDFService**: Centralizar geradores de PDF usando `jspdf` e `jspdf-autotable`.
-- **Branding**: Documentos devem ter cabeçalho institucional e rodapé de autenticidade (gerado eletronicamente).
-- **Segurança em PDFs**:
-  - **Mascaramento de CPF**: Sempre mascarar CPF com `***.444.777-**` (mostrar apenas 3° e 4° blocos).
-  - **Marca d'água**: Adicionar "CÓPIA" em diagonal para documentos emitidos eletronicamente.
-  - **Dados Sensíveis**: Nunca expor dados pessoais (CPF, RG, conta bancária) em texto claro.
-
-## 🧪 5. Testes Automatizados
-- **Framework**: Usar `vitest` para todos os testes.
-- **Testes de Unidade**: Funções puras (cálculos, validações) DEVEM ter testes.
-- **Nomenclatura**: Arquivos de teste em `*.test.ts` no mesmo diretório.
-- **Cobertura Crítica**: Priorizar testes de:
-  - Cálculo de notas e médias (`arredondarNota`, `calcularMediaParcial`)
-  - Validação de dados (`validarCPF`, `validarTelefone`)
-  - Regras de negócio
-- **Mockar Dependências**: Services que usam Supabase devem ser mockados usando `vi.mock()`.
-
-## ✅ 6. Validação de Dados
-- **Schemas**: Usar `zod` para validação de inputs de formulários.
-- **Funções Puras**: Implementar validadores como funções independentes:
-  - `validarCPF(cpf: string): boolean` - Algoritmo brasileiro
-  - `validarTelefone(telefone: string): boolean` - Formatos brasileiros
-- **Retorno Padrão**: Validadores devem retornar `{ success: boolean, errors?: string[] }` ou booleano.
-- **Feedback Imediato**: Mostrar erros de validação antes de enviar ao servidor.
-
-## 📡 7. Padrão de Resposta API
-- **Formato**: Toda função de serviço deve retornar `{ data: T, error: { message: string } | null }`
-- **Nomenclatura**: Usar snake_case em todas as interações com banco/APIs.
-- **Tratamento de Erros**: Sempre verificar `error` antes de usar `data`.
-- **Tipagem**: Definir interfaces para todas as respostas.
-
-## 📊 8. Gestão de Projeto
-- **ROADMAP_TECNICO.md**: Manter um backlog ativo na raiz do projeto para separar melhorias imediatas de débitos técnicos.
-- **Backlog First**: Questionar sempre o custo-benefício de novas melhorias antes da implementação.
-- **Testes Antes de Bug Fix**: Antes de corrigir, primeiro reproduzir com teste.
+Este documento define as diretrizes obrigatórias para o desenvolvimento de software no ecossistema do Colégio Santa Mônica (CSM). Qualquer agente de IA ou desenvolvedor deve seguir estes padrões para garantir consistência, segurança e qualidade premium.
 
 ---
 
-## 🔄 Padrão de Commits (Conventional Commits)
+## 1. 🏗️ Arquitetura e Estrutura de Código
+- **Modularização Obrigatória**: Interfaces complexas devem ser decompostas em componentes menores (ex: `src/components/Tabs/`).
+- **Orquestradores Leves**: Views principais (ex: `secretaria.ts`) devem atuar apenas como maestros, injetando componentes e gerenciando o estado global.
+- **Single Source of Truth**: Funções de lógica de negócio (cálculos, validações) devem residir em `src/lib/` e ser exportadas para uso em componentes e testes.
 
-```
-feat:     nova funcionalidade
-fix:      correção de bug
-docs:     documentação
-test:     testes (novos ou corrigidos)
-refactor: refatoração sem mudança de comportamento
-security: correção de segurança
-```
+## 2. 🎨 Design System Premium (Visual Wow)
+- **Design Tokens**: Uso obrigatório de variáveis CSS para:
+  - `--radius-lg`: 12px a 16px (suavidade).
+  - `--shadow-md/lg`: Profundidade e elevação.
+  - `--primary`: Vermelho CSM (#C41E3A).
+  - `--accent`: Amarelo Ouro (#FFD700).
+- **Aesthetics**: Proibido o uso de cores genéricas ou layouts "secos". Use gradientes sutis e fundos em camadas.
+- **Micro-interações**: Hover effects em botões e cards são obrigatórios para feedback de interatividade.
+- **Ícones e Emojis**: Use ícones (SVG) ou emojis contextuais para facilitar a leitura rápida da interface.
+
+## 3. 📊 UX Orientada a Dados
+- **Dashboard Overview**: Todo sistema administrativo deve iniciar com uma aba de "Visão Geral" contendo KPIs (Key Performance Indicators).
+- **Visão 360°**: Status multidimensionais (ex: Financeiro + Acadêmico + Documental) devem ser visíveis na listagem principal através de badges coloridos.
+- **Ações Rápidas**: Operações comuns devem ser acessíveis via ícones de ação direta na tabela, evitando múltiplos cliques.
+
+## 4. 🛡️ Segurança e Integridade
+- **XSS Prevention**: Todos os dados vindos da API devem ser processados via `escapeHTML` antes da inserção no DOM.
+- **Validação de Negócio**: Regras críticas (ex: elegibilidade de estágio) devem ser implementadas no código e sinalizadas visualmente com bloqueios proativos (Ex: ícone ⚠️).
+
+## 5. 🧪 Garantia de Qualidade (Testes)
+- **Real Code Validation**: Testes devem importar funções do código fonte. Proibido declarar funções "dummy" ou cópias dentro dos arquivos `.test.ts`.
+- **Regression Ready**: Toda refatoração deve ser acompanhada pela execução de `npm run build` e suíte de testes unitários.
+
+## 6. 📖 Documentação e Treinamento
+- **Manual do Usuário (v5.0+)**: Documentação detalhada e modularizada por perfil de acesso.
+- **Guia de Treinamento Rápido**: Documento focado no "Como Fazer" (Workflow) para novos usuários da equipe.
 
 ---
 
-*Este manual é uma "Skill" para o assistente de IA. Ao carregar este arquivo, a IA deve priorizar estes padrões sobre qualquer sugestão genérica.*
+*Assinado: Equipe de Desenvolvimento CSM - Maio 2026*

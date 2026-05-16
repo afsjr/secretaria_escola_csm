@@ -27,10 +27,17 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   container.className = 'dashboard-layout'
 
   // Fetch profile data
+  console.log('[DashboardView] Fetching profile for ID:', session.user.id)
   const { data: profile, error } = await getUserProfile(session.user.id)
+  
+  if (error) {
+    console.error('[DashboardView] Error fetching profile:', error)
+  }
+  console.log('[DashboardView] Profile data received:', profile)
 
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
+  console.log('[DashboardView] Determined Role:', userRole)
 
   // Usando os novos helpers do authz.js
   const _isMasterAdmin = isMasterAdmin(userRole)

@@ -135,20 +135,24 @@ export const AcademicService = {
 
     if (error) return { data: null, error };
 
-    // Filtrar duplicatas por Nome + Módulo (evita duplicidade visual se o catálogo tiver nomes repetidos)
+    // Filtrar duplicatas por Nome + Módulo (normalizando espaços e caixa)
     const seenItems = new Set();
     const uniqueDisciplinas = data
       ?.filter(d => {
         const disc = d.disciplinas_base as any;
-        if (!disc) return false;
-        const key = `${disc.nome}-${disc.modulo}`.toLowerCase().trim();
+        if (!disc || !disc.nome) return false;
+        // Normalização agressiva: remove espaços extras e ignora maiúsculas/minúsculas
+        const normalizedName = disc.nome.toLowerCase().trim().replace(/\s+/g, ' ');
+        const normalizedModulo = (disc.modulo || '').toLowerCase().trim();
+        const key = `${normalizedName}-${normalizedModulo}`;
+        
         if (seenItems.has(key)) return false;
         seenItems.add(key);
         return true;
       })
       .map(d => ({
         id: d.id,
-        nome: (d.disciplinas_base as any).nome,
+        nome: `[V4] ${(d.disciplinas_base as any).nome.trim()}`,
         modulo: (d.disciplinas_base as any).modulo,
         professor_nome: (d.perfis as any)?.nome_completo || 'Sem professor',
         disciplina_base_id: d.disciplina_base_id

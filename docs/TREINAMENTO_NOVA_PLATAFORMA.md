@@ -1,64 +1,40 @@
-# 🎓 Treinamento: A Nova Plataforma de Secretaria Modular
+# 🚀 Guia de Treinamento: SGE 5.0 (Edição Modular)
 
-Seja bem-vindo à nova interface do CSM! Este guia foca nas principais mudanças e como você pode extrair o máximo de eficiência do novo sistema.
-
----
-
-## 1. 🏠 O Novo Dashboard (Visão Geral)
-Agora, ao entrar no Painel da Secretaria, você é recebido pelo **Dashboard Geral**.
-
-- **O que observar**:
-  - **Solicitações Abertas**: Se o número estiver em vermelho, há documentos aguardando sua ação.
-  - **Status dos Cursos**: Verifique se algum curso está marcado como "Suspenso".
-- **Dica de Ouro**: Use os botões de **Ação Rápida** no lado direito para ir direto ao que importa.
+Este guia destina-se à capacitação da equipe gestora e docente para o uso da nova plataforma modular do Colégio Santa Mônica.
 
 ---
 
-## 2. 👥 Gestão de Alunos 360°
-A listagem de alunos não é mais apenas uma tabela; é um **painel de status**.
+## 1. 🏗️ Nova Arquitetura Modular
+O sistema foi completamente reestruturado para ser mais rápido e seguro.
+- **Abas Independentes**: Cada seção (Notas, Gerenciamento, Solicitações) funciona como um módulo isolado.
+- **Estado Persistente**: A navegação entre abas não recarrega a página, mantendo seu trabalho ativo.
+- **Design Premium**: Interface otimizada para leitura e produtividade (High Contrast + Modern Typography).
 
-- **Badges Coloridos**:
-  - 🟢 **Regular**: Tudo certo com o financeiro.
-  - 🔴 **Bloqueado**: Aluno com pendência financeira (impedir emissão de documentos).
-  - 🔵 **Estágio OK**: Aluno apto ou em processo de estágio.
-  - 🟡 **Docs Pendentes**: Alerta visual para cobrança de documentos físicos.
-- **Novos Ícones de Ação**:
-  - 👁️ **Ficha**: Clique para ver todo o histórico do aluno.
-  - 🎓 **Matricular**: Agora você matricula em turmas sem precisar sair da aba.
+## 2. 👁️ Visão 360° do Aluno
+O grande diferencial desta versão é o monitoramento em tempo real via **Badges de Status**:
+- **Financeiro**: Identificação imediata de bloqueios ou regularidade.
+- **Estágio**: Indicador visual de conclusão de notas de estágio (AP/REP).
+- **Documental**: Alerta de pendências de documentos críticos (CPF, Histórico).
 
----
+## 3. 🔐 Segurança e Blindagem de Dados
+Implementamos o **CSM Shield** para garantir a privacidade total:
+- **XSS Prevention**: O sistema agora sanitiza automaticamente qualquer dado antes de exibi-lo (Anti-Hack).
+- **RLS Enforcement**: O banco de dados bloqueia acessos transversais. Um aluno só consegue "enxergar" suas próprias notas.
+- **Admin Isolation**: Operações de criação de usuários e reset de senhas são processadas em ambiente isolado (Edge Functions).
 
-## 3. 📝 Notas e Estágios (Regras de Segurança)
-Ficou muito mais seguro lançar notas de estágio.
-
-- **Filtro Inteligente**: Ao selecionar a disciplina, o sistema verifica automaticamente se ela permite estágio.
-- **Sinalização Visual**: Se a disciplina tiver o ícone ⚠️ **Sem Estágio**, o campo de nota será bloqueado para evitar erros jurídicos e acadêmicos.
-- **Lembrete**: Notas de estágio só são permitidas para disciplinas **Práticas do 2º Módulo** ou qualquer disciplina do **3º Módulo em diante**.
-
----
-
-## 4. 👨‍🏫 Professores e Disciplinas
-O processo de vinculação foi simplificado.
-
-- **Vínculo por Modal**: Clique no ícone 🔗 para abrir a grade de vinculação.
-- **Múltiplas Turmas**: Você pode vincular um professor a várias disciplinas e turmas em uma única tela.
-- **Dashboard Docente**: Veja rapidamente quantas disciplinas ainda estão "vagas" (sem professor vinculado).
+## 4. 📋 Fluxo de Trabalho na Secretaria
+1. **Visão Geral**: Use para monitorar o volume de solicitações e estatísticas rápidas.
+2. **Notas/Estágio**: Selecione a turma para visualizar as médias e lançar o parecer de estágio.
+3. **Gerenciar Alunos**: Central de inteligência. Clique em 👁️ para ver a ficha completa ou ✏️ para ajustes cadastrais.
+4. **Solicitações**: Processamento de documentos em lote. O sistema agora gera PDFs sanitizados e seguros.
 
 ---
 
-## 5. 🏗️ Administração de Cursos
-Gerencie o ciclo de vida dos cursos técnicos com um clique.
-
-- **Ativação/Desativação**: Se um curso não abrirá turma este semestre, você pode desativá-lo para limpar a interface sem perder dados históricos.
-
----
-
-## 💡 Resumo de Boas Práticas
-1. **Confira os KPIs diariamente**: Eles ajudam a priorizar o trabalho.
-2. **Use a Busca por CPF**: É o método mais rápido e seguro de localizar um aluno.
-3. **Não ignore os Badges**: Eles foram desenhados para evitar que você emita documentos para alunos bloqueados.
+## 💡 Dicas de Ouro para Usuários Master
+- **Busca Global**: Na aba de Gerenciar Alunos, você pode buscar por qualquer parte do nome ou CPF.
+- **Custom Events**: O sistema agora comunica ações via eventos. Se algo for atualizado, os componentes refletem a mudança instantaneamente.
+- **Mobile First**: O sistema foi otimizado para que você possa conferir indicadores pelo celular com a mesma clareza do desktop.
 
 ---
-
-**Equipe de Desenvolvimento CSM**
-*Transformando dados em excelência acadêmica.*
+*Atualizado em: 16/05/2026*
+*Equipe de Desenvolvimento CSM*

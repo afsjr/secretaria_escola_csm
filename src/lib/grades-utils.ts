@@ -31,3 +31,45 @@ export function disciplinaTemEstagio(disciplinaNome: string, modulo: string | nu
   // Módulos superiores (3 em diante) sempre têm estágio
   return true
 }
+
+/**
+ * Arredonda a nota para múltiplos de 0.5 conforme regra:
+ * X.1 até X.4 => X.5
+ * X.6 até X.9 => (X+1).0
+ */
+export function arredondarNota(nota: number | undefined): number {
+  if (!nota || nota <= 0) return 0
+  const inteiro = Math.floor(nota)
+  const decimal = nota - inteiro
+
+  if (decimal === 0) return nota
+  if (decimal > 0 && decimal <= 0.4) return inteiro + 0.5
+  if (decimal > 0.4 && decimal <= 0.5) return inteiro + 0.5
+  return inteiro + 1.0
+}
+
+/**
+ * Calcula a média parcial (média das 3 notas)
+ */
+export function calcularMediaParcial(n1: number, n2: number, n3: number): number {
+  if (n1 === 0 && n2 === 0 && n3 === 0) return 0
+  return (n1 + n2 + n3) / 3
+}
+
+/**
+ * Calcula a nota final considerando recuperação
+ */
+export function calcularNotaFinal(mediaParcial: number, rec: number): number {
+  if (mediaParcial >= 7) return arredondarNota(mediaParcial)
+  if (rec <= 0) return arredondarNota(mediaParcial)
+  const notaComRec = (mediaParcial + rec) / 2
+  return arredondarNota(notaComRec)
+}
+
+/**
+ * Retorna status do aluno baseado na nota final
+ */
+export function calcularStatusAluno(final: number): string {
+  if (final >= 6) return 'Aprovado'
+  return 'Reprovado'
+}

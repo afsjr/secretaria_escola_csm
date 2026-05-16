@@ -27,25 +27,30 @@ export async function ProfessorAlunosView(profile: { id: string }): Promise<HTML
   const container = document.createElement('div')
   container.className = 'professor-alunos-view animate-in'
 
-  // Buscar alunos de todas as turmas do professor
-  const { data: turmasDoProfessor, error: errorTurmas } = await ProfessorService.getTurmasDoProfessor(profile.id)
+  // Buscar alunos de todas as turmas do professor (via ofertas)
+  const { data: ofertas, error: errorOfertas } = await ProfessorService.getDisciplinasDoProfessor(profile.id)
 
-  if (errorTurmas) {
-    console.error('Erro ao buscar turmas:', errorTurmas)
+  if (errorOfertas) {
+    console.error('Erro ao buscar ofertas:', errorOfertas)
   }
 
   let todosAlunos: AlunoCardData[] = []
-  if (turmasDoProfessor && turmasDoProfessor.length > 0) {
-    for (const turma of turmasDoProfessor) {
-      const { data: matriculas } = await ProfessorService.getAlunosDaTurma(turma.id)
+  if (ofertas && ofertas.length > 0) {
+    // Pegar turmas únicas das ofertas
+    const turmasIds = [...new Set(ofertas.map(o => o.turmas?.id).filter(Boolean))] as string[]
+    
+    for (const turmaId of turmasIds) {
+      const { data: matriculas } = await ProfessorService.getAlunosDaTurma(turmaId)
+      const turmaInfo = ofertas.find(o => o.turmas?.id === turmaId)?.turmas
+      
       if (matriculas) {
         todosAlunos = todosAlunos.concat(
           matriculas
             .filter((m: any) => m.status_aluno === 'ativo')
             .map((m: any) => ({
               ...m.perfis,
-              turma_nome: turma.nome,
-              turma_id: turma.id,
+              turma_nome: turmaInfo?.nome || 'Turma',
+              turma_id: turmaId,
               matricula_id: m.id,
               status_aluno: m.status_aluno
             }))

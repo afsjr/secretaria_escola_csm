@@ -165,9 +165,9 @@ describe('Cenários de Uso - Secretaria editando dados do aluno', () => {
 
   describe('Cenário 3: Admin edita mesmo aluno ao mesmo tempo (conflito)', () => {
     it('deve detectar conflito entre secretary e admin', () => {
-      const versaoCarregada = 15
+      const versaoCarregada: number = 15
       // Admin já alterou os dados, versão mudou para 16
-      const versaoAtualBanco = 16
+      const versaoAtualBanco: number = 16
 
       const permitirUpdate = versaoCarregada === versaoAtualBanco
       expect(permitirUpdate).toBe(false)
@@ -177,17 +177,17 @@ describe('Cenários de Uso - Secretaria editando dados do aluno', () => {
   describe('Cenário 4: Edição simultânea de campos diferentes (mesmo registro)', () => {
     it('deve detectar conflito mesmo editando campos diferentes', () => {
       // Secretary quer editar telefone
-      const versaoSecretary = 20
+      const versaoSecretary: number = 20
       // Admin quer editar email
-      const versaoAdmin = 21 // Já alterou
+      const versaoAdmin: number = 21 // Já alterou
 
       const temConflito = versaoSecretary !== versaoAdmin
       expect(temConflito).toBe(true)
     })
 
     it('deve requerer merge ou sobrescrita após conflito', () => {
-      const versaoDesatualizada = 20
-      const versaoAtualizada = 22
+      const versaoDesatualizada: number = 20
+      const versaoAtualizada: number = 22
 
       const estrategiaMerge = versaoDesatualizada === versaoAtualizada 
         ? 'sobrescrever' 

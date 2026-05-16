@@ -103,13 +103,13 @@ describe('ProfessorService - Lógica de Versionamento', () => {
     const versaoAtualDoBanco = 5
 
     it('deve detectar conflito quando versão local é menor', () => {
-      const versaoLocal = 3
+      const versaoLocal: number = 3
       const haConflito = versaoLocal !== versaoAtualDoBanco
       expect(haConflito).toBe(true)
     })
 
     it('deve detectar conflito quando versão local é maior (outro usuário editou)', () => {
-      const versaoLocal = 7
+      const versaoLocal: number = 7
       const haConflito = versaoLocal !== versaoAtualDoBanco
       expect(haConflito).toBe(true)
     })
@@ -121,7 +121,7 @@ describe('ProfessorService - Lógica de Versionamento', () => {
     })
 
     it('deve tratar versão 0 como conflito (registro novo)', () => {
-      const versaoLocal = 0
+      const versaoLocal: number = 0
       const haConflito = versaoLocal !== versaoAtualDoBanco
       expect(haConflito).toBe(true)
     })
@@ -153,10 +153,10 @@ describe('Cenários de Uso - Professor lançando notas', () => {
 
   describe('Cenário 3: Outro professor já salvou (conflito)', () => {
     it('deve detectar conflito e bloquear save', () => {
-      const versaoOriginal = 3
-      const versaoEnviada = 3
+      const versaoOriginal: number = 3
+      const versaoEnviada: number = 3
       // Simular que outro professor já salvou e versão mudou para 4
-      const versaoAtualNoBanco = 4
+      const versaoAtualNoBanco: number = 4
       const permitirSave = versaoOriginal === versaoAtualNoBanco
       expect(permitirSave).toBe(false)
     })
@@ -164,8 +164,8 @@ describe('Cenários de Uso - Professor lançando notas', () => {
 
   describe('Cenário 4: Usuário tenta salvar após很长时间 sem usar sistema', () => {
     it('deve detectar versão desatualizada', () => {
-      const versaoOriginal = 1
-      const versaoAtualNoBanco = 8 // Outro usuário editou várias vezes
+      const versaoOriginal: number = 1
+      const versaoAtualNoBanco: number = 8 // Outro usuário editou várias vezes
       const permitirSave = versaoOriginal === versaoAtualNoBanco
       expect(permitirSave).toBe(false)
     })

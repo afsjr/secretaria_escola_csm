@@ -90,13 +90,13 @@ describe('Lógica de Versionamento - Simulações', () => {
     })
 
     it('deve bloquear update quando versão local é menor', () => {
-      const versaoLocal = 3
+      const versaoLocal: number = 3
       const permitirUpdate = versaoLocal === versaoBanco
       expect(permitirUpdate).toBe(false)
     })
 
     it('deve bloquear update quando versão local é maior', () => {
-      const versaoLocal = 8
+      const versaoLocal: number = 8
       const permitirUpdate = versaoLocal === versaoBanco
       expect(permitirUpdate).toBe(false)
     })
@@ -140,8 +140,8 @@ describe('Lógica de Versionamento - Simulações', () => {
 describe('Cenários de Conflito', () => {
   describe('Cenário 1: Dois usuários editando o mesmo registro', () => {
     it('deve detectar conflito quando professor A e professor B editam notas', () => {
-      const versaoProfessorA = 3
-      const versaoProfessorB = 4
+      const versaoProfessorA: number = 3
+      const versaoProfessorB: number = 4
       const resultado = isConcurrencyError({ 
         code: versaoProfessorA !== versaoProfessorB ? 'PGRST116' : '0000' 
       })

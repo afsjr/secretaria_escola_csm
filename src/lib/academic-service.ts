@@ -103,7 +103,7 @@ export const AcademicService = {
       `)
       .eq("turma_id", turma_id)
       .order("perfis(nome_completo)", { ascending: true });
-    return { data, error };
+    return { data, error } as any;
   },
 
   async atualizarStatusAdministrativo(aluno_id: string, matricula_id: string, status: string, bloqueio: boolean) {

@@ -21,7 +21,9 @@ describe('Validation - Login Schema', () => {
   it('deve rejeitar email vazio', () => {
     const result = validateLogin({ email: '', password: 'senha123' })
     expect(result.success).toBe(false)
-    expect(result.errors).toContain('E-mail é obrigatório')
+    if (!result.success) {
+      expect(result.errors).toContain('E-mail é obrigatório')
+    }
   })
 
   it('deve rejeitar email inválido', () => {

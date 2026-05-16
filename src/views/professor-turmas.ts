@@ -17,11 +17,12 @@ import { supabase } from "../lib/supabase";
 import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
 import { formatDateBR } from "../lib/date-utils";
-import { arredondarNota, calcularStatusAluno, calcularMediaParcial } from "../lib/grades-utils";
+import { arredondarNota, calcularStatusAluno, calcularMediaParcial, calcularNotaFinal } from "../lib/grades-utils";
 import { UserProfile } from "../types";
 
 function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number): string {
-  const { status, mediaCalculada } = calcularStatusAluno(mediaParcial, notas.rec || 0);
+  const mediaCalculada = calcularNotaFinal(mediaParcial, notas.rec || 0);
+  const status = calcularStatusAluno(mediaCalculada);
   const statusColor = status === "Aprovado" ? "var(--success)" : "var(--danger)";
   const recDisabled = mediaParcial >= 7 ? 'disabled title="Média já suficiente para aprovação direta"' : '';
 
@@ -361,7 +362,7 @@ export async function ProfessorTurmasView(
       } else {
         toast.success(`${notasArray.length} notas salvas com sucesso!`);
         // Verificar alertas de média baixa
-        verificarAlertasBaixa(tbody, disciplinaId);
+        verificarAlertasBaixa(tbody, ofertaId);
       }
     });
   });
@@ -582,7 +583,8 @@ function recalcularMedia(tbody: HTMLElement, disciplinaId: string): void {
       (parseFloat(n1.toString()) + parseFloat(n2.toString()) +
         parseFloat(n3.toString())) / 3,
     );
-    const { status, mediaCalculada } = calcularStatusAluno(mediaParcial, nfVal);
+    const mediaCalculada = calcularNotaFinal(mediaParcial, nfVal);
+    const status = calcularStatusAluno(mediaCalculada);
 
     const media = mediaParcial;
     const finalVal = mediaCalculada;

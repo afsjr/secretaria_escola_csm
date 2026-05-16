@@ -145,7 +145,7 @@ export async function ProfessorRegistrarAulaView(profile: { id: string }): Promi
 
     try {
       const { error } = await ProfessorService.registrarAula({
-        disciplina_id: disciplinaId,
+        turma_disciplina_id: disciplinaId,
         professor_id: profile.id,
         data,
         conteudo: observacoes ? `${conteudo}\n\nObs: ${observacoes}` : conteudo
@@ -198,7 +198,7 @@ async function loadHistoricoAulas(professorId: string, container: HTMLElement): 
       if (aulas) {
         todasAulas = todasAulas.concat(aulas.map((a: any) => ({
           ...a,
-          disciplina_nome: disc.nome,
+          disciplina_nome: disc.disciplinas_base?.nome || 'Disciplina',
           turma_nome: disc.turmas?.nome || '-'
         })))
       }

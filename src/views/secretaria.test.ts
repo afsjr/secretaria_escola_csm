@@ -51,7 +51,7 @@ describe('disciplinaTemEstagio - Business Rules', () => {
 })
 
 describe('SecretariaView - Integração Estágio', () => {
-  const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1' }]
+  const mockTurmas = [{ id: 'turma-1', nome: 'Turma A', periodo: '2024.1', status_ingresso: 'aberto', curso_id: 'curso-1' }]
   const mockAlunos = [{ perfis: { id: 'aluno-1', nome_completo: 'João Aluno' } }]
   const mockDisciplinas = [
     { id: 'oferta-1', disciplina_base_id: 'base-1', nome: 'Enfermagem Médica', modulo: '2' },

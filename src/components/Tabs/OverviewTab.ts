@@ -1,4 +1,4 @@
-import { safeHTML } from '../../lib/security'
+import { escapeHTML } from '../../lib/security'
 
 interface OverviewProps {
   stats: {
@@ -14,14 +14,15 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
   const container = document.createElement('div')
   container.className = 'animate-in'
 
-  const renderContent = () => safeHTML`
+  // Usamos template string normal para a estrutura e escapeHTML apenas nos dados
+  const renderContent = () => `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
       <!-- Card Alunos -->
       <div class="stat-card">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
             <div class="stat-label">Alunos Ativos</div>
-            <div class="stat-value">${stats.alunos}</div>
+            <div class="stat-value">${escapeHTML(stats.alunos)}</div>
           </div>
           <span style="font-size: 2rem;">👥</span>
         </div>
@@ -32,7 +33,7 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
             <div class="stat-label">Docentes</div>
-            <div class="stat-value" style="color: var(--success);">${stats.professores}</div>
+            <div class="stat-value" style="color: var(--success);">${escapeHTML(stats.professores)}</div>
           </div>
           <span style="font-size: 2rem;">👨‍🏫</span>
         </div>
@@ -43,7 +44,7 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
             <div class="stat-label">Solicitações</div>
-            <div class="stat-value" style="color: var(--danger);">${stats.solicitacoesPendentes}</div>
+            <div class="stat-value" style="color: var(--danger);">${escapeHTML(stats.solicitacoesPendentes)}</div>
           </div>
           <span style="font-size: 2rem;">📩</span>
         </div>
@@ -54,7 +55,7 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
             <div class="stat-label">Turmas Ativas</div>
-            <div class="stat-value" style="color: var(--info);">${stats.turmas}</div>
+            <div class="stat-value" style="color: var(--info);">${escapeHTML(stats.turmas)}</div>
           </div>
           <span style="font-size: 2rem;">🏫</span>
         </div>
@@ -76,9 +77,9 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
             </tr>
           </thead>
           <tbody>
-            ${cursos.map(c => safeHTML`
+            ${cursos.map(c => `
               <tr>
-                <td style="font-weight: 600;">${c.nome}</td>
+                <td style="font-weight: 600;">${escapeHTML(c.nome)}</td>
                 <td>
                   <span class="badge ${c.ativo ? 'badge-success' : 'badge-warning'}">
                     ${c.ativo ? 'Ativo' : 'Suspenso'}

@@ -316,13 +316,45 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
       <tr style="border-top:1px solid var(--border);">
         <td style="padding:1rem;">${escapeHTML(d.modulo || 'N/A')}</td>
         <td style="padding:1rem;"><b>${escapeHTML(d.nome)}</b></td>
-        <td style="padding:1rem;">Vinculado via ProfessorService</td>
+        <td style="padding:1rem;">${escapeHTML(d.professor_nome)}</td>
         <td style="padding:1rem; text-align:right;">
-          <button class="btn" style="color:red; background:transparent; border:1px solid red; font-size:0.8rem;">Remover</button>
+          <button class="btn btn-remover-oferta" data-id="${d.id}" data-nome="${escapeHTML(d.nome)}" style="color:red; background:transparent; border:1px solid red; font-size:0.8rem; cursor:pointer; padding:0.2rem 0.5rem; border-radius:4px;">Excluir</button>
         </td>
       </tr>
     `).join('')
+
+    // Adicionar eventos de exclusão de oferta
+    tabelaGrade.querySelectorAll('.btn-remover-oferta').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id')
+        const nome = btn.getAttribute('data-nome')
+        if (!confirm(`Tem certeza que deseja remover "${nome}" desta turma?`)) return
+        
+        const { error } = await CourseService.removerOfertaDisciplina(id!)
+        if (error) toast.error('Erro ao remover: ' + error.message)
+        else {
+          toast.success('Oferta removida!')
+          loadTurmaGrade(turmaId)
+          loadDisciplinasDropdown(turmaId)
+        }
+      })
+    })
   }
+
+  // Delegar evento de remover aluno
+  tabelaAlunos.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest('.btn-remover') as HTMLButtonElement
+    if (!btn) return
+    const id = btn.getAttribute('data-id')
+    if (!confirm('Deseja realmente remover este aluno da turma?')) return
+
+    const { error } = await AcademicService.excluirMatricula(id!)
+    if (error) toast.error('Erro ao remover: ' + error.message)
+    else {
+      toast.success('Matrícula removida!')
+      if (selectedTurmaId) loadTurmaAlunos(selectedTurmaId)
+    }
+  })
 
   async function loadSelectsGrade(cursoId: string) {
     const selCat = container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement

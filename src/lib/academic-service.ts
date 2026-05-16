@@ -126,21 +126,33 @@ export const AcademicService = {
       .from("turma_disciplinas")
       .select(`
         id,
-        disciplinas_base (id, nome, modulo)
+        disciplina_base_id,
+        professor_id,
+        disciplinas_base (id, nome, modulo),
+        perfis (nome_completo)
       `)
       .eq("turma_id", turmaId);
 
     if (error) return { data: null, error };
 
+    // Filtrar duplicatas por disciplina_base_id (mantendo o primeiro professor encontrado)
+    const uniqueIds = new Set();
+    const uniqueDisciplinas = data
+      ?.filter(d => {
+        if (!d.disciplina_base_id || uniqueIds.has(d.disciplina_base_id)) return false;
+        uniqueIds.add(d.disciplina_base_id);
+        return true;
+      })
+      .map(d => ({
+        id: d.id,
+        nome: (d.disciplinas_base as any).nome,
+        modulo: (d.disciplinas_base as any).modulo,
+        professor_nome: (d.perfis as any)?.nome_completo || 'Sem professor',
+        disciplina_base_id: d.disciplina_base_id
+      })) || [];
+
     return {
-      data: {
-        disciplinas: data.map(d => ({
-          id: d.id,
-          nome: (d.disciplinas_base as any).nome,
-          modulo: (d.disciplinas_base as any).modulo,
-          disciplina_base_id: (d.disciplinas_base as any).id
-        }))
-      },
+      data: { disciplinas: uniqueDisciplinas },
       error: null
     };
   },

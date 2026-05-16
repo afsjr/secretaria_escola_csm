@@ -152,6 +152,15 @@ export const CourseService = {
       .eq('id', turmaId)
       .single()
     return { data, error }
+  },
+
+  async removerOfertaDisciplina(ofertaId: string) {
+    const { data, error } = await supabase
+      .from('turma_disciplinas')
+      .delete()
+      .eq('id', ofertaId)
+      .select()
+    return { data, error }
   }
 }
 

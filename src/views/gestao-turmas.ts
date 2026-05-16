@@ -242,7 +242,13 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
                 <tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Selecione uma disciplina para visualizar as notas.</td></tr>
               </tbody>
             </table>
-    /* ------------- FUNÇÕES E EVENTOS ------------- */
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+
+  /* ------------- FUNÇÕES E EVENTOS ------------- */
 
   // Importar ProfessorService para as ofertas
   const { ProfessorService } = await import('../lib/professor-service')

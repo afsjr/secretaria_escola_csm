@@ -1,25 +1,33 @@
-export function arredondarNota(nota: number | undefined): number {
-  if (!nota || nota <= 0) return 0
-  const inteiro = Math.floor(nota)
-  const decimal = nota - inteiro
+/**
+ * Utilitários para lógica de notas e estágios
+ */
 
-  if (decimal === 0) return nota
-  if (decimal > 0 && decimal <= 0.4) return inteiro + 0.5
-  if (decimal > 0.4 && decimal <= 0.5) return inteiro + 0.5
-  return inteiro + 1.0
-}
-
-export function calcularStatusAluno(mediaParcial: number, notaRec: number): { status: string; mediaCalculada: number } {
-  if (mediaParcial >= 7) {
-    return { status: "Aprovado", mediaCalculada: mediaParcial }
+/**
+ * Define se uma disciplina permite o lançamento de nota de estágio
+ * Regra de Negócio: 
+ * - 1º Módulo: Não possui estágio
+ * - 2º Módulo: Possui estágio, exceto para disciplinas teóricas específicas (Farmacologia, ADM)
+ * - 3º Módulo+: Todas possuem estágio
+ */
+export function disciplinaTemEstagio(disciplinaNome: string, modulo: string | null | undefined): boolean {
+  if (!modulo) return false
+  
+  const moduloStr = modulo.toString().trim()
+  
+  // 1º Módulo nunca tem estágio
+  if (moduloStr === 'I Módulo' || moduloStr === '1' || moduloStr.startsWith('1')) {
+    return false
   }
-  const mediaCalculada = arredondarNota((mediaParcial + notaRec) / 2)
-  return {
-    status: mediaCalculada >= 6 ? "Aprovado" : "Reprovado",
-    mediaCalculada
+  
+  // 2º Módulo tem restrições
+  if (moduloStr === 'II Módulo' || moduloStr === '2' || moduloStr.startsWith('2')) {
+    const nome = disciplinaNome.toLowerCase()
+    if (nome.includes('farmacologia') || nome.includes('adm')) {
+      return false
+    }
+    return true
   }
-}
-
-export function calcularMediaParcial(n1: number, n2: number, n3: number): number {
-  return arredondarNota((n1 + n2 + n3) / 3)
+  
+  // Módulos superiores (3 em diante) sempre têm estágio
+  return true
 }

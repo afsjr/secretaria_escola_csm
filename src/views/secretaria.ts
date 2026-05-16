@@ -6,6 +6,7 @@ import { CourseService } from '../lib/course-service'
 import { PDFService } from '../lib/pdf-service'
 import { AcademicService } from '../lib/academic-service'
 import { ExcelService } from '../lib/excel-service'
+import { disciplinaTemEstagio } from '../lib/grades-utils'
 
 import { toast } from '../lib/toast'
 import { StudentDetailsService } from '../lib/student-details-service'
@@ -22,21 +23,6 @@ import { escapeHTML as globalEscapeHTML } from '../lib/security'
 
 // Usar utilitário global de segurança
 const escapeHTML = globalEscapeHTML
-
-function disciplinaTemEstagio(disciplinaNome: string, modulo: string | null | undefined): boolean {
-  if (!modulo) return false
-  if (modulo === 'I Módulo' || modulo === '1' || modulo.toString().startsWith('1')) {
-    return false
-  }
-  if (modulo === 'II Módulo' || modulo === '2' || modulo.toString().startsWith('2')) {
-    const nome = disciplinaNome.toLowerCase()
-    if (nome.includes('farmacologia') || nome.includes('adm')) {
-      return false
-    }
-    return true
-  }
-  return true
-}
 
 // PDF logic moved to RequestTableComponent or PDFService
 
@@ -569,57 +555,6 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     tabCadastroProfessor.appendChild(CadastroProfessorTab())
   }
 
-  // =====================================================
-  // CADASTRO DE PROFESSOR
-  // =====================================================
-  const formCadastroProfessor = container.querySelector('#form-cadastro-professor') as HTMLFormElement
-  const btnCadastrarProfessor = container.querySelector('#btn-cadastrar-professor') as HTMLButtonElement
-
-  if (formCadastroProfessor && btnCadastrarProfessor) {
-    formCadastroProfessor.addEventListener('submit', async (e: Event) => {
-      e.preventDefault()
-
-      const nomeCompleto = (container.querySelector('#professor-nome') as HTMLInputElement)?.value?.trim()
-      const email = (container.querySelector('#professor-email') as HTMLInputElement)?.value?.trim()
-      const cpf = (container.querySelector('#professor-cpf') as HTMLInputElement)?.value?.trim()
-      const telefone = (container.querySelector('#professor-telefone') as HTMLInputElement)?.value?.trim()
-      const senha = (container.querySelector('#professor-senha') as HTMLInputElement)?.value
-
-      if (!nomeCompleto || !email || !senha) {
-        toast.error('Preencha os campos obrigatórios.')
-        return
-      }
-
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
-      if (!passwordRegex.test(senha)) {
-        toast.error('Senha inválida: Mínimo 8 caracteres com letras e números.')
-        return
-      }
-
-      btnCadastrarProfessor.disabled = true
-      btnCadastrarProfessor.textContent = 'Cadastrando...'
-
-      const { data, error } = await AdminService.createUserByAdmin({
-        email,
-        password: senha,
-        nomeCompleto,
-        cpf,
-        telefone,
-        perfil: 'professor'
-      })
-
-      if (error) {
-        toast.error('Erro ao cadastrar: ' + error.message)
-        btnCadastrarProfessor.disabled = false
-        btnCadastrarProfessor.textContent = 'Cadastrar Professor'
-        return
-      }
-
-      toast.success('Professor cadastrado com sucesso!')
-
-      setTimeout(() => window.location.reload(), 500)
-    })
-  }
 
   // =====================================================
   // VER FICHA DO PROFESSOR

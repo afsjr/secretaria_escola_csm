@@ -31,11 +31,18 @@ Este documento lista as melhorias de segurança, arquitetura e infraestrutura pl
 - [ ] **Multi-tenancy (school_id)**: Adicionar em todas as tabelas
 - [ ] **Painel Super Admin**: Gerenciar múltiplas instituições
 - [x] **Refatoração TypeScript**: 100% do código migrado
-- [x] **Testes automatizados**: 192 testes com Vitest
+- [x] **Infraestrutura de Testes**: Migração para JSDOM (maio 2026)
+- [x] **Testes automatizados**: 220+ testes com Vitest (100% passando)
 
 ---
 
-## ✅ Concluído Recentemente (Abril 2026)
+## ✅ Concluído Recentemente (Maio 2026)
+
+### 15/05/2026 — Refatoração e Estabilização de Notas
+- [x] **Bug de Estágio Corrigido**: Desacoplamento de disciplinas do boletim.
+- [x] **Nova Infra de Testes**: Instalação e configuração de JSDOM + Vitest.
+- [x] **AcademicService**: Implementação de `upsertNotaEstagio`.
+- [x] **Refatoração UI**: Fluxo Turma -> Aluno -> Disciplina funcional.
 
 ### 23/04/2026 — Sessão de Correções e Segurança
 - [x] **Edge Functions**: admin-create-user e admin-reset-password deployadas
@@ -63,11 +70,11 @@ Este documento lista as melhorias de segurança, arquitetura e infraestrutura pl
 
 ## 📊 Status do Projeto
 
-- **Testes**: 192 passando
+- **Testes**: 220+ passando (JSDOM Environment)
 - **TypeScript**: 100% migrado
 - **Deploy**: Vercel + GitHub Pages
-- **Segurança**: RLS + Edge Functions
+- **Arquitetura**: Componentização em progresso (2/6 abas extraídas)
 
 ---
 
-*Atualizado em 23/04/2026*
+*Atualizado em 15/05/2026*

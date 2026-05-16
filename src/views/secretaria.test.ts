@@ -85,7 +85,7 @@ describe('SecretariaView - Integração Estágio', () => {
     await vi.waitFor(() => expect(selectDisciplina.disabled).toBe(false))
 
     // 3. Disciplina (validar regra visual de Sem Estágio)
-    expect(selectDisciplina.innerHTML).toContain('Anatomia (Sem Estágio)')
+    expect(selectDisciplina.innerHTML).toContain('Anatomia (⚠️ Sem Estágio)')
     
     selectDisciplina.value = 'Enfermagem Médica'
     selectDisciplina.dispatchEvent(new Event('change', { bubbles: true }))

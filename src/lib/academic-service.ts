@@ -135,12 +135,15 @@ export const AcademicService = {
 
     if (error) return { data: null, error };
 
-    // Filtrar duplicatas por disciplina_base_id (mantendo o primeiro professor encontrado)
-    const uniqueIds = new Set();
+    // Filtrar duplicatas por Nome + Módulo (evita duplicidade visual se o catálogo tiver nomes repetidos)
+    const seenItems = new Set();
     const uniqueDisciplinas = data
       ?.filter(d => {
-        if (!d.disciplina_base_id || uniqueIds.has(d.disciplina_base_id)) return false;
-        uniqueIds.add(d.disciplina_base_id);
+        const disc = d.disciplinas_base as any;
+        if (!disc) return false;
+        const key = `${disc.nome}-${disc.modulo}`.toLowerCase().trim();
+        if (seenItems.has(key)) return false;
+        seenItems.add(key);
         return true;
       })
       .map(d => ({

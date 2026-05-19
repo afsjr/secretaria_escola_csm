@@ -284,6 +284,57 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
     }
   })
 
+  // 1.5. Editar e Excluir Turmas
+  container.querySelectorAll('.btn-editar-turma').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const li = (btn as HTMLElement).closest('.turma-item') as HTMLElement
+      const turmaId = li.getAttribute('data-id')
+      const display = li.querySelector('.turma-nome-display') as HTMLElement
+      const input = li.querySelector('.turma-nome-input') as HTMLInputElement
+      const originalName = display.textContent || ''
+
+      display.style.display = 'none'
+      input.style.display = 'inline'
+      input.value = originalName
+      input.focus()
+
+      const salvar = async () => {
+        const novoNome = input.value.trim()
+        if (!novoNome) { toast.error('Nome não pode ficar vazio'); return }
+        const { error } = await AcademicService.updateTurma(turmaId, { nome: novoNome })
+        if (error) toast.error('Erro ao atualizar: ' + error.message)
+        else {
+          toast.success('Nome atualizado!')
+          display.textContent = novoNome
+        }
+        display.style.display = ''
+        input.style.display = 'none'
+      }
+
+      input.onkeydown = (e) => { if (e.key === 'Enter') salvar() }
+      input.onblur = salvar
+    })
+  })
+
+  container.querySelectorAll('.btn-excluir-turma').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation()
+      const turmaId = btn.getAttribute('data-id')
+      const turmaNome = btn.getAttribute('data-nome')
+      if (!turmaId) return
+
+      if (!confirm(`⚠️ Tem certeza que deseja excluir a turma "${turmaNome}"?\n\nEsta ação não pode ser desfeita e removerá todos os dados associados.`)) return
+
+      const { error } = await AcademicService.deleteTurma(turmaId)
+      if (error) toast.error('Erro ao excluir: ' + error.message)
+      else {
+        toast.success('Turma excluída!')
+        setTimeout(() => { window.location.reload() }, 500)
+      }
+    })
+  })
+
   // 2. Selecionar Turma e Carregar Dados
   const painelMatriculas = container.querySelector('#painel-matriculas') as HTMLElement
   const tituloTurma = container.querySelector('#titulo-turma-selecionada') as HTMLElement

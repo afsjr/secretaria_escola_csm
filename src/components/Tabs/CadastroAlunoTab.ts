@@ -50,8 +50,8 @@ export function CadastroAlunoTab({ turmas }: CadastroAlunoTabProps): HTMLDivElem
         </div>
 
         <div class="form-group">
-          <label class="label" for="aluno-senha">Senha * (mínimo 6 caracteres)</label>
-          <input type="password" id="aluno-senha" name="aluno_senha" class="input" placeholder="******" minlength="6" required>
+          <label class="label" for="aluno-senha">Senha * (mínimo 8 caracteres, letras e números)</label>
+          <input type="password" id="aluno-senha" name="aluno_senha" class="input" placeholder="******" minlength="8" required>
         </div>
 
         <div class="form-group">

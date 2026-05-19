@@ -92,12 +92,28 @@ serve(async (req) => {
     // === FIM DA VERIFICAÇÃO ===
 
     // Ler dados do request
-    const { email, password, nomeCompleto, cpf, telefone, perfil } = await req.json()
+    const body = await req.json()
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : ""
+    const password = typeof body.password === "string" ? body.password : ""
+    const nomeCompletoInput = body.nomeCompleto ?? body.nome_completo
+    const nomeCompleto = typeof nomeCompletoInput === "string" ? nomeCompletoInput.trim() : ""
+    const cpf = typeof body.cpf === "string" ? body.cpf.trim() : ""
+    const telefone = typeof body.telefone === "string" ? body.telefone.trim() : ""
+    const perfil = typeof body.perfil === "string" ? body.perfil : ""
 
     // Validar dados básicos
     if (!email || !password || !nomeCompleto) {
       return new Response(
-        JSON.stringify({ error: { message: "Dados incompletos. Preencha todos os campos obrigatórios." } }),
+        JSON.stringify({
+          error: {
+            message: "Dados incompletos. Preencha nome, e-mail e senha.",
+            details: {
+              email: Boolean(email),
+              password: Boolean(password),
+              nomeCompleto: Boolean(nomeCompleto)
+            }
+          }
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }
@@ -117,7 +133,13 @@ serve(async (req) => {
 
     if (userError) {
       return new Response(
-        JSON.stringify({ error: { message: userError.message } }),
+        JSON.stringify({
+          error: {
+            message: userError.message,
+            code: userError.code,
+            status: userError.status
+          }
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }
@@ -141,7 +163,14 @@ serve(async (req) => {
       await supabaseAdmin.auth.admin.deleteUser(newUser.id)
 
       return new Response(
-        JSON.stringify({ error: { message: profileError.message } }),
+        JSON.stringify({
+          error: {
+            message: profileError.message,
+            code: profileError.code,
+            details: profileError.details,
+            hint: profileError.hint
+          }
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }

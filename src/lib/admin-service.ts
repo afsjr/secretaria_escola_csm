@@ -68,10 +68,34 @@ async function callEdgeFunction(functionName: string, payload: Record<string, un
       throw new Error('Função não encontrada no servidor (404).')
     }
 
-    const result = await response.json()
+    const responseText = await response.text()
+    let result: any = {}
+
+    try {
+      result = responseText ? JSON.parse(responseText) : {}
+    } catch {
+      result = {
+        error: {
+          message: responseText || `Erro do Servidor: ${response.status}`
+        }
+      }
+    }
 
     if (!response.ok) {
-      return { error: result.error || { message: `Erro do Servidor: ${response.status}` } }
+      const errorPayload = result.error || result
+      const message = errorPayload?.message || errorPayload?.error_description || `Erro do Servidor: ${response.status}`
+
+      console.error(`Edge Function ${functionName} retornou erro:`, {
+        status: response.status,
+        error: errorPayload
+      })
+
+      return {
+        error: {
+          ...errorPayload,
+          message
+        }
+      }
     }
 
     return { data: result.data, error: null }

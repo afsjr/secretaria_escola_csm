@@ -324,13 +324,33 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
       const turmaNome = btn.getAttribute('data-nome')
       if (!turmaId) return
 
-      if (!confirm(`⚠️ Tem certeza que deseja excluir a turma "${turmaNome}"?\n\nEsta ação não pode ser desfeita e removerá todos os dados associados.`)) return
+      const { data: matriculas } = await AcademicService.getAlunosDaTurma(turmaId)
+      const temMatriculas = matriculas && matriculas.length > 0
 
-      const { error } = await AcademicService.deleteTurma(turmaId)
-      if (error) toast.error('Erro ao excluir: ' + error.message)
-      else {
-        toast.success('Turma excluída!')
-        setTimeout(() => { window.location.reload() }, 500)
+      if (temMatriculas) {
+        const confirmarInativar = confirm(
+          `⚠️ ATENÇÃO: A turma "${turmaNome}" possui ${matriculas.length} aluno(s) matriculado(s).\n\n` +
+          `Como existem alunos associados, NÃO é possível excluir a turma.\n\n` +
+          `Deseja MARCAR A TURMA COMO INATIVA no lugar?\n` +
+          `Os dados dos alunos (notas, frequência) serão mantidos.`
+        )
+        if (!confirmarInativar) return
+
+        const { error } = await AcademicService.updateTurma(turmaId, { status_ingresso: 'fechada' })
+        if (error) toast.error('Erro ao inativar: ' + error.message)
+        else {
+          toast.success('Turma marcada como inativa! Dados preservados.')
+          setTimeout(() => { window.location.reload() }, 500)
+        }
+      } else {
+        if (!confirm(`✅ Tem certeza que deseja excluir a turma "${turmaNome}"?\n\nEsta turma está vazia e pode ser removida com segurança.`)) return
+
+        const { error } = await AcademicService.deleteTurma(turmaId)
+        if (error) toast.error('Erro ao excluir: ' + error.message)
+        else {
+          toast.success('Turma excluída!')
+          setTimeout(() => { window.location.reload() }, 500)
+        }
       }
     })
   })

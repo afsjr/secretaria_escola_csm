@@ -72,6 +72,7 @@ CREATE POLICY "View disciplinas authenticated" ON disciplinas FOR SELECT TO auth
 
 -- 5. GARANTIR RLS ATIVO
 ALTER TABLE perfis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE perfis_enderecos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE boletim ENABLE ROW LEVEL SECURITY;
 ALTER TABLE matriculas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE solicitacoes ENABLE ROW LEVEL SECURITY;
@@ -79,3 +80,12 @@ ALTER TABLE turmas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cursos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE disciplinas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE aulas ENABLE ROW LEVEL SECURITY;
+
+-- 6. POLÍTICAS PARA perfis_enderecos
+DROP POLICY IF EXISTS "Admin/Secretaria perfis_enderecos access" ON perfis_enderecos;
+DROP POLICY IF EXISTS "Users view own endereco" ON perfis_enderecos;
+DROP POLICY IF EXISTS "Users manage own endereco" ON perfis_enderecos;
+
+CREATE POLICY "Admin/Secretaria perfis_enderecos access" ON perfis_enderecos FOR ALL TO authenticated USING (check_user_is_admin_or_secretaria());
+CREATE POLICY "Users view own endereco" ON perfis_enderecos FOR SELECT TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Users manage own endereco" ON perfis_enderecos FOR ALL TO authenticated USING (auth.uid() = user_id);

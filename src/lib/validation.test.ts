@@ -211,7 +211,6 @@ describe('validarCPF', () => {
   })
 
   it('deve validar CPF válido sem pontuação', () => {
-    // CPF válido real: 11144477735
     expect(validarCPF('11144477735')).toBe(true)
   })
 
@@ -245,16 +244,53 @@ describe('validarCPF', () => {
     expect(validarCPF('111abc77735')).toBe(false)
   })
 
-  it('deve validar CPF com zeros', () => {
-    // Bug encontrado: CPF com zeros significativos pode falhar no algoritmo atual
-    // Aceitar como comportamento atual do sistema
-    expect(validarCPF('00000000195')).toBe(false)
+  it('deve validar CPF com máscara correta', () => {
+    expect(validarCPF('529.982.247-25')).toBe(true)
   })
 
-  it('deve validar CPF válido simples (com zeros no início)', () => {
-    // O CPF com zeros à direta é rejeitado pelo algoritmo - ajustar expectativa
-    const cpf = '12345678901' // Simple test
-    expect(validarCPF(cpf)).toBe(false) // Known to fail by algorithm
+  it('deve rejeitar CPF com primeiro dígito verificador errado', () => {
+    expect(validarCPF('11144477736')).toBe(false)
+  })
+
+  it('deve rejeitar CPF com segundo dígito verificador errado', () => {
+    expect(validarCPF('11144477734')).toBe(false)
+  })
+
+  it('deve validar CPF válido real (52998224725)', () => {
+    expect(validarCPF('52998224725')).toBe(true)
+  })
+
+  it('deve validar CPF com pontos e hífen', () => {
+    expect(validarCPF('529.982.247-25')).toBe(true)
+  })
+
+  it('deve rejeitar CPF com apenas zeros', () => {
+    expect(validarCPF('00000000000')).toBe(false)
+  })
+
+  it('deve validar múltiplos CPFs válidos diferentes', () => {
+    const cpfsValidos = [
+      '11144477735',
+      '52998224725',
+      '93004249634',
+      '60078929806',
+      '22153048710',
+      '13299087320'
+    ]
+    const cpfsInvalidos = [
+      '11144477736',
+      '52998224726',
+      '00000000000',
+      '12345678901'
+    ]
+
+    cpfsValidos.forEach(cpf => {
+      expect(validarCPF(cpf)).toBe(true)
+    })
+
+    cpfsInvalidos.forEach(cpf => {
+      expect(validarCPF(cpf)).toBe(false)
+    })
   })
 })
 

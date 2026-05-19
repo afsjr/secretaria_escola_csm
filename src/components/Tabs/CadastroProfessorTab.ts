@@ -8,6 +8,7 @@
 import { AdminService } from '../../lib/admin-service'
 import { toast } from '../../lib/toast'
 import { renderTemplate } from '../../lib/dom-utils'
+import { validarCPF } from '../../lib/validation'
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 
@@ -30,7 +31,11 @@ export function CadastroProfessorTab(): HTMLDivElement {
 
         <div class="form-group">
           <label class="label" for="professor-cpf">CPF</label>
-          <input type="text" id="professor-cpf" name="professor_cpf" class="input" placeholder="000.000.000-00">
+          <div style="position: relative;">
+            <input type="text" id="professor-cpf" name="professor_cpf" class="input" placeholder="000.000.000-00" style="padding-right: 2.5rem;">
+            <span id="cpf-status" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; display: none;"></span>
+          </div>
+          <small id="cpf-feedback" style="color: var(--text-muted); display: none;"></small>
         </div>
 
         <div class="form-group">
@@ -49,6 +54,62 @@ export function CadastroProfessorTab(): HTMLDivElement {
   `
 
   const container = renderTemplate<HTMLDivElement>(html)
+
+  const cpfInput = container.querySelector('#professor-cpf') as HTMLInputElement
+  const cpfStatus = container.querySelector('#cpf-status') as HTMLSpanElement
+  const cpfFeedback = container.querySelector('#cpf-feedback') as HTMLSmallElement
+
+  function formatCPF(value: string): string {
+    const numbers = value.replace(/\D/g, '')
+    if (numbers.length <= 3) return numbers
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`
+    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`
+  }
+
+  cpfInput.addEventListener('input', () => {
+    const rawValue = cpfInput.value
+    const formattedValue = formatCPF(rawValue)
+    if (rawValue !== formattedValue) {
+      cpfInput.value = formattedValue
+    }
+
+    const cpf = cpfInput.value.replace(/\D/g, '')
+
+    if (cpf.length === 0) {
+      cpfStatus.style.display = 'none'
+      cpfFeedback.style.display = 'none'
+      cpfInput.style.borderColor = ''
+      return
+    }
+
+    if (cpf.length < 11) {
+      cpfStatus.textContent = '⏳'
+      cpfStatus.style.display = 'block'
+      cpfStatus.style.color = 'var(--text-muted)'
+      cpfFeedback.style.display = 'none'
+      cpfInput.style.borderColor = ''
+      return
+    }
+
+    if (validarCPF(cpf)) {
+      cpfStatus.textContent = '✅'
+      cpfStatus.style.display = 'block'
+      cpfStatus.style.color = 'var(--success)'
+      cpfFeedback.textContent = 'CPF válido'
+      cpfFeedback.style.display = 'block'
+      cpfFeedback.style.color = 'var(--success)'
+      cpfInput.style.borderColor = 'var(--success)'
+    } else {
+      cpfStatus.textContent = '❌'
+      cpfStatus.style.display = 'block'
+      cpfStatus.style.color = 'var(--danger)'
+      cpfFeedback.textContent = 'CPF inválido'
+      cpfFeedback.style.display = 'block'
+      cpfFeedback.style.color = 'var(--danger)'
+      cpfInput.style.borderColor = 'var(--danger)'
+    }
+  })
 
   const form = container.querySelector('#form-cadastro-professor') as HTMLFormElement
   const btnCadastrar = container.querySelector('#btn-cadastrar-professor') as HTMLButtonElement
@@ -69,6 +130,12 @@ export function CadastroProfessorTab(): HTMLDivElement {
 
     if (!PASSWORD_REGEX.test(senha)) {
       toast.error('Senha inválida: Mínimo 8 caracteres com letras e números.')
+      return
+    }
+
+    if (cpf.length > 0 && cpf.replace(/\D/g, '').length === 11 && !validarCPF(cpf)) {
+      toast.error('CPF inválido. Verifique o número e tente novamente.')
+      cpfInput.focus()
       return
     }
 

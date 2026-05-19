@@ -128,24 +128,24 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
 
   // Event Listeners para botões da tabela de alunos
   window.addEventListener('view-aluno', ((e: CustomEvent) => {
-    window.location.href = `/student-details?id=${e.detail}`
+    window.location.hash = `#/student-details?id=${e.detail}`
   }) as EventListener)
 
   window.addEventListener('edit-aluno', ((e: CustomEvent) => {
-    window.location.href = `/student-details?edit=true&id=${e.detail}`
+    window.location.hash = `#/student-details?edit=true&id=${e.detail}`
   }) as EventListener)
 
   window.addEventListener('matricular-aluno', ((e: CustomEvent) => {
-    window.location.href = `/gestao-turmas?matricular=${e.detail}`
+    window.location.hash = `#/gestao-turmas?matricular=${e.detail}`
   }) as EventListener)
 
   // Event Listeners para botões da tabela de professores
   window.addEventListener('view-professor', ((e: CustomEvent) => {
-    window.location.href = `/professor-details?id=${e.detail}`
+    window.location.hash = `#/professor-details?id=${e.detail}`
   }) as EventListener)
 
   window.addEventListener('edit-professor', ((e: CustomEvent) => {
-    window.location.href = `/professor-details?edit=true&id=${e.detail}`
+    window.location.hash = `#/professor-details?edit=true&id=${e.detail}`
   }) as EventListener)
 
   return container

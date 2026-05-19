@@ -12,9 +12,23 @@ import { toast } from '../lib/toast'
 import { escapeHTML, createBadge, createOption } from '../lib/security'
 import { ProfessorDetailsService } from '../lib/professor-details-service'
 
-export async function ProfessorDetailsView(professorId: string): Promise<HTMLElement> {
+export async function ProfessorDetailsView(): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'professor-details-view animate-in'
+
+  const hash = window.location.hash
+  const params = new URLSearchParams(hash.split('?')[1] || '')
+  const professorId = params.get('id')
+
+  if (!professorId) {
+    container.innerHTML = `
+      <div style="padding: 2rem; text-align: center;">
+        <h2 style="color: var(--danger);">ID do professor não informado</h2>
+        <button onclick="history.back()" class="btn btn-primary" style="margin-top: 1rem;">Voltar</button>
+      </div>
+    `
+    return container
+  }
 
   console.log('[ProfessorDetailsView] Buscando dados para professorId:', professorId)
 

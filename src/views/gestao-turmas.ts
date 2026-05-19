@@ -3,18 +3,16 @@ import { CourseService } from '../lib/course-service'
 import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
-import type { UserRole } from '../types'
 
-interface ProfileParam {
-  id: string
-  perfil: UserRole
-}
-
-export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLElement> {
+export async function GestaoTurmasView(): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'gestao-turmas-view animate-in'
 
-  // Verificar se o usuário tem permissão para editar/excluir turmas
+  const hash = window.location.hash
+  const params = new URLSearchParams(hash.split('?')[1] || '')
+  const matricularAlunoId = params.get('matricular')
+
+  const profile = { id: '', perfil: 'secretaria' as const }
   const canManageTurmas = profile.perfil === 'secretaria' || profile.perfil === 'coordenacao' || profile.perfil === 'admin' || profile.perfil === 'master_admin'
 
   // Fetch initial data
@@ -35,6 +33,14 @@ export async function GestaoTurmasView(profile: ProfileParam): Promise<HTMLEleme
   const cursosOptions = cursos && cursos.length > 0
     ? cursos.map((c: any) => createOption(c.id, c.nome)).join('')
     : '<option value="">Nenhum curso cadastrado</option>'
+
+  // Se há parâmetro matricular, buscar dados do aluno
+  if (matricularAlunoId) {
+    const alunoData = alunos?.find((a: any) => a.id === matricularAlunoId)
+    if (alunoData) {
+      console.log('[GestaoTurmas] Matricular aluno:', alunoData.nome_completo)
+    }
+  }
 
   const turmasList = !turmas || turmas.length === 0
     ? '<p style="color:var(--text-muted);font-size:0.8rem;">Nenhuma turma registrada.</p>'

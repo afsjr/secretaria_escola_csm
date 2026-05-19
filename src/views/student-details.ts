@@ -113,11 +113,25 @@ interface DadosCompletos {
   };
 }
 
-export async function StudentDetailsView(
-  alunoId: string,
-): Promise<HTMLElement> {
+export async function StudentDetailsView(): Promise<HTMLElement> {
   const container = document.createElement("div");
   container.className = "student-details-view animate-in";
+
+  // Extrair ID da URL
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.split('?')[1] || '');
+  const alunoId = params.get('id');
+  const editMode = params.get('edit') === 'true';
+
+  if (!alunoId) {
+    container.innerHTML = `
+      <div style="padding: 2rem; text-align: center;">
+        <h2 style="color: var(--danger);">ID do aluno não informado</h2>
+        <button onclick="history.back()" class="btn btn-primary" style="margin-top: 1rem;">Voltar</button>
+      </div>
+    `;
+    return container;
+  }
 
   // Buscar dados completos
   const { data: dadosCompletos, error } = await StudentDetailsService

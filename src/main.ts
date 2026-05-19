@@ -7,6 +7,9 @@ import { HomeView } from './views/home'
 import { ForgotPasswordView } from './views/forgot-password'
 import { ResetPasswordView } from './views/reset-password'
 import { ForceChangePasswordView } from './views/force-change-password'
+import { StudentDetailsView } from './views/student-details'
+import { ProfessorDetailsView } from './views/professor-details'
+import { GestaoTurmasView } from './views/gestao-turmas'
 
 const app = document.querySelector('#app') as HTMLElement | null
 
@@ -96,6 +99,12 @@ async function router(): Promise<void> {
       } else if (path.startsWith('#/dashboard')) {
         const subPath = path.replace('#/dashboard', '') || '/'
         app.appendChild(await DashboardView(session as any, subPath))
+      } else if (path.startsWith('#/student-details')) {
+        app.appendChild(StudentDetailsView())
+      } else if (path.startsWith('#/professor-details')) {
+        app.appendChild(ProfessorDetailsView())
+      } else if (path.startsWith('#/gestao-turmas')) {
+        app.appendChild(GestaoTurmasView())
       } else {
         app.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>404</h1><p>Página não encontrada</p><a href="#/">Voltar para o início</a></div>'
       }

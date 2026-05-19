@@ -146,7 +146,30 @@ serve(async (req) => {
 
     const newUser = userData.user
 
-    // Step 2: Criar perfil na tabela perfis
+    // Step 2: Verificar se perfil já existe
+    const { data: existingProfile } = await supabaseAdmin
+      .from("perfis")
+      .select("id")
+      .eq("id", newUser.id)
+      .single()
+
+    if (existingProfile) {
+      // ROLLBACK: Deletar usuário criado
+      await supabaseAdmin.auth.admin.deleteUser(newUser.id)
+
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: "Usuário já possui um perfil cadastrado.",
+            code: "P2002",
+            hint: "Esse e-mail já está em uso."
+          }
+        }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    // Step 3: Criar perfil na tabela perfis
     const { error: profileError } = await supabaseAdmin
       .from("perfis")
       .insert([{

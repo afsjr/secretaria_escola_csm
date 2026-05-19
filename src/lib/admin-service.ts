@@ -126,7 +126,19 @@ export const AdminService = {
 
         if (authError) return { error: authError }
 
-        // 2. Criar perfil na tabela perfis
+        // 2. Verificar se perfil já existe
+        const { data: existingProfile } = await supabaseAdmin
+          .from('perfis')
+          .select('id')
+          .eq('id', authData.user.id)
+          .single()
+
+        if (existingProfile) {
+          await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+          return { error: { message: 'Usuário já possui um perfil cadastrado.', code: 'P2002' } }
+        }
+
+        // 3. Criar perfil na tabela perfis
         const { error: profileError } = await supabaseAdmin
           .from('perfis')
           .insert([{
@@ -139,7 +151,6 @@ export const AdminService = {
           }])
 
         if (profileError) {
-          // Rollback: deletar usuário se perfil falhar
           await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
           return { error: profileError }
         }

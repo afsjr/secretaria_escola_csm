@@ -108,9 +108,9 @@ export function GerenciarAlunosTab({
                 </td>
                 <td style="text-align: right;">
                   <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button class="btn btn-sm" style="background: var(--bg-app);" onclick="window.dispatchEvent(new CustomEvent('view-aluno', {detail: '${escapeHTML(aluno.id)}'}))" title="Ver Ficha">👁️</button>
-                    <button class="btn btn-sm" style="background: var(--bg-app);" onclick="window.dispatchEvent(new CustomEvent('edit-aluno', {detail: '${escapeHTML(aluno.id)}'}))" title="Editar">✏️</button>
-                    <button class="btn btn-sm" style="background: var(--accent); color: var(--primary);" onclick="window.dispatchEvent(new CustomEvent('matricular-aluno', {detail: '${escapeHTML(aluno.id)}'}))" title="Matricular">🎓</button>
+                    <button class="btn btn-sm" style="background: var(--bg-app); border: 1px solid var(--border);" onclick="window.dispatchEvent(new CustomEvent('view-aluno', {detail: '${escapeHTML(aluno.id)}'}))" title="Ver Ficha">👁️</button>
+                    <button class="btn btn-sm" style="background: var(--accent); color: var(--primary);" onclick="window.dispatchEvent(new CustomEvent('edit-aluno', {detail: '${escapeHTML(aluno.id)}'}))" title="Editar">✏️</button>
+                    <button class="btn btn-sm" style="background: var(--primary); color: white;" onclick="window.dispatchEvent(new CustomEvent('matricular-aluno', {detail: '${escapeHTML(aluno.id)}'}))" title="Matricular">🎓</button>
                   </div>
                 </td>
               </tr>

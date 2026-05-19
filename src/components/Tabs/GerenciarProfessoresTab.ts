@@ -81,9 +81,11 @@ export function GerenciarProfessoresTab({
                   <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHTML(p.telefone || '---')}</div>
                 </td>
                 <td style="text-align: right;">
-                  <button class="btn btn-sm" style="background: var(--bg-app); border: 1px solid var(--border);" title="Vincular Disciplinas">
-                    🔗 Vincular
-                  </button>
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="btn btn-sm" style="background: var(--bg-app); border: 1px solid var(--border);" onclick="window.dispatchEvent(new CustomEvent('view-professor', {detail: '${escapeHTML(p.id)}'}))" title="Ver Perfil">👁️</button>
+                    <button class="btn btn-sm" style="background: var(--accent); color: var(--primary);" onclick="window.dispatchEvent(new CustomEvent('edit-professor', {detail: '${escapeHTML(p.id)}'}))" title="Editar">✏️</button>
+                    <button class="btn btn-sm" style="background: var(--primary); color: white;" title="Vincular">🔗</button>
+                  </div>
                 </td>
               </tr>
             `).join('')}

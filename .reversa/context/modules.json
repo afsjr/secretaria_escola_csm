@@ -1,0 +1,166 @@
+{
+  "generated_at": "2026-05-19T18:00:00Z",
+  "modules": [
+    {
+      "name": "auth",
+      "folder": "src/auth",
+      "files": ["session.ts", "signup-handler.ts", "session.test.ts"],
+      "loc": 196,
+      "complexity": "medium",
+      "dependencies": ["supabase", "toast", "types"],
+      "entities": ["Session", "UserProfile"],
+      "main_functions": ["login", "logout", "resetPassword", "getSession", "getUserProfile", "registerUser"],
+      "algorithms": [
+        "Session timeout com verificação periódica (30 min)",
+        "Redirect URLs dinâmicos para recovery",
+        "Rollback em falha de registro de usuário"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "admin",
+      "folder": "src/lib",
+      "files": ["admin-service.ts"],
+      "loc": 421,
+      "complexity": "high",
+      "dependencies": ["supabase", "supabaseAdmin", "audit-service", "session"],
+      "entities": ["UserRole"],
+      "main_functions": ["createUserByAdmin", "matricularAluno", "listAlunos", "getAlunoById", "updateAluno", "resetUserPassword"],
+      "algorithms": [
+        "Fallback chain: Admin direto → Edge Function → modo desenvolvimento",
+        "Verificação de aluno já matriculado antes de matricular",
+        "Proteção contra escalada de privilégios (remove perfil, email, id, bloqueio_financeiro)",
+        "Auditoria de todas as operações admin"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "academic",
+      "folder": "src/lib",
+      "files": ["academic-service.ts", "grades-utils.ts"],
+      "loc": 280,
+      "complexity": "high",
+      "dependencies": ["supabase"],
+      "entities": ["Turma", "Matricula", "Disciplina", "Boletim"],
+      "main_functions": ["getTurmas", "createTurma", "updateTurma", "deleteTurma", "matricularAluno", "getAlunosDaTurma", "atualizarStatusAdministrativo", "getDisciplinasDaTurma", "getNotasCompletasTurma", "getBoletim", "upsertNotaEstagio"],
+      "algorithms": [
+        "CRUD completo de turmas com validação",
+        "Matrícula com verificação de aluno ativo em outra turma",
+        "Deduplicação de disciplinas por Nome + Módulo",
+        "Controle de versão em notas (versao field)",
+        "Upsert de notas de estágio"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "professor",
+      "folder": "src/lib",
+      "files": ["professor-service.ts", "professor-details-service.ts"],
+      "loc": 400,
+      "complexity": "high",
+      "dependencies": ["supabase", "audit-service", "concurrency-control"],
+      "entities": ["Aula", "Boletim", "NotaData"],
+      "main_functions": ["getDisciplinasDoProfessor", "getAllOfertas", "vincularProfessorAOferta", "getNotasDaDisciplina", "salvarNota", "salvarNotasEmLote", "registrarAula", "getAulasDaOferta", "getAulasDoProfessor"],
+      "algorithms": [
+        "Vínculo de professor a oferta (turma_disciplina)",
+        "Salvar nota com controle de concorrência (optimistic locking via versao)",
+        "Batch de notas com Promise.all",
+        "Registro de aulas com auditoria",
+        "Frequência: implementação simplificada (log-only)"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "course",
+      "folder": "src/lib",
+      "files": ["course-service.ts"],
+      "loc": 166,
+      "complexity": "medium",
+      "dependencies": ["supabase"],
+      "entities": ["Curso", "DisciplinaBase", "TurmaDisciplina"],
+      "main_functions": ["getCursos", "getCursosAtivos", "createCurso", "desativarCurso", "reativarCurso", "getMatrizCurricular", "addDisciplinaAoCatalogo", "getTurmasDoCurso", "getOfertasDaTurma", "criarOfertaDisciplina", "atribuirProfessorAEstrutura", "removerOfertaDisciplina"],
+      "algorithms": [
+        "Ativação/desativação lógica de cursos",
+        "Matriz curricular por curso (disciplinas_base)",
+        "Ofertas: vinculação disciplina_base → turma → professor",
+        "CRUD completo de ofertas"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "student",
+      "folder": "src/lib",
+      "files": ["student-details-service.ts"],
+      "loc": 235,
+      "complexity": "medium",
+      "dependencies": ["supabase", "concurrency-control", "types"],
+      "entities": ["Endereco", "Responsavel", "Observacao"],
+      "main_functions": ["getEndereco", "saveEndereco", "deleteEndereco", "getResponsaveis", "addResponsavel", "updateResponsavel", "deleteResponsavel", "getObservacoes", "addObservacao", "updateObservacao", "deleteObservacao", "getAlunoCompleto", "updateDadosPessoais", "isMenorDeIdade"],
+      "algorithms": [
+        "Upsert de endereço (get + insert/update)",
+        "Responsáveis ordenados por principal",
+        "Observações com lookup do criador",
+        "Dados completos do aluno (perfil + endereco + responsaveis + observacoes + matricula)",
+        "Menor de idade via RPC"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "documents",
+      "folder": "src/lib",
+      "files": ["documents-service.ts"],
+      "loc": 48,
+      "complexity": "low",
+      "dependencies": ["supabase"],
+      "entities": ["Solicitacao"],
+      "main_functions": ["createRequest", "getMyRequests", "getAllOpenRequests", "updateStatus"],
+      "algorithms": [
+        "CRUD simples de solicitações",
+        "Busca por user_id (próprias) vs busca completa (admin)"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "financeiro",
+      "folder": "src/lib",
+      "files": ["financeiro-service.ts"],
+      "loc": 157,
+      "complexity": "medium",
+      "dependencies": ["supabase"],
+      "entities": ["Pagamento", "Acordo", "Config"],
+      "main_functions": ["getResumo", "getInadimplentes", "getHistoricoAluno", "criarAcordo", "getConfig", "getAllPagamentos", "createPagamento"],
+      "algorithms": [
+        "Resumo financeiro: iteração manual (sem SQL aggregation)",
+        "Inadimplentes via JOIN",
+        "Acordos: criar acordo + atualizar pagamentos para 'acordo'",
+        "Config como key-value em tabela"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "name": "audit",
+      "folder": "src/lib",
+      "files": ["audit-service.ts"],
+      "loc": 253,
+      "complexity": "medium",
+      "dependencies": ["supabase", "session", "types"],
+      "entities": ["AuditLog"],
+      "main_functions": ["log", "getLogs", "getUniqueActions", "getLogsByUser", "getRecentLogs", "getCountsBySeverity", "getHighSeverityLogs", "withAudit"],
+      "algorithms": [
+        "Log não-bloqueante (try-catch com console.warn)",
+        "Mapeamento de ações para severidade (alta/media/baixa)",
+        "Filtros: ação, tabela, usuário, data_inicio, data_fim",
+        "Paginação via offset/limit",
+        "Helper withAudit para wrapper automático"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "summary": {
+    "total_modules": 9,
+    "total_loc": 2256,
+    "high_complexity_modules": ["admin", "academic", "professor"],
+    "medium_complexity_modules": ["auth", "course", "student", "financeiro", "audit"],
+    "low_complexity_modules": ["documents"]
+  }
+}

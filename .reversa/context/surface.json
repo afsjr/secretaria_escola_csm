@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-05-19T17:30:00Z",
+  "project_root": "secretaria_escola_csm",
+  "languages": [
+    { "name": "TypeScript", "extensions": [".ts"], "file_count": 58 }
+  ],
+  "primary_language": "TypeScript",
+  "frameworks": [
+    { "name": "Vite", "version": "implícita", "source": "vite.config.ts" },
+    { "name": "Vitest", "version": "4.1.4", "source": "package.json" },
+    { "name": "Supabase", "version": "2.101.0", "source": "package.json" },
+    { "name": "Zod", "version": "4.3.6", "source": "package.json" }
+  ],
+  "package_manager": "npm",
+  "entry_points": [
+    { "path": "src/main.ts", "type": "spa_entry" },
+    { "path": "supabase/functions/admin-create-user/index.ts", "type": "edge_function" },
+    { "path": "supabase/functions/admin-reset-password/index.ts", "type": "edge_function" }
+  ],
+  "config_files": [
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vercel.json"
+  ],
+  "ci_cd": [
+    "vercel.json"
+  ],
+  "docker": {
+    "dockerfile": null,
+    "compose": null
+  },
+  "database_hints": [
+    { "path": "supabase/schema.sql", "type": "ddl_file" },
+    { "path": "supabase/migration.sql", "type": "migrations" },
+    { "path": "supabase/rls_fix.sql", "type": "security_policies" }
+  ],
+  "test_framework": "Vitest",
+  "test_file_count": 9,
+  "modules": [
+    "auth",
+    "admin",
+    "academic",
+    "professor",
+    "course",
+    "student",
+    "documents",
+    "financeiro",
+    "audit"
+  ],
+  "total_files": 75,
+  "organization_suggestion": {
+    "granularity": "module",
+    "rationale": "Pastas top-level src/ organizadas por domínio (auth/, lib/, views/, components/). Módulos bem definidos com serviços dedicados.",
+    "signals": [
+      {
+        "type": "top_level_domain_folders",
+        "evidence": [
+          "src/auth/",
+          "src/lib/",
+          "src/views/",
+          "src/components/",
+          "src/types/"
+        ]
+      }
+    ],
+    "features": []
+  }
+}

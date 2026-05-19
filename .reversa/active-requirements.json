@@ -1,0 +1,31 @@
+{
+  "schema-version": 1,
+  "feature-dir": "_reversa_forward/003-graficos-logs",
+  "feature-id": "003",
+  "short-name": "graficos-logs",
+  "started-at": "2026-05-19T18:30:00Z",
+  "current-stage": "done",
+  "stages-completed": ["requirements"],
+  "paused-features": [
+    {
+      "feature-dir": "_reversa_forward/001-tipos-curso",
+      "feature-id": "001",
+      "short-name": "tipos-curso",
+      "started-at": "2026-05-19T18:25:00Z",
+      "current-stage": "requirements",
+      "stages-completed": [],
+      "paused-at": "2026-05-19T18:30:00Z",
+      "paused-from-stage": "requirements"
+    },
+    {
+      "feature-dir": "_reversa_forward/002-geracao-certificados",
+      "feature-id": "002",
+      "short-name": "geracao-certificados",
+      "started-at": "2026-05-19T18:27:00Z",
+      "current-stage": "requirements",
+      "stages-completed": [],
+      "paused-at": "2026-05-19T18:30:00Z",
+      "paused-from-stage": "requirements"
+    }
+  ]
+}

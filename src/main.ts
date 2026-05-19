@@ -100,11 +100,11 @@ async function router(): Promise<void> {
         const subPath = path.replace('#/dashboard', '') || '/'
         app.appendChild(await DashboardView(session as any, subPath))
       } else if (path.startsWith('#/student-details')) {
-        app.appendChild(StudentDetailsView())
+        app.appendChild(await StudentDetailsView())
       } else if (path.startsWith('#/professor-details')) {
-        app.appendChild(ProfessorDetailsView())
+        app.appendChild(await ProfessorDetailsView())
       } else if (path.startsWith('#/gestao-turmas')) {
-        app.appendChild(GestaoTurmasView())
+        app.appendChild(await GestaoTurmasView())
       } else {
         app.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>404</h1><p>Página não encontrada</p><a href="#/">Voltar para o início</a></div>'
       }

@@ -82,9 +82,9 @@ export function GerenciarProfessoresTab({
                 </td>
                 <td style="text-align: right;">
                   <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button class="btn btn-sm" style="background: var(--bg-app); border: 1px solid var(--border);" onclick="window.dispatchEvent(new CustomEvent('view-professor', {detail: '${escapeHTML(p.id)}'}))" title="Ver Perfil">👁️</button>
-                    <button class="btn btn-sm" style="background: var(--accent); color: var(--primary);" onclick="window.dispatchEvent(new CustomEvent('edit-professor', {detail: '${escapeHTML(p.id)}'}))" title="Editar">✏️</button>
-                    <button class="btn btn-sm" style="background: var(--primary); color: white;" title="Vincular">🔗</button>
+                    <button class="btn btn-sm btn-secondary" onclick="window.location.hash='#/professor-details?id=${escapeHTML(p.id)}'" title="Ver Perfil">👁️</button>
+                    <button class="btn btn-sm btn-primary" onclick="window.location.hash='#/professor-details?edit=true&id=${escapeHTML(p.id)}'" title="Editar">✏️</button>
+                    <button class="btn btn-sm btn-accent" title="Vincular">🔗</button>
                   </div>
                 </td>
               </tr>

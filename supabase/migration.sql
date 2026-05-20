@@ -593,7 +593,7 @@ ALTER TABLE bulletin ADD COLUMN IF NOT EXISTS estagio_parecer TEXT;
 -- 2. Adicionar tipo de curso (se não existir)
 -- =====================================================
 ALTER TABLE cursos ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'tecnico';
-ALTER TABLE cursos ADD COLUMN IF NOT EXISTS tipo TEXT CHECK (tipo IN ('saude', 'tecnico', 'outro'));
+ALTER TABLE cursos ADD COLUMN IF NOT EXISTS tipo TEXT CHECK (tipo IN ('saude', 'tecnico', 'outro', 'formacao'));
 
 -- =====================================================
 -- 3. Atualizar cursos de saúde existentes
@@ -603,6 +603,12 @@ WHERE nome ILIKE '%enfermagem%'
    OR nome ILIKE '%enfermeiro%'
    OR nome ILIKE '%enfermagem%'
    OR nome ILIKE '%enfermagem%';
+
+-- =====================================================
+-- 3.1. Atualizar cursos de formação
+-- =====================================================
+UPDATE cursos SET tipo = 'formacao' 
+WHERE nome ILIKE '%flebotomia%';
 
 -- =====================================================
 -- 4. Criar índice para performance

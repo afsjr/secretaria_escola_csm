@@ -126,10 +126,10 @@ export async function ProfessorView(
                     <tr>
                       <td>
                         <div class="fw-600 text-main">${
-          escapeHTML(d.nome)
+          escapeHTML(d.disciplinas_base?.nome)
         }</div>
                       </td>
-                      <td>${escapeHTML(d.modulo)}</td>
+                      <td>${escapeHTML(d.disciplinas_base?.modulo)}</td>
                       <td>${
           d.turmas
             ? escapeHTML(d.turmas.nome)
@@ -149,14 +149,14 @@ export async function ProfessorView(
                       <td>
                         <div style="display: flex; gap: 5px;">
                           <button class="btn btn-primary btn-sm btn-lancar-notas" data-disciplina="${
-          escapeHTML(d.nome)
+          escapeHTML(d.disciplinas_base?.nome)
         }" data-disciplina-id="${d.id}" data-turma="${d.turmas?.id || ""}" ${
           !d.turmas ? "disabled" : ""
         } style="font-size: 0.75rem;">
                             Notas
                           </button>
                           <button class="btn btn-secondary btn-sm btn-registrar-aula" data-id="${d.id}" data-nome="${
-          escapeHTML(d.nome)
+          escapeHTML(d.disciplinas_base?.nome)
         }" style="font-size: 0.75rem;">
                             Aulas
                           </button>
@@ -195,11 +195,11 @@ export async function ProfessorView(
               ${
     disciplinas?.filter((d) => d.turmas).map((d) => `
                 <option value="${d.id}" data-nome="${
-      escapeHTML(d.nome)
+      escapeHTML(d.disciplinas_base?.nome)
     }" data-turma="${d.turmas!.id}" data-turma-nome="${
       escapeHTML(d.turmas!.nome)
     }">
-                  ${escapeHTML(d.nome)} (${escapeHTML(d.modulo)}) - ${
+                  ${escapeHTML(d.disciplinas_base?.nome)} (${escapeHTML(d.disciplinas_base?.modulo)}) - ${
       escapeHTML(d.turmas!.nome)
     }
                 </option>
@@ -238,9 +238,9 @@ export async function ProfessorView(
               ${
     disciplinas?.map((d) => `
                 <option value="${d.id}" data-nome="${
-      escapeHTML(d.nome)
-    }" data-modulo="${escapeHTML(d.modulo)}">
-                  ${escapeHTML(d.nome)} (${escapeHTML(d.modulo)})
+      escapeHTML(d.disciplinas_base?.nome)
+    }" data-modulo="${escapeHTML(d.disciplinas_base?.modulo)}">
+                  ${escapeHTML(d.disciplinas_base?.nome)} (${escapeHTML(d.disciplinas_base?.modulo)})
                 </option>
               `).join("") || ""
   }

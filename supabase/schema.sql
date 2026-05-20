@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS cursos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome TEXT NOT NULL,
     descricao TEXT,
-    tipo TEXT DEFAULT 'tecnico' CHECK (tipo IN ('saude', 'tecnico', 'outro')),
+    tipo TEXT DEFAULT 'tecnico' CHECK (tipo IN ('saude', 'tecnico', 'outro', 'formacao')),
     ativo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW()
 );

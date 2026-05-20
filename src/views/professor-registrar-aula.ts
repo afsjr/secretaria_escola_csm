@@ -42,7 +42,10 @@ export async function ProfessorRegistrarAulaView(profile: { id: string }): Promi
         disciplinas: []
       }
     }
-    turmasMap[turmaKey].disciplinas.push(d)
+    turmasMap[turmaKey].disciplinas.push({
+      id: d.id,
+      nome: d.disciplinas_base?.nome || ''
+    })
   })
 
   const turmas: TurmaData[] = Object.values(turmasMap)

@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/003-graficos-logs",
-  "feature-id": "003",
-  "short-name": "graficos-logs",
-  "started-at": "2026-05-19T18:30:00Z",
-  "current-stage": "done",
-  "stages-completed": ["requirements"],
+  "feature-dir": "_reversa_forward/004-central-notificacoes",
+  "feature-id": "004",
+  "short-name": "central-notificacoes",
+  "started-at": "2026-05-21T16:50:00Z",
+  "current-stage": "requirements",
+  "stages-completed": [],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/001-tipos-curso",

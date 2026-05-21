@@ -99,6 +99,17 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     })
   })
 
+  // Aba solicitacoes via hash param ?solicitacoes
+  if (window.location.hash.includes('?solicitacoes')) {
+    const solicitacoesBtn = container.querySelector('[data-tab="solicitacoes"]') as HTMLElement | null
+    if (solicitacoesBtn) {
+      solicitacoesBtn.click()
+      // Clean param from URL
+      const cleanHash = window.location.hash.replace(/\?solicitacoes/, '')
+      window.history.replaceState(null, '', cleanHash || '#/dashboard/secretaria')
+    }
+  }
+
   // 4. Injeção de Componentes Modulares
   const inject = (id: string, component: Node) => {
     const el = container.querySelector(id)

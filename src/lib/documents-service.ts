@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import type { Solicitacao } from '../types/domain'
 
 /**
  * Service for Document Requests (Solicitações)
@@ -21,6 +22,17 @@ export const DocumentsService = {
       .from('solicitacoes')
       .select('*')
       .eq('user_id', userId)
+      .order('criado_em', { ascending: false })
+    return { data, error }
+  },
+
+  // Student: Get only pending requests for a specific user
+  async getPendingByUser(userId: string): Promise<{ data: Solicitacao[] | null; error: any }> {
+    const { data, error } = await supabase
+      .from('solicitacoes')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'pendente')
       .order('criado_em', { ascending: false })
     return { data, error }
   },

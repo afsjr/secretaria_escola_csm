@@ -7,7 +7,7 @@
 
 ## 1. Resumo executivo
 
-Criar um dropdown de notificações no header da aplicação que exibe solicitações de documentos pendentes (solicitações dos alunos) com contador no badge. Atualmente o botão do sino existe mas não tem funcionalidade. A feature unifica o acesso às pendências para admin/secretaria/coordenação em um só lugar, sem precisar navegar até o dashboard ou a aba de solicitações.
+Criar um dropdown de notificações no header da aplicação que exibe solicitações de documentos pendentes com contador no badge, adaptado por perfil. Atualmente o botão do sino existe mas não tem funcionalidade. A feature unifica o acesso às pendências para todos os perfis — cada um vendo o que lhe compete — sem precisar navegar até o dashboard ou a aba de solicitações.
 
 ## 2. Contexto a partir do legado
 
@@ -24,9 +24,10 @@ Criar um dropdown de notificações no header da aplicação que exibe solicita�
 
 | Persona | Objetivo | Cenário-chave |
 |---------|----------|---------------|
-| Secretaria/Admin/Coordenação | Ver rapidamente quantas solicitações de documentos estão pendentes | Ao clicar no sino no header, vê dropdown com lista de solicitações pendentes, nome do aluno, tipo de documento e data |
+| Secretaria/Admin/Coordenação | Ver rapidamente todas solicitações de documentos pendentes | Ao clicar no sino no header, vê dropdown com lista de solicitações pendentes, nome do aluno, tipo de documento e data |
 | Secretaria/Admin/Coordenação | Acessar a tela de gestão de solicitações a partir do dropdown | Clica em "Ver todas" no dropdown e é levado à aba Solicitações do painel Secretaria |
-| Aluno | Ver status de suas próprias solicitações | Vê notificações apenas das suas próprias solicitações pendentes (RF-04) |
+| Aluno | Ver status de suas próprias solicitações pendentes | Vê no dropdown apenas solicitações onde `user_id = auth.uid()` |
+| Professor | (futuro) Ver notificações relevantes ao seu perfil | Por ora o dropdown exibe "Nenhuma pendência" |
 
 ## 4. Regras de negócio novas ou alteradas
 
@@ -37,8 +38,8 @@ Criar um dropdown de notificações no header da aplicação que exibe solicita�
    - Tipo: nova
 3. **RN-03:** O dropdown exibe no máximo 10 solicitações mais recentes; se houver mais, mostra link "Ver todas (N mais)" 🟢
    - Tipo: nova
-4. **RN-04:** Alunos veem apenas suas próprias solicitações pendentes no dropdown (via `getMyRequests`) 🟢
-   - Origem no legado: RLS policy `"Students manage own requests"` no `supabase/migration.sql`
+4. **RN-04:** Cada perfil vê as notificações que lhe competem: admin/secretaria/coordenação veem todas as solicitações pendentes; alunos veem apenas as próprias; professores veem estado vazio (extensível no futuro) 🟢
+   - Origem no legado: RLS policy `"Students manage own requests"` no `supabase/migration.sql` + `check_user_is_admin_or_secretaria()` para admin/secretaria/coordenação
    - Tipo: nova
 
 ## 5. Requisitos Funcionais
@@ -47,8 +48,8 @@ Criar um dropdown de notificações no header da aplicação que exibe solicita�
 |----|-----------|------------|--------------------|-------------|
 | RF-01 | Badge dinâmico: exibir contador de solicitações pendentes no `badge-dot` | Must | Ao carregar o dashboard, o badge mostra o número de pendências; atualiza ao abrir/fechar dropdown | 🟢 |
 | RF-02 | Dropdown ao clicar no sino: lista as N solicitações pendentes mais recentes (máx 10) com nome do aluno, tipo de documento e data relativa | Must | Clicar no sino abre um dropdown estilizado com a lista; clicar fora ou Escape fecha | 🟢 |
-| RF-03 | Link "Ver todas" no dropdown redireciona para `#/dashboard/secretaria` (aba Solicitações) | Must | Clicar em "Ver todas" fecha dropdown e navega para a tela de Secretaria | 🟢 |
-| RF-04 | Para alunos: dropdown exibe apenas suas próprias solicitações pendentes | Should | Aluno logado vê no dropdown somente solicitações onde `user_id = auth.uid()` | 🟡 |
+| RF-03 | Link "Ver todas" no dropdown redireciona para `#/dashboard/secretaria` (aba Solicitações). Exibido apenas para admin/secretaria/coordenação | Must | Clicar em "Ver todas" fecha dropdown e navega para a tela de Secretaria com a aba Solicitações ativa | 🟢 |
+| RF-04 | Conteúdo adaptado por perfil: admin/secretaria/coordenação veem todas as solicitações pendentes; alunos veem apenas as próprias; professores veem estado vazio | Should | Cada perfil logado vê no dropdown somente as notificações pertinentes ao seu papel | 🟢 |
 | RF-05 | Ação rápida "Concluir" no dropdown para admin/secretaria (confirmação inline) | Should | Clicar em "Concluir" ao lado de uma solicitação no dropdown muda o status sem sair da página | 🟢 |
 | RF-06 | Indicador de "vazio": quando não há pendências, o badge fica oculto e o dropdown mostra "Nenhuma pendência" | Must | Badge invisível quando count = 0; dropdown vazio exibe mensagem amigável | 🟢 |
 
@@ -108,20 +109,25 @@ Cenário: Dropdown fecha ao clicar fora
 | RF-01 (Badge contador) | Must | Essencial para comunicar visualmente a existência de pendências |
 | RF-02 (Dropdown lista) | Must | Núcleo da funcionalidade |
 | RF-06 (Estado vazio + badge oculto) | Must | Sem isso o badge fica sempre visível (como hoje) |
-| RF-04 (Dropdown para alunos) | Should | Alunos têm menos pendências mas o valor existe |
+| RF-04 (Conteúdo por perfil) | Should | Cada perfil vê o que lhe compete, mas o comportamento base (RF-02) já cobre admin/secretaria |
 | RF-05 (Ação Concluir inline) | Should | Evita navegação extra, mas pode ficar para depois |
 
 ## 9. Esclarecimentos
 
-> Nenhuma sessão de dúvidas registrada ainda. Rode `/reversa-clarify` quando houver `[DÚVIDA]` pendente.
+### Sessão 2026-05-21
+
+- **Q:** Deve haver permissão para coordenação ver o dropdown de solicitações? Hoje `getAllOpenRequests` é acessível via RLS para admin/secretaria/coordenacao. O botão do sino existe para todos os perfis. Coordenação deve ver pendências ou apenas admin/secretaria?
+  **R:** Todos os perfis, cada um vendo o que lhe compete. Admin/secretaria/coordenação veem todas as pendências; alunos veem apenas as próprias; professores veem estado vazio (extensível no futuro).
+- **Q:** Onde fica o link "Ver todas" — leva para Secretaria > Solicitações ou deve abrir uma página dedicada? Atualmente a aba Solicitações está em `src/views/secretaria.ts`.
+  **R:** Leva para a aba Solicitações dentro do Painel Secretaria (`#/dashboard/secretaria`).
 
 ## 10. Lacunas
 
-- 🔴 [DÚVIDA] Deve haver permissão para coordenação ver o dropdown de solicitações? Hoje `getAllOpenRequests` é acessível via RLS para admin/secretaria/coordenacao. O botão do sino existe para todos os perfis. Coordenação deve ver pendências ou apenas admin/secretaria?
-- 🔴 [DÚVIDA] Onde fica o link "Ver todas" — leva para Secretaria > Solicitações ou deve abrir uma página dedicada? Atualmente a aba Solicitações está em `src/views/secretaria.ts`.
+Nenhuma lacuna em aberto no momento.
 
 ## 11. Histórico de alterações
 
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-05-21 | Versão inicial gerada por `/reversa-requirements` | reversa |
+| 2026-05-21 | Esclarecimentos da sessão `/reversa-clarify`: perfil adaptado por role + link "Ver todas" → Secretaria > Solicitações | reversa |

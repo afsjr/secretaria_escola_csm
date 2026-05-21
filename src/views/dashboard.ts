@@ -24,6 +24,7 @@ import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
 import { openSearchPalette } from '../components/search-palette'
+import { openNotificationDropdown, updateNotificationBadge } from '../components/NotificationDropdown'
 
 export async function DashboardView(session: Session, subPath: string = '/'): Promise<HTMLDivElement> {
   const container = document.createElement('div')
@@ -201,9 +202,10 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           <button id="header-search-btn" class="header-btn" title="Buscar (Cmd+K)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </button>
-          <button id="header-notification-btn" class="header-btn" title="Notificações">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="badge-dot"></span>
+          <button id="header-notification-btn" class="header-btn" title="Notificações" aria-haspopup="true" aria-expanded="false" aria-label="Notificações pendentes">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="badge-dot" style="display: none;"></span>
+            <span class="notification-badge-count" style="display: none;"></span>
           </button>
           <button id="header-theme-toggle" class="header-btn" title="Alternar tema">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -317,6 +319,13 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   const searchBtn = container.querySelector<HTMLButtonElement>('#header-search-btn')
   if (searchBtn) {
     searchBtn.addEventListener('click', () => openSearchPalette())
+  }
+
+  // Notification dropdown
+  const notifBtn = container.querySelector<HTMLButtonElement>('#header-notification-btn')
+  if (notifBtn && profile) {
+    notifBtn.addEventListener('click', () => openNotificationDropdown(profile))
+    updateNotificationBadge(profile)
   }
 
   if (!(window as any).__searchShortcutRegistered) {

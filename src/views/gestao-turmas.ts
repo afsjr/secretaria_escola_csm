@@ -6,7 +6,7 @@ import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
 import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from '../lib/grades-utils'
 
-export async function GestaoTurmasView(): Promise<HTMLElement> {
+export async function GestaoTurmasView(profile?: { id: string; perfil: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
   container.className = 'gestao-turmas-view animate-in'
 
@@ -14,8 +14,8 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
   const params = new URLSearchParams(hash.split('?')[1] || '')
   const matricularAlunoId = params.get('matricular')
 
-  const profile = { id: '', perfil: 'secretaria' as const }
-  const canManageTurmas = profile.perfil === 'secretaria' || profile.perfil === 'coordenacao' || profile.perfil === 'admin' || profile.perfil === 'master_admin'
+  const userProfile = profile || { id: '', perfil: 'secretaria' }
+  const canManageTurmas = userProfile.perfil === 'secretaria' || userProfile.perfil === 'coordenacao' || userProfile.perfil === 'admin' || userProfile.perfil === 'master_admin'
 
   // Fetch initial data
   const turmasResult = await AcademicService.getTurmas()

@@ -138,6 +138,7 @@ export interface Boletim {
 export interface Aula {
   id: string
   disciplina_id: string
+  turma_disciplina_id?: string | null
   professor_id?: string | null
   data: string
   conteudo: string

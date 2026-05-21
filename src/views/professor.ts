@@ -48,7 +48,7 @@ interface AulaData {
   id: string;
   data: string;
   conteudo: string;
-  disciplina_id: string;
+  turma_disciplina_id: string;
 }
 
 export async function ProfessorView(
@@ -668,7 +668,7 @@ export async function ProfessorView(
           Registrar Nova Aula
         </h4>
         <form id="form-nova-aula" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-          <input type="hidden" name="disciplina_id" value="${disciplinaId}">
+          <input type="hidden" name="turma_disciplina_id" value="${disciplinaId}">
           <input type="hidden" name="professor_id" value="${profile.id}">
 
           <div class="form-group" style="flex: 0; margin: 0; min-width: 140px;">

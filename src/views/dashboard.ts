@@ -5,6 +5,7 @@
  */
 import type { Session, UserProfile } from '../types'
 import { logout, getUserProfile, getAllProfiles } from '../auth/session'
+import { DashboardHomeView } from './dashboard-home'
 import { ProfileView } from './profile'
 import { DirectoryView } from './directory'
 import { DocumentsView } from './documents'
@@ -281,53 +282,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
     window.location.hash = '#/dashboard/professor/turmas'
     return container
   } else {
-    // Default Home with dynamic statistics (Phase 4 suggestion)
-    const { data: allProfiles, count } = await supabase.from('perfis').select('id', { count: 'exact' })
-    const { data: myDocs } = await DocumentsService.getMyRequests(profile?.id || '')
-    const pendingCount = myDocs?.filter((d: { status: string }) => d.status === 'pendente').length || 0
-
-    const firstName = escapeHTML(userName.split(' ')[0])
-    const pendingColor = pendingCount > 0 ? 'var(--danger)' : 'var(--success)'
-
-    contentArea.innerHTML = `
-      <div class="animate-in">
-        <header style="margin-bottom: 2rem;">
-          <h1 style="font-size: 2.2rem; color: var(--text-main);">Olá, ${firstName} 👋</h1>
-          <p>Seja bem-vindo(a) ao Portal Oficial CSM.</p>
-        </header>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
-          <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 5px solid var(--primary);">
-            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px;">Membros no SGE</div>
-            <div style="font-size: 2rem; font-weight: 700;">${count || 0}</div>
-          </div>
-
-          <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-left: 5px solid var(--accent);">
-            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px;">Documentos Pendentes</div>
-            <div style="font-size: 2rem; font-weight: 700; color: ${pendingColor}">${pendingCount}</div>
-          </div>
-
-          <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, var(--white) 0%, var(--secondary) 100%);">
-            <h4 style="margin-bottom: 5px; color: var(--primary);">Precisa de suporte?</h4>
-            <p style="font-size: 0.75rem;">A secretaria atende das 08h às 18h no Campus Central.</p>
-          </div>
-        </div>
-
-        <div style="margin-top: 3rem; background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-          <h3 style="margin-bottom: 1rem;">Notícias e Avisos</h3>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 15px;">
-            <li style="padding-bottom: 15px; border-bottom: 1px solid var(--secondary);">
-              <div style="font-weight: 600; font-size: 0.9rem;">Renovação de Matrícula 2026/2</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">As solicitações abrem em 15 de maio. Fique atento.</div>
-            </li>
-            <li style="padding-bottom: 15px; border-bottom: 1px solid var(--secondary);">
-              <div style="font-weight: 600; font-size: 0.9rem;">Palestra: Futuro da Carreira Técnica</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Auditório A, amanhã às 19h00. Certificado incluso.</div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    `
+    contentArea.appendChild(await DashboardHomeView(profile as UserProfile, session))
   }
 
   const logoutBtn = container.querySelector<HTMLButtonElement>('#logout-btn')

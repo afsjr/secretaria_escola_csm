@@ -9,7 +9,7 @@
  */
 
 import { supabase } from './supabase'
-import type { PerfilCompleto, Endereco, DbResult } from '../types'
+import type { PerfilCompleto, Endereco, Disciplina, DbResult } from '../types'
 
 export const ProfessorDetailsService = {
 

@@ -698,19 +698,29 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     btnAdicionarOferta.disabled = false
   })
 
-  // 4. Tabs
+  // 4. Tabs (com animação fadeInScale via tab-enter)
+  const TABS = ['alunos', 'grade', 'notas', 'calendario'] as const
   const tabBtns = container.querySelectorAll('.tab-btn')
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-tab')
+      const tab = btn.getAttribute('data-tab') as typeof TABS[number] | null
+      if (!tab) return
       tabBtns.forEach(b => b.classList.remove('active'))
       btn.classList.add('active')
 
-      container.querySelector('#tab-content-alunos')!.setAttribute('style', `display: ${tab === 'alunos' ? 'block' : 'none'}`)
-      container.querySelector('#tab-content-grade')!.setAttribute('style', `display: ${tab === 'grade' ? 'block' : 'none'}`)
-      container.querySelector('#tab-content-notas')!.setAttribute('style', `display: ${tab === 'notas' ? 'block' : 'none'}`)
-      container.querySelector('#tab-content-calendario')!.setAttribute('style', `display: ${tab === 'calendario' ? 'block' : 'none'}`)
-      
+      for (const id of TABS) {
+        const el = container.querySelector(`#tab-content-${id}`) as HTMLElement | null
+        if (!el) continue
+        if (id === tab) {
+          el.style.display = 'block'
+          el.classList.remove('tab-enter')
+          void el.offsetWidth
+          el.classList.add('tab-enter')
+        } else {
+          el.style.display = 'none'
+        }
+      }
+
       if (tab === 'notas' && selectedTurmaId) loadDisciplinasDropdown(selectedTurmaId)
     })
   })

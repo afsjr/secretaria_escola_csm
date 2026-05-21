@@ -304,10 +304,16 @@ export async function ProfessorView(
       btn.classList.add("active");
 
       tabContents.forEach((content) => {
-        (content as HTMLElement).style.display = "none";
+        const el = content as HTMLElement;
+        el.style.display = "none";
+        el.classList.remove("tab-enter");
       });
-      const target = container.querySelector(`#tab-${tab}`);
-      if (target) (target as HTMLElement).style.display = "block";
+      const target = container.querySelector(`#tab-${tab}`) as HTMLElement | null;
+      if (target) {
+        target.style.display = "block";
+        void target.offsetWidth;
+        target.classList.add("tab-enter");
+      }
     });
   });
 

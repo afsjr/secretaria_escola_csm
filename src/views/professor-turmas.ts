@@ -295,12 +295,18 @@ export async function ProfessorTurmasView(
       (btn as HTMLElement).style.background = "var(--secondary)";
       (btn as HTMLElement).style.color = "var(--text-main)";
 
-      parent.querySelectorAll(".tab-content").forEach((c) =>
-        (c as HTMLElement).style.display = "none"
-      );
+      parent.querySelectorAll(".tab-content").forEach((c) => {
+        const el = c as HTMLElement;
+        el.style.display = "none";
+        el.classList.remove("tab-enter");
+      });
       const targetTab = (btn as HTMLButtonElement).getAttribute("data-tab");
-      const targetContent = parent.querySelector(`#tab-${targetTab}`);
-      if (targetContent) (targetContent as HTMLElement).style.display = "block";
+      const targetContent = parent.querySelector(`#tab-${targetTab}`) as HTMLElement | null;
+      if (targetContent) {
+        targetContent.style.display = "block";
+        void targetContent.offsetWidth;
+        targetContent.classList.add("tab-enter");
+      }
     });
   });
 

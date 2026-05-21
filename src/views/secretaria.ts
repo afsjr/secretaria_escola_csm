@@ -76,7 +76,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;"></div>
   `
 
-  // 3. Lógica de Navegação de Abas
+  // 3. Lógica de Navegação de Abas (com animação fadeInScale)
   const tabBtns = container.querySelectorAll('.tab-btn')
   const tabContents = container.querySelectorAll('.tab-content')
 
@@ -85,9 +85,17 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       const tab = btn.getAttribute('data-tab')
       tabBtns.forEach(b => b.classList.remove('active'))
       btn.classList.add('active')
-      tabContents.forEach(content => (content as HTMLElement).style.display = 'none')
+      tabContents.forEach(content => {
+        const el = content as HTMLElement
+        el.style.display = 'none'
+        el.classList.remove('tab-enter')
+      })
       const targetTab = container.querySelector(`#tab-${tab}`) as HTMLElement
-      if (targetTab) targetTab.style.display = 'block'
+      if (targetTab) {
+        targetTab.style.display = 'block'
+        void targetTab.offsetWidth
+        targetTab.classList.add('tab-enter')
+      }
     })
   })
 

@@ -192,7 +192,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
       </div>
     </aside>
 
-    <main class="main-content" id="painel-controle-conteudo">
+    <main class="main-content" id="painel-controle-conteudo" role="region" aria-label="Conteúdo principal">
       <div class="top-header">
         <div class="top-header-left">
           <div class="breadcrumbs">${breadcrumbHTML}</div>

@@ -265,6 +265,19 @@ html.dark .home-option:hover {
   outline: none;
 }
 
+/* Screen-reader only — acessível para leitores de tela, invisível visualmente */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Skip Link — Apenas visível ao receber foco (para leitores de tela/teclado) */
 .skip-link {
   position: absolute;
@@ -1059,6 +1072,15 @@ html.dark .search-result-item.active {
 
 .toast.error {
   border-left-color: var(--danger);
+}
+
+.toast.loading {
+  border-left-color: var(--primary);
+}
+
+/* Tab transition animation — replay on tab switch */
+.tab-enter {
+  animation: fadeInScale 0.25s ease;
 }
 
 @keyframes slideIn {

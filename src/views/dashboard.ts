@@ -21,6 +21,7 @@ import { isAdmin, isSecretaria, isFinanceiro, isProfessor, isAluno, isMasterAdmi
 import { DocumentsService } from '../lib/documents-service'
 import { supabase } from '../lib/supabase'
 import { escapeHTML, createBadge } from '../lib/security'
+import { openSearchPalette } from '../components/search-palette'
 
 export async function DashboardView(session: Session, subPath: string = '/'): Promise<HTMLDivElement> {
   const container = document.createElement('div')
@@ -93,76 +94,79 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
       <div class="sidebar-brand" style="border-bottom: 2px solid var(--accent); padding-bottom: 1rem;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
         <span>Secretaria CSM</span>
+        <button id="sidebar-toggle" title="Recolher sidebar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
       </div>
 
       <nav style="flex: 1;">
-        <a href="#/dashboard" class="nav-item ${subPath === '/' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+        <a href="#/dashboard" class="nav-item ${subPath === '/' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Início">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          Início
+          <span class="nav-label">Início</span>
         </a>
-        <a href="#/dashboard/documentos" class="nav-item ${subPath === '/documentos' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+        <a href="#/dashboard/documentos" class="nav-item ${subPath === '/documentos' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Documentos">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Documentos
+          <span class="nav-label">Documentos</span>
         </a>
         ${_isAluno ? '' : `
-        <a href="#/dashboard/usuarios" class="nav-item ${subPath === '/usuarios' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+        <a href="#/dashboard/usuarios" class="nav-item ${subPath === '/usuarios' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Usuários">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Usuários
+          <span class="nav-label">Usuários</span>
         </a>
         `}
-        <a href="#/dashboard/matriz" class="nav-item ${subPath === '/matriz' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+        <a href="#/dashboard/matriz" class="nav-item ${subPath === '/matriz' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Matriz Curricular">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-          Matriz Curricular
+          <span class="nav-label">Matriz Curricular</span>
         </a>
         ${_isAdmin || _isSecretaria || _isCoordenacao ? `
-          <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+          <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;" title="Painel Secretaria">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9m3 3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            Painel Secretaria
+            <span class="nav-label">Painel Secretaria</span>
           </a>
-          <a href="#/dashboard/turmas" class="nav-item ${subPath === '/turmas' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+          <a href="#/dashboard/turmas" class="nav-item ${subPath === '/turmas' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Gestão de Turmas">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Gestão de Turmas
+            <span class="nav-label">Gestão de Turmas</span>
           </a>
         ` : ''}
         ${_canManageInstituicao ? `
-          <a href="#/dashboard/configuracoes" class="nav-item ${subPath === '/configuracoes' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+          <a href="#/dashboard/configuracoes" class="nav-item ${subPath === '/configuracoes' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;" title="Configurações">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-            Configurações
+            <span class="nav-label">Configurações</span>
           </a>
         ` : ''}
         ${_isAdmin ? `
-          <a href="#/dashboard/auditoria" class="nav-item ${subPath === '/auditoria' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+          <a href="#/dashboard/auditoria" class="nav-item ${subPath === '/auditoria' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Auditoria">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            Auditoria
+            <span class="nav-label">Auditoria</span>
           </a>
         ` : ''}
         ${_isFinanceiro || _isAdmin ? `
-          <a href="#/dashboard/financeiro" class="nav-item ${subPath === '/financeiro' ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+          <a href="#/dashboard/financeiro" class="nav-item ${subPath === '/financeiro' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Financeiro">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Financeiro
+            <span class="nav-label">Financeiro</span>
           </a>
         ` : ''}
         ${_isProfessor ? `
-          <a href="#/dashboard/professor/turmas" class="nav-item ${subPath.startsWith('/professor/turmas') ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+          <a href="#/dashboard/professor/turmas" class="nav-item ${subPath.startsWith('/professor/turmas') ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;" title="Minhas Turmas">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Minhas Turmas
+            <span class="nav-label">Minhas Turmas</span>
           </a>
-          <a href="#/dashboard/professor/alunos" class="nav-item ${subPath.startsWith('/professor/alunos') ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+          <a href="#/dashboard/professor/alunos" class="nav-item ${subPath.startsWith('/professor/alunos') ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Meus Alunos">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Meus Alunos
+            <span class="nav-label">Meus Alunos</span>
           </a>
-          <a href="#/dashboard/professor/aulas" class="nav-item ${subPath.startsWith('/professor/aulas') ? 'active' : ''}" style="text-decoration: none; color: inherit;">
+          <a href="#/dashboard/professor/aulas" class="nav-item ${subPath.startsWith('/professor/aulas') ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Diários de Aulas">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Diários de Aulas
+            <span class="nav-label">Diários de Aulas</span>
           </a>
         ` : ''}
-        <a href="#/dashboard/perfil" class="nav-item ${subPath === '/perfil' ? 'active' : ''}" style="text-decoration: none; color: inherit; margin-top: auto;">
+        <a href="#/dashboard/perfil" class="nav-item ${subPath === '/perfil' ? 'active' : ''}" style="text-decoration: none; color: inherit; margin-top: auto;" title="Meus Dados">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Meus Dados
+          <span class="nav-label">Meus Dados</span>
         </a>
-        <div style="margin-top: 0.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.5); padding: 0 15px;">Treinamento</div>
-        <div id="btn-treinamento-slide-sidebar" class="nav-item" style="text-decoration: none; color: inherit; background: var(--accent); color: var(--primary); margin-top: 0.25rem; font-weight: 700; cursor: pointer; font-size: 0.85rem; border-radius: 8px;">
-          📺 Treinamento (Slides)
+        <div class="nav-label" style="margin-top: 0.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.5); padding: 0 15px;">Treinamento</div>
+        <div id="btn-treinamento-slide-sidebar" class="nav-item" style="text-decoration: none; color: inherit; background: var(--accent); color: var(--primary); margin-top: 0.25rem; font-weight: 700; cursor: pointer; font-size: 0.85rem; border-radius: 8px;" title="Treinamento">
+          📺 <span class="nav-label">Treinamento (Slides)</span>
         </div>
       </nav>
 
@@ -177,7 +181,8 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           </div>
         </div>
         <button id="logout-btn" class="btn" style="background: rgba(255,255,255,0.1); color: white; width: 100%; font-size: 0.8rem; padding: 0.5rem;">
-          Sair do Sistema
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Sair do Sistema</span>
         </button>
       </div>
     </aside>
@@ -188,6 +193,9 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           <div class="breadcrumbs">${breadcrumbHTML}</div>
         </div>
         <div class="top-header-right">
+          <button id="header-search-btn" class="header-btn" title="Buscar (Cmd+K)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
           <button id="header-notification-btn" class="header-btn" title="Notificações">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="badge-dot"></span>
@@ -326,6 +334,39 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       await logout()
+    })
+  }
+
+  // Sidebar collapse toggle
+  const sidebarToggle = container.querySelector<HTMLButtonElement>('#sidebar-toggle')
+  const sidebar = container.querySelector<HTMLElement>('.sidebar')
+  const layout = container.querySelector<HTMLElement>('.dashboard-layout')
+  if (sidebarToggle && sidebar && layout) {
+    const stored = localStorage.getItem('sidebar_collapsed')
+    if (stored === 'true') {
+      sidebar.classList.add('collapsed')
+      layout.classList.add('sidebar-collapsed')
+    }
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed')
+      layout.classList.toggle('sidebar-collapsed')
+      localStorage.setItem('sidebar_collapsed', String(sidebar.classList.contains('collapsed')))
+    })
+  }
+
+  // Search palette
+  const searchBtn = container.querySelector<HTMLButtonElement>('#header-search-btn')
+  if (searchBtn) {
+    searchBtn.addEventListener('click', () => openSearchPalette())
+  }
+
+  if (!(window as any).__searchShortcutRegistered) {
+    (window as any).__searchShortcutRegistered = true
+    window.addEventListener('keydown', function searchShortcut(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        openSearchPalette()
+      }
     })
   }
 

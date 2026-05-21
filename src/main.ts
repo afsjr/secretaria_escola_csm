@@ -10,6 +10,10 @@ import { ForceChangePasswordView } from './views/force-change-password'
 import { StudentDetailsView } from './views/student-details'
 import { ProfessorDetailsView } from './views/professor-details'
 import { GestaoTurmasView } from './views/gestao-turmas'
+import { initKeyboardShortcuts } from './lib/keyboard-shortcuts'
+
+// Keyboard shortcuts (only once)
+initKeyboardShortcuts()
 
 // Dark Mode initialization
 function initTheme(): void {

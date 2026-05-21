@@ -159,6 +159,17 @@ export const CourseService = {
 
   // Criar uma nova oferta (Vincular disciplina do catálogo a uma turma e professor)
   async criarOfertaDisciplina(turmaId: string, disciplinaBaseId: string, professorId?: string, data_inicio?: string, data_fim?: string) {
+    const { data: existente } = await supabase
+      .from('turma_disciplinas')
+      .select('id')
+      .eq('turma_id', turmaId)
+      .eq('disciplina_base_id', disciplinaBaseId)
+      .maybeSingle()
+
+    if (existente) {
+      return { data: null, error: { message: 'Esta disciplina já foi ofertada para esta turma.' } }
+    }
+
     const { data, error } = await supabase
       .from('turma_disciplinas')
       .insert([{

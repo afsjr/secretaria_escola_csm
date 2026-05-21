@@ -483,8 +483,15 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
     if (error) { tabelaCalendario.innerHTML = `<tr><td colspan="6">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
     if (!ofertas?.length) { tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding:2rem;text-align:center;">Nenhuma disciplina no calendário.</td></tr>'; return }
 
+    const seen = new Set<string>()
+    const ofertasUnicas = ofertas.filter(o => {
+      if (seen.has(o.disciplina_base_id)) return false
+      seen.add(o.disciplina_base_id)
+      return true
+    })
+
     const hoje = new Date().toISOString().split('T')[0]
-    tabelaCalendario.innerHTML = ofertas.map(o => {
+    tabelaCalendario.innerHTML = ofertasUnicas.map(o => {
       const disc = o.disciplinas_base as any
       const prof = o.perfis as any
       const situacao = o.data_inicio && o.data_fim

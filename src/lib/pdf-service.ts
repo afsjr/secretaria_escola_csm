@@ -33,6 +33,7 @@ interface NotaData {
   n2?: number;
   n3?: number;
   rec?: number;
+  status?: string;
   [key: string]: any;
 }
 
@@ -608,6 +609,15 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
 
     Object.keys(modulos).forEach((modulo) => {
       modulos[modulo].forEach((n) => {
+        if (n.status === 'pendente') {
+          allNotas.push([
+            modulo,
+            n.disciplina,
+            "-", "-", "-", "-", "-", "-", "Falta cursar",
+          ]);
+          return;
+        }
+
         const mediaTeoria = this._calcularMediaTeoria(n);
         const mediaFinal = this._calcularMediaFinal(mediaTeoria, n.rec);
 
@@ -671,6 +681,9 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
           } else if (data.cell.raw === "REP") {
             data.cell.styles.textColor = [229, 62, 62];
             data.cell.styles.fontStyle = "bold";
+          } else if (data.cell.raw === "Falta cursar") {
+            data.cell.styles.textColor = [180, 130, 0];
+            data.cell.styles.fontStyle = "bold";
           }
         }
       },
@@ -686,7 +699,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
 
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
-    doc.text("APR = Aprovado | REP = Reprovado", marginLeft, currentY);
+    doc.text("APR = Aprovado | REP = Reprovado | Falta cursar = Disciplina pendente", marginLeft, currentY);
     doc.text(
       "Este documento não tem validade sem assinatura e carimbo da instituição.",
       marginLeft,

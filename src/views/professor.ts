@@ -384,8 +384,32 @@ export async function ProfessorView(
       return;
     }
 
+    // Filtrar alunos pendentes (matrícula tardia — disciplina já encerrada)
+    const alunosAtivos = alunosComNotas.filter((a: any) => !a.pendente)
+    const alunosPendentes = alunosComNotas.filter((a: any) => a.pendente)
+
+    if (alunosAtivos.length === 0) {
+      tabelaNotasContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          <p>Todos os alunos desta disciplina estão pendentes (matrícula tardia).</p>
+          <p style="font-size: 0.85rem;">Eles precisarão cursar esta disciplina em uma turma futura.</p>
+        </div>
+      `;
+      return;
+    }
+
     // Renderizar tabela de notas
-    tabelaNotasContainer.innerHTML = `
+    let pendentesAlert = ''
+    if (alunosPendentes.length > 0) {
+      pendentesAlert = `
+        <div style="background: #FEF3C7; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.85rem; color: #92400E;">
+          <strong>⚠️ ${alunosPendentes.length} aluno(s)</strong> com matrícula tardia não aparecem na lista abaixo. 
+          Eles cursarão esta disciplina em turma futura (status: Falta cursar).
+        </div>
+      `
+    }
+
+    tabelaNotasContainer.innerHTML = pendentesAlert + `
       <div class="table-responsive">
         <table class="data-table">
           <thead>
@@ -402,7 +426,7 @@ export async function ProfessorView(
           </thead>
           <tbody>
             ${
-      alunosComNotas.map((a) => `
+      alunosAtivos.map((a: any) => `
               <tr class="nota-row" data-aluno-id="${a.aluno_id}">
                 <td>
                   <div class="fw-600 text-main" style="font-size: 0.9rem;">${

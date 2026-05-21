@@ -13,7 +13,9 @@ import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
 import { formatDateBR, formatDateTimeBR } from "../lib/date-utils";
 import { StudentDetailsService } from "../lib/student-details-service";
+import { supabase } from "../lib/supabase";
 import { AcademicService } from "../lib/academic-service";
+import { CourseService } from "../lib/course-service";
 
 const generoLabels: Record<string, string> = {
   "masculino": "Masculino",
@@ -157,6 +159,22 @@ export async function StudentDetailsView(): Promise<HTMLElement> {
   const observacoes = dadosCompletos!.observacoes || [];
   const matricula = dadosCompletos!.matricula;
   const turma = matricula?.turmas;
+
+  // Buscar disciplinas pendentes
+  let disciplinasPendentes: any[] = []
+  if (matricula && turma) {
+    const { data: boletins } = await AcademicService.getBoletim(alunoId)
+    const { data: ofertas } = await CourseService.getOfertasDaTurmaComDatas(turma.id)
+    if (boletins && ofertas) {
+      disciplinasPendentes = boletins
+        .filter((b: any) => b.status === 'pendente')
+        .map((b: any) => {
+          const oferta = ofertas.find((o: any) => o.disciplina_base_id === b.disciplina_base_id)
+          const discBase = oferta?.disciplinas_base as any || b.disciplinas_base as any
+          return { nome: discBase?.nome || 'Disciplina', modulo: discBase?.modulo || '' }
+        })
+    }
+  }
 
   const idade = calcularIdade(dados.data_nascimento);
   const isMenor = typeof idade === "number" && idade < 18;
@@ -400,6 +418,27 @@ export async function StudentDetailsView(): Promise<HTMLElement> {
           </div>
         </div>
       </fieldset>
+
+      ${
+    disciplinasPendentes.length > 0 ? `
+      <!-- Disciplinas Pendentes -->
+      <fieldset style="border: 1px solid #FDE68A; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; background: #FFFBEB;">
+        <legend style="font-weight: 600; color: #92400E; padding: 0 0.5rem;">⚠️ Disciplinas Pendentes (Falta cursar)</legend>
+        <p style="font-size: 0.85rem; color: #92400E; margin-bottom: 1rem;">
+          Aluno entrou após o início destas disciplinas. Elas deverão ser cursadas em turma futura.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          ${
+        disciplinasPendentes.map((dp: any) => `
+            <span style="background: #FDE68A; color: #92400E; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+              ${escapeHTML(dp.modulo)} — ${escapeHTML(dp.nome)}
+            </span>
+          `).join('')
+      }
+        </div>
+      </fieldset>
+    ` : ''
+  }
 
       <!-- Responsáveis -->
       <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">

@@ -521,7 +521,7 @@ async function loadAlunosDaDisciplina(
     const alunoIds = matriculas.map((m: any) => getPerfil(m)?.id).filter(Boolean);
     const { data: notasExistentes } = await supabase
       .from("boletim")
-      .select("id, aluno_id, disciplina, versao, faltas, n1, n2, n3, rec")
+      .select("id, aluno_id, disciplina, versao, faltas, n1, n2, n3, rec, status")
       .in("aluno_id", alunoIds)
       .eq("disciplina_base_id", (disc as any).disciplina_base_id) as { data: NotaExistente[] | null };
 
@@ -534,14 +534,34 @@ async function loadAlunosDaDisciplina(
     (window as any).__notasVersoes = (window as any).__notasVersoes || {};
     (window as any).__notasVersoes[(disc as any).id] = notasMap;
 
+    // Filtrar alunos pendentes (matrícula tardia)
+    const alunosPendentes = matriculas.filter((m: any) => {
+      const aluno = getPerfil(m);
+      return notasMap[aluno?.id]?.status === 'pendente';
+    });
+
     tbody.innerHTML = matriculas
-      .filter((m: any) => m.status_aluno === "ativo")
+      .filter((m: any) => {
+        if (m.status_aluno !== "ativo") return false;
+        const aluno = getPerfil(m);
+        return notasMap[aluno?.id]?.status !== 'pendente';
+      })
       .map((m: any) => {
         const aluno = getPerfil(m);
         const notas = (notasMap[aluno?.id || ''] || {}) as NotaExistente;
         const mediaParcial = calcularMediaParcial(notas.n1 || 0, notas.n2 || 0, notas.n3 || 0);
         return renderLinhaAluno(aluno, notas, mediaParcial);
       }).join("");
+
+    // Se há pendentes, adicionar alerta no cabeçalho da disciplina
+    if (alunosPendentes.length > 0) {
+      const alertaDiv = container.querySelector(`#alertas-${(disc as any).disciplina_base_id || disciplinaId}`);
+      if (alertaDiv) {
+        alertaDiv.innerHTML = `<span style="color:#92400E;background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.75rem;">
+          ⚠️ ${alunosPendentes.length} aluno(s) com matrícula tardia (Falta cursar)
+        </span>`;
+      }
+    }
 
     // Add input listeners to recalculate media
     tbody.querySelectorAll("input").forEach((input) => {

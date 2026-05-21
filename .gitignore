@@ -4,6 +4,11 @@
 .env.*.local
 .env.production
 
+# Backup
+scripts/.env.backup
+scripts/backups/*.dump
+scripts/backups/*.log
+
 # Dependencies
 node_modules/
 dist/

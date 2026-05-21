@@ -94,6 +94,31 @@ export const CourseService = {
   // TURMAS E OFERTAS (Alocações)
   // =====================================================
 
+  // Atualizar datas de início/fim de uma oferta
+  async atualizarDatasOferta(ofertaId: string, data_inicio: string, data_fim: string) {
+    const { data, error } = await supabase
+      .from('turma_disciplinas')
+      .update({ data_inicio, data_fim })
+      .eq('id', ofertaId)
+      .select()
+      .single()
+    return { data, error }
+  },
+
+  // Buscar ofertas de uma turma incluindo datas
+  async getOfertasDaTurmaComDatas(turmaId: string) {
+    const { data, error } = await supabase
+      .from('turma_disciplinas')
+      .select(`
+        *,
+        disciplinas_base (id, nome, modulo, carga_horaria, ordem),
+        perfis (id, nome_completo)
+      `)
+      .eq('turma_id', turmaId)
+      .order('data_inicio', { ascending: true, nullsLast: true })
+    return { data, error }
+  },
+
   async getTurmasDoCurso(cursoId: string) {
     const { data, error } = await supabase
       .from('turmas')
@@ -120,13 +145,15 @@ export const CourseService = {
   },
 
   // Criar uma nova oferta (Vincular disciplina do catálogo a uma turma e professor)
-  async criarOfertaDisciplina(turmaId: string, disciplinaBaseId: string, professorId?: string) {
+  async criarOfertaDisciplina(turmaId: string, disciplinaBaseId: string, professorId?: string, data_inicio?: string, data_fim?: string) {
     const { data, error } = await supabase
       .from('turma_disciplinas')
       .insert([{
         turma_id: turmaId,
         disciplina_base_id: disciplinaBaseId,
-        professor_id: professorId
+        professor_id: professorId,
+        data_inicio,
+        data_fim
       }])
       .select()
       .single()

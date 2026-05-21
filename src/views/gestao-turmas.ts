@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase'
 import { AcademicService } from '../lib/academic-service'
 import { CourseService } from '../lib/course-service'
 import { AuditService } from '../lib/audit-service'
@@ -128,6 +129,9 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
           <button type="button" class="tab-btn" data-tab="notas" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
             📊 Notas
           </button>
+          <button type="button" class="tab-btn" data-tab="calendario" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
+            📅 Calendário
+          </button>
         </div>
 
         <!-- Seção: Alunos (Matrículas) -->
@@ -145,6 +149,10 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
                   <option value="">-- Escolha um Aluno --</option>
                   ${alunosOptions}
                 </select>
+              </div>
+              <div class="form-group" style="flex: 0; margin: 0; min-width: 140px;">
+                <label for="data-matricula" class="label" style="font-size: 0.85rem; font-weight: 600;">Data de Início</label>
+                <input type="date" id="data-matricula" class="input" value="${new Date().toISOString().split('T')[0]}">
               </div>
               <button id="btn-matricular" class="btn btn-primary" style="background: var(--primary); white-space: nowrap; padding: 0.75rem 1.5rem; font-weight: 600;">
                 <span style="margin-right: 0.5rem;">✓</span> Matricular na Turma
@@ -209,6 +217,33 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
               </thead>
               <tbody id="tabela-grade-turma">
                 <tr><td colspan="4" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver a grade.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Seção: Calendário Acadêmico -->
+        <div id="tab-content-calendario" style="display: none;">
+          <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.3rem;">📅</span>
+            Calendário Acadêmico
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Defina o período de início e fim de cada disciplina. Disciplinas já encerradas na data da matrícula do aluno serão marcadas como "Falta cursar".</p>
+
+          <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead style="background: var(--primary); color: white; font-size: 0.85rem;">
+                <tr>
+                  <th style="padding: 0.75rem;">Módulo</th>
+                  <th style="padding: 0.75rem;">Disciplina</th>
+                  <th style="padding: 0.75rem;">Professor</th>
+                  <th style="padding: 0.75rem;">Data Início</th>
+                  <th style="padding: 0.75rem;">Data Fim</th>
+                  <th style="padding: 0.75rem; text-align: center;">Situação</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-calendario">
+                <tr><td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver o calendário.</td></tr>
               </tbody>
             </table>
           </div>
@@ -360,6 +395,7 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
   const tituloTurma = container.querySelector('#titulo-turma-selecionada') as HTMLElement
   const tabelaAlunos = container.querySelector('#tabela-alunos-turma') as HTMLElement
   const tabelaGrade = container.querySelector('#tabela-grade-turma') as HTMLElement
+  const tabelaCalendario = container.querySelector('#tabela-calendario') as HTMLElement
   const btnMatricular = container.querySelector('#btn-matricular') as HTMLButtonElement
   const btnAdicionarOferta = container.querySelector('#btn-adicionar-oferta') as HTMLButtonElement
   
@@ -439,6 +475,95 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
     }
   })
 
+  async function loadTurmaCalendario(turmaId: string) {
+    tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding: 2rem; text-align: center;">Carregando calendário...</td></tr>'
+    const { data: ofertas, error } = await CourseService.getOfertasDaTurmaComDatas(turmaId)
+    if (error) { tabelaCalendario.innerHTML = `<tr><td colspan="6">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
+    if (!ofertas?.length) { tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding:2rem;text-align:center;">Nenhuma disciplina no calendário.</td></tr>'; return }
+
+    const hoje = new Date().toISOString().split('T')[0]
+    tabelaCalendario.innerHTML = ofertas.map(o => {
+      const disc = o.disciplinas_base as any
+      const prof = o.perfis as any
+      const situacao = o.data_inicio && o.data_fim
+        ? (hoje > o.data_fim ? '<span style="color:var(--success-text);font-weight:600;">Encerrada</span>'
+          : hoje < o.data_inicio ? '<span style="color:var(--accent);">Prevista</span>'
+          : '<span style="color:var(--primary);font-weight:600;">Em andamento</span>')
+        : '<span style="color:var(--text-muted);">Sem datas</span>'
+      return `
+        <tr style="border-top:1px solid var(--border);">
+          <td style="padding:0.75rem;">${escapeHTML(disc?.modulo || '')}</td>
+          <td style="padding:0.75rem;"><b>${escapeHTML(disc?.nome || '')}</b></td>
+          <td style="padding:0.75rem;">${escapeHTML(prof?.nome_completo || 'Sem prof.')}</td>
+          <td style="padding:0.4rem;">
+            <input type="date" class="input calendario-inicio" data-oferta-id="${o.id}" value="${o.data_inicio || ''}" style="width:140px;padding:0.3rem;font-size:0.8rem;">
+          </td>
+          <td style="padding:0.4rem;">
+            <input type="date" class="input calendario-fim" data-oferta-id="${o.id}" value="${o.data_fim || ''}" style="width:140px;padding:0.3rem;font-size:0.8rem;">
+          </td>
+          <td style="padding:0.75rem;text-align:center;">${situacao}</td>
+        </tr>
+      `
+    }).join('')
+
+    // Auto-save on date change
+    tabelaCalendario.querySelectorAll('.calendario-inicio').forEach(input => {
+      input.addEventListener('change', async () => {
+        const ofertaId = input.getAttribute('data-oferta-id')
+        const inicio = (input as HTMLInputElement).value
+        const fimInput = tabelaCalendario.querySelector(`.calendario-fim[data-oferta-id="${ofertaId}"]`) as HTMLInputElement
+        const fim = fimInput?.value || null
+        if (!ofertaId) return
+        const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio, fim || '')
+        if (error) toast.error('Erro ao salvar data: ' + error.message)
+        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId) }
+      })
+    })
+    tabelaCalendario.querySelectorAll('.calendario-fim').forEach(input => {
+      input.addEventListener('change', async () => {
+        const ofertaId = input.getAttribute('data-oferta-id')
+        const fim = (input as HTMLInputElement).value
+        const inicioInput = tabelaCalendario.querySelector(`.calendario-inicio[data-oferta-id="${ofertaId}"]`) as HTMLInputElement
+        const inicio = inicioInput?.value || null
+        if (!ofertaId) return
+        const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio || '', fim)
+        if (error) toast.error('Erro ao salvar data: ' + error.message)
+        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId) }
+      })
+    })
+  }
+
+  async function verificarPendencias(alunoId: string, turmaId: string, dataMatricula: string) {
+    const { data: ofertas } = await CourseService.getOfertasDaTurmaComDatas(turmaId)
+    if (!ofertas?.length) return
+
+    for (const oferta of ofertas) {
+      if (oferta.data_fim && oferta.data_fim < dataMatricula) {
+        const { data: existente } = await supabase
+          .from('boletim')
+          .select('id')
+          .eq('aluno_id', alunoId)
+          .eq('disciplina_base_id', oferta.disciplina_base_id)
+          .maybeSingle()
+
+        if (!existente) {
+          await supabase.from('boletim').insert({
+            aluno_id: alunoId,
+            disciplina_base_id: oferta.disciplina_base_id,
+            faltas: 0,
+            n1: null, n2: null, n3: null, rec: null,
+            status: 'pendente',
+            versao: 1
+          })
+        } else if (!existente.id) {
+          await supabase.from('boletim')
+            .update({ status: 'pendente' })
+            .eq('id', existente.id)
+        }
+      }
+    }
+  }
+
   async function loadSelectsGrade(cursoId: string) {
     const selCat = container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement
     const selProf = container.querySelector('#select-professor-oferta') as HTMLSelectElement
@@ -468,7 +593,48 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
       loadTurmaAlunos(selectedTurmaId!)
       if (selectedCursoId) loadSelectsGrade(selectedCursoId)
       loadTurmaGrade(selectedTurmaId!)
+      loadTurmaCalendario(selectedTurmaId!)
     })
+  })
+
+  // 5. Matricular Aluno
+  btnMatricular.addEventListener('click', async () => {
+    const alunoId = (container.querySelector('#aluno-select') as HTMLSelectElement).value
+    const dataMatricula = (container.querySelector('#data-matricula') as HTMLInputElement).value
+
+    if (!selectedTurmaId || !alunoId) {
+      toast.error('Selecione um aluno!')
+      return
+    }
+    if (!dataMatricula) {
+      toast.error('Informe a data de início!')
+      return
+    }
+
+    btnMatricular.disabled = true
+    btnMatricular.textContent = 'Matriculando...'
+
+    const { data: matricula, error } = await AcademicService.matricularAluno(alunoId, selectedTurmaId)
+
+    if (error) {
+      toast.error('Erro ao matricular: ' + error.message)
+      btnMatricular.disabled = false
+      btnMatricular.innerHTML = '<span style="margin-right: 0.5rem;">✓</span> Matricular na Turma'
+      return
+    }
+
+    // Atualizar data_matricula na matrícula criada
+    if (matricula?.id) {
+      await supabase.from('matriculas').update({ data_matricula }).eq('id', matricula.id)
+    }
+
+    // Verificar pendências com base no calendário
+    await verificarPendencias(alunoId, selectedTurmaId, dataMatricula)
+
+    toast.success('Aluno matriculado com sucesso!')
+    btnMatricular.disabled = false
+    btnMatricular.innerHTML = '<span style="margin-right: 0.5rem;">✓</span> Matricular na Turma'
+    loadTurmaAlunos(selectedTurmaId)
   })
 
   // 3. Adicionar Oferta
@@ -503,6 +669,7 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
       container.querySelector('#tab-content-alunos')!.setAttribute('style', `display: ${tab === 'alunos' ? 'block' : 'none'}`)
       container.querySelector('#tab-content-grade')!.setAttribute('style', `display: ${tab === 'grade' ? 'block' : 'none'}`)
       container.querySelector('#tab-content-notas')!.setAttribute('style', `display: ${tab === 'notas' ? 'block' : 'none'}`)
+      container.querySelector('#tab-content-calendario')!.setAttribute('style', `display: ${tab === 'calendario' ? 'block' : 'none'}`)
       
       if (tab === 'notas' && selectedTurmaId) loadDisciplinasDropdown(selectedTurmaId)
     })

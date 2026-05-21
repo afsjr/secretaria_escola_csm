@@ -18,6 +18,7 @@ interface AlunoComNotas {
   status: string
   nota: Boletim | null
   versao: number
+  pendente?: boolean
 }
 
 interface NotaData {
@@ -102,14 +103,17 @@ export const ProfessorService = {
         .eq('disciplina_base_id', disciplinaBaseId)
         .single()
 
+      const pendente = nota?.status === 'pendente'
+
       return {
         matricula_id: m.id,
         aluno_id: perfil.id,
         aluno_nome: perfil.nome_completo,
         aluno_email: perfil.email,
         status: m.status_aluno,
-        nota: nota || null,
-        versao: nota?.versao ?? 1
+        nota: pendente ? null : (nota || null),
+        versao: nota?.versao ?? 1,
+        pendente
       }
     }))
 

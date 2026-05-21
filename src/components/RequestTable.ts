@@ -175,12 +175,35 @@ async function gerarDocumentoPDF(
     if (!isAluno) throw new Error('Histórico acadêmico disponível apenas para alunos')
     if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
     const { data: notas } = await AcademicService.getBoletim(userData.id)
-    const { data: disciplinasCurso } = await CourseService.getDisciplinasDoCurso(turmaInfo.curso_id)
+    const { data: ofertas } = await CourseService.getOfertasDaTurmaComDatas(turmaInfo.turma_id)
     const notasComModulo = notas?.map((n: any) => {
-      const disc = disciplinasCurso?.find((d: any) => d.nome === n.disciplina)
-      return { ...n, modulo: disc?.modulo || 'I Módulo' }
+      const discBase = n.disciplinas_base as any
+      return {
+        ...n,
+        disciplina: discBase?.nome || n.disciplina || 'Disciplina',
+        modulo: discBase?.modulo || 'I Módulo'
+      }
     }) || notas || []
-    return PDFService.generateHistoricoPDF(userData as UserProfile, notasComModulo, turmaInfo, { marcaCopia: true })
+
+    // Incluir disciplinas pendentes mesmo sem boletim (caso existam ofertas sem registro)
+    const disciplinasPendentes: any[] = []
+    if (ofertas && notas) {
+      const notaDisciplinaIds = new Set(notas.map(n => n.disciplina_base_id))
+      ofertas.forEach((o: any) => {
+        const discBase = o.disciplinas_base as any
+        if (discBase?.id && !notaDisciplinaIds.has(discBase.id)) {
+          disciplinasPendentes.push({
+            disciplina: discBase.nome || 'Disciplina',
+            modulo: discBase.modulo || '',
+            status: 'pendente',
+            faltas: 0, n1: null, n2: null, n3: null, rec: null
+          })
+        }
+      })
+    }
+
+    const todasNotas = [...notasComModulo, ...disciplinasPendentes]
+    return PDFService.generateHistoricoPDF(userData as UserProfile, todasNotas, turmaInfo, { marcaCopia: true })
   }
 
   if (isAluno) {

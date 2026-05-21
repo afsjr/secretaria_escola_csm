@@ -9,45 +9,32 @@ export function AuditCards({ total, porSeveridade }: AuditCardsProps) {
     { label: 'Alta', value: porSeveridade.alta, color: '#DC2626', icon: '🔴' },
     { label: 'Média', value: porSeveridade.media, color: '#D97706', icon: '🟡' },
     { label: 'Baixa', value: porSeveridade.baixa, color: '#059669', icon: '🟢' },
-  ];
+  ]
 
-  return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-      gap: '1rem',
-      marginBottom: '1.5rem'
-    }}>
-      {cards.map((card) => (
-        <div
-          key={card.label}
-          style={{
-            background: 'white',
-            padding: '1rem',
-            borderRadius: '12px',
-            boxShadow: 'var(--shadow-sm)',
-            borderTop: `4px solid ${card.color}`,
-            textAlign: 'center'
-          }}
-        >
-          <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{card.icon}</div>
-          <div style={{
-            fontSize: '2rem',
-            fontWeight: '800',
-            color: card.color
-          }}>
-            {card.value}
-          </div>
-          <div style={{
-            fontSize: '0.75rem',
-            color: 'var(--text-muted)',
-            textTransform: 'uppercase',
-            fontWeight: '600'
-          }}>
-            {card.label}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const container = document.createElement('div')
+  container.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem'
+
+  cards.forEach((card) => {
+    const cardEl = document.createElement('div')
+    cardEl.style.cssText = `background:white;padding:1rem;border-radius:12px;box-shadow:var(--shadow-sm);border-top:4px solid ${card.color};text-align:center`
+
+    const iconEl = document.createElement('div')
+    iconEl.style.cssText = 'font-size:1.5rem;margin-bottom:0.25rem'
+    iconEl.textContent = card.icon
+    cardEl.appendChild(iconEl)
+
+    const valueEl = document.createElement('div')
+    valueEl.style.cssText = `font-size:2rem;font-weight:800;color:${card.color}`
+    valueEl.textContent = String(card.value)
+    cardEl.appendChild(valueEl)
+
+    const labelEl = document.createElement('div')
+    labelEl.style.cssText = 'font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:600'
+    labelEl.textContent = card.label
+    cardEl.appendChild(labelEl)
+
+    container.appendChild(cardEl)
+  })
+
+  return container
 }

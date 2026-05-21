@@ -1,4 +1,4 @@
-import { CourseService } from '../../lib/professor-service'
+import { CourseService } from '../../lib/course-service'
 import { toast } from '../../lib/toast'
 import { escapeHTML } from '../../lib/security'
 

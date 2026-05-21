@@ -28,6 +28,10 @@ interface DisciplinaData {
   cursos?: {
     nome: string;
   };
+  disciplinas_base?: {
+    nome: string;
+    modulo: string;
+  };
 }
 
 interface AlunoNota {

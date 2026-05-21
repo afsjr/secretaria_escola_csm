@@ -78,6 +78,7 @@ interface NotaExistente {
   n2?: number;
   n3?: number;
   rec?: number;
+  status?: string | null;
 }
 
 interface AlunoBaixaMedia {

@@ -663,7 +663,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
     // Atualizar data_matricula na matrícula criada
     if (matricula?.id) {
-      await supabase.from('matriculas').update({ data_matricula }).eq('id', matricula.id)
+      await supabase.from('matriculas').update({ data_matricula: dataMatricula }).eq('id', matricula.id)
     }
 
     // Verificar pendências com base no calendário

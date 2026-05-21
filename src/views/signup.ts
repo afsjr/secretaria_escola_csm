@@ -53,7 +53,7 @@ export function SignupView(): HTMLElement {
 
   const cpfInput = container.querySelector("#cpf") as HTMLInputElement;
   const cpfStatus = container.querySelector("#cpf-status") as HTMLSpanElement;
-  const cpfFeedback = container.querySelector("#cpf-feedback") as HTMLSmallElement;
+  const cpfFeedback = container.querySelector("#cpf-feedback") as HTMLElement;
 
   function formatCPF(value: string): string {
     const numbers = value.replace(/\D/g, '');

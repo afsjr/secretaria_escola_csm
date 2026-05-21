@@ -110,6 +110,7 @@ interface DadosCompletos {
   observacoes?: Observacao[];
   matricula?: {
     turmas?: {
+      id: string;
       nome?: string;
     };
   };

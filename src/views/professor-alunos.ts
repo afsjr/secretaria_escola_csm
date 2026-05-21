@@ -124,7 +124,7 @@ export async function ProfessorAlunosView(profile: { id: string }): Promise<HTML
       ;(card as HTMLElement).style.opacity = '0.5'
 
       try {
-        const detailsView = await StudentDetailsView(alunoId!)
+        const detailsView = await (StudentDetailsView as any)(alunoId!)
         container.innerHTML = ''
         container.appendChild(detailsView)
       } catch (err) {

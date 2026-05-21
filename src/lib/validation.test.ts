@@ -22,7 +22,7 @@ describe('Validation - Login Schema', () => {
     const result = validateLogin({ email: '', password: 'senha123' })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.errors).toContain('E-mail é obrigatório')
+      expect((result as { errors: string[] }).errors).toContain('E-mail é obrigatório')
     }
   })
 

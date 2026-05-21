@@ -128,7 +128,7 @@ export const CourseService = {
         perfis (id, nome_completo)
       `)
       .eq('turma_id', turmaId)
-      .order('data_inicio', { ascending: true, nullsLast: true })
+      .order('data_inicio', { ascending: true, nullsFirst: false })
     return { data, error }
   },
 

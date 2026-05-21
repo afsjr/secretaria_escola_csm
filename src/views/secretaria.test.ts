@@ -60,7 +60,7 @@ describe('SecretariaView - Integração Estágio', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(AcademicService.getTurmas).mockResolvedValue({ data: mockTurmas, error: null })
+    vi.mocked(AcademicService.getTurmas).mockResolvedValue({ data: mockTurmas, error: null, count: 2 })
     vi.mocked(AcademicService.getAlunosDaTurma).mockResolvedValue({ data: mockAlunos, error: null })
     vi.mocked(AcademicService.getDisciplinasDaTurma).mockResolvedValue({ 
       data: { disciplinas: mockDisciplinas } as any, 

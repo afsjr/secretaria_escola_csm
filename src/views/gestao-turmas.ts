@@ -401,6 +401,7 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
   
   let selectedTurmaId: string | null = null
   let selectedCursoId: string | null = null
+  let selectedCursoTipo: string | null = null
 
   async function loadTurmaAlunos(turmaId: string) {
     tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center;">Carregando Caderneta...</td></tr>'
@@ -579,21 +580,50 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
       (proferes?.map(p => `<option value="${p.id}">${p.nome_completo}</option>`).join('') || '')
   }
 
+  function toggleTabsPorTipo() {
+    const isFormacao = selectedCursoTipo === 'formacao'
+    const tabBtnsAll = container.querySelectorAll<HTMLElement>('.tab-btn')
+
+    tabBtnsAll.forEach(btn => {
+      const tab = btn.getAttribute('data-tab')
+      if (tab === 'grade' || tab === 'notas') {
+        btn.style.display = isFormacao ? 'none' : ''
+      }
+    })
+
+    const gradeContent = container.querySelector('#tab-content-grade') as HTMLElement
+    const notasContent = container.querySelector('#tab-content-notas') as HTMLElement
+    const alunosContent = container.querySelector('#tab-content-alunos') as HTMLElement
+
+    if (isFormacao) {
+      gradeContent.style.display = 'none'
+      notasContent.style.display = 'none'
+      alunosContent.style.display = 'block'
+
+      tabBtnsAll.forEach(b => {
+        b.classList.remove('active')
+        if (b.getAttribute('data-tab') === 'alunos') b.classList.add('active')
+      })
+    }
+  }
+
   container.querySelectorAll('.turma-item').forEach(el => {
     el.addEventListener('click', async () => {
       selectedTurmaId = el.getAttribute('data-id')
       tituloTurma.textContent = 'Turma: ' + el.getAttribute('data-nome')
       painelMatriculas.style.display = 'block'
       
-      // Buscar curso_id da turma clicada
+      // Buscar curso_id e tipo da turma clicada
       const { data: turmas } = await AcademicService.getTurmas()
       const t = turmas?.find(x => x.id === selectedTurmaId)
       selectedCursoId = t?.curso_id || null
+      selectedCursoTipo = await AcademicService.getTipoDaTurma(selectedTurmaId!)
 
       loadTurmaAlunos(selectedTurmaId!)
       if (selectedCursoId) loadSelectsGrade(selectedCursoId)
       loadTurmaGrade(selectedTurmaId!)
       loadTurmaCalendario(selectedTurmaId!)
+      toggleTabsPorTipo()
     })
   })
 

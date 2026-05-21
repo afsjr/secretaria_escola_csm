@@ -1,8 +1,10 @@
 import { supabase } from './supabase'
+import { AuditService } from './audit-service'
 
 interface CursoData {
   nome: string
   descricao?: string
+  tipo?: string
 }
 
 interface DisciplinaBaseData {
@@ -35,12 +37,23 @@ export const CourseService = {
     return { data, error }
   },
 
-  async createCurso({ nome, descricao }: CursoData) {
+  async createCurso({ nome, descricao, tipo }: CursoData) {
     const { data, error } = await supabase
       .from('cursos')
-      .insert([{ nome, descricao }])
+      .insert([{ nome, descricao, tipo: tipo || 'tecnico' }])
       .select()
       .single()
+
+    if (!error && data) {
+      AuditService.log({
+        acao: 'criar_curso',
+        tabela_afetada: 'cursos',
+        registro_id: data.id,
+        descricao: `Curso criado: ${nome} (${tipo || 'tecnico'})`,
+        dados_novos: { nome, descricao, tipo: tipo || 'tecnico' }
+      })
+    }
+
     return { data, error }
   },
 

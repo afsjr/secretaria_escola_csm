@@ -53,6 +53,7 @@ const ACTION_SEVERITY: Record<string, string> = {
   "alterar_nota": "media",
   "delete_nota": "media",
   "criar_usuario": "media",
+  "criar_curso": "media",
   "matricular_aluno": "media",
   "transferir_aluno": "media",
   // Baixa severidade

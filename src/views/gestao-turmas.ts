@@ -4,6 +4,7 @@ import { CourseService } from '../lib/course-service'
 import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
+import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from '../lib/grades-utils'
 
 export async function GestaoTurmasView(): Promise<HTMLElement> {
   const container = document.createElement('div')
@@ -727,7 +728,24 @@ export async function GestaoTurmasView(): Promise<HTMLElement> {
     tab.innerHTML = data.alunos.map(m => {
       const p = (m.perfis as any)[0] || m.perfis
       const n = data.notasMap[p?.id] || {}
-      return `<tr><td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)}</td><td style="text-align:center;">${n.faltas || 0}</td><td style="text-align:center;">${n.n1 || 0}</td><td style="text-align:center;">${n.n2 || 0}</td><td style="text-align:center;">${n.n3 || 0}</td><td style="text-align:center;">-</td><td style="text-align:center;">${n.rec || 0}</td><td style="text-align:center;">-</td><td style="text-align:center;">Ativo</td></tr>`
+      const n1 = n.n1 || 0
+      const n2 = n.n2 || 0
+      const n3 = n.n3 || 0
+      const rec = n.rec || 0
+      const media = calcularMediaParcial(n1, n2, n3)
+      const final = calcularNotaFinal(media, rec)
+      const status = final > 0 ? calcularStatusAluno(final) : 'Cursando'
+      return `<tr>
+        <td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)}</td>
+        <td style="text-align:center;">${n.faltas || 0}</td>
+        <td style="text-align:center;">${n1.toFixed(1)}</td>
+        <td style="text-align:center;">${n2.toFixed(1)}</td>
+        <td style="text-align:center;">${n3.toFixed(1)}</td>
+        <td style="text-align:center; font-weight:600;">${media > 0 ? media.toFixed(1) : '-'}</td>
+        <td style="text-align:center;">${rec > 0 ? rec.toFixed(1) : '-'}</td>
+        <td style="text-align:center; font-weight:600;">${final > 0 ? final.toFixed(1) : '-'}</td>
+        <td style="text-align:center;"><span class="badge ${status === 'Aprovado' ? 'badge-success' : status === 'Reprovado' ? 'badge-danger' : 'badge-warning'}">${status}</span></td>
+      </tr>`
     }).join('')
   }
 

@@ -2,6 +2,7 @@ import { ProfessorService } from "../lib/professor-service";
 import { formatDateBR } from "../lib/date-utils";
 import { toast } from "../lib/toast";
 import { UserProfile } from "../types";
+import { skeletonCard } from "../components/skeleton";
 
 // Helper para prevenir XSS
 const escapeHTML = (str: unknown): string => {
@@ -364,8 +365,7 @@ export async function ProfessorView(
     const disciplinaNome = selectedOption.getAttribute("data-nome")!;
     const turmaId = selectedOption.getAttribute("data-turma")!;
 
-    tabelaNotasContainer.innerHTML =
-      '<p style="text-align: center; padding: 2rem;">Carregando alunos...</p>';
+    tabelaNotasContainer.innerHTML = skeletonCard();
 
     const { data: alunosComNotas, error } = await ProfessorService
       .getNotasDaDisciplina(disciplinaNome, turmaId) as {
@@ -646,8 +646,7 @@ export async function ProfessorView(
     const disciplinaId = selectedOption.value;
     const disciplinaNome = selectedOption.getAttribute("data-nome")!;
 
-    tabelaAulasContainer.innerHTML =
-      '<p style="text-align: center; padding: 2rem;">Carregando aulas...</p>';
+    tabelaAulasContainer.innerHTML = skeletonCard();
 
     const { data: aulas, error } = await ProfessorService.getAulasDaDisciplina(
       disciplinaId,

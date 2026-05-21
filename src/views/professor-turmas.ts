@@ -13,6 +13,7 @@
 import { ProfessorService } from "../lib/professor-service";
 import { AcademicService } from "../lib/academic-service";
 import { PDFService } from "../lib/pdf-service";
+import { skeletonRowSpan, skeletonCard } from "../components/skeleton";
 import { supabase } from "../lib/supabase";
 import { toast } from "../lib/toast";
 import { createBadge, createOption, escapeHTML } from "../lib/security";
@@ -219,7 +220,7 @@ export async function ProfessorTurmasView(
                           </tr>
                         </thead>
                         <tbody class="notas-tbody" data-disciplina-id="${disc.id}">
-                          <tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Carregando alunos...</td></tr>
+                          ${skeletonRowSpan(9)}
                         </tbody>
                       </table>
                     </div>
@@ -267,7 +268,7 @@ export async function ProfessorTurmasView(
               </div>
 
               <div class="frequencia-list" data-turma-id="${turma.id || ""}">
-                <p style="color: var(--text-muted);">Carregando alunos...</p>
+                ${skeletonCard()}
               </div>
             </div>
           </div>

@@ -39,6 +39,45 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   const userRole = profile?.perfil || 'aluno'
   console.log('[DashboardView] Determined Role:', userRole)
 
+  // Breadcrumb mapping
+  function getBreadcrumbs(p: string): { label: string; href: string; current: boolean }[] {
+    const crumbs: { label: string; href: string; current: boolean }[] = [
+      { label: 'Início', href: '#/dashboard', current: p === '/' }
+    ]
+    const map: Record<string, string> = {
+      '/documentos': 'Documentos',
+      '/usuarios': 'Usuários',
+      '/matriz': 'Matriz Curricular',
+      '/secretaria': 'Painel Secretaria',
+      '/turmas': 'Gestão de Turmas',
+      '/configuracoes': 'Configurações',
+      '/auditoria': 'Auditoria',
+      '/financeiro': 'Financeiro',
+      '/perfil': 'Meus Dados',
+    }
+    const profMap: Record<string, string> = {
+      '/professor/turmas': 'Minhas Turmas',
+      '/professor/alunos': 'Meus Alunos',
+      '/professor/aulas': 'Diários de Aulas',
+    }
+
+    if (p.startsWith('/professor/')) {
+      crumbs.push({ label: 'Professor', href: '#/dashboard/professor/turmas', current: false })
+      const sub = profMap[p]
+      if (sub) crumbs.push({ label: sub, href: `#/dashboard${p}`, current: true })
+    } else if (map[p]) {
+      crumbs.push({ label: map[p], href: `#/dashboard${p}`, current: true })
+    }
+    return crumbs
+  }
+
+  const breadcrumbs = getBreadcrumbs(subPath)
+  const breadcrumbHTML = breadcrumbs.map((c, i) => {
+    const sep = i > 0 ? '<span class="separator">›</span>' : ''
+    if (c.current) return `${sep}<span class="current">${c.label}</span>`
+    return `${sep}<a href="${c.href}">${c.label}</a>`
+  }).join('')
+
   // Usando os novos helpers do authz.js
   const _isMasterAdmin = isMasterAdmin(userRole)
   const _isAdmin = isAdmin(userRole)
@@ -143,8 +182,28 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
       </div>
     </aside>
 
-    <main class="main-content" id="painel-controle-conteudo">
-      <!-- Inner View Loaded Here -->
+    <main class="main-content">
+      <div class="top-header">
+        <div class="top-header-left">
+          <div class="breadcrumbs">${breadcrumbHTML}</div>
+        </div>
+        <div class="top-header-right">
+          <button id="header-notification-btn" class="header-btn" title="Notificações">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="badge-dot"></span>
+          </button>
+          <button id="header-theme-toggle" class="header-btn" title="Alternar tema">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          <a href="#/dashboard/perfil" class="header-profile" style="text-decoration: none;">
+            <div class="avatar">${escapeHTML(userName.charAt(0).toUpperCase())}</div>
+            <span class="name">${escapeHTML(userName)}</span>
+          </a>
+        </div>
+      </div>
+      <div id="painel-controle-conteudo">
+        <!-- Inner View Loaded Here -->
+      </div>
     </main>
 
     <!-- BLOQUEIO DE TROCA DE SENHA OBRIGATÓRIA -->
@@ -267,6 +326,15 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       await logout()
+    })
+  }
+
+  // Theme toggle event listener
+  const themeToggle = container.querySelector<HTMLButtonElement>('#header-theme-toggle')
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark')
+      localStorage.setItem('theme', isDark ? 'dark' : 'light')
     })
   }
 

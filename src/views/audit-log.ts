@@ -262,7 +262,7 @@ export async function AuditLogView(): Promise<HTMLElement> {
         .value;
 
     btnFiltrar.disabled = true;
-    btnFiltrar.textContent = "Carregando...";
+    btnFiltrar.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:6px;vertical-align:middle;"></span> Carregando...';
 
     let filteredLogs = logs || [];
 
@@ -311,7 +311,7 @@ export async function AuditLogView(): Promise<HTMLElement> {
     let offset = 50;
     btnLoadMore.addEventListener("click", async () => {
       btnLoadMore.disabled = true;
-      btnLoadMore.textContent = "Carregando...";
+      btnLoadMore.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:6px;vertical-align:middle;"></span> Carregando...';
 
       const { data: moreLogs, count: totalCount } = await AuditService.getLogs({
         limit: 50,

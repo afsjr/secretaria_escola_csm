@@ -55,8 +55,15 @@ export async function AuditDashboard(onPeriodChange?: (p: string) => void, perio
 
     if (loading) {
       const loadingEl = document.createElement('div')
-      loadingEl.style.cssText = 'text-align:center;padding:2rem;color:var(--text-muted)'
-      loadingEl.textContent = 'Carregando estatísticas...'
+      loadingEl.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;padding:1rem;'
+      loadingEl.innerHTML = Array.from({ length: 4 }, () =>
+        '<div style="background:var(--white);padding:1.75rem;border-radius:16px;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,0.05);">' +
+          '<div class="skeleton" style="width:60%;height:14px;border-radius:4px;margin-bottom:12px"></div>' +
+          '<div class="skeleton" style="width:40%;height:32px;border-radius:4px;margin-bottom:16px"></div>' +
+          '<div class="skeleton" style="width:80%;height:14px;border-radius:4px;margin-bottom:8px"></div>' +
+          '<div class="skeleton" style="width:65%;height:14px;border-radius:4px"></div>' +
+        '</div>'
+      ).join('')
       container.appendChild(loadingEl)
       return
     }

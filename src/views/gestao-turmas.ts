@@ -5,6 +5,7 @@ import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
 import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from '../lib/grades-utils'
+import { skeletonLine, skeletonRowSpan, skeletonTable } from '../components/skeleton'
 
 export async function GestaoTurmasView(profile?: { id: string; perfil: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
@@ -405,7 +406,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   let selectedCursoTipo: string | null = null
 
   async function loadTurmaAlunos(turmaId: string) {
-    tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center;">Carregando Caderneta...</td></tr>'
+    tabelaAlunos.innerHTML = skeletonRowSpan(4)
     const { data: matriculas, error } = await AcademicService.getAlunosDaTurma(turmaId)
     if (error) { tabelaAlunos.innerHTML = `<tr><td colspan="4">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
     if (!matriculas?.length) { tabelaAlunos.innerHTML = '<tr><td colspan="4" style="padding:1rem; text-align:center;">Nenhum aluno.</td></tr>'; return }
@@ -426,7 +427,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   }
 
   async function loadTurmaGrade(turmaId: string) {
-    tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding: 2rem; text-align: center;">Carregando grade...</td></tr>'
+    tabelaGrade.innerHTML = skeletonRowSpan(4)
     const { data } = await AcademicService.getDisciplinasDaTurma(turmaId)
     if (!data?.disciplinas?.length) {
       tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center;">Nenhuma disciplina ofertada.</td></tr>'
@@ -478,7 +479,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   })
 
   async function loadTurmaCalendario(turmaId: string) {
-    tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding: 2rem; text-align: center;">Carregando calendário...</td></tr>'
+    tabelaCalendario.innerHTML = skeletonRowSpan(6)
     const { data: ofertas, error } = await CourseService.getOfertasDaTurmaComDatas(turmaId)
     if (error) { tabelaCalendario.innerHTML = `<tr><td colspan="6">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
     if (!ofertas?.length) { tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding:2rem;text-align:center;">Nenhuma disciplina no calendário.</td></tr>'; return }
@@ -728,7 +729,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
   async function loadTurmaNotas(turmaId: string, discBaseId: string) {
     const tab = container.querySelector('#tabela-notas-turma') as HTMLElement
-    tab.innerHTML = '<tr><td colspan="9">Carregando notas...</td></tr>'
+    tab.innerHTML = skeletonRowSpan(9)
     const { data } = await AcademicService.getNotasCompletasTurma(turmaId, discBaseId)
     if (!data?.alunos?.length) { tab.innerHTML = '<tr><td colspan="9">Nenhum aluno.</td></tr>'; return }
 

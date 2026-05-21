@@ -11,6 +11,29 @@ import { StudentDetailsView } from './views/student-details'
 import { ProfessorDetailsView } from './views/professor-details'
 import { GestaoTurmasView } from './views/gestao-turmas'
 
+// Dark Mode initialization
+function initTheme(): void {
+  const stored = localStorage.getItem('theme')
+  if (stored === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else if (stored === 'light') {
+    document.documentElement.classList.remove('dark')
+  } else {
+    // Follow system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    document.documentElement.classList.toggle('dark', prefersDark)
+  }
+}
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  if (!localStorage.getItem('theme')) {
+    document.documentElement.classList.toggle('dark', e.matches)
+  }
+})
+
+initTheme()
+
 const app = document.querySelector('#app') as HTMLElement | null
 
 if (!app) {

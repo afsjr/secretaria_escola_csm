@@ -13,6 +13,7 @@ import { CourseService } from '../lib/course-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createBadge } from '../lib/security'
 import { formatDateBR } from '../lib/date-utils'
+import { skeletonCard } from '../components/skeleton'
 
 interface TurmaData {
   turma_nome: string
@@ -101,7 +102,7 @@ export async function ProfessorRegistrarAulaView(profile: { id: string }): Promi
         <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Aulas Registradas</h3>
 
         <div id="historico-aulas">
-          <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Carregando histórico...</p>
+          ${skeletonCard()}
         </div>
       </div>
     </div>

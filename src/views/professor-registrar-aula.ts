@@ -8,6 +8,7 @@
  * - Editar aulas registradas
  */
 
+import { ICONS } from '../lib/icons'
 import { ProfessorService } from '../lib/professor-service'
 import { CourseService } from '../lib/course-service'
 import { toast } from '../lib/toast'
@@ -93,7 +94,7 @@ export async function ProfessorRegistrarAulaView(profile: { id: string }): Promi
             <textarea id="aula-observacoes" class="input" rows="3" placeholder="Ex: maioria dos alunos faltou, atividade prática cancelada, etc..."></textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width: 100%;">📅 Registrar Aula</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">${ICONS.calendar} Registrar Aula</button>
         </form>
       </div>
 
@@ -171,7 +172,7 @@ export async function ProfessorRegistrarAulaView(profile: { id: string }): Promi
     }
 
     submitBtn.disabled = false
-    submitBtn.textContent = '📅 Registrar Aula'
+    submitBtn.innerHTML = `${ICONS.calendar} Registrar Aula`
   })
 
   // Load initial histórico
@@ -226,8 +227,8 @@ async function loadHistoricoAulas(professorId: string, container: HTMLElement): 
                 <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 0.5rem;">${escapeHTML(aula.turma_nome)}</span>
               </div>
               <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-edit-aula" data-aula-id="${aula.id}" data-aula-conteudo="${escapeHTML(aula.conteudo).replace(/"/g, '&quot;')}" data-aula-data="${aula.data}" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem;" title="Editar">✎</button>
-                <button class="btn-delete-aula" data-aula-id="${aula.id}" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.8rem;" title="Excluir">✕</button>
+                <button class="btn-edit-aula" data-aula-id="${aula.id}" data-aula-conteudo="${escapeHTML(aula.conteudo).replace(/"/g, '&quot;')}" data-aula-data="${aula.data}" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem;" title="Editar">${ICONS.edit}</button>
+                <button class="btn-delete-aula" data-aula-id="${aula.id}" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.8rem;" title="Excluir">${ICONS.x}</button>
               </div>
             </div>
             <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem;">${escapeHTML(aula.disciplina_nome)}</div>

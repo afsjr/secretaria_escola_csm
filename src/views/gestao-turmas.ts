@@ -6,6 +6,7 @@ import { toast } from '../lib/toast'
 import { escapeHTML, createOption } from '../lib/security'
 import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from '../lib/grades-utils'
 import { skeletonLine, skeletonRowSpan, skeletonTable } from '../components/skeleton'
+import { ICONS } from '../lib/icons'
 
 export async function GestaoTurmasView(profile?: { id: string; perfil: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
@@ -52,8 +53,8 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       const statusColor = t.status_ingresso === 'aberta' ? 'var(--success-text)' : '#991B1B'
       const manageButtons = canManageTurmas ? `
         <div style="margin-top: 0.5rem; display: flex; gap: 6px;">
-          <button type="button" class="btn-editar-turma" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" title="Editar nome da turma" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;">✏️ Editar</button>
-          <button type="button" class="btn-excluir-turma" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" title="Excluir turma" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;">🗑️ Excluir</button>
+          <button type="button" class="btn-editar-turma" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" title="Editar nome da turma" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;">${ICONS.edit} Editar</button>
+          <button type="button" class="btn-excluir-turma" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" title="Excluir turma" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;">${ICONS.trash} Excluir</button>
         </div>
       ` : ''
       return `
@@ -123,16 +124,16 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         <!-- Tabs de Navegação -->
         <div style="display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem;">
           <button type="button" class="tab-btn active" data-tab="alunos" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; border-bottom: 3px solid var(--primary); margin-bottom: -2px;">
-            👥 Alunos
+            ${ICONS.users} Alunos
           </button>
           <button type="button" class="tab-btn" data-tab="grade" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
-            📚 Grade (Ofertas)
+            ${ICONS.book} Grade (Ofertas)
           </button>
           <button type="button" class="tab-btn" data-tab="notas" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
-            📊 Notas
+            ${ICONS.chart} Notas
           </button>
           <button type="button" class="tab-btn" data-tab="calendario" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
-            📅 Calendário
+            ${ICONS.calendar} Calendário
           </button>
         </div>
 
@@ -141,7 +142,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
           <!-- Matricular Aluno - DESTAQUE -->
           <div style="background: linear-gradient(135deg, #FFF9E6 0%, #FFF4B8 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid var(--accent); box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);">
             <h4 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-              <span style="font-size: 1.5rem;">🎓</span>
+              ${ICONS.graduation}
               Matricular Aluno Existente
             </h4>
             <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
@@ -157,14 +158,14 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
                 <input type="date" id="data-matricula" class="input" value="${new Date().toISOString().split('T')[0]}">
               </div>
               <button id="btn-matricular" class="btn btn-primary" style="background: var(--primary); white-space: nowrap; padding: 0.75rem 1.5rem; font-weight: 600;">
-                <span style="margin-right: 0.5rem;">✓</span> Matricular na Turma
+                ${ICONS.check} Matricular na Turma
               </button>
             </div>
           </div>
 
           <!-- Tabela de Alunos na Turma -->
           <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-            <span style="font-size: 1.3rem;">📋</span>
+            ${ICONS.clipboard}
             Diário Oficial (Caderneta)
           </h3>
           <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
@@ -227,7 +228,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         <!-- Seção: Calendário Acadêmico -->
         <div id="tab-content-calendario" style="display: none;">
           <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-            <span style="font-size: 1.3rem;">📅</span>
+            ${ICONS.calendar}
             Calendário Acadêmico
           </h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Defina o período de início e fim de cada disciplina. Disciplinas já encerradas na data da matrícula do aluno serão marcadas como "Falta cursar".</p>
@@ -254,7 +255,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         <!-- Seção: Notas (Boletim) -->
         <div id="tab-content-notas" style="display: none;">
           <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-            <span style="font-size: 1.3rem;">📊</span>
+            ${ICONS.chart}
             Boletim da Turma
           </h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Visualização somente leitura. Para editar notas, utilize o painel do professor.</p>
@@ -658,7 +659,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     if (error) {
       toast.error('Erro ao matricular: ' + error.message)
       btnMatricular.disabled = false
-      btnMatricular.innerHTML = '<span style="margin-right: 0.5rem;">✓</span> Matricular na Turma'
+      btnMatricular.innerHTML = `${ICONS.check} Matricular na Turma`
       return
     }
 
@@ -672,7 +673,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
     toast.success('Aluno matriculado com sucesso!')
     btnMatricular.disabled = false
-    btnMatricular.innerHTML = '<span style="margin-right: 0.5rem;">✓</span> Matricular na Turma'
+    btnMatricular.innerHTML = `${ICONS.check} Matricular na Turma`
     loadTurmaAlunos(selectedTurmaId)
   })
 

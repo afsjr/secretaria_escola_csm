@@ -14,6 +14,7 @@ import { GerenciarProfessoresTab } from '../components/Tabs/GerenciarProfessores
 import { GerenciarCursosTab } from '../components/Tabs/GerenciarCursosTab'
 import { NotasEstagioTab } from '../components/Tabs/NotasEstagioTab'
 import { OverviewTab } from '../components/Tabs/OverviewTab'
+import { ICONS } from '../lib/icons'
 
 export async function SecretariaView(): Promise<HTMLDivElement> {
   const container = document.createElement('div')
@@ -47,7 +48,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   // 2. Estrutura Base (Segura)
   container.innerHTML = safeHTML`
     <header class="view-header" style="display: flex; align-items: center; gap: 1.5rem; background: linear-gradient(to right, white, transparent); padding: 1.5rem; border-radius: 16px; margin-bottom: 2.5rem; border-left: 6px solid var(--primary);">
-      <div style="font-size: 3rem; background: var(--secondary); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: var(--shadow-sm);">🏫</div>
+      <div style="font-size: 3rem; background: var(--secondary); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: var(--shadow-sm);">${ICONS.school}</div>
       <div>
         <h1 class="title" style="margin: 0; font-weight: 800; letter-spacing: -0.02em;">Painel da Secretaria</h1>
         <p class="subtitle" style="margin: 0.25rem 0 0 0; font-size: 1.1rem; color: var(--text-muted);">Gestão técnica modularizada e monitoramento em tempo real.</p>

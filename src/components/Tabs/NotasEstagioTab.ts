@@ -1,3 +1,4 @@
+import { ICONS } from '../../lib/icons'
 import { AcademicService } from '../../lib/academic-service'
 import { disciplinaTemEstagio } from '../../lib/grades-utils'
 import { toast } from '../../lib/toast'
@@ -42,7 +43,7 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
         </select>
       </div>
       
-      <button id="btn-carregar-notas" class="btn btn-primary" disabled>📋 Carregar Estágio</button>
+      <button id="btn-carregar-notas" class="btn btn-primary" disabled>${ICONS.clipboard} Carregar Estágio</button>
       
       <div id="notas-content" style="margin-top: 1.5rem; display: none;">
         <!-- Area de lançamento de nota -->
@@ -158,7 +159,7 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
           <input type="number" id="input-nota-estagio" class="input" 
             min="0" max="10" step="0.1" value="${notaEstagio}" 
             style="width: 100px; text-align: center; font-weight: 600;">
-          <button id="btn-salvar-nota-estagio" class="btn btn-primary">💾 Salvar Nota</button>
+          <button id="btn-salvar-nota-estagio" class="btn btn-primary">${ICONS.save} Salvar Nota</button>
         </div>
       </div>
     `
@@ -195,7 +196,7 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
         toast.error('Erro ao salvar nota: ' + err.message)
       } finally {
         btnSalvar.disabled = false
-        btnSalvar.textContent = '💾 Salvar Nota'
+        btnSalvar.innerHTML = `${ICONS.save} Salvar Nota`
       }
     })
   })

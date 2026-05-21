@@ -2,6 +2,7 @@ import { login } from "../auth/session";
 import { toast } from "../lib/toast";
 import { validateLogin } from "../lib/validation";
 import { checkRateLimit, clearRateLimit } from "../lib/rate-limiter";
+import { ICONS } from "../lib/icons";
 
 export function LoginView(): HTMLElement {
   const container = document.createElement("div");
@@ -10,7 +11,7 @@ export function LoginView(): HTMLElement {
   container.innerHTML = `
     <div class="auth-card">
       <div style="text-align: center; margin-bottom: 1.5rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">${ICONS.graduation}</div>
         <h2 style="color: var(--primary);">Acesso Administrativo</h2>
         <p style="text-align:center; margin-bottom: 2rem; color: var(--text-muted);">SGE - Secretaria Escola CSM<br><strong style="color: var(--primary);">Colégio Santa Mônica</strong> - Limoeiro/PE</p>
       </div>
@@ -31,7 +32,7 @@ export function LoginView(): HTMLElement {
 
       <div style="margin-top: 1rem;">
         <button type="button" id="btn-treinamento" class="btn" style="width: 100%; padding: 0.75rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
-          📚 Material de Treinamento
+          ${ICONS.book} Material de Treinamento
         </button>
       </div>
 

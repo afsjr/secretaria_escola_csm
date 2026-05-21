@@ -1,3 +1,4 @@
+import { ICONS } from '../lib/icons'
 import { updatePassword } from '../auth/session'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
@@ -13,7 +14,7 @@ export function ForceChangePasswordView(param: ForceChangePasswordParam): HTMLEl
   container.innerHTML = `
     <div class="auth-card" style="max-width: 450px;">
       <div style="text-align: center; margin-bottom: 1.5rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔐</div>
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">${ICONS.lock}</div>
         <h2 style="color: var(--primary);">Primeiro Acesso</h2>
         <p style="color: var(--text-muted);">Por segurança, você deve criar uma senha pessoal para acessar o sistema.</p>
       </div>

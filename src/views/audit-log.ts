@@ -8,23 +8,24 @@
 import { AuditService } from "../lib/audit-service";
 import { escapeHTML } from "../lib/security";
 import { formatDateTimeBR } from "../lib/date-utils";
+import { ICONS } from "../lib/icons";
 
 const ACTION_LABELS: Record<string, string> = {
-  "reset_senha": "🔑 Reset de Senha",
-  "criar_usuario": "👤 Criar Usuário",
-  "delete_usuario": "🗑️ Deletar Usuário",
-  "alterar_perfil_acesso": "🔄 Alterar Perfil",
-  "lancar_nota": "📝 Lançar Notas",
-  "alterar_nota": "✏️ Alterar Nota",
-  "delete_nota": "🗑️ Deletar Nota",
-  "matricular_aluno": "🎓 Matricular Aluno",
-  "criar_curso": "📚 Criar Curso",
-  "transferir_aluno": "🔄 Transferir Aluno",
-  "registrar_aula": "📚 Registrar Aula",
-  "delete_aula": "🗑️ Excluir Aula",
-  "login_sucesso": "✅ Login",
-  "solicitar_documento": "📄 Solicitar Documento",
-  "atualizar_perfil": "👤 Atualizar Perfil",
+  "reset_senha": `${ICONS.key} Reset de Senha`,
+  "criar_usuario": `${ICONS.user} Criar Usuário`,
+  "delete_usuario": `${ICONS.trash} Deletar Usuário`,
+  "alterar_perfil_acesso": `${ICONS.refresh} Alterar Perfil`,
+  "lancar_nota": `${ICONS.edit} Lançar Notas`,
+  "alterar_nota": `${ICONS.edit} Alterar Nota`,
+  "delete_nota": `${ICONS.trash} Deletar Nota`,
+  "matricular_aluno": `${ICONS.graduation} Matricular Aluno`,
+  "criar_curso": `${ICONS.book} Criar Curso`,
+  "transferir_aluno": `${ICONS.refresh} Transferir Aluno`,
+  "registrar_aula": `${ICONS.calendar} Registrar Aula`,
+  "delete_aula": `${ICONS.trash} Excluir Aula`,
+  "login_sucesso": `${ICONS.check} Login`,
+  "solicitar_documento": `${ICONS.file} Solicitar Documento`,
+  "atualizar_perfil": `${ICONS.user} Atualizar Perfil`,
 };
 
 const ACTION_SEVERITY: Record<string, string> = {
@@ -132,7 +133,7 @@ function renderLogRow(log: any): string {
 function renderEmptyState(): string {
   return `
     <div style="padding: 4rem; text-align: center; color: var(--text-muted);">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+      <div style="font-size: 2.5rem; margin-bottom: 1rem;">${ICONS.inbox}</div>
       <p style="font-size: 1.1rem; font-weight: 600;">Nenhum log registrado ainda</p>
       <p style="font-size: 0.9rem;">As ações sensíveis do sistema serão registradas automaticamente aqui.</p>
     </div>
@@ -170,18 +171,18 @@ export async function AuditLogView(): Promise<HTMLElement> {
     <header style="margin-bottom: 2rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <h1 style="font-size: 2rem; color: var(--text-main);">📋 Log de Auditoria</h1>
+          <h1 style="font-size: 2rem; color: var(--text-main);">${ICONS.clipboard} Log de Auditoria</h1>
           <p style="color: var(--text-muted);">Registro imutável de todas as ações sensíveis do sistema.</p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
           <span style="background: ${SEVERITY_COLORS.alta.bg}; color: ${SEVERITY_COLORS.alta.text}; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-            🔴 Alta: ${sc.alta}
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${SEVERITY_COLORS.alta.text};margin-right:4px;"></span> Alta: ${sc.alta}
           </span>
           <span style="background: ${SEVERITY_COLORS.media.bg}; color: ${SEVERITY_COLORS.media.text}; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-            🟡 Média: ${sc.media}
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${SEVERITY_COLORS.media.text};margin-right:4px;"></span> Média: ${sc.media}
           </span>
           <span style="background: ${SEVERITY_COLORS.baixa.bg}; color: ${SEVERITY_COLORS.baixa.text}; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-            🟢 Baixa: ${sc.baixa}
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${SEVERITY_COLORS.baixa.text};margin-right:4px;"></span> Baixa: ${sc.baixa}
           </span>
         </div>
       </div>
@@ -205,9 +206,9 @@ export async function AuditLogView(): Promise<HTMLElement> {
           <label class="label" for="filtro-severidade">Severidade</label>
           <select id="filtro-severidade" class="input" style="padding: 0.5rem;">
             <option value="">Todas</option>
-            <option value="alta">🔴 Alta</option>
-            <option value="media">🟡 Média</option>
-            <option value="baixa">🟢 Baixa</option>
+            <option value="alta">● Alta</option>
+            <option value="media">● Média</option>
+            <option value="baixa">● Baixa</option>
           </select>
         </div>
         <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">

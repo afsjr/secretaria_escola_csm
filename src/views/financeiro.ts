@@ -1,3 +1,4 @@
+import { ICONS } from '../lib/icons'
 import { FinanceiroService } from '../lib/financeiro-service'
 import { AdminService } from '../lib/admin-service'
 import { ExcelService } from '../lib/excel-service'
@@ -64,9 +65,9 @@ export async function FinanceiroView(): Promise<HTMLElement> {
         <h3 style="margin: 0;">Lista de Alunos</h3>
         <div style="display: flex; gap: 1rem;">
           <button id="btn-export-financeiro" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
-            📊 Exportar Excel
+            ${ICONS.chart} Exportar Excel
           </button>
-          <input type="text" id="busca-aluno-financeiro" class="input" placeholder="🔍 Buscar por nome ou CPF..." style="max-width: 350px;">
+          <input type="text" id="busca-aluno-financeiro" class="input" placeholder="Buscar por nome ou CPF..." style="max-width: 350px;">
         </div>
       </div>
       <div class="table-responsive">
@@ -101,8 +102,8 @@ export async function FinanceiroView(): Promise<HTMLElement> {
                   </td>
                   <td>
                     <div style="display: flex; gap: 8px;">
-                      <button class="btn btn-sm btn-lancar-debito" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}">➕ Lançar</button>
-                      <button class="btn btn-primary btn-sm btn-fatura" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}">💳 Ficha Financeira</button>
+                      <button class="btn btn-sm btn-lancar-debito" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}">${ICONS.plus} Lançar</button>
+                      <button class="btn btn-primary btn-sm btn-fatura" data-id="${aluno.id}" data-nome="${escapeHTML(aluno.nome_completo)}">${ICONS.dollar} Ficha Financeira</button>
                     </div>
                   </td>
                 </tr>
@@ -186,7 +187,7 @@ export async function FinanceiroView(): Promise<HTMLElement> {
               EFETIVAR ACORDO
             </button>
             <button id="btn-gerar-recibo" class="btn" style="background: var(--accent); color: #000; width: 100%; height: 50px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
-              📄 GERAR RECIBO / TERMO
+              ${ICONS.file} GERAR RECIBO / TERMO
             </button>
             <p style="font-size: 0.7rem; text-align: center; margin-top: 1rem; opacity: 0.5;">
               Ao clicar em gerar recibo, o Termo de Acordo será baixado em PDF.

@@ -1,3 +1,5 @@
+import { ICONS } from '../../lib/icons'
+
 interface AuditCardsProps {
   total: number;
   porSeveridade: { alta: number; media: number; baixa: number };
@@ -5,7 +7,7 @@ interface AuditCardsProps {
 
 export function AuditCards({ total, porSeveridade }: AuditCardsProps) {
   const cards = [
-    { label: 'Total', value: total, color: 'var(--primary)', icon: '📊' },
+    { label: 'Total', value: total, color: 'var(--primary)', icon: ICONS.chart },
     { label: 'Alta', value: porSeveridade.alta, color: '#DC2626', icon: '🔴' },
     { label: 'Média', value: porSeveridade.media, color: '#D97706', icon: '🟡' },
     { label: 'Baixa', value: porSeveridade.baixa, color: '#059669', icon: '🟢' },
@@ -20,7 +22,7 @@ export function AuditCards({ total, porSeveridade }: AuditCardsProps) {
 
     const iconEl = document.createElement('div')
     iconEl.style.cssText = 'font-size:1.5rem;margin-bottom:0.25rem'
-    iconEl.textContent = card.icon
+    iconEl.innerHTML = card.icon
     cardEl.appendChild(iconEl)
 
     const valueEl = document.createElement('div')

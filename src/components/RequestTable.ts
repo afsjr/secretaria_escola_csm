@@ -1,3 +1,4 @@
+import { ICONS } from '../lib/icons'
 import { DocumentsService } from '../lib/documents-service'
 import { PDFService } from '../lib/pdf-service'
 import { AcademicService } from '../lib/academic-service'
@@ -30,7 +31,7 @@ export async function RequestTableComponent() {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h3 style="margin: 0;">Solicitações de Documentos</h3>
         <button id="btn-export-solicitacoes" class="btn btn-primary btn-sm" style="background: #217346; color: white; font-weight: 600;">
-          📊 Exportar Excel
+          ${ICONS.chart} Exportar Excel
         </button>
       </div>
       <div class="table-responsive bg-white rounded-lg shadow-sm mt-4">

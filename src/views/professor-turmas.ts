@@ -10,6 +10,7 @@
  * - Alertas de alunos com média baixa
  */
 
+import { ICONS } from "../lib/icons";
 import { ProfessorService } from "../lib/professor-service";
 import { AcademicService } from "../lib/academic-service";
 import { PDFService } from "../lib/pdf-service";
@@ -150,10 +151,10 @@ export async function ProfessorTurmasView(
       </div>
       <div style="display: flex; gap: 0.5rem;">
         <button id="btn-alertas-geral" class="btn" style="background: #FEF3C7; color: #92400E; font-size: 0.85rem;">
-          🔔 Alertas
+          ${ICONS.bell} Alertas
         </button>
         <button id="btn-export-geral" class="btn btn-primary" style="font-size: 0.85rem;">
-          📄 Exportar PDF Geral
+          ${ICONS.file} Exportar PDF Geral
         </button>
       </div>
     </header>
@@ -181,7 +182,7 @@ export async function ProfessorTurmasView(
             <div class="tabs-container" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
               <button class="tab-btn active" data-tab="notas-${
       turma.id || "sem-turma"
-    }" style="padding: 0.5rem 1rem; border: none; background: var(--secondary); color: var(--text-main); cursor: pointer; border-radius: 4px 4px 0 0;">📊 Lançar Notas</button>
+    }" style="padding: 0.5rem 1rem; border: none; background: var(--secondary); color: var(--text-main); cursor: pointer; border-radius: 4px 4px 0 0;">${ICONS.chart} Lançar Notas</button>
               <button class="tab-btn" data-tab="frequencia-${
       turma.id || "sem-turma"
     }" style="padding: 0.5rem 1rem; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 4px 4px 0 0;">✓ Frequência</button>
@@ -198,7 +199,7 @@ export async function ProfessorTurmasView(
                     ${escapeHTML(disc.nome)}
                     <button class="btn btn-sm btn-export-pdf" data-disciplina-id="${disc.id}" data-disciplina-nome="${
         escapeHTML(disc.nome)
-      }" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">📄 PDF</button>
+      }" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">${ICONS.file} PDF</button>
                   </legend>
 
                   <div class="notas-disciplina" data-disciplina-id="${disc.id}" data-disciplina-nome="${
@@ -230,7 +231,7 @@ export async function ProfessorTurmasView(
                       <button class="btn btn-primary btn-salvar-notas" 
                         data-disciplina-id="${disc.id}" 
                         data-disciplina-base-id="${(disc as any).disciplina_base_id}"
-                        data-disciplina-nome="${escapeHTML(disc.nome)}">💾 Salvar Notas</button>
+                        data-disciplina-nome="${escapeHTML(disc.nome)}">${ICONS.save} Salvar Notas</button>
                     </div>
                   </div>
                 </fieldset>
@@ -352,7 +353,7 @@ export async function ProfessorTurmasView(
 
       const { error } = await ProfessorService.salvarNotasEmLote(discBaseId, notasArray);
       (btn as HTMLButtonElement).disabled = false;
-      (btn as HTMLButtonElement).textContent = "💾 Salvar Notas";
+      (btn as HTMLButtonElement).innerHTML = `${ICONS.save} Salvar Notas`;
 
       if (error) {
         if (error.code === 'CONFLICT') {
@@ -477,7 +478,7 @@ export async function ProfessorTurmasView(
       }
 
       (btn as HTMLButtonElement).disabled = false;
-      (btn as HTMLButtonElement).textContent = "📄 PDF";
+      (btn as HTMLButtonElement).innerHTML = `${ICONS.file} PDF`;
     });
   });
 
@@ -802,7 +803,7 @@ async function loadFrequenciaAlunos(
       }).join("")
     }
       </div>
-      <button class="btn btn-primary btn-salvar-frequencia">💾 Salvar Frequência</button>
+      <button class="btn btn-primary btn-salvar-frequencia">${ICONS.save} Salvar Frequência</button>
     `;
 
     // Save frequência
@@ -837,7 +838,7 @@ async function loadFrequenciaAlunos(
       );
 
       btnSalvar.disabled = false;
-      btnSalvar.textContent = "💾 Salvar Frequência";
+      btnSalvar.innerHTML = `${ICONS.save} Salvar Frequência`;
 
       if (error) {
         toast.error("Erro ao salvar frequência: " + error.message);

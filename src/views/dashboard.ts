@@ -3,6 +3,7 @@
  *
  * Barra lateral de navegação + Área de conteúdo dinâmico
  */
+import { ICONS } from '../lib/icons'
 import type { Session, UserProfile } from '../types'
 import { logout, getUserProfile, getAllProfiles } from '../auth/session'
 import { DashboardHomeView } from './dashboard-home'
@@ -221,7 +222,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
     <!-- BLOQUEIO DE TROCA DE SENHA OBRIGATÓRIA -->
     <div id="modal-troca-obrigatoria" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 10000; justify-content: center; align-items: center; color: white;">
       <div style="max-width: 450px; width: 90%; text-align: center; background: rgba(255,255,255,0.1); padding: 3rem; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-        <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔐</div>
+        <div style="font-size: 3rem; margin-bottom: 1.5rem;">${ICONS.lock}</div>
         <h2 style="margin-bottom: 1rem;">Segurança em Primeiro Lugar</h2>
         <p style="margin-bottom: 2rem; opacity: 0.9; line-height: 1.6;">
           Sua senha foi resetada pela administração. Para sua segurança, é **obrigatório** criar uma nova senha personalizada para continuar.

@@ -1,3 +1,4 @@
+import { ICONS } from '../../lib/icons'
 import { escapeHTML } from '../../lib/security'
 
 interface Aluno {
@@ -62,7 +63,7 @@ export function GerenciarAlunosTab({
         <h3 style="margin: 0;">Lista de Alunos</h3>
         <div style="display: flex; gap: 10px;">
           <input type="text" id="busca-aluno" class="input" placeholder="Buscar por nome ou CPF..." style="width: 300px;">
-          <button class="btn btn-primary" id="btn-refresh-alunos">🔄 Atualizar</button>
+          <button class="btn btn-primary" id="btn-refresh-alunos">${ICONS.refresh} Atualizar</button>
         </div>
       </div>
 
@@ -108,9 +109,9 @@ export function GerenciarAlunosTab({
                 </td>
                 <td style="text-align: right;">
                   <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button class="btn btn-sm btn-secondary" onclick="window.location.hash='#/student-details?id=${escapeHTML(aluno.id)}'" title="Ver Ficha">👁️</button>
-                    <button class="btn btn-sm btn-primary" onclick="window.location.hash='#/student-details?edit=true&id=${escapeHTML(aluno.id)}'" title="Editar">✏️</button>
-                    <button class="btn btn-sm btn-accent" onclick="window.location.hash='#/gestao-turmas?matricular=${escapeHTML(aluno.id)}'" title="Matricular">🎓</button>
+                    <button class="btn btn-sm btn-secondary" onclick="window.location.hash='#/student-details?id=${escapeHTML(aluno.id)}'" title="Ver Ficha">${ICONS.eye}</button>
+                    <button class="btn btn-sm btn-primary" onclick="window.location.hash='#/student-details?edit=true&id=${escapeHTML(aluno.id)}'" title="Editar">${ICONS.edit}</button>
+                    <button class="btn btn-sm btn-accent" onclick="window.location.hash='#/gestao-turmas?matricular=${escapeHTML(aluno.id)}'" title="Matricular">${ICONS.graduation}</button>
                   </div>
                 </td>
               </tr>

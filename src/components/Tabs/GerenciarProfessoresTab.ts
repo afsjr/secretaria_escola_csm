@@ -1,3 +1,4 @@
+import { ICONS } from '../../lib/icons'
 import { escapeHTML } from '../../lib/security'
 
 interface Professor {
@@ -53,7 +54,7 @@ export function GerenciarProfessoresTab({
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h3 style="margin: 0;">Corpo Docente</h3>
-        <button class="btn btn-primary" id="btn-refresh-professores">🔄 Atualizar</button>
+        <button class="btn btn-primary" id="btn-refresh-professores">${ICONS.refresh} Atualizar</button>
       </div>
 
       <div class="table-responsive">
@@ -82,9 +83,9 @@ export function GerenciarProfessoresTab({
                 </td>
                 <td style="text-align: right;">
                   <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button class="btn btn-sm btn-secondary" onclick="window.location.hash='#/professor-details?id=${escapeHTML(p.id)}'" title="Ver Perfil">👁️</button>
-                    <button class="btn btn-sm btn-primary" onclick="window.location.hash='#/professor-details?edit=true&id=${escapeHTML(p.id)}'" title="Editar">✏️</button>
-                    <button class="btn btn-sm btn-accent" title="Vincular">🔗</button>
+                    <button class="btn btn-sm btn-secondary" onclick="window.location.hash='#/professor-details?id=${escapeHTML(p.id)}'" title="Ver Perfil">${ICONS.eye}</button>
+                    <button class="btn btn-sm btn-primary" onclick="window.location.hash='#/professor-details?edit=true&id=${escapeHTML(p.id)}'" title="Editar">${ICONS.edit}</button>
+                    <button class="btn btn-sm btn-accent" title="Vincular">${ICONS.link}</button>
                   </div>
                 </td>
               </tr>

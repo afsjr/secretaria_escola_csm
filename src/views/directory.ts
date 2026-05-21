@@ -3,6 +3,7 @@ import { createBadge, escapeHTML } from "../lib/security";
 import { AdminService } from "../lib/admin-service";
 import { toast } from "../lib/toast";
 import { isMasterAdmin } from "../lib/authz";
+import { ICONS } from "../lib/icons";
 import type { UserProfile, UserRole } from "../types";
 
 // Ordem de apresentação: Alunos → Professores → Secretaria → Admin → Master Admin
@@ -16,12 +17,12 @@ const PROFILE_ORDER = [
 ];
 
 const PROFILE_LABELS: Record<string, string> = {
-  aluno: "👨‍🎓 Alunos",
-  professor: "👨‍🏫 Professores",
-  secretaria: "🏢 Secretaria",
-  coordenacao: "📚 Coordenação",
-  admin: "🔒 Administradores",
-  master_admin: "🛡️ Gestor do Sistema",
+  aluno: `${ICONS.user} Alunos`,
+  professor: `${ICONS.users} Professores`,
+  secretaria: `${ICONS.clipboard} Secretaria`,
+  coordenacao: `${ICONS.book} Coordenação`,
+  admin: `${ICONS.lock} Administradores`,
+  master_admin: `${ICONS.shield} Gestor do Sistema`,
 };
 
 const PROFILE_COLORS: Record<string, string> = {
@@ -51,10 +52,10 @@ function renderProfileCard(
   let restrictedLabel = "";
   if (isTargetMaster) {
     canReset = false;
-    restrictedLabel = "🛡️ Proprietário do Sistema";
+    restrictedLabel = `${ICONS.shield} Proprietário do Sistema`;
   } else if (targetPerfil === "admin" && !viewerIsMaster) {
     canReset = false;
-    restrictedLabel = "🔒 Acesso Restrito";
+    restrictedLabel = `${ICONS.lock} Acesso Restrito`;
   }
 
   const badgeLabel = isTargetMaster
@@ -83,7 +84,7 @@ function renderProfileCard(
     !canReset
       ? `<span style="font-size: 0.7rem; color: var(--text-muted); font-style: italic;">${restrictedLabel}</span>`
       : `<button class="btn-reset-password" data-id="${p.id}" data-nome="${nome}" style="background: var(--secondary); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); transition: all 0.15s ease;">
-            🔄 Resetar Senha
+            ${ICONS.refresh} Resetar Senha
           </button>`
   }
       </div>
@@ -136,7 +137,7 @@ export async function DirectoryView(): Promise<HTMLElement> {
   if (error) {
     bodyHTML =
       `<p style="color: var(--danger); padding: 1.5rem; background: white; border-radius: 8px;">
-      ⚠️ Erro ao carregar lista: ${escapeHTML(error.message)}
+      ${ICONS.warning} Erro ao carregar lista: ${escapeHTML(error.message)}
     </p>`;
   } else {
     // Group by profile type in the defined order: Alunos → Professores → Secretaria → Admin
@@ -154,8 +155,8 @@ export async function DirectoryView(): Promise<HTMLElement> {
         <h1 style="font-size: 2rem; color: var(--text-main);">Usuários do Sistema</h1>
         <p style="color: var(--text-muted);">Organizados por perfil de acesso.</p>
       </div>
-      <div style="background: white; padding: 0.5rem 1rem; border-radius: 8px; box-shadow: var(--shadow-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
-        👥 Total: ${totalUsers}
+      <div style="background: white; padding: 0.5rem 1rem; border-radius: 8px; box-shadow: var(--shadow-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-main); display:flex;align-items:center;gap:6px;">
+        ${ICONS.users} Total: ${totalUsers}
       </div>
     </header>
 
@@ -175,7 +176,7 @@ export async function DirectoryView(): Promise<HTMLElement> {
         )
       ) {
         (btn as HTMLButtonElement).disabled = true;
-        (btn as HTMLButtonElement).textContent = "⏳ Processando...";
+        (btn as HTMLButtonElement).innerHTML = `${ICONS.clock} Processando...`;
 
         const { error } = await AdminService.resetUserPassword(id, nome);
 
@@ -184,10 +185,10 @@ export async function DirectoryView(): Promise<HTMLElement> {
         if (error) {
           toast.error("Erro ao resetar: " + error.message);
           (btn as HTMLButtonElement).disabled = false;
-          (btn as HTMLButtonElement).textContent = "🔄 Resetar Senha";
+          (btn as HTMLButtonElement).innerHTML = `${ICONS.refresh} Resetar Senha`;
         } else {
           toast.success(`Senha de ${nome} resetada com sucesso!`);
-          (btn as HTMLButtonElement).textContent = "✅ Resetada";
+          (btn as HTMLButtonElement).innerHTML = `${ICONS.check} Resetada`;
           (btn as HTMLButtonElement).style.background = "var(--success)";
           (btn as HTMLButtonElement).style.color = "white";
           (btn as HTMLButtonElement).style.pointerEvents = "none";

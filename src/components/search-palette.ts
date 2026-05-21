@@ -1,12 +1,13 @@
 import { AcademicService } from '../lib/academic-service'
 import { ProfessorService } from '../lib/professor-service'
 import { escapeHTML } from '../lib/security'
+import { ICONS } from '../lib/icons'
 
 interface SearchResult {
   id: string
   label: string
   subtitle: string
-  icon: string
+  iconKey: string
   href: string
   category: string
 }
@@ -18,19 +19,19 @@ interface SearchCache {
 }
 
 const PAGES = [
-  { icon: '🏠', label: 'Início', href: '#/dashboard' },
-  { icon: '📄', label: 'Documentos', href: '#/dashboard/documentos' },
-  { icon: '👥', label: 'Usuários', href: '#/dashboard/usuarios' },
-  { icon: '📚', label: 'Matriz Curricular', href: '#/dashboard/matriz' },
-  { icon: '📋', label: 'Painel Secretaria', href: '#/dashboard/secretaria' },
-  { icon: '🎓', label: 'Gestão de Turmas', href: '#/dashboard/turmas' },
-  { icon: '⚙️', label: 'Configurações', href: '#/dashboard/configuracoes' },
-  { icon: '🔍', label: 'Auditoria', href: '#/dashboard/auditoria' },
-  { icon: '💰', label: 'Financeiro', href: '#/dashboard/financeiro' },
-  { icon: '👤', label: 'Meus Dados', href: '#/dashboard/perfil' },
-  { icon: '📖', label: 'Minhas Turmas', href: '#/dashboard/professor/turmas' },
-  { icon: '👥', label: 'Meus Alunos', href: '#/dashboard/professor/alunos' },
-  { icon: '📅', label: 'Diários de Aulas', href: '#/dashboard/professor/aulas' },
+  { iconKey: 'home', label: 'Início', href: '#/dashboard' },
+  { iconKey: 'file', label: 'Documentos', href: '#/dashboard/documentos' },
+  { iconKey: 'users', label: 'Usuários', href: '#/dashboard/usuarios' },
+  { iconKey: 'book', label: 'Matriz Curricular', href: '#/dashboard/matriz' },
+  { iconKey: 'clipboard', label: 'Painel Secretaria', href: '#/dashboard/secretaria' },
+  { iconKey: 'graduation', label: 'Gestão de Turmas', href: '#/dashboard/turmas' },
+  { iconKey: 'settings', label: 'Configurações', href: '#/dashboard/configuracoes' },
+  { iconKey: 'search', label: 'Auditoria', href: '#/dashboard/auditoria' },
+  { iconKey: 'dollar', label: 'Financeiro', href: '#/dashboard/financeiro' },
+  { iconKey: 'user', label: 'Meus Dados', href: '#/dashboard/perfil' },
+  { iconKey: 'book', label: 'Minhas Turmas', href: '#/dashboard/professor/turmas' },
+  { iconKey: 'users', label: 'Meus Alunos', href: '#/dashboard/professor/alunos' },
+  { iconKey: 'calendar', label: 'Diários de Aulas', href: '#/dashboard/professor/aulas' },
 ]
 
 let cache: SearchCache | null = null
@@ -70,7 +71,7 @@ function search(query: string): SearchResult[] {
       id: a.id,
       label: a.nome_completo,
       subtitle: a.email || 'Aluno',
-      icon: '👤',
+      iconKey: 'user',
       href: `#/student-details?id=${a.id}`,
       category: 'Alunos',
     }))
@@ -83,7 +84,7 @@ function search(query: string): SearchResult[] {
       id: t.id,
       label: `${t.nome} - ${t.periodo}`,
       subtitle: '',
-      icon: '🎓',
+      iconKey: 'graduation',
       href: `#/gestao-turmas?id=${t.id}`,
       category: 'Turmas',
     }))
@@ -96,7 +97,7 @@ function search(query: string): SearchResult[] {
       id: p.id,
       label: p.nome_completo,
       subtitle: p.email || 'Professor',
-      icon: '👨‍🏫',
+      iconKey: 'users',
       href: `#/professor-details?id=${p.id}`,
       category: 'Professores',
     }))
@@ -109,7 +110,7 @@ function search(query: string): SearchResult[] {
     id: p.href,
     label: p.label,
     subtitle: '',
-    icon: p.icon,
+    iconKey: p.iconKey,
     href: p.href,
     category: 'Páginas',
   }))
@@ -136,7 +137,7 @@ function renderResults(results: SearchResult[]): string {
       const idx = results.indexOf(item)
       const isActive = idx === selectedIndex
       html += `<div class="search-result-item ${isActive ? 'active' : ''}" data-index="${idx}" style="display:flex;align-items:center;gap:10px;padding:0.6rem 1rem;cursor:pointer;border-radius:var(--radius-sm);${isActive ? 'background:var(--secondary);' : ''}" onmouseenter="this.dataset.hover='true'">
-        <span style="font-size:1.1rem;">${item.icon}</span>
+        <span style="width:20px;height:20px;display:inline-flex;align-items:center;color:var(--text-muted);">${ICONS[item.iconKey] || ''}</span>
         <div style="flex:1;min-width:0;">
           <div style="font-size:0.9rem;color:var(--text-main);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(item.label)}</div>
           ${item.subtitle ? `<div style="font-size:0.75rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(item.subtitle)}</div>` : ''}

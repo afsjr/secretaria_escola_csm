@@ -1,3 +1,4 @@
+import { ICONS } from '../lib/icons'
 import { InstituicaoService } from '../lib/instituicao-service'
 import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
@@ -14,7 +15,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
   container.innerHTML = `
     <!-- AVISO DE ÁREA RESTRITA -->
     <div style="background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem; box-shadow: 0 4px 15px rgba(153,27,27,0.3);">
-      <div style="font-size: 1.8rem; flex-shrink: 0; margin-top: 2px;">🔐</div>
+      <div style="font-size: 1.8rem; flex-shrink: 0; margin-top: 2px;">${ICONS.lock}</div>
       <div>
         <div style="font-weight: 800; font-size: 1rem; margin-bottom: 0.3rem; letter-spacing: 0.02em;">ÁREA DE ACESSO RESTRITO — SOMENTE ADMINISTRADOR</div>
         <div style="font-size: 0.82rem; opacity: 0.9; line-height: 1.6;">
@@ -40,7 +41,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
 
         <!-- IDENTIDADE -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; background: white;">
-          <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">🏫 Identidade da Escola</legend>
+          <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">${ICONS.school} Identidade da Escola</legend>
 
           <div class="form-group">
             <label class="label" for="inst-nome">Nome Oficial da Instituição *</label>
@@ -72,7 +73,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
 
         <!-- ENDEREÇO -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; background: white;">
-          <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">📍 Endereço</legend>
+          <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">${ICONS.mapPin} Endereço</legend>
 
           <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
             <div class="form-group">
@@ -117,7 +118,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
 
         <!-- COR PRIMÁRIA -->
         <fieldset style="border: 1px solid var(--secondary); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; background: white;">
-          <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">🎨 Identidade Visual</legend>
+          <legend style="font-weight: 700; color: var(--primary); padding: 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">${ICONS.palette} Identidade Visual</legend>
           <div style="display: grid; grid-template-columns: 120px 1fr; gap: 1rem; align-items: center;">
             <div class="form-group">
               <label class="label" for="inst-cor">Cor Principal</label>
@@ -130,14 +131,14 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
         </fieldset>
 
         <button type="submit" class="btn btn-primary" id="btn-salvar-inst" style="width: 100%; height: 50px; font-size: 1rem; font-weight: 700;">
-          💾 Salvar Configurações
+          ${ICONS.save} Salvar Configurações
         </button>
       </form>
 
       <!-- PAINEL DE LOGO -->
       <div style="position: sticky; top: 2rem;">
         <div style="background: white; border-radius: 12px; box-shadow: var(--shadow-md); padding: 1.5rem; border: 1px solid var(--secondary);">
-          <h3 style="margin-bottom: 0.5rem; font-size: 1rem; color: var(--text-main);">🖼️ Logo da Instituição</h3>
+          <h3 style="margin-bottom: 0.5rem; font-size: 1rem; color: var(--text-main);">${ICONS.image} Logo da Instituição</h3>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">
             A logo aparece no cabeçalho de todos os PDFs gerados.
           </p>
@@ -147,7 +148,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
             ${(inst as any)?.logo_url
               ? `<img src="${(inst as any).logo_url}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 1rem;">`
               : `<div style="text-align: center; color: var(--text-muted);">
-                  <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏫</div>
+                  <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${ICONS.school}</div>
                   <div style="font-size: 0.8rem;">Sem logo cadastrada</div>
                 </div>`
             }
@@ -155,7 +156,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
 
           <!-- Especificações -->
           <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid var(--accent);">
-            <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">📐 ESPECIFICAÇÕES</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">${ICONS.ruler} ESPECIFICAÇÕES</div>
             <ul style="font-size: 0.75rem; color: var(--text-muted); line-height: 2; list-style: none; padding: 0; margin: 0;">
               <li>✅ <strong>Formato ideal:</strong> PNG (fundo transparente)</li>
               <li>✅ <strong>Dimensões:</strong> 400 × 200px (proporção 2:1)</li>
@@ -166,7 +167,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
 
           <!-- Input de Upload -->
           <label for="logo-file-input" class="btn" style="display: block; text-align: center; cursor: pointer; background: var(--secondary); color: var(--text-main); border: 1px solid var(--border); width: 100%; box-sizing: border-box;">
-            📁 Escolher Arquivo
+            ${ICONS.folder} Escolher Arquivo
           </label>
           <input type="file" id="logo-file-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display: none;">
 
@@ -174,7 +175,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
 
           ${(inst as any)?.logo_url ? `
             <button id="btn-remover-logo" class="btn" style="width: 100%; margin-top: 0.5rem; background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem;">
-              🗑️ Remover Logo
+              ${ICONS.trash} Remover Logo
             </button>
           ` : ''}
         </div>
@@ -214,7 +215,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
     if (!confirm('Remover a logo da instituição?')) return
     const { error } = await InstituicaoService.saveInstituicao({ logo_url: null })
     if (error) return toast.error('Erro ao remover: ' + error.message)
-    previewArea.innerHTML = `<div style="text-align: center; color: var(--text-muted);"><div style="font-size: 2.5rem;">🏫</div><div style="font-size: 0.8rem;">Sem logo cadastrada</div></div>`
+    previewArea.innerHTML = `<div style="text-align: center; color: var(--text-muted);"><div style="font-size: 2.5rem;">${ICONS.school}</div><div style="font-size: 0.8rem;">Sem logo cadastrada</div></div>`
     toast.success('Logo removida.')
   })
 
@@ -244,7 +245,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
     }
 
     btnSalvar.disabled = false
-    btnSalvar.textContent = '💾 Salvar Configurações'
+    btnSalvar.innerHTML = `${ICONS.save} Salvar Configurações`
   })
 
   return container

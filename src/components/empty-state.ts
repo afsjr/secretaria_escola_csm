@@ -1,3 +1,4 @@
+import { ICONS } from '../lib/icons'
 import { escapeHTML } from '../lib/security'
 
 export interface EmptyStateProps {
@@ -10,7 +11,7 @@ export interface EmptyStateProps {
   }
 }
 
-export function createEmptyState({ icon = '📭', title, message, action }: EmptyStateProps): string {
+export function createEmptyState({ icon = ICONS.inbox, title, message, action }: EmptyStateProps): string {
   return `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;text-align:center;">
       <div style="font-size:3rem;margin-bottom:1rem;opacity:0.6;">${icon}</div>

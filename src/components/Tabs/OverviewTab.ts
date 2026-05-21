@@ -1,3 +1,4 @@
+import { ICONS } from '../../lib/icons'
 import { escapeHTML } from '../../lib/security'
 
 interface OverviewProps {
@@ -24,7 +25,7 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
             <div class="stat-label">Alunos Ativos</div>
             <div class="stat-value">${escapeHTML(stats.alunos)}</div>
           </div>
-          <span style="font-size: 2rem;">👥</span>
+          <span style="font-size: 2rem;">${ICONS.users}</span>
         </div>
       </div>
 
@@ -35,7 +36,7 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
             <div class="stat-label">Docentes</div>
             <div class="stat-value" style="color: var(--success);">${escapeHTML(stats.professores)}</div>
           </div>
-          <span style="font-size: 2rem;">👨‍🏫</span>
+          <span style="font-size: 2rem;">${ICONS.graduation}</span>
         </div>
       </div>
 
@@ -46,7 +47,7 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
             <div class="stat-label">Solicitações</div>
             <div class="stat-value" style="color: var(--danger);">${escapeHTML(stats.solicitacoesPendentes)}</div>
           </div>
-          <span style="font-size: 2rem;">📩</span>
+          <span style="font-size: 2rem;">${ICONS.mail}</span>
         </div>
       </div>
 
@@ -57,14 +58,14 @@ export function OverviewTab({ stats, cursos }: OverviewProps): HTMLDivElement {
             <div class="stat-label">Turmas Ativas</div>
             <div class="stat-value" style="color: var(--info);">${escapeHTML(stats.turmas)}</div>
           </div>
-          <span style="font-size: 2rem;">🏫</span>
+          <span style="font-size: 2rem;">${ICONS.school}</span>
         </div>
       </div>
     </div>
 
     <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
       <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-        🚀 Status Operacional dos Cursos
+        ${ICONS.chart} Status Operacional dos Cursos
       </h3>
       <div class="table-responsive">
         <table class="data-table">

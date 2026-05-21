@@ -485,15 +485,8 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     if (error) { tabelaCalendario.innerHTML = `<tr><td colspan="6">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
     if (!ofertas?.length) { tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding:2rem;text-align:center;">Nenhuma disciplina no calendário.</td></tr>'; return }
 
-    const seen = new Set<string>()
-    const ofertasUnicas = ofertas.filter(o => {
-      if (seen.has(o.disciplina_base_id)) return false
-      seen.add(o.disciplina_base_id)
-      return true
-    })
-
     const hoje = new Date().toISOString().split('T')[0]
-    tabelaCalendario.innerHTML = ofertasUnicas.map(o => {
+    tabelaCalendario.innerHTML = ofertas.map(o => {
       const disc = o.disciplinas_base as any
       const prof = o.perfis as any
       const situacao = o.data_inicio && o.data_fim
@@ -527,7 +520,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         if (!ofertaId) return
         const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio, fim || '')
         if (error) toast.error('Erro ao salvar data: ' + error.message)
-        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId) }
+        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId); reprocessarPendenciasDaTurma(turmaId) }
       })
     })
     tabelaCalendario.querySelectorAll('.calendario-fim').forEach(input => {
@@ -539,9 +532,21 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         if (!ofertaId) return
         const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio || '', fim)
         if (error) toast.error('Erro ao salvar data: ' + error.message)
-        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId) }
+        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId); reprocessarPendenciasDaTurma(turmaId) }
       })
     })
+  }
+
+  async function reprocessarPendenciasDaTurma(turmaId: string) {
+    const { data: matriculas } = await supabase
+      .from('matriculas')
+      .select('aluno_id, data_matricula')
+      .eq('turma_id', turmaId)
+      .eq('status_aluno', 'ativo')
+    if (!matriculas?.length) return
+    for (const m of matriculas) {
+      if (m.data_matricula) await verificarPendencias(m.aluno_id, turmaId, m.data_matricula)
+    }
   }
 
   async function verificarPendencias(alunoId: string, turmaId: string, dataMatricula: string) {
@@ -552,21 +557,23 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       if (oferta.data_fim && oferta.data_fim < dataMatricula) {
         const { data: existente } = await supabase
           .from('boletim')
-          .select('id')
+          .select('id, status')
           .eq('aluno_id', alunoId)
           .eq('disciplina_base_id', oferta.disciplina_base_id)
           .maybeSingle()
 
         if (!existente) {
+          const discNome = (oferta.disciplinas_base as any)?.nome || 'Disciplina'
           await supabase.from('boletim').insert({
             aluno_id: alunoId,
+            disciplina: discNome,
             disciplina_base_id: oferta.disciplina_base_id,
             faltas: 0,
             n1: null, n2: null, n3: null, rec: null,
             status: 'pendente',
             versao: 1
           })
-        } else if (!existente.id) {
+        } else if (existente.status !== 'pendente') {
           await supabase.from('boletim')
             .update({ status: 'pendente' })
             .eq('id', existente.id)
@@ -694,6 +701,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     else {
       toast.success('Disciplina adicionada à turma!')
       loadTurmaGrade(selectedTurmaId)
+      reprocessarPendenciasDaTurma(selectedTurmaId)
     }
     btnAdicionarOferta.disabled = false
   })
@@ -747,13 +755,28 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     tab.innerHTML = data.alunos.map(m => {
       const p = (m.perfis as any)[0] || m.perfis
       const n = data.notasMap[p?.id] || {}
+
+      if (n.status === 'pendente') {
+        return `<tr style="opacity:0.7;">
+          <td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)} <span style="font-size:0.7rem;color:var(--text-muted);">(matrícula tardia)</span></td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;">-</td>
+          <td style="text-align:center;"><span class="badge badge-warning" style="background:#f59e0b20;color:#b45309;border:1px solid #f59e0b;">Falta cursar</span></td>
+        </tr>`
+      }
+
       const n1 = n.n1 || 0
       const n2 = n.n2 || 0
       const n3 = n.n3 || 0
       const rec = n.rec || 0
       const media = calcularMediaParcial(n1, n2, n3)
       const final = calcularNotaFinal(media, rec)
-      const status = final > 0 ? calcularStatusAluno(final) : 'Cursando'
+      const status = n.status === 'pendente' ? 'Falta cursar' : (final > 0 ? calcularStatusAluno(final) : 'Cursando')
       return `<tr>
         <td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)}</td>
         <td style="text-align:center;">${n.faltas || 0}</td>
@@ -763,7 +786,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         <td style="text-align:center; font-weight:600;">${media > 0 ? media.toFixed(1) : '-'}</td>
         <td style="text-align:center;">${rec > 0 ? rec.toFixed(1) : '-'}</td>
         <td style="text-align:center; font-weight:600;">${final > 0 ? final.toFixed(1) : '-'}</td>
-        <td style="text-align:center;"><span class="badge ${status === 'Aprovado' ? 'badge-success' : status === 'Reprovado' ? 'badge-danger' : 'badge-warning'}">${status}</span></td>
+        <td style="text-align:center;"><span class="badge ${status === 'Aprovado' ? 'badge-success' : status === 'Reprovado' ? 'badge-danger' : status === 'Falta cursar' ? 'badge-warning' : 'badge-warning'}">${status}</span></td>
       </tr>`
     }).join('')
   }

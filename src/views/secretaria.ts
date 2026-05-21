@@ -5,7 +5,6 @@ import { ProfessorService } from '../lib/professor-service'
 import { CourseService } from '../lib/course-service'
 import { AcademicService } from '../lib/academic-service'
 import { toast } from '../lib/toast'
-import { safeHTML } from '../lib/security'
 import { RequestTableComponent } from '../components/RequestTable'
 import { CadastroAlunoTab } from '../components/Tabs/CadastroAlunoTab'
 import { CadastroProfessorTab } from '../components/Tabs/CadastroProfessorTab'
@@ -45,8 +44,8 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   const cursos = cursosResult.data || []
   const requests = requestsResult.data || []
 
-  // 2. Estrutura Base (Segura)
-  container.innerHTML = safeHTML`
+  // 2. Estrutura Base
+  container.innerHTML = `
     <header class="view-header" style="display: flex; align-items: center; gap: 1.5rem; background: linear-gradient(to right, white, transparent); padding: 1.5rem; border-radius: 16px; margin-bottom: 2.5rem; border-left: 6px solid var(--primary);">
       <div style="font-size: 3rem; background: var(--secondary); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: var(--shadow-sm);">${ICONS.school}</div>
       <div>

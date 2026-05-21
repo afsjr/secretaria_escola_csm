@@ -1,0 +1,82 @@
+{
+  "checkpoint-version": 1,
+  "saved-at": "2026-05-21T15:01:00Z",
+  "last-feature": "design-review-acessibilidade",
+  "active-feature": null,
+  "last-agent": "opencode (manual coding — no reversa forward)",
+  "summary": "Sessão dedicada a Design Review Visual + Acessibilidade WCAG AA. Refinamentos de CSS aplicados diretamente (sem pipeline reversa forward, pois o escopo é evolução do frontend existente).",
+  "completed": [
+    "Sombras refinadas (--shadow-sm/md/lg) com valores mais suaves",
+    ":focus-visible e :focus:not(:focus-visible) globais para WCAG 2.2 AA",
+    "Skip link (.skip-link) no topo do dashboard, com id='painel-controle-conteudo' no <main>",
+    "aria-current='page' em todos os nav-items da sidebar",
+    "role='navigation' e aria-label na sidebar e nav",
+    "aria-hidden='true' em todos os SVGs decorativos",
+    "aria-label nos botões da sidebar (sidebar-toggle, logout, treinamento)",
+    "SVG icons substituíram emojis nos stat cards e headers do dashboard-home.ts (users, graduation, file, user, book, calendar, clipboard, clock, dollar, warning)",
+    "Nav-item com focus-visible outline dourado (--accent)",
+    "Nav-item com transition para padding/gap no collapse",
+    "Main-content com transition para collapse suave da sidebar",
+    "html { scroll-behavior: smooth }",
+    "Bar chart titles sem emoji (agora só texto limpo)"
+  ],
+  "pending-tasks": [
+    {
+      "id": "DR-01",
+      "priority": "high",
+      "description": "Substituir demais emojis no sistema (breadcrumbs, headers de seção, notificações) por SVGs",
+      "files-to-touch": ["src/views/*.ts", "src/components/**/*.ts"],
+      "verification": "grep -rn '📺\|📋\|📅\|🎓\|📄\|📊\|👥\|👤\|⏳\|💰\|⚠️\|📝\|📚' src/"
+    },
+    {
+      "id": "DR-02",
+      "priority": "high",
+      "description": "Verificar contraste de cor em dark mode (especialmente --text-muted em bg dark, primary sobre bg-app)",
+      "files-to-touch": ["src/styles/main.css"],
+      "checklist": [
+        "--text-muted (#999) sobre --bg-app (#13131F): ratio ~7.2:1 OK",
+        "--text-main (#E0E0E0) sobre --bg-app (#13131F): ratio ~12:1 OK",
+        "--primary (#D43B52) sobre --white (#1E1E2E): ratio ~4.5:1 (limite AA para texto grande)",
+        "--accent (#FFD700) sobre --primary (#D43B52): ratio ~2.3:1 (abaixo — badges e destaque decorativo, não texto)"
+      ]
+    },
+    {
+      "id": "DR-03",
+      "priority": "medium",
+      "description": "Adicionar aria-live region para feedback de ações (loading, sucesso, erro)",
+      "files-to-touch": ["src/views/dashboard.ts", "src/styles/main.css"]
+    },
+    {
+      "id": "DR-04",
+      "priority": "medium",
+      "description": "Animações de transição entre abas/páginas (fade+slide suave)",
+      "files-to-touch": ["src/styles/main.css"]
+    },
+    {
+      "id": "NF-01",
+      "priority": "high",
+      "description": "Central de notificações no header (dropdown com solicitações pendentes)",
+      "files-to-touch": ["src/views/dashboard.ts", "src/components/notifications.ts", "src/styles/main.css"]
+    },
+    {
+      "id": "NF-02",
+      "priority": "low",
+      "description": "Implementar Healthcheck.io ping para monitoramento do backup",
+      "files-to-touch": ["scripts/backup-db.sh", "scripts/backup-db.mjs"]
+    },
+    {
+      "id": "NF-03",
+      "priority": "low",
+      "description": "Limpeza do tipo AulaCompleta.disciplina para referenciar disciplinas_base (legacy)",
+      "files-to-touch": ["src/types/domain.ts"]
+    }
+  ],
+  "last-verified": {
+    "tsc": "PASS (zero errors)",
+    "tests": "230 passed, 5 pre-existing failures (same as before)"
+  },
+  "warnings": [
+    "5 test failures pre-existentes: GerenciarAlunosTab (3) + GerenciarCursosTab (2) — DOM rendering + safeHTML mock. Não relacionados às alterações.",
+    "Nenhuma feature ativa no forward pipeline. As pausadas são: 001-tipos-curso e 002-geracao-certificados."
+  ]
+}

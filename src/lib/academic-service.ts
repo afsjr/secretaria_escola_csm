@@ -72,17 +72,29 @@ export const AcademicService = {
     return { data, error };
   },
 
-  async matricularAluno(aluno_id: string, turma_id: string) {
-    // Validação: Aluno já ativo?
-    const { data: matriculasAtivas } = await supabase
-      .from("matriculas")
-      .select("id, turmas(nome)")
-      .eq("aluno_id", aluno_id)
-      .eq("status_aluno", "ativo");
+  async getTipoDaTurma(turma_id: string): Promise<string | null> {
+    const { data } = await supabase
+      .from("turmas")
+      .select("cursos(tipo)")
+      .eq("id", turma_id)
+      .single();
+    return (data as any)?.cursos?.tipo ?? null;
+  },
 
-    if (matriculasAtivas && matriculasAtivas.length > 0) {
-      const nomeTurma = (matriculasAtivas[0] as any).turmas?.nome || "outra turma"
-      return { error: { message: `Aluno já ativo na turma "${nomeTurma}".` } };
+  async matricularAluno(aluno_id: string, turma_id: string) {
+    const tipoAlvo = await this.getTipoDaTurma(turma_id);
+
+    if (tipoAlvo !== 'formacao') {
+      const { data: matriculasAtivas } = await supabase
+        .from("matriculas")
+        .select("id, turmas(nome)")
+        .eq("aluno_id", aluno_id)
+        .eq("status_aluno", "ativo");
+
+      if (matriculasAtivas && matriculasAtivas.length > 0) {
+        const nomeTurma = (matriculasAtivas[0] as any).turmas?.nome || "outra turma"
+        return { error: { message: `Aluno já ativo na turma "${nomeTurma}".` } };
+      }
     }
 
     const { data, error } = await supabase

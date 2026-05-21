@@ -213,18 +213,30 @@ export const AdminService = {
   /**
    * Matricula aluno numa turma (usa RLS normal)
    */
-  async matricularAluno(alunoId: string, turmaId: string) {
-    // Verificar se aluno já está ativo em outra turma
-    const { data: matriculasAtivas } = await supabase
-      .from('matriculas')
-      .select('id')
-      .eq('aluno_id', alunoId)
-      .eq('status_aluno', 'ativo')
+  async getTipoDaTurma(turmaId: string): Promise<string | null> {
+    const { data } = await supabase
+      .from('turmas')
+      .select('cursos(tipo)')
+      .eq('id', turmaId)
+      .single()
+    return (data as any)?.cursos?.tipo ?? null
+  },
 
-    if (matriculasAtivas && matriculasAtivas.length > 0) {
-      return {
-        error: {
-          message: 'Este aluno já está matriculado em outra turma. Altere o status antes de matricular novamente.'
+  async matricularAluno(alunoId: string, turmaId: string) {
+    const tipoAlvo = await this.getTipoDaTurma(turmaId)
+
+    if (tipoAlvo !== 'formacao') {
+      const { data: matriculasAtivas } = await supabase
+        .from('matriculas')
+        .select('id')
+        .eq('aluno_id', alunoId)
+        .eq('status_aluno', 'ativo')
+
+      if (matriculasAtivas && matriculasAtivas.length > 0) {
+        return {
+          error: {
+            message: 'Este aluno já está matriculado em outra turma. Altere o status antes de matricular novamente.'
+          }
         }
       }
     }

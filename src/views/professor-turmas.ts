@@ -437,17 +437,17 @@ export async function ProfessorTurmasView(
         });
 
         // Buscar dados da turma
-        const { data: turmaData } = await supabase
-          .from("disciplinas")
-          .select("turmas(id, nome, periodo, cursos(id, nome))")
+        const { data: oferta } = await supabase
+          .from("turma_disciplinas")
+          .select("id, turmas(id, nome, periodo, cursos(id, nome))")
           .eq("id", disciplinaId)
           .single();
 
-        const turmaInfo = (turmaData as any)?.turmas
+        const turmaInfo = (oferta as any)?.turmas
           ? {
-            turma_nome: (turmaData as any).turmas.nome,
-            periodo: (turmaData as any).turmas.periodo,
-            curso_nome: (turmaData as any).turmas.cursos?.nome ||
+            turma_nome: (oferta as any).turmas.nome,
+            periodo: (oferta as any).turmas.periodo,
+            curso_nome: (oferta as any).turmas.cursos?.nome ||
               "Curso Técnico",
           }
           : null;

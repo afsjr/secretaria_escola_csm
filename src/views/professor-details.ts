@@ -252,7 +252,7 @@ export async function ProfessorDetailsView(): Promise<HTMLElement> {
               <span style="font-size: 1.2rem;">⚠️</span>
               <div>
                 <div style="font-weight: 600; font-size: 0.9rem; color: #92400E;">Disciplinas indisponíveis</div>
-                <div style="font-size: 0.8rem; color: #A16207;">Verifique as permissões de acesso no Supabase (RLS na tabela <code>disciplinas</code>).</div>
+                <div style="font-size: 0.8rem; color: #A16207;">Verifique as permissões de acesso no Supabase (RLS na tabela <code>turma_disciplinas</code>).</div>
               </div>
             </div>`
       : disciplinas.length === 0

@@ -9,13 +9,13 @@
  */
 
 import { supabase } from './supabase'
-import type { PerfilCompleto, Endereco, Disciplina, DbResult } from '../types'
+import type { PerfilCompleto, Endereco, DbResult } from '../types'
 
 export const ProfessorDetailsService = {
 
   // ==================== DADOS PESSOAIS ====================
 
-  async getProfessorCompleto(professorId: string): Promise<{ data: { perfil: PerfilCompleto; endereco: Endereco | null; disciplinas: Disciplina[]; disciplinasError: { message: string } | null } | null; error: { message: string } | null }> {
+  async getProfessorCompleto(professorId: string): Promise<{ data: { perfil: PerfilCompleto; endereco: Endereco | null; disciplinas: any[]; disciplinasError: { message: string } | null } | null; error: { message: string } | null }> {
     const result = {
       perfil: null as PerfilCompleto | null,
       endereco: null as Endereco | null,
@@ -37,20 +37,39 @@ export const ProfessorDetailsService = {
     const { data: endereco } = await this.getEndereco(professorId)
     result.endereco = endereco
 
-    const { data: disciplinas, error: discError } = await supabase
-      .from('disciplinas')
+    const { data: ofertas, error: discError } = await supabase
+      .from('turma_disciplinas')
       .select(`
         *,
-        turmas(id, nome, periodo),
-        cursos(id, nome)
+        disciplinas_base(id, nome, modulo),
+        turmas(id, nome, periodo, curso_id)
       `)
       .eq('professor_id', professorId)
-      .order('nome', { ascending: true })
+      .order('created_at', { ascending: false })
 
     if (discError) {
       result.disciplinasError = { message: discError.message }
-    } else {
-      result.disciplinas = disciplinas || []
+    } else if (ofertas?.length) {
+      const turmaIds = [...new Set(ofertas.map(o => o.turma_id).filter(Boolean))]
+      const { data: turmasCursos } = await supabase
+        .from('turmas')
+        .select('id, cursos(id, nome)')
+        .in('id', turmaIds)
+
+      const cursoMap: Record<string, any> = {}
+      if (turmasCursos) {
+        turmasCursos.forEach(tc => { cursoMap[tc.id] = tc.cursos })
+      }
+
+      result.disciplinas = ofertas.map(o => ({
+        id: o.id,
+        nome: o.disciplinas_base?.nome || '',
+        modulo: o.disciplinas_base?.modulo || '',
+        turma_id: o.turma_id,
+        professor_id: o.professor_id,
+        turmas: o.turmas || null,
+        cursos: o.turmas?.id ? cursoMap[o.turmas.id] : null
+      }))
     }
 
     return { data: result, error: null }

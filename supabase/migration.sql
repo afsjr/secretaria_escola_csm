@@ -584,16 +584,15 @@ $$;
 -- =====================================================
 
 -- =====================================================
--- 1. Adicionar colunas na tabela bulletin
+-- 1. Adicionar colunas na tabela boletim
 -- =====================================================
-ALTER TABLE bulletin ADD COLUMN IF NOT EXISTS nota_estagio TEXT CHECK (nota_estagio IN ('AP', 'REP'));
-ALTER TABLE bulletin ADD COLUMN IF NOT EXISTS estagio_parecer TEXT;
+ALTER TABLE boletim ADD COLUMN IF NOT EXISTS nota_estagio TEXT CHECK (nota_estagio IN ('AP', 'REP'));
+ALTER TABLE boletim ADD COLUMN IF NOT EXISTS estagio_parecer TEXT;
 
 -- =====================================================
 -- 2. Adicionar tipo de curso (se não existir)
 -- =====================================================
-ALTER TABLE cursos ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'tecnico';
-ALTER TABLE cursos ADD COLUMN IF NOT EXISTS tipo TEXT CHECK (tipo IN ('saude', 'tecnico', 'outro', 'formacao'));
+ALTER TABLE cursos ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'tecnico' CHECK (tipo IN ('saude', 'tecnico', 'outro', 'formacao'));
 
 -- =====================================================
 -- 3. Atualizar cursos de saúde existentes
@@ -613,7 +612,7 @@ WHERE nome ILIKE '%flebotomia%';
 -- =====================================================
 -- 4. Criar índice para performance
 -- =====================================================
-CREATE INDEX IF NOT EXISTS idx_boletim_estagio ON bulletin(aluno_id, disciplina);
+CREATE INDEX IF NOT EXISTS idx_boletim_estagio ON boletim(aluno_id, disciplina);
 
 -- =====================================================
 -- 5. Verificar colunas criadas

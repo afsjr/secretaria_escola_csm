@@ -1,7 +1,8 @@
 import { DocumentsService } from '../lib/documents-service'
 import { escapeHTML } from '../lib/security'
 import { ICONS } from '../lib/icons'
-import type { Solicitacao, UserProfile } from '../types/domain'
+import type { Solicitacao } from '../types/domain'
+import type { UserProfile } from '../types'
 import { isAdmin, isSecretaria, isCoordenacao } from '../lib/authz'
 
 interface CacheEntry {
@@ -64,7 +65,7 @@ async function fetchRequests(profile: UserProfile): Promise<Solicitacao[]> {
     return requestCache.data
   }
 
-  const role = profile.perfil || ''
+  const role = profile.perfil
   let data: Solicitacao[] | null = []
 
   if (isAdmin(role) || isSecretaria(role) || isCoordenacao(role)) {
@@ -158,14 +159,14 @@ class NotificationDropdown {
   }
 
   private render(items: Solicitacao[]): string {
-    const role = this.profile.perfil || ''
+    const role = this.profile.perfil
     const roleLabel = isAdmin(role) || isSecretaria(role) || isCoordenacao(role) ? 'Notificações' : 'Minhas Notificações'
 
     if (items.length === 0) {
       return `
         <div class="notification-header">${roleLabel}</div>
         <div class="notification-empty">
-          ${ICONS.checkCircle}
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity:0.4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <p style="margin-top: 8px;">Nenhuma pendência</p>
         </div>
       `
@@ -174,7 +175,7 @@ class NotificationDropdown {
     const displayItems = items.slice(0, 10)
     const remaining = items.length - 10
 
-    const canAct = isAdmin(role) || isSecretaria(role)
+    const canAct = !!(role && (isAdmin(role) || isSecretaria(role)))
 
     const listHTML = displayItems.map((item, idx) => {
       const name = (item as any).perfis?.nome_completo || 'Aluno'
@@ -214,7 +215,7 @@ class NotificationDropdown {
         e.stopPropagation()
         const id = concluirBtn.getAttribute('data-id')
         if (!id) return
-        concluirBtn.disabled = true
+        ;(concluirBtn as HTMLButtonElement).disabled = true
         concluirBtn.textContent = '...'
         await DocumentsService.updateStatus(id, 'concluido')
         this.close()

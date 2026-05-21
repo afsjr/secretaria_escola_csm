@@ -37,8 +37,8 @@
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T007 | Rodar `tsc --noEmit` + `npm test`, corrigir se necessário | T006 | - | (terminal) | 🟢 | `[ ]` |
-| T008 | Gerar `regression-watch.md` e `legacy-impact.md` | T007 | - | `_reversa_forward/004-central-notificacoes/` | 🟢 | `[ ]` |
+| T007 | Rodar `tsc --noEmit` + `npm test`, corrigir se necessário | T006 | - | (terminal) | 🟢 | `[X]` |
+| T008 | Gerar `regression-watch.md` e `legacy-impact.md` | T007 | - | `_reversa_forward/004-central-notificacoes/` | 🟢 | `[X]` |
 
 ## Notas de execução
 

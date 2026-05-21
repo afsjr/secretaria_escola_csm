@@ -4,3 +4,5 @@
 {"ts":"2026-05-21T16:57:00Z","action":"T004","status":"done","files":["src/components/NotificationDropdown.ts"]}
 {"ts":"2026-05-21T16:57:01Z","action":"T005","status":"done","files":["src/views/secretaria.ts"]}
 {"ts":"2026-05-21T16:57:02Z","action":"T006","status":"done","files":["src/views/dashboard.ts"]}
+{"ts":"2026-05-21T17:11:00Z","action":"T007","status":"done","files":["terminal"]}
+{"ts":"2026-05-21T17:12:00Z","action":"T008","status":"done","files":["_reversa_forward/004-central-notificacoes/legacy-impact.md","_reversa_forward/004-central-notificacoes/regression-watch.md"]}

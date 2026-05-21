@@ -1,173 +1,393 @@
-/**
- * Testes para Funções de Optimistic Locking no ProfessorService
- * 
- * Estes testes verificam a lógica de versionamento aplicada ao serviço de professor.
- */
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { ProfessorService } from './professor-service'
 
-import { describe, it, expect, vi } from 'vitest'
+const { mockFrom, mockAuditLog } = vi.hoisted(() => ({
+  mockFrom: vi.fn(),
+  mockAuditLog: vi.fn(() => Promise.resolve({ error: null })),
+}))
 
-// Simular a estrutura de DadosAlunoComVersao que o serviço retorna
-interface AlunoComVersao {
-  aluno_id: string
-  versao: number
-  nota: {
-    id?: string
-    versao: number
-    n1: number
-    n2: number
-    n3: number
-    rec: number
-    faltas: number
-  } | null
-}
+vi.mock('./supabase', () => ({
+  supabase: {
+    from: mockFrom,
+    auth: {
+      getUser: vi.fn(() => Promise.resolve({ data: { user: null }, error: null })),
+      getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
+    },
+  },
+}))
 
-// Simular a função de parse de versão
-function extrairVersao(nota: any): number {
-  return nota?.versao ?? 1
-}
+vi.mock('./audit-service', () => ({
+  AuditService: {
+    log: mockAuditLog,
+  },
+}))
 
-// Simular a função de preparar payload com versão
-function prepararPayloadNota(alunoId: string, dados: any, versao: number) {
-  return {
-    aluno_id: alunoId,
-    ...dados,
-    versao: versao + 1
-  }
-}
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
-describe('ProfessorService - Lógica de Versionamento', () => {
-  describe('extração de versão', () => {
-    it('deve extrair versão de nota existente', () => {
-      const nota = { id: '123', versao: 5, n1: 8, n2: 7, n3: 9 }
-      expect(extrairVersao(nota)).toBe(5)
-    })
-
-    it('deve retornar versão 1 para nota sem versão', () => {
-      const nota = { id: '123', n1: 8, n2: 7, n3: 9 }
-      expect(extrairVersao(nota)).toBe(1)
-    })
-
-    it('deve retornar versão 1 para nota null', () => {
-      expect(extrairVersao(null)).toBe(1)
-    })
-
-    it('deve retornar versão 1 para undefined', () => {
-      expect(extrairVersao(undefined)).toBe(1)
-    })
-  })
-
-  describe('preparação de payload', () => {
-    it('deve criar payload com versão incrementada', () => {
-      const dados = { n1: 8, n2: 7, n3: 9, faltas: 2 }
-      const payload = prepararPayloadNota('aluno-123', dados, 3)
-
-      expect(payload.versao).toBe(4)
-      expect(payload.aluno_id).toBe('aluno-123')
-      expect(payload.n1).toBe(8)
-    })
-
-    it('deve criar payload com versão 2 para registro novo (versão 1)', () => {
-      const dados = { n1: 10, n2: 10, n3: 10, faltas: 0 }
-      const payload = prepararPayloadNota('aluno-456', dados, 1)
-
-      expect(payload.versao).toBe(2)
-    })
-  })
-
-  describe('tratamento de versão em lote', () => {
-    const notasComVersao: AlunoComVersao[] = [
-      { aluno_id: 'a1', versao: 3, nota: { versao: 3, n1: 8, n2: 7, n3: 9, rec: 0, faltas: 2 } },
-      { aluno_id: 'a2', versao: 1, nota: { versao: 1, n1: 6, n2: 6, n3: 7, rec: 0, faltas: 4 } },
-      { aluno_id: 'a3', versao: 5, nota: { versao: 5, n1: 10, n2: 9, n3: 10, rec: 0, faltas: 0 } },
+describe('ProfessorService - Disciplinas do Professor', () => {
+  it('getDisciplinasDoProfessor: deve buscar ofertas do professor', async () => {
+    const mockData = [
+      {
+        id: 'td1',
+        disciplinas_base: { nome: 'Matemática', modulo: 'I Módulo' },
+        turmas: { id: 't1', nome: 'Turma A', cursos: { nome: 'Curso X' } },
+      },
     ]
-
-    it('deve mapear todas as versões corretamente', () => {
-      const versoes = notasComVersao.map(n => n.versao)
-      expect(versoes).toEqual([3, 1, 5])
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => Promise.resolve({ data: mockData, error: null })),
+        })),
+      })),
     })
 
-    it('deve calcular próxima versão para cada registro', () => {
-      const proximasVersoes = notasComVersao.map(n => n.versao + 1)
-      expect(proximasVersoes).toEqual([4, 2, 6])
-    })
+    const result = await ProfessorService.getDisciplinasDoProfessor('prof-1')
 
-    it('deve identificar registros com versão baixa (possível conflito)', () => {
-      const versaoMinima = 2
-      const conflitosPotenciais = notasComVersao.filter(n => n.versao < versaoMinima)
-      expect(conflitosPotenciais.length).toBe(1)
-      expect(conflitosPotenciais[0].aluno_id).toBe('a2')
-    })
+    expect(result.data).toHaveLength(1)
+    expect(mockFrom).toHaveBeenCalledWith('turma_disciplinas')
   })
 
-  describe('validação de versão para conflito', () => {
-    const versaoAtualDoBanco = 5
-
-    it('deve detectar conflito quando versão local é menor', () => {
-      const versaoLocal: number = 3
-      const haConflito = versaoLocal !== versaoAtualDoBanco
-      expect(haConflito).toBe(true)
+  it('getAllOfertas: deve listar todas as ofertas', async () => {
+    const mockData = [{ id: 'td1', turmas: { nome: 'Turma A' } }]
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        order: vi.fn(() => Promise.resolve({ data: mockData, error: null })),
+      })),
     })
 
-    it('deve detectar conflito quando versão local é maior (outro usuário editou)', () => {
-      const versaoLocal: number = 7
-      const haConflito = versaoLocal !== versaoAtualDoBanco
-      expect(haConflito).toBe(true)
+    const result = await ProfessorService.getAllOfertas()
+
+    expect(result.data).toHaveLength(1)
+  })
+
+  it('vincularProfessorAOferta: deve atualizar professor_id', async () => {
+    const updated = { id: 'td1', professor_id: 'prof-2' }
+    mockFrom.mockReturnValue({
+      update: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: updated, error: null })),
+          })),
+        })),
+      })),
     })
 
-    it('deve indicar sucesso quando versões são iguais', () => {
-      const versaoLocal = 5
-      const haConflito = versaoLocal !== versaoAtualDoBanco
-      expect(haConflito).toBe(false)
-    })
+    const result = await ProfessorService.vincularProfessorAOferta('td1', 'prof-2')
 
-    it('deve tratar versão 0 como conflito (registro novo)', () => {
-      const versaoLocal: number = 0
-      const haConflito = versaoLocal !== versaoAtualDoBanco
-      expect(haConflito).toBe(true)
-    })
+    expect(result.data?.professor_id).toBe('prof-2')
   })
 })
 
-describe('Cenários de Uso - Professor lançando notas', () => {
-  describe('Cenário 1: Professor abre tela de notas', () => {
-    it('deve buscar notas com versão atual', () => {
-      // Simular busca de notas do banco
-      const notasDoBanco = [
-        { id: 'n1', aluno_id: 'a1', versao: 3, n1: 7, n2: 8, n3: 9 },
-        { id: 'n2', aluno_id: 'a2', versao: 2, n1: 6, n2: 7, n3: 6 },
-      ]
+describe('ProfessorService - getNotasDaDisciplina', () => {
+  it('deve retornar alunos com notas e detectar pendentes', async () => {
+    const matriculas = [
+      { id: 'm1', status_aluno: 'ativo', perfis: { id: 'a1', nome_completo: 'Aluno 1', email: 'a1@e.com' } },
+      { id: 'm2', status_aluno: 'ativo', perfis: { id: 'a2', nome_completo: 'Aluno 2', email: 'a2@e.com' } },
+    ]
+    const nota = { aluno_id: 'a1', n1: 8, n2: 7, n3: 9, rec: 0, faltas: 2, versao: 3, status: null }
 
-      const versoes = notasDoBanco.map(n => n.versao)
-      expect(versoes).toEqual([3, 2])
-    })
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              order: vi.fn(() => Promise.resolve({ data: matriculas, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ data: nota, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() =>
+                Promise.resolve({ data: null, error: { message: 'not found', code: 'PGRST116' } })
+              ),
+            })),
+          })),
+        })),
+      })
+
+    const result = await ProfessorService.getNotasDaDisciplina('db-1', 'turma-1')
+
+    expect(result.data).toHaveLength(2)
+    expect(result.data![0].aluno_nome).toBe('Aluno 1')
+    expect(result.data![0].nota?.n1).toBe(8)
+    expect(result.data![0].pendente).toBe(false)
+    expect(result.data![1].nota).toBeNull()
+    expect(result.data![1].pendente).toBe(false)
   })
 
-  describe('Cenário 2: Professor salva notas (sem conflito)', () => {
-    it('deve permitir save quando versão não mudou', () => {
-      const versaoOriginal = 3
-      const versaoEnviada = 3
-      const permitirSave = versaoOriginal === versaoEnviada
-      expect(permitirSave).toBe(true)
-    })
+  it('deve marcar pendente=true quando nota tem status=pendente', async () => {
+    const matriculas = [
+      { id: 'm1', status_aluno: 'ativo', perfis: { id: 'a1', nome_completo: 'Aluno Pendente', email: 'a@e.com' } },
+    ]
+    const notaPendente = { aluno_id: 'a1', n1: 0, n2: 0, n3: 0, rec: 0, faltas: 0, versao: 1, status: 'pendente' }
+
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              order: vi.fn(() => Promise.resolve({ data: matriculas, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ data: notaPendente, error: null })),
+            })),
+          })),
+        })),
+      })
+
+    const result = await ProfessorService.getNotasDaDisciplina('db-1', 'turma-1')
+
+    expect(result.data![0].pendente).toBe(true)
+    expect(result.data![0].nota).toBeNull()
   })
 
-  describe('Cenário 3: Outro professor já salvou (conflito)', () => {
-    it('deve detectar conflito e bloquear save', () => {
-      const versaoOriginal: number = 3
-      const versaoEnviada: number = 3
-      // Simular que outro professor já salvou e versão mudou para 4
-      const versaoAtualNoBanco: number = 4
-      const permitirSave = versaoOriginal === versaoAtualNoBanco
-      expect(permitirSave).toBe(false)
+  it('deve retornar erro se falhar buscar matrículas', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => Promise.resolve({ data: null, error: { message: 'DB error' } })),
+          })),
+        })),
+      })),
     })
+
+    const result = await ProfessorService.getNotasDaDisciplina('db-1', 'turma-1')
+
+    expect(result.error).toBeTruthy()
+    expect(result.data).toBeNull()
+  })
+})
+
+describe('ProfessorService - salvarNota', () => {
+  it('deve criar nova nota quando não existe registro', async () => {
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() =>
+              Promise.resolve({ data: { nome: 'Matemática' }, error: null })
+            ),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() =>
+                Promise.resolve({ data: null, error: { message: 'not found', code: 'PGRST116' } })
+              ),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn(() =>
+              Promise.resolve({ data: { id: 'b1', aluno_id: 'a1', n1: 8, versao: 1 }, error: null })
+            ),
+          })),
+        })),
+      })
+
+    const result = await ProfessorService.salvarNota('a1', 'db-1', {
+      faltas: 2, n1: 8, n2: 7, n3: 9, rec: 0,
+    }, 1)
+
+    expect(result.data).toBeTruthy()
+    expect(result.error).toBeNull()
   })
 
-  describe('Cenário 4: Usuário tenta salvar após很长时间 sem usar sistema', () => {
-    it('deve detectar versão desatualizada', () => {
-      const versaoOriginal: number = 1
-      const versaoAtualNoBanco: number = 8 // Outro usuário editou várias vezes
-      const permitirSave = versaoOriginal === versaoAtualNoBanco
-      expect(permitirSave).toBe(false)
+  it('deve fazer update com optimistic lock quando nota já existe', async () => {
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() =>
+              Promise.resolve({ data: { nome: 'Matemática' }, error: null })
+            ),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() =>
+                Promise.resolve({ data: { id: 'b1' }, error: null })
+              ),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              select: vi.fn(() => ({
+                single: vi.fn(() =>
+                  Promise.resolve({ data: { id: 'b1', n1: 9, versao: 4 }, error: null })
+                ),
+              })),
+            })),
+          })),
+        })),
+      })
+
+    const result = await ProfessorService.salvarNota('a1', 'db-1', {
+      faltas: 2, n1: 9, n2: 7, n3: 9, rec: 0,
+    }, 3)
+
+    expect(result.data).toBeTruthy()
+    expect(result.error).toBeNull()
+  })
+})
+
+describe('ProfessorService - registrarAula', () => {
+  it('deve registrar aula e logar auditoria', async () => {
+    const aulaCriada = { id: 'aula-1', conteudo: 'Revisão' }
+    mockFrom.mockReturnValue({
+      insert: vi.fn(() => ({
+        select: vi.fn(() => ({
+          single: vi.fn(() => Promise.resolve({ data: aulaCriada, error: null })),
+        })),
+      })),
     })
+
+    const result = await ProfessorService.registrarAula({
+      turma_disciplina_id: 'td-1',
+      professor_id: 'prof-1',
+      conteudo: 'Revisão',
+    })
+
+    expect(result.data?.conteudo).toBe('Revisão')
+    expect(mockAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({ acao: 'registrar_aula' })
+    )
+  })
+
+  it('não deve logar auditoria se insert falhar', async () => {
+    mockFrom.mockReturnValue({
+      insert: vi.fn(() => ({
+        select: vi.fn(() => ({
+          single: vi.fn(() => Promise.resolve({ data: null, error: { message: 'DB error' } })),
+        })),
+      })),
+    })
+
+    await ProfessorService.registrarAula({
+      turma_disciplina_id: 'td-1',
+      professor_id: 'prof-1',
+      conteudo: 'Falha',
+    })
+
+    expect(mockAuditLog).not.toHaveBeenCalled()
+  })
+})
+
+describe('ProfessorService - getAulasDaOferta', () => {
+  it('deve buscar aulas de uma oferta específica', async () => {
+    const mockData = [{ id: 'a1', conteudo: 'Aula 1', perfis: { nome_completo: 'Prof' } }]
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => Promise.resolve({ data: mockData, error: null })),
+        })),
+      })),
+    })
+
+    const result = await ProfessorService.getAulasDaOferta('td-1')
+
+    expect(result.data).toHaveLength(1)
+    expect(result.data![0].conteudo).toBe('Aula 1')
+  })
+})
+
+describe('ProfessorService - auxiliares', () => {
+  it('getProfessores: deve listar perfis de professor', async () => {
+    const mockData = [{ id: 'p1', nome_completo: 'Prof A' }]
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => Promise.resolve({ data: mockData, error: null })),
+        })),
+      })),
+    })
+
+    const result = await ProfessorService.getProfessores()
+
+    expect(result.data).toHaveLength(1)
+  })
+
+  it('contarAlunosTurma: deve retornar contagem', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => Promise.resolve({ count: 5, error: null })),
+        })),
+      })),
+    })
+
+    const result = await ProfessorService.contarAlunosTurma('turma-1')
+
+    expect(result.count).toBe(5)
+  })
+
+  it('contarAlunosTurma: deve retornar 0 se count for null', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => Promise.resolve({ count: null, error: null })),
+        })),
+      })),
+    })
+
+    const result = await ProfessorService.contarAlunosTurma('turma-1')
+
+    expect(result.count).toBe(0)
+  })
+
+  it('getAlunosDaTurma: deve buscar alunos ativos da turma', async () => {
+    const mockData = [{ id: 'm1', perfis: { nome_completo: 'Aluno' } }]
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => Promise.resolve({ data: mockData, error: null })),
+        })),
+      })),
+    })
+
+    const result = await ProfessorService.getAlunosDaTurma('turma-1')
+
+    expect(result.data).toHaveLength(1)
+  })
+
+  it('salvarFrequencia: deve retornar sucesso (stub)', async () => {
+    const result = await ProfessorService.salvarFrequencia('t1', 'd1', '2026-01-01', [])
+
+    expect(result.error).toBeNull()
+    expect(result.data).toBe(true)
   })
 })

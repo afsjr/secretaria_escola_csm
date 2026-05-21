@@ -1,23 +1,5 @@
-/**
- * Testes para Controle de Concorrência (Optimistic Locking)
- * 
- * Testes de lógica de versionamento sem dependência de módulos externos.
- * As funções isConcurrencyError e getConflictMessage são funções puras.
- */
-
 import { describe, it, expect } from 'vitest'
-
-// Copiar implementação das funções para teste (sem importar o módulo)
-function isConcurrencyError(error: any): boolean {
-  return error?.code === "CONFLICT" || error?.code === "PGRST116";
-}
-
-function getConflictMessage(error: any): string {
-  if (isConcurrencyError(error)) {
-    return "Conflito de edição: os dados foram modificados por outro usuário. Por favor, recarregue a página e tente novamente.";
-  }
-  return error?.message || "Erro desconhecido.";
-}
+import { isConcurrencyError, getConflictMessage } from './concurrency-control'
 
 describe('concurrency-control - isConcurrencyError', () => {
   it('deve retornar true para código CONFLICT', () => {
@@ -79,87 +61,18 @@ describe('concurrency-control - getConflictMessage', () => {
   })
 })
 
-describe('Lógica de Versionamento - Simulações', () => {
-  describe('Verificação de versão para update', () => {
-    const versaoBanco = 5
-
-    it('deve permitir update quando versão local equals versão do banco', () => {
-      const versaoLocal = 5
-      const permitirUpdate = versaoLocal === versaoBanco
-      expect(permitirUpdate).toBe(true)
-    })
-
-    it('deve bloquear update quando versão local é menor', () => {
-      const versaoLocal: number = 3
-      const permitirUpdate = versaoLocal === versaoBanco
-      expect(permitirUpdate).toBe(false)
-    })
-
-    it('deve bloquear update quando versão local é maior', () => {
-      const versaoLocal: number = 8
-      const permitirUpdate = versaoLocal === versaoBanco
-      expect(permitirUpdate).toBe(false)
-    })
+describe('Cenários de Uso - Conflito de Edição', () => {
+  it('Cenário 1: Dois usuários editando o mesmo registro', () => {
+    expect(isConcurrencyError({ code: 'PGRST116' })).toBe(true)
   })
 
-  describe('Incremento de versão', () => {
-    it('deve incrementar versão corretamente', () => {
-      const versaoAtual = 10
-      const proximaVersao = versaoAtual + 1
-      expect(proximaVersao).toBe(11)
-    })
-
-    it('deve tratar versão 0 como 1', () => {
-      const versao = 0
-      const versaoValida = versao || 1
-      expect(versaoValida).toBe(1)
-    })
+  it('Cenário 2: Secretaria e admin editando dados do aluno', () => {
+    const msg = getConflictMessage({ code: 'CONFLICT' })
+    expect(msg).toContain('recarregue')
   })
 
-  describe('Fallback para versão padrão', () => {
-    it('deve retornar 1 quando versão é null', () => {
-      const versao: number | null = null
-      const versaoSafe = versao ?? 1
-      expect(versaoSafe).toBe(1)
-    })
-
-    it('deve retornar 1 quando versão é undefined', () => {
-      const versao: number | undefined = undefined
-      const versaoSafe = versao ?? 1
-      expect(versaoSafe).toBe(1)
-    })
-
-    it('deve retornar versão válida quando existe', () => {
-      const versao: number | null = 7
-      const versaoSafe = versao ?? 1
-      expect(versaoSafe).toBe(7)
-    })
-  })
-})
-
-describe('Cenários de Conflito', () => {
-  describe('Cenário 1: Dois usuários editando o mesmo registro', () => {
-    it('deve detectar conflito quando professor A e professor B editam notas', () => {
-      const versaoProfessorA: number = 3
-      const versaoProfessorB: number = 4
-      const resultado = isConcurrencyError({ 
-        code: versaoProfessorA !== versaoProfessorB ? 'PGRST116' : '0000' 
-      })
-      expect(resultado).toBe(true)
-    })
-  })
-
-  describe('Cenário 2: Secretaria e admin editando dados do aluno', () => {
-    it('deve mostrar mensagem de conflito específica', () => {
-      const msg = getConflictMessage({ code: 'CONFLICT' })
-      expect(msg).toContain('recarregue')
-    })
-  })
-
-  describe('Cenário 3: Erro de banco diferente de conflito', () => {
-    it('deve retornar erro original para erros não-conflito', () => {
-      const msg = getConflictMessage({ code: '23505', message: 'CPF duplicado' })
-      expect(msg).toBe('CPF duplicado')
-    })
+  it('Cenário 3: Erro de banco diferente de conflito', () => {
+    const msg = getConflictMessage({ code: '23505', message: 'CPF duplicado' })
+    expect(msg).toBe('CPF duplicado')
   })
 })

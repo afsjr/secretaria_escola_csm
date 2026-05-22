@@ -695,9 +695,17 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   async function loadDisciplinasDropdown(turmaId: string) {
     const sel = container.querySelector('#disciplina-select-notas') as HTMLSelectElement
     sel.innerHTML = '<option value="">Carregando...</option>'
-    const { data } = await AcademicService.getDisciplinasDaTurma(turmaId)
+    if (!selectedCursoId) {
+      sel.innerHTML = '<option value="">Turma sem curso vinculado</option>'
+      return
+    }
+    const { data: catalogo } = await supabase
+      .from('disciplinas_base')
+      .select('id, nome')
+      .eq('curso_id', selectedCursoId)
+      .order('nome')
     sel.innerHTML = '<option value="">-- Selecione uma Disciplina --</option>' +
-      (data?.disciplinas?.map(d => `<option value="${d.disciplina_base_id}">${d.nome}</option>`).join('') || '')
+      (catalogo?.map(d => `<option value="${d.id}">${escapeHTML(d.nome)}</option>`).join('') || '<option value="">Nenhuma disciplina no catálogo</option>')
   }
 
   container.querySelector('#disciplina-select-notas')?.addEventListener('change', async (e) => {

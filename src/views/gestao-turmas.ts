@@ -581,7 +581,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       if (oferta.data_fim && oferta.data_fim < dataMatricula) {
         const { data: existente } = await supabase
           .from('boletim')
-          .select('id, status')
+          .select('id, status, n1, n2, n3')
           .eq('aluno_id', alunoId)
           .eq('disciplina_base_id', oferta.disciplina_base_id)
           .maybeSingle()
@@ -597,7 +597,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
             status: 'pendente',
             versao: 1
           })
-        } else if (existente.status !== 'pendente') {
+        } else if (existente.status !== 'pendente' && !existente.n1 && !existente.n2 && !existente.n3) {
           await supabase.from('boletim')
             .update({ status: 'pendente' })
             .eq('id', existente.id)
@@ -779,7 +779,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         </tr>`
       }
 
-      if (n.status === 'pendente') {
+      if (n.status === 'pendente' && !n.n1 && !n.n2 && !n.n3) {
         return `<tr style="opacity:0.7;">
           <td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)} <span style="font-size:0.7rem;color:var(--text-muted);">(matrícula tardia)</span></td>
           <td style="text-align:center;">-</td>

@@ -716,8 +716,29 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   async function loadTurmaNotas(turmaId: string, discBaseId: string) {
     const tab = container.querySelector('#tabela-notas-turma') as HTMLElement
     tab.innerHTML = skeletonRowSpan(9)
-    const { data } = await AcademicService.getNotasCompletasTurma(turmaId, discBaseId)
-    if (!data?.alunos?.length) { tab.innerHTML = '<tr><td colspan="9">Nenhum aluno.</td></tr>'; return }
+
+    const { data: matriculas, error: mError } = await AcademicService.getAlunosDaTurma(turmaId)
+    if (mError || !matriculas?.length) { tab.innerHTML = '<tr><td colspan="9">Nenhum aluno.</td></tr>'; return }
+
+    const { data: discNome } = await supabase
+      .from('disciplinas_base')
+      .select('nome')
+      .eq('id', discBaseId)
+      .single()
+
+    const { data: boletins } = await supabase
+      .from('boletim')
+      .select('*')
+      .or(`disciplina_base_id.eq.${discBaseId}${discNome?.nome ? `,disciplina.eq.${discNome.nome.replace(/'/g, "''")}` : ''}`)
+
+    const notasMap: Record<string, any> = {}
+    boletins?.forEach((n: any) => { notasMap[n.aluno_id] = n })
+
+    const data = {
+      alunos: matriculas,
+      notasMap,
+      totalAtivos: matriculas?.filter(m => m.status_aluno === "ativo").length || 0
+    }
 
     tab.innerHTML = data.alunos.map(m => {
       const p = (m.perfis as any)[0] || m.perfis

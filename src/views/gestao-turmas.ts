@@ -478,59 +478,86 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
   async function loadTurmaCalendario(turmaId: string) {
     tabelaCalendario.innerHTML = skeletonRowSpan(6)
-    const { data: ofertas, error } = await CourseService.getOfertasDaTurmaComDatas(turmaId)
+
+    if (!selectedCursoId) {
+      const { data: turma } = await AcademicService.getTurmas()
+      const t = turma?.find(x => x.id === turmaId)
+      selectedCursoId = t?.curso_id || null
+    }
+
+    const [{ data: catalogo }, { data: ofertas, error }] = await Promise.all([
+      selectedCursoId
+        ? supabase.from('disciplinas_base').select('id, nome, modulo').eq('curso_id', selectedCursoId).order('modulo').order('nome')
+        : Promise.resolve({ data: null, error: null }),
+      CourseService.getOfertasDaTurmaComDatas(turmaId)
+    ])
+
     if (error) { tabelaCalendario.innerHTML = `<tr><td colspan="6">Erro: ${escapeHTML(error.message)}</td></tr>`; return }
-    if (!ofertas?.length) { tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding:2rem;text-align:center;">Nenhuma disciplina no calendário.</td></tr>'; return }
+
+    const ofertasPorDiscBase: Record<string, any> = {}
+    ofertas?.forEach(o => { ofertasPorDiscBase[o.disciplina_base_id] = o })
+
+    const disciplinas = catalogo?.length ? catalogo : (ofertas?.map(o => (o.disciplinas_base as any)).filter(Boolean) as any[])
+    if (!disciplinas?.length) { tabelaCalendario.innerHTML = '<tr><td colspan="6" style="padding:2rem;text-align:center;">Nenhuma disciplina no calendário.</td></tr>'; return }
 
     const hoje = new Date().toISOString().split('T')[0]
-    tabelaCalendario.innerHTML = ofertas.map(o => {
-      const disc = o.disciplinas_base as any
-      const prof = o.perfis as any
-      const situacao = o.data_inicio && o.data_fim
-        ? (hoje > o.data_fim ? '<span style="color:var(--success-text);font-weight:600;">Encerrada</span>'
-          : hoje < o.data_inicio ? '<span style="color:var(--accent);">Prevista</span>'
+    tabelaCalendario.innerHTML = disciplinas.map(d => {
+      const oferta = ofertasPorDiscBase[d.id]
+      const prof = oferta?.perfis as any
+      const situacao = oferta?.data_inicio && oferta?.data_fim
+        ? (hoje > oferta.data_fim ? '<span style="color:var(--success-text);font-weight:600;">Encerrada</span>'
+          : hoje < oferta.data_inicio ? '<span style="color:var(--accent);">Prevista</span>'
           : '<span style="color:var(--primary);font-weight:600;">Em andamento</span>')
         : '<span style="color:var(--text-muted);">Sem datas</span>'
       return `
         <tr style="border-top:1px solid var(--border);">
-          <td style="padding:0.75rem;">${escapeHTML(disc?.modulo || '')}</td>
-          <td style="padding:0.75rem;"><b>${escapeHTML(disc?.nome || '')}</b></td>
+          <td style="padding:0.75rem;">${escapeHTML(d.modulo || '')}</td>
+          <td style="padding:0.75rem;"><b>${escapeHTML(d.nome || '')}</b></td>
           <td style="padding:0.75rem;">${escapeHTML(prof?.nome_completo || 'Sem prof.')}</td>
           <td style="padding:0.4rem;">
-            <input type="date" class="input calendario-inicio" data-oferta-id="${o.id}" value="${o.data_inicio || ''}" style="width:140px;padding:0.3rem;font-size:0.8rem;">
+            <input type="date" class="input calendario-inicio" data-oferta-id="${oferta?.id || ''}" data-disc-base-id="${d.id}" value="${oferta?.data_inicio || ''}" style="width:140px;padding:0.3rem;font-size:0.8rem;">
           </td>
           <td style="padding:0.4rem;">
-            <input type="date" class="input calendario-fim" data-oferta-id="${o.id}" value="${o.data_fim || ''}" style="width:140px;padding:0.3rem;font-size:0.8rem;">
+            <input type="date" class="input calendario-fim" data-oferta-id="${oferta?.id || ''}" data-disc-base-id="${d.id}" value="${oferta?.data_fim || ''}" style="width:140px;padding:0.3rem;font-size:0.8rem;">
           </td>
           <td style="padding:0.75rem;text-align:center;">${situacao}</td>
         </tr>
       `
     }).join('')
 
-    // Auto-save on date change
+    async function salvarDatas(input: HTMLElement) {
+      const ofertaId = input.getAttribute('data-oferta-id')
+      const discBaseId = input.getAttribute('data-disc-base-id')
+      const isInicio = input.classList.contains('calendario-inicio')
+      const inicioInput = isInicio
+        ? (input as HTMLInputElement)
+        : tabelaCalendario.querySelector(`.calendario-inicio[data-disc-base-id="${discBaseId}"]`) as HTMLInputElement
+      const fimInput = isInicio
+        ? tabelaCalendario.querySelector(`.calendario-fim[data-disc-base-id="${discBaseId}"]`) as HTMLInputElement
+        : (input as HTMLInputElement)
+      const inicio = inicioInput?.value || ''
+      const fim = fimInput?.value || ''
+
+      if (ofertaId) {
+        const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio, fim)
+        if (error) { toast.error('Erro ao salvar data: ' + error.message); return }
+      } else if (discBaseId) {
+        const { data: nova, error } = await CourseService.criarOfertaDisciplina(turmaId, discBaseId, undefined, inicio || undefined, fim || undefined)
+        if (error) { toast.error('Erro ao criar oferta: ' + error.message); return }
+        if (inicio || fim) {
+          await CourseService.atualizarDatasOferta(nova.id, inicio, fim)
+        }
+      }
+      toast.success('Calendário atualizado!')
+      loadTurmaCalendario(turmaId)
+      reprocessarPendenciasDaTurma(turmaId)
+    }
+
     tabelaCalendario.querySelectorAll('.calendario-inicio').forEach(input => {
-      input.addEventListener('change', async () => {
-        const ofertaId = input.getAttribute('data-oferta-id')
-        const inicio = (input as HTMLInputElement).value
-        const fimInput = tabelaCalendario.querySelector(`.calendario-fim[data-oferta-id="${ofertaId}"]`) as HTMLInputElement
-        const fim = fimInput?.value || null
-        if (!ofertaId) return
-        const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio, fim || '')
-        if (error) toast.error('Erro ao salvar data: ' + error.message)
-        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId); reprocessarPendenciasDaTurma(turmaId) }
-      })
+      input.addEventListener('change', () => salvarDatas(input as HTMLElement))
     })
     tabelaCalendario.querySelectorAll('.calendario-fim').forEach(input => {
-      input.addEventListener('change', async () => {
-        const ofertaId = input.getAttribute('data-oferta-id')
-        const fim = (input as HTMLInputElement).value
-        const inicioInput = tabelaCalendario.querySelector(`.calendario-inicio[data-oferta-id="${ofertaId}"]`) as HTMLInputElement
-        const inicio = inicioInput?.value || null
-        if (!ofertaId) return
-        const { error } = await CourseService.atualizarDatasOferta(ofertaId, inicio || '', fim)
-        if (error) toast.error('Erro ao salvar data: ' + error.message)
-        else { toast.success('Calendário atualizado!'); loadTurmaCalendario(turmaId); reprocessarPendenciasDaTurma(turmaId) }
-      })
+      input.addEventListener('change', () => salvarDatas(input as HTMLElement))
     })
   }
 

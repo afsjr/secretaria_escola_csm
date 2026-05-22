@@ -216,9 +216,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           </a>
         </div>
       </div>
-      <div id="painel-controle-conteudo">
-        <!-- Inner View Loaded Here -->
-      </div>
+      <div id="dynamic-content-area">
     </main>
 
     <!-- BLOQUEIO DE TROCA DE SENHA OBRIGATÓRIA -->
@@ -248,7 +246,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
     </div>
   `
 
-  const contentArea = container.querySelector<HTMLDivElement>('#painel-controle-conteudo')!
+  const contentArea = container.querySelector<HTMLDivElement>('#dynamic-content-area')!
   const modalTroca = container.querySelector<HTMLDivElement>('#modal-troca-obrigatoria')!
 
   // VERIFICAR TROCA OBRIGATÓRIA (metadata opcional do Supabase)

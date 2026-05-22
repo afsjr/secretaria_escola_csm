@@ -582,12 +582,19 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     }
   }
 
-  async function loadSelectsGrade(cursoId: string) {
+  async function loadSelectsGrade(cursoId: string | null) {
     const selCat = container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement
     const selProf = container.querySelector('#select-professor-oferta') as HTMLSelectElement
 
-    // Carregar catálogo
-    const { data: matriz } = await CourseService.getMatrizCurricular(cursoId)
+    // Carregar catálogo (se não tiver curso, carrega todas)
+    let matriz
+    if (cursoId) {
+      const r = await CourseService.getMatrizCurricular(cursoId)
+      matriz = r.data
+    } else {
+      const r = await supabase.from('disciplinas_base').select('*').order('modulo').order('nome')
+      matriz = r.data
+    }
     selCat.innerHTML = '<option value="">-- Selecione a Disciplina --</option>' + 
       (matriz?.map(d => `<option value="${d.id}">${d.nome} (${d.modulo})</option>`).join('') || '')
 
@@ -637,7 +644,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       selectedCursoTipo = await AcademicService.getTipoDaTurma(selectedTurmaId!)
 
       loadTurmaAlunos(selectedTurmaId!)
-      if (selectedCursoId) loadSelectsGrade(selectedCursoId)
+      loadSelectsGrade(selectedCursoId)
       loadTurmaGrade(selectedTurmaId!)
       loadTurmaCalendario(selectedTurmaId!)
       toggleTabsPorTipo()

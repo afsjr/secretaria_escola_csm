@@ -109,10 +109,16 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     }
   }
 
-  // 4. Injeção de Componentes Modulares
+  // 4. Injeção de Componentes Modulares com proteção try/catch
   const inject = (id: string, component: Node) => {
     const el = container.querySelector(id)
-    if (el) el.appendChild(component)
+    if (!el) { console.warn(`[SecretariaView] Elemento ${id} não encontrado`); return }
+    try {
+      el.appendChild(component)
+    } catch (err) {
+      console.error(`[SecretariaView] Erro ao injetar ${id}:`, err)
+      el.innerHTML = `<div class="error-text" style="padding:1rem;text-align:center;">Erro ao carregar esta seção.</div>`
+    }
   }
 
   inject('#tab-overview', OverviewTab({
@@ -125,7 +131,15 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     cursos
   }))
 
-  inject('#tab-solicitacoes', await RequestTableComponent())
+  try {
+    const reqComponent = await RequestTableComponent()
+    inject('#tab-solicitacoes', reqComponent)
+  } catch (err) {
+    console.error('[SecretariaView] Erro ao carregar solicitações:', err)
+    const el = container.querySelector('#tab-solicitacoes')
+    if (el) el.innerHTML = '<div class="error-text" style="padding:1rem;text-align:center;">Erro ao carregar solicitações.</div>'
+  }
+
   inject('#tab-notas', NotasEstagioTab({ turmas }))
   inject('#tab-cadastro', CadastroAlunoTab({ turmas }))
   inject('#tab-gerenciar', GerenciarAlunosTab({

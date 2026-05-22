@@ -439,11 +439,11 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     const ofertasMap: Record<string, { professor_id: string; professor_nome: string }> = {}
     if (ofertas) {
       for (const o of ofertas) {
-        const perfisArray = o.perfis as Array<{ nome_completo: string }> | null
-        const prof = perfisArray?.[0] || null
+        const rawPerfis = o.perfis as any
+        const prof = Array.isArray(rawPerfis) ? rawPerfis[0] : rawPerfis
         ofertasMap[o.disciplina_base_id] = {
           professor_id: o.professor_id || '',
-          professor_nome: o.professor_id && prof ? prof.nome_completo : ''
+          professor_nome: o.professor_id && prof?.nome_completo ? prof.nome_completo : ''
         }
       }
     }

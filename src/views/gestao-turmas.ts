@@ -187,26 +187,8 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
         <!-- Seção: Grade Curricular (Ofertas) -->
         <div id="tab-content-grade" style="display: none;">
-          <h3 style="margin-bottom: 1rem; color: var(--text-main);">Gerenciar Grade da Turma</h3>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Adicione disciplinas do catálogo a esta turma e vincule professores.</p>
-          
-          <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px dashed var(--border); margin-bottom: 1.5rem;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: flex-end;">
-              <div class="form-group" style="margin:0;">
-                <label class="label" style="font-size:0.75rem;">Disciplina do Catálogo</label>
-                <select id="select-catalogo-disciplina" class="input">
-                  <option value="">-- Carregando Catálogo --</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label class="label" style="font-size:0.75rem;">Professor Responsável</label>
-                <select id="select-professor-oferta" class="input">
-                  <option value="">-- Carregando Professores --</option>
-                </select>
-              </div>
-              <button id="btn-adicionar-oferta" class="btn btn-primary">Adicionar</button>
-            </div>
-          </div>
+          <h3 style="margin-bottom: 1rem; color: var(--text-main);">Grade da Turma</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Disciplinas do curso ofertadas nesta turma. A associação de professor é feita no Painel Secretaria &rarr; Gerenciar Professores.</p>
 
           <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -215,11 +197,10 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
                   <th style="padding: 1rem;">Módulo</th>
                   <th style="padding: 1rem;">Disciplina</th>
                   <th style="padding: 1rem;">Professor</th>
-                  <th style="padding: 1rem; text-align: right;">Ações</th>
                 </tr>
               </thead>
               <tbody id="tabela-grade-turma">
-                <tr><td colspan="4" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver a grade.</td></tr>
+                <tr><td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver a grade.</td></tr>
               </tbody>
             </table>
           </div>
@@ -293,9 +274,6 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   `
 
   /* ------------- FUNÇÕES E EVENTOS ------------- */
-
-  // Importar ProfessorService para as ofertas
-  const { ProfessorService } = await import('../lib/professor-service')
 
   // 1. Criar Turma
   const formNovaTurma = container.querySelector('#form-nova-turma') as HTMLFormElement
@@ -400,7 +378,6 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   const tabelaGrade = container.querySelector('#tabela-grade-turma') as HTMLElement
   const tabelaCalendario = container.querySelector('#tabela-calendario') as HTMLElement
   const btnMatricular = container.querySelector('#btn-matricular') as HTMLButtonElement
-  const btnAdicionarOferta = container.querySelector('#btn-adicionar-oferta') as HTMLButtonElement
   
   let selectedTurmaId: string | null = null
   let selectedCursoId: string | null = null
@@ -428,40 +405,60 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   }
 
   async function loadTurmaGrade(turmaId: string) {
-    tabelaGrade.innerHTML = skeletonRowSpan(4)
-    const { data } = await AcademicService.getDisciplinasDaTurma(turmaId)
-    if (!data?.disciplinas?.length) {
-      tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center;">Nenhuma disciplina ofertada.</td></tr>'
+    tabelaGrade.innerHTML = skeletonRowSpan(3)
+
+    if (!selectedCursoId) {
+      tabelaGrade.innerHTML = '<tr><td colspan="3" style="padding:2rem; text-align:center; color:var(--text-muted);">Turma sem curso vinculado. Não é possível listar as disciplinas.</td></tr>'
       return
     }
 
-    tabelaGrade.innerHTML = data.disciplinas.map(d => `
-      <tr style="border-top:1px solid var(--border);">
-        <td style="padding:1rem;">${escapeHTML(d.modulo || 'N/A')}</td>
-        <td style="padding:1rem;"><b>${escapeHTML(d.nome)}</b></td>
-        <td style="padding:1rem;">${escapeHTML(d.professor_nome)}</td>
-        <td style="padding:1rem; text-align:right;">
-          <button class="btn btn-remover-oferta" data-id="${d.id}" data-nome="${escapeHTML(d.nome)}" style="color:red; background:transparent; border:1px solid red; font-size:0.8rem; cursor:pointer; padding:0.2rem 0.5rem; border-radius:4px;">Excluir</button>
-        </td>
-      </tr>
-    `).join('')
+    // Buscar TODAS as disciplinas do catálogo do curso
+    const { data: catalogo, error: errCatalogo } = await supabase
+      .from('disciplinas_base')
+      .select('id, nome, modulo')
+      .eq('curso_id', selectedCursoId)
+      .order('modulo')
+      .order('nome')
 
-    // Adicionar eventos de exclusão de oferta
-    tabelaGrade.querySelectorAll('.btn-remover-oferta').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const id = btn.getAttribute('data-id')
-        const nome = btn.getAttribute('data-nome')
-        if (!confirm(`Tem certeza que deseja remover "${nome}" desta turma?`)) return
-        
-        const { error } = await CourseService.removerOfertaDisciplina(id!)
-        if (error) toast.error('Erro ao remover: ' + error.message)
-        else {
-          toast.success('Oferta removida!')
-          loadTurmaGrade(turmaId)
-          loadDisciplinasDropdown(turmaId)
+    if (errCatalogo) {
+      tabelaGrade.innerHTML = `<tr><td colspan="3" style="padding:2rem; text-align:center; color:var(--danger);">Erro ao carregar catálogo: ${escapeHTML(errCatalogo.message)}</td></tr>`
+      return
+    }
+
+    if (!catalogo?.length) {
+      tabelaGrade.innerHTML = '<tr><td colspan="3" style="padding:2rem; text-align:center; color:var(--text-muted);">Nenhuma disciplina cadastrada no catálogo deste curso.</td></tr>'
+      return
+    }
+
+    // Buscar ofertas já criadas para esta turma (com professor)
+    const { data: ofertas } = await supabase
+      .from('turma_disciplinas')
+      .select('disciplina_base_id, professor_id, perfis(id, nome_completo)')
+      .eq('turma_id', turmaId)
+
+    const ofertasMap: Record<string, { professor_id: string; professor_nome: string }> = {}
+    if (ofertas) {
+      for (const o of ofertas) {
+        const perfisArray = o.perfis as Array<{ nome_completo: string }> | null
+        const prof = perfisArray?.[0] || null
+        ofertasMap[o.disciplina_base_id] = {
+          professor_id: o.professor_id || '',
+          professor_nome: o.professor_id && prof ? prof.nome_completo : ''
         }
-      })
-    })
+      }
+    }
+
+    tabelaGrade.innerHTML = catalogo.map(disc => {
+      const oferta = ofertasMap[disc.id]
+      const professorNome = oferta?.professor_nome || '<span style="color:var(--text-muted);">Sem professor</span>'
+      return `
+        <tr style="border-top:1px solid var(--border);">
+          <td style="padding:1rem;">${escapeHTML(disc.modulo || 'N/A')}</td>
+          <td style="padding:1rem;"><b>${escapeHTML(disc.nome)}</b></td>
+          <td style="padding:1rem;">${professorNome}</td>
+        </tr>
+      `
+    }).join('')
   }
 
   // Delegar evento de remover aluno
@@ -582,28 +579,6 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     }
   }
 
-  async function loadSelectsGrade(cursoId: string | null) {
-    const selCat = container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement
-    const selProf = container.querySelector('#select-professor-oferta') as HTMLSelectElement
-
-    // Carregar catálogo (se não tiver curso, carrega todas)
-    let matriz
-    if (cursoId) {
-      const r = await CourseService.getMatrizCurricular(cursoId)
-      matriz = r.data
-    } else {
-      const r = await supabase.from('disciplinas_base').select('*').order('modulo').order('nome')
-      matriz = r.data
-    }
-    selCat.innerHTML = '<option value="">-- Selecione a Disciplina --</option>' + 
-      (matriz?.map(d => `<option value="${d.id}">${d.nome} (${d.modulo})</option>`).join('') || '')
-
-    // Carregar professores
-    const { data: proferes } = await ProfessorService.getProfessores()
-    selProf.innerHTML = '<option value="">-- Selecione o Professor --</option>' +
-      (proferes?.map(p => `<option value="${p.id}">${p.nome_completo}</option>`).join('') || '')
-  }
-
   function toggleTabsPorTipo() {
     const isFormacao = selectedCursoTipo === 'formacao'
     const tabBtnsAll = container.querySelectorAll<HTMLElement>('.tab-btn')
@@ -644,7 +619,6 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       selectedCursoTipo = await AcademicService.getTipoDaTurma(selectedTurmaId!)
 
       loadTurmaAlunos(selectedTurmaId!)
-      loadSelectsGrade(selectedCursoId)
       loadTurmaGrade(selectedTurmaId!)
       loadTurmaCalendario(selectedTurmaId!)
       toggleTabsPorTipo()
@@ -691,29 +665,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     loadTurmaAlunos(selectedTurmaId)
   })
 
-  // 3. Adicionar Oferta
-  btnAdicionarOferta.addEventListener('click', async () => {
-    const discBaseId = (container.querySelector('#select-catalogo-disciplina') as HTMLSelectElement).value
-    const profId = (container.querySelector('#select-professor-oferta') as HTMLSelectElement).value
-
-    if (!selectedTurmaId || !discBaseId || !profId) {
-      toast.error('Selecione a disciplina e o professor!')
-      return
-    }
-
-    btnAdicionarOferta.disabled = true
-    const { error } = await CourseService.criarOfertaDisciplina(selectedTurmaId, discBaseId, profId)
-    
-    if (error) { toast.error('Erro: ' + error.message) }
-    else {
-      toast.success('Disciplina adicionada à turma!')
-      loadTurmaGrade(selectedTurmaId)
-      reprocessarPendenciasDaTurma(selectedTurmaId)
-    }
-    btnAdicionarOferta.disabled = false
-  })
-
-  // 4. Tabs (com animação fadeInScale via tab-enter)
+  // 3. Tabs (com animação fadeInScale via tab-enter)
   const TABS = ['alunos', 'grade', 'notas', 'calendario'] as const
   const tabBtns = container.querySelectorAll('.tab-btn')
   tabBtns.forEach(btn => {

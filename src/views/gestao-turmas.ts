@@ -721,7 +721,15 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
     tab.innerHTML = data.alunos.map(m => {
       const p = (m.perfis as any)[0] || m.perfis
-      const n = data.notasMap[p?.id] || {}
+      const boletim = data.notasMap[p?.id]
+      const n = boletim || {}
+
+      if (!boletim) {
+        return `<tr style="opacity:0.6;">
+          <td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)}</td>
+          <td style="text-align:center;" colspan="8"><span style="color:var(--text-muted);font-size:0.85rem;">Nenhuma nota lançada</span></td>
+        </tr>`
+      }
 
       if (n.status === 'pendente') {
         return `<tr style="opacity:0.7;">
@@ -743,7 +751,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       const rec = n.rec || 0
       const media = calcularMediaParcial(n1, n2, n3)
       const final = calcularNotaFinal(media, rec)
-      const status = n.status === 'pendente' ? 'Falta cursar' : (final > 0 ? calcularStatusAluno(final) : 'Cursando')
+      const status = final > 0 ? calcularStatusAluno(final) : 'Cursando'
       return `<tr>
         <td style="padding:0.5rem;">${escapeHTML(p?.nome_completo)}</td>
         <td style="text-align:center;">${n.faltas || 0}</td>
@@ -753,7 +761,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         <td style="text-align:center; font-weight:600;">${media > 0 ? media.toFixed(1) : '-'}</td>
         <td style="text-align:center;">${rec > 0 ? rec.toFixed(1) : '-'}</td>
         <td style="text-align:center; font-weight:600;">${final > 0 ? final.toFixed(1) : '-'}</td>
-        <td style="text-align:center;"><span class="badge ${status === 'Aprovado' ? 'badge-success' : status === 'Reprovado' ? 'badge-danger' : status === 'Falta cursar' ? 'badge-warning' : 'badge-warning'}">${status}</span></td>
+        <td style="text-align:center;"><span class="badge ${status === 'Aprovado' ? 'badge-success' : status === 'Reprovado' ? 'badge-danger' : 'badge-warning'}">${status}</span></td>
       </tr>`
     }).join('')
   }

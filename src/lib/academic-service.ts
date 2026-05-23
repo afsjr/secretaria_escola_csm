@@ -111,7 +111,7 @@ export const AcademicService = {
       .from("matriculas")
       .select(`
         id, status_aluno,
-        perfis(id, nome_completo, email, bloqueio_financeiro)
+        perfis(id, nome_completo)
       `)
       .eq("turma_id", turma_id)
       .order("perfis(nome_completo)", { ascending: true });

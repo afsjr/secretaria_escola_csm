@@ -83,7 +83,7 @@ export const ProfessorService = {
       .from('matriculas')
       .select(`
         id, status_aluno,
-        perfis(id, nome_completo, email)
+        perfis(id, nome_completo)
       `)
       .eq('turma_id', turmaId)
       .eq('status_aluno', 'ativo')
@@ -261,7 +261,7 @@ export const ProfessorService = {
       .from('matriculas')
       .select(`
         id, status_aluno,
-        perfis(id, nome_completo, email)
+        perfis(id, nome_completo)
       `)
       .eq('turma_id', turmaId)
       .eq('status_aluno', 'ativo')

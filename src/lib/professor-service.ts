@@ -14,7 +14,6 @@ interface AlunoComNotas {
   matricula_id: string
   aluno_id: string
   aluno_nome: string
-  aluno_email: string
   status: string
   nota: Boletim | null
   versao: number
@@ -94,7 +93,7 @@ export const ProfessorService = {
     // 2. Buscar notas vinculadas ao disciplina_base_id
     const alunosComNotas: AlunoComNotas[] = await Promise.all(matriculas.map(async (m) => {
       const perfilData = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis as any
-      const perfil = perfilData || { id: '', nome_completo: 'N/A', email: '' }
+      const perfil = perfilData || { id: '', nome_completo: 'N/A' }
       
       const { data: nota } = await supabase
         .from('boletim')
@@ -109,7 +108,6 @@ export const ProfessorService = {
         matricula_id: m.id,
         aluno_id: perfil.id,
         aluno_nome: perfil.nome_completo,
-        aluno_email: perfil.email,
         status: m.status_aluno,
         nota: pendente ? null : (nota || null),
         versao: nota?.versao ?? 1,

@@ -39,6 +39,17 @@
 2. Se existir → update com versao+1
 3. Se não → insert com versao=1
 
+### getAlunos
+1. Query `perfis` com `.select("*")` — retorna todos os campos (nome, email, cpf, rg, etc.)
+2. Restrito a admins/secretaria via RLS
+3. **Nota:** Expõe `email` e `bloqueio_financeiro` — intencional para view administrativa
+
+### atualizarStatusAdministrativo
+1. Atualiza `matriculas.status_aluno` (ativo/trancado/evadido/concluido)
+2. Atualiza `perfis.bloqueio_financeiro` diretamente
+3. Duas operações independentes em transação implícita
+4. Restrito a admins/secretaria/coordenacao via RLS
+
 ## Fluxos Alternativos
 
 - **Matrícula:** Verifica se há matrículas ativas antes de inserir

@@ -13,7 +13,7 @@
 | id | uuid | sim | ID único do usuário (FK auth.users) |
 | email | text | sim | Email do usuário |
 | nome_completo | text | sim | Nome completo |
-| perfil | text | sim | Role: admin, master_admin, secretaria, coordenação, professor, aluno |
+| perfil | text | sim | Role: admin, master_admin, secretaria, coordenacao, professor, aluno |
 | cpf | text | não | CPF do usuário |
 | telefone | text | não | Telefone de contato |
 | data_nascimento | date | não | Data de nascimento |

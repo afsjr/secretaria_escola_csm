@@ -10,6 +10,7 @@
 |--------|--------|-----------|
 | `@supabase/supabase-js` | ^2.101.0 | Cliente Supabase para autenticação e banco de dados |
 | `zod` | ^4.3.6 | Validação de schemas TypeScript |
+| `pg` | ^8.21.0 | PostgreSQL client (raw queries service-side) |
 | `xlsx` | ^0.18.5 | Biblioteca para leitura/escrita de planilhas Excel |
 | `jspdf` | ^4.2.1 | Geração de PDFs em JavaScript |
 | `jspdf-autotable` | ^5.0.7 | Plugin para criar tabelas em PDFs |

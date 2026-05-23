@@ -55,6 +55,42 @@ async getUserProfile(userId?: string) {
 - ❌ Novos helpers precisam ser criados conforme necessidade
 - ❌ Documentação de quais queries usam quais helpers
 
+### Caso Concreto: Professor vê alunos das próprias turmas
+
+Em 2026-05-23, uma nova helper function foi criada para resolver recursão RLS:
+
+```sql
+CREATE OR REPLACE FUNCTION public.check_professor_can_view_student(student_id uuid)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.turma_disciplinas td
+        JOIN public.matriculas m ON m.turma_id = td.turma_id
+        WHERE td.professor_id = auth.uid()
+        AND m.aluno_id = student_id
+    );
+END;
+$$;
+```
+
+**Problema resolvido:** Professor não conseguia ver `perfis` dos alunos via JOIN em `matriculas` — o RLS da tabela `perfis` bloqueava o SELECT, e tentar usar subquery inline causava recursão infinita (`perfis` policy → `matriculas` RLS → `check_user_is_admin_or_secretaria()` → `perfis`).
+
+**Solução:** A função `check_professor_can_view_student` roda como SECURITY DEFINER, quebrando o ciclo. A política RLS na tabela `perfis` chama esta função:
+
+```sql
+CREATE POLICY "Professores view students from their turmas" ON public.perfis
+    FOR SELECT TO authenticated
+    USING (public.check_professor_can_view_student(id));
+```
+
+**Migrações:**
+- `supabase/migrations/20260523145009_rls_professor_perfis.sql`
+- `supabase/migrations/20260523145100_fix_rls_professor_perfis.sql`
+
 ---
 
 ## Status de Implementação

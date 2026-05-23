@@ -38,7 +38,6 @@ interface DisciplinaData {
 interface AlunoNota {
   aluno_id: string;
   aluno_nome: string;
-  aluno_email: string;
   versao?: number;
   nota?: {
     faltas?: number;
@@ -441,9 +440,6 @@ export async function ProfessorView(
                 <td>
                   <div class="fw-600 text-main" style="font-size: 0.9rem;">${
         escapeHTML(a.aluno_nome)
-      }</div>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">${
-        escapeHTML(a.aluno_email)
       }</div>
                 </td>
                 <td style="text-align: center;">

@@ -62,7 +62,7 @@
 ## Estado Interno
 
 - Tipo `AulaData`: { turma_disciplina_id, professor_id, data?, conteudo }
-- Tipo `AlunoComNotas`: { matricula_id, aluno_id, aluno_nome, status, nota, versao }
+- Tipo `AlunoComNotas`: { matricula_id, aluno_id, aluno_nome, status, nota, versao } (sem email — LGPD)
 - Tipo `NotaData`: { faltas, n1, n2, n3, rec } (string ou number)
 
 ## Observabilidade

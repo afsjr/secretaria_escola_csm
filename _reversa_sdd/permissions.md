@@ -63,7 +63,7 @@
 |--------|-----------|
 | `perfis` | Usuários veem apenas seus próprios dados, exceto admin |
 | `boletim` | Professores veem apenas suas disciplinas |
-| `matriculas` | Apenas admins/secretaria/coordenação podem modificar |
+| `matriculas` | Apenas admins/secretaria/coordenacao podem modificar |
 | `audit_log` | Apenas admin e master_admin podem acessar |
 
 ### Via Código

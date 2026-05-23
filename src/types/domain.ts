@@ -195,7 +195,6 @@ export interface DadosProfessorCompleto {
 export interface AlunoComNotas {
   aluno_id: string
   aluno_nome: string
-  aluno_email: string
   nota?: Partial<Boletim>
 }
 

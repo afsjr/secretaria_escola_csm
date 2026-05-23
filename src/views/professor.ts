@@ -25,6 +25,11 @@ interface DisciplinaData {
     id: string;
     nome: string;
     periodo?: string;
+    cursos?: {
+      id: string;
+      nome: string;
+      tipo_curso?: string;
+    };
   };
   cursos?: {
     nome: string;
@@ -202,7 +207,7 @@ export async function ProfessorView(
       escapeHTML(d.disciplinas_base?.nome)
     }" data-turma="${d.turmas!.id}" data-turma-nome="${
       escapeHTML(d.turmas!.nome)
-    }">
+    }" data-tipo-curso="${d.turmas?.cursos?.tipo_curso || 'tecnico'}">
                   ${escapeHTML(d.disciplinas_base?.nome)} (${escapeHTML(d.disciplinas_base?.modulo)}) - ${
       escapeHTML(d.turmas!.nome)
     }
@@ -369,6 +374,8 @@ export async function ProfessorView(
 
     const disciplinaNome = selectedOption.getAttribute("data-nome")!;
     const turmaId = selectedOption.getAttribute("data-turma")!;
+    const tipoCurso = selectedOption.getAttribute("data-tipo-curso")!;
+    const isFormacao = tipoCurso === 'formacao';
 
     tabelaNotasContainer.innerHTML = skeletonCard();
 
@@ -418,18 +425,84 @@ export async function ProfessorView(
       `
     }
 
+    const renderNotaInput = (a: any) => {
+      if (isFormacao) {
+        const conceitoAtual = a.nota?.conceito || ''
+        return `
+          <td colspan="5" style="text-align: center;">
+            <select class="input conceito-input" style="width: 120px; padding: 0.5rem; text-align: center; font-size: 1rem;">
+              <option value="">—</option>
+              <option value="A" ${conceitoAtual === 'A' ? 'selected' : ''}>A — Excelente</option>
+              <option value="B" ${conceitoAtual === 'B' ? 'selected' : ''}>B — Bom</option>
+              <option value="C" ${conceitoAtual === 'C' ? 'selected' : ''}>C — Regular</option>
+            </select>
+          </td>
+          <td class="media-teoria" style="text-align: center; font-weight: bold; background: #f0f8ff;">
+            ${conceitoAtual ? ({ 'A': '10.0', 'B': '7.5', 'C': '5.0' })[conceitoAtual] + ' (' + conceitoAtual + ')' : '—'}
+          </td>
+          <td style="text-align: center;">—</td>
+          <td class="media-final" style="text-align: center; font-weight: bold; color: var(--primary); background: #fff8e6;">
+            ${conceitoAtual ? ({ 'A': '10.0', 'B': '7.5', 'C': '5.0' })[conceitoAtual] : '—'}
+          </td>
+        `
+      }
+      return `
+        <td style="text-align: center;">
+          <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
+        a.nota?.n1 || ""
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
+        </td>
+        <td style="text-align: center;">
+          <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
+        a.nota?.n2 || ""
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
+        </td>
+        <td style="text-align: center;">
+          <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
+        a.nota?.n3 || ""
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
+        </td>
+        <td class="media-teoria" style="text-align: center; font-weight: bold; background: #f0f8ff;">
+          —
+        </td>
+        <td style="text-align: center;">
+          <input type="number" class="input rec-input" min="0" max="10" step="0.1" value="${
+        a.nota?.rec || ""
+      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
+        </td>
+        <td class="media-final" style="text-align: center; font-weight: bold; color: var(--primary); background: #fff8e6;">
+          —
+        </td>
+      `
+    }
+
+    const headerNotas = isFormacao
+      ? `<th style="text-align: center;" colspan="5">Conceito</th>
+         <th style="text-align: center; background: var(--secondary);">Equiv.</th>
+         <th style="text-align: center;">Rec.</th>`
+      : `<th style="text-align: center;">N1</th>
+         <th style="text-align: center;">N2</th>
+         <th style="text-align: center;">N3</th>
+         <th style="text-align: center; background: var(--secondary);">Média</th>
+         <th style="text-align: center;">Rec.</th>`
+
+    const legendFooter = isFormacao
+      ? `<span style="color: var(--success);">■</span> Aprovado (≥ B) &nbsp;
+         <span style="color: var(--danger);">■</span> Reprovado (< B) &nbsp;
+         <small>Equivalência: A=10, B=7.5, C=5</small>`
+      : `<span style="color: var(--success);">■</span> Aprovado (≥ 7.0) &nbsp;
+         <span style="color: var(--danger);">■</span> Reprovado (< 7.0)`
+
+    const btnLabel = isFormacao ? 'Salvar Conceitos' : 'Salvar Todas as Notas'
+
     tabelaNotasContainer.innerHTML = pendentesAlert + `
-      <div class="table-responsive">
+      <div class="table-responsive" data-tipo-curso="${tipoCurso}">
         <table class="data-table">
           <thead>
             <tr>
               <th style="width: 25%;">Aluno</th>
               <th style="text-align: center;">Faltas</th>
-              <th style="text-align: center;">N1</th>
-              <th style="text-align: center;">N2</th>
-              <th style="text-align: center;">N3</th>
-              <th style="text-align: center; background: var(--secondary);">Média</th>
-              <th style="text-align: center;">Rec.</th>
+              ${headerNotas}
               <th style="text-align: center; background: var(--accent-light);">Final</th>
             </tr>
           </thead>
@@ -447,32 +520,7 @@ export async function ProfessorView(
         a.nota?.faltas || 0
       }" style="width: 50px; padding: 0.3rem; text-align: center;">
                 </td>
-                <td style="text-align: center;">
-                  <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
-        a.nota?.n1 || ""
-      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
-                </td>
-                <td style="text-align: center;">
-                  <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
-        a.nota?.n2 || ""
-      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
-                </td>
-                <td style="text-align: center;">
-                  <input type="number" class="input nota-input" min="0" max="10" step="0.1" value="${
-        a.nota?.n3 || ""
-      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
-                </td>
-                <td class="media-teoria" style="text-align: center; font-weight: bold; background: #f0f8ff;">
-                  —
-                </td>
-                <td style="text-align: center;">
-                  <input type="number" class="input rec-input" min="0" max="10" step="0.1" value="${
-        a.nota?.rec || ""
-      }" placeholder="—" style="width: 70px; padding: 0.5rem; text-align: center; font-size: 1rem;">
-                </td>
-                <td class="media-final" style="text-align: center; font-weight: bold; color: var(--primary); background: #fff8e6;">
-                  —
-                </td>
+                ${renderNotaInput(a)}
               </tr>
             `).join("")
     }
@@ -482,8 +530,7 @@ export async function ProfessorView(
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--secondary);">
         <div style="font-size: 0.8rem; color: var(--text-muted);">
-          <span style="color: var(--success);">■</span> Aprovado (≥ 7.0) &nbsp;
-          <span style="color: var(--danger);">■</span> Reprovado (< 7.0)
+          ${legendFooter}
         </div>
         <button class="btn btn-primary" id="btn-salvar-todas-notas">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
@@ -491,63 +538,103 @@ export async function ProfessorView(
             <polyline points="17 21 17 13 7 13 7 21"/>
             <polyline points="7 3 7 8 15 8"/>
           </svg>
-          Salvar Todas as Notas
+          ${btnLabel}
         </button>
       </div>
     `;
 
     // Configurar cálculo automático de médias
     const rows = tabelaNotasContainer.querySelectorAll(".nota-row");
-    rows.forEach((row) => {
-      const notasInputs = row.querySelectorAll(".nota-input");
-      const mediaTeoriaCell = row.querySelector(".media-teoria");
-      const recInput = row.querySelector(".rec-input") as HTMLInputElement;
-      const mediaFinalCell = row.querySelector(".media-final");
+    const isFormacaoTable = isFormacao;
 
-      const calculateGrades = () => {
-        let sum = 0;
-        let count = 0;
-        notasInputs.forEach((input) => {
-          const val = parseFloat((input as HTMLInputElement).value);
-          if (!isNaN(val) && val > 0) {
-            sum += val;
-            count++;
+    if (isFormacaoTable) {
+      rows.forEach((row) => {
+        const conceitoSelect = row.querySelector(".conceito-input") as HTMLSelectElement;
+        const mediaTeoriaCell = row.querySelector(".media-teoria");
+        const mediaFinalCell = row.querySelector(".media-final");
+
+        const calcConceito = () => {
+          const val = conceitoSelect?.value as 'A' | 'B' | 'C' | '';
+          if (!val) {
+            if (mediaTeoriaCell) {
+              (mediaTeoriaCell as HTMLElement).textContent = '—';
+              (mediaTeoriaCell as HTMLElement).style.color = 'inherit';
+            }
+            if (mediaFinalCell) {
+              (mediaFinalCell as HTMLElement).textContent = '—';
+              (mediaFinalCell as HTMLElement).style.color = 'inherit';
+            }
+            return;
           }
-        });
+          const equiv = { 'A': 10, 'B': 7.5, 'C': 5 }[val];
+          const color = equiv >= 7.5 ? 'var(--success)' : 'var(--danger)';
+          if (mediaTeoriaCell) {
+            (mediaTeoriaCell as HTMLElement).textContent = equiv.toFixed(1) + ' (' + val + ')';
+            (mediaTeoriaCell as HTMLElement).style.color = color;
+            (mediaTeoriaCell as HTMLElement).style.fontWeight = 'bold';
+          }
+          if (mediaFinalCell) {
+            (mediaFinalCell as HTMLElement).textContent = equiv.toFixed(1);
+            (mediaFinalCell as HTMLElement).style.color = color;
+            (mediaFinalCell as HTMLElement).style.fontWeight = 'bold';
+          }
+        };
 
-        if (count === 0) {
-          (mediaTeoriaCell as HTMLElement).textContent = "—";
-          (mediaTeoriaCell as HTMLElement).style.color = "inherit";
-          (mediaFinalCell as HTMLElement).textContent = "—";
-          (mediaFinalCell as HTMLElement).style.color = "inherit";
-          return;
-        }
+        conceitoSelect?.addEventListener('change', calcConceito);
+        calcConceito();
+      });
+    } else {
+      rows.forEach((row) => {
+        const notasInputs = row.querySelectorAll(".nota-input");
+        const mediaTeoriaCell = row.querySelector(".media-teoria");
+        const recInput = row.querySelector(".rec-input") as HTMLInputElement;
+        const mediaFinalCell = row.querySelector(".media-final");
 
-        const mediaTeoria = sum / count;
-        const colorTeoria = mediaTeoria >= 7 ? "var(--success)" : "var(--danger)";
+        const calculateGrades = () => {
+          let sum = 0;
+          let count = 0;
+          notasInputs.forEach((input) => {
+            const val = parseFloat((input as HTMLInputElement).value);
+            if (!isNaN(val) && val > 0) {
+              sum += val;
+              count++;
+            }
+          });
 
-        (mediaTeoriaCell as HTMLElement).textContent = mediaTeoria.toFixed(1);
-        (mediaTeoriaCell as HTMLElement).style.color = colorTeoria;
-        (mediaTeoriaCell as HTMLElement).style.fontWeight = "bold";
+          if (count === 0) {
+            (mediaTeoriaCell as HTMLElement).textContent = "—";
+            (mediaTeoriaCell as HTMLElement).style.color = "inherit";
+            (mediaFinalCell as HTMLElement).textContent = "—";
+            (mediaFinalCell as HTMLElement).style.color = "inherit";
+            return;
+          }
 
-        const recVal = parseFloat(recInput.value);
-        const hasRec = !isNaN(recVal) && recVal > 0;
-        const mediaFinalVal = hasRec ? (mediaTeoria + recVal) / 2 : mediaTeoria;
-        const colorFinal = mediaFinalVal >= 7 ? "var(--success)" : "var(--danger)";
+          const mediaTeoria = sum / count;
+          const colorTeoria = mediaTeoria >= 7 ? "var(--success)" : "var(--danger)";
 
-        (mediaFinalCell as HTMLElement).textContent = mediaFinalVal.toFixed(1);
-        (mediaFinalCell as HTMLElement).style.color = colorFinal;
-        (mediaFinalCell as HTMLElement).style.fontWeight = "bold";
-      };
+          (mediaTeoriaCell as HTMLElement).textContent = mediaTeoria.toFixed(1);
+          (mediaTeoriaCell as HTMLElement).style.color = colorTeoria;
+          (mediaTeoriaCell as HTMLElement).style.fontWeight = "bold";
 
-      notasInputs.forEach((input) =>
-        (input as HTMLInputElement).addEventListener("input", calculateGrades)
-      );
-      recInput.addEventListener("input", calculateGrades);
+          const recVal = parseFloat(recInput.value);
+          const hasRec = !isNaN(recVal) && recVal > 0;
+          const mediaFinalVal = hasRec ? (mediaTeoria + recVal) / 2 : mediaTeoria;
+          const colorFinal = mediaFinalVal >= 7 ? "var(--success)" : "var(--danger)";
 
-      // Trigger initial calculation
-      calculateGrades();
-    });
+          (mediaFinalCell as HTMLElement).textContent = mediaFinalVal.toFixed(1);
+          (mediaFinalCell as HTMLElement).style.color = colorFinal;
+          (mediaFinalCell as HTMLElement).style.fontWeight = "bold";
+        };
+
+        notasInputs.forEach((input) =>
+          (input as HTMLInputElement).addEventListener("input", calculateGrades)
+        );
+        recInput.addEventListener("input", calculateGrades);
+
+        // Trigger initial calculation
+        calculateGrades();
+      });
+    }
 
     // Lógica de salvar todas as notas
     const btnSalvarTodas = tabelaNotasContainer.querySelector(
@@ -559,38 +646,42 @@ export async function ProfessorView(
         btnSalvarTodas.innerHTML =
           '<span class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></span> Salvando...';
 
-        const notasArray: {
-          aluno_id: string;
-          faltas: string;
-          n1: string;
-          n2: string;
-          n3: string;
-          rec: string;
-          versao: number;
-        }[] = [];
+        const notasArray: any[] = [];
         rows.forEach((row) => {
           const alunoId = (row as HTMLElement).getAttribute("data-aluno-id")!;
           const alunoData = alunosComNotas?.find(a => a.aluno_id === alunoId);
           const faltas =
             (row.querySelector(".faltas-input") as HTMLInputElement).value;
-          const n1 =
-            (row.querySelectorAll(".nota-input")[0] as HTMLInputElement).value;
-          const n2 =
-            (row.querySelectorAll(".nota-input")[1] as HTMLInputElement).value;
-          const n3 =
-            (row.querySelectorAll(".nota-input")[2] as HTMLInputElement).value;
-          const rec =
-            (row.querySelector(".rec-input") as HTMLInputElement).value;
 
-          notasArray.push({ 
-            aluno_id: alunoId, 
-            faltas, 
-            n1, 
-            n2, 
-            n3, 
-            rec,
-            versao: alunoData?.versao ?? 1 
-          });
+          if (isFormacao) {
+            const conceito =
+              (row.querySelector(".conceito-input") as HTMLSelectElement).value as 'A' | 'B' | 'C';
+            notasArray.push({
+              aluno_id: alunoId,
+              faltas,
+              conceito: conceito || undefined,
+              versao: alunoData?.versao ?? 1
+            });
+          } else {
+            const n1 =
+              (row.querySelectorAll(".nota-input")[0] as HTMLInputElement).value;
+            const n2 =
+              (row.querySelectorAll(".nota-input")[1] as HTMLInputElement).value;
+            const n3 =
+              (row.querySelectorAll(".nota-input")[2] as HTMLInputElement).value;
+            const rec =
+              (row.querySelector(".rec-input") as HTMLInputElement).value;
+
+            notasArray.push({ 
+              aluno_id: alunoId, 
+              faltas, 
+              n1, 
+              n2, 
+              n3, 
+              rec,
+              versao: alunoData?.versao ?? 1 
+            });
+          }
         });
 
         const { error } = await ProfessorService.salvarNotasEmLote(

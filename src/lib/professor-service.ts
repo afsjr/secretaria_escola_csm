@@ -26,6 +26,7 @@ interface NotaData {
   n2: number | string
   n3: number | string
   rec: number | string
+  conceito?: 'A' | 'B' | 'C'
 }
 
 export const ProfessorService = {
@@ -38,7 +39,7 @@ export const ProfessorService = {
       .select(`
         *,
         disciplinas_base (id, nome, modulo, carga_horaria, curso_id),
-        turmas (id, nome, periodo, cursos(id, nome))
+        turmas (id, nome, periodo, cursos(id, nome, tipo_curso))
       `)
       .eq('professor_id', professorId)
       .order('created_at', { ascending: false })
@@ -119,7 +120,7 @@ export const ProfessorService = {
   },
 
   // Salvar nota vinculada ao catálogo
-  async salvarNota(alunoId: string, disciplinaBaseId: string, { faltas, n1, n2, n3, rec }: NotaData, versaoAtual: number = 1) {
+  async salvarNota(alunoId: string, disciplinaBaseId: string, { faltas, n1, n2, n3, rec, conceito }: NotaData, versaoAtual: number = 1) {
     // Buscar nome da disciplina para manter compatibilidade com campo TEXT antigo se necessário
     const { data: discBase } = await supabase
       .from('disciplinas_base')
@@ -142,7 +143,8 @@ export const ProfessorService = {
       n1: parseFloat(n1 as string) || 0,
       n2: parseFloat(n2 as string) || 0,
       n3: parseFloat(n3 as string) || 0,
-      rec: parseFloat(rec as string) || 0
+      rec: parseFloat(rec as string) || 0,
+      conceito: conceito || null
     }
 
     if (notaExistente?.id) {
@@ -173,7 +175,8 @@ export const ProfessorService = {
         n1: n.n1,
         n2: n.n2,
         n3: n.n3,
-        rec: n.rec
+        rec: n.rec,
+        conceito: n.conceito
       }, n.versao)
     )
 

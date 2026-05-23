@@ -1,0 +1,3 @@
+{"ts": "2026-05-23T22:30:00-03:00", "action": "completar", "ids": ["T008"], "context": "GerenciarCursosTab.ts: dropdown tipo_curso na criação, badge na listagem, edição com validação de turmas ativas, dropdown restrito a Técnico/Formação"}
+{"ts": "2026-05-23T22:45:00-03:00", "action": "completar", "ids": ["T009"], "context": "professor.ts ja possuia input condicional e boletim com conceito — confirmado funcional"}
+{"ts": "2026-05-23T22:45:00-03:00", "action": "completar", "ids": ["T010"], "context": "tsc --noEmit OK, tests 235/239 pass (4 pre-existing failures), regression-watch.md e legacy-impact.md gerados"}

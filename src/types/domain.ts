@@ -51,6 +51,7 @@ export interface Curso {
   id: string
   nome: string
   descricao?: string | null
+  tipo_curso?: 'tecnico' | 'formacao'
   ativo?: boolean
   created_at?: string
 }
@@ -128,6 +129,7 @@ export interface Boletim {
   n2?: number | null
   n3?: number | null
   rec?: number | null
+  conceito?: 'A' | 'B' | 'C' | null
   created_at?: string
 }
 

@@ -4,7 +4,7 @@ import { AuditService } from './audit-service'
 interface CursoData {
   nome: string
   descricao?: string
-  tipo?: string
+  tipo?: 'tecnico' | 'formacao'
 }
 
 interface DisciplinaBaseData {
@@ -20,20 +20,32 @@ export const CourseService = {
   // CURSOS
   // =====================================================
 
-  async getCursos() {
-    const { data, error } = await supabase
+  async getCursos(tipo?: 'tecnico' | 'formacao') {
+    let query = supabase
       .from('cursos')
       .select('*')
       .order('nome', { ascending: true })
+
+    if (tipo) {
+      query = query.eq('tipo_curso', tipo)
+    }
+
+    const { data, error } = await query
     return { data, error }
   },
 
-  async getCursosAtivos() {
-    const { data, error } = await supabase
+  async getCursosAtivos(tipo?: 'tecnico' | 'formacao') {
+    let query = supabase
       .from('cursos')
       .select('*')
       .eq('ativo', true)
       .order('nome', { ascending: true })
+
+    if (tipo) {
+      query = query.eq('tipo_curso', tipo)
+    }
+
+    const { data, error } = await query
     return { data, error }
   },
 
@@ -51,6 +63,39 @@ export const CourseService = {
         registro_id: data.id,
         descricao: `Curso criado: ${nome} (${tipo || 'tecnico'})`,
         dados_novos: { nome, descricao, tipo: tipo || 'tecnico' }
+      })
+    }
+
+    return { data, error }
+  },
+
+  async updateCurso(cursoId: string, updates: { nome?: string; descricao?: string; tipo_curso?: 'tecnico' | 'formacao' }) {
+    if (updates.tipo_curso) {
+      const { data: turmasAtivas } = await supabase
+        .from('turmas')
+        .select('id')
+        .eq('curso_id', cursoId)
+        .limit(1)
+
+      if (turmasAtivas && turmasAtivas.length > 0) {
+        return { data: null, error: { message: 'Não é possível mudar tipo com turmas ativas' } }
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('cursos')
+      .update(updates)
+      .eq('id', cursoId)
+      .select()
+      .single()
+
+    if (!error && data) {
+      AuditService.log({
+        acao: 'atualizar_curso',
+        tabela_afetada: 'cursos',
+        registro_id: cursoId,
+        descricao: `Curso atualizado: ${data.nome}`,
+        dados_novos: updates
       })
     }
 
@@ -198,7 +243,7 @@ export const CourseService = {
       .from('turmas')
       .select(`
         *,
-        cursos(id, nome, descricao)
+        cursos(id, nome, descricao, tipo_curso)
       `)
       .eq('id', turmaId)
       .single()

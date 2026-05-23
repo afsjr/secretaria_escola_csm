@@ -1,22 +1,12 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/004-central-notificacoes",
-  "feature-id": "004",
-  "short-name": "central-notificacoes",
-  "started-at": "2026-05-21T16:50:00Z",
+  "feature-dir": "_reversa_forward/001-tipos-curso",
+  "feature-id": "001",
+  "short-name": "tipos-curso",
+  "started-at": "2026-05-19T18:25:00Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [
-    {
-      "feature-dir": "_reversa_forward/001-tipos-curso",
-      "feature-id": "001",
-      "short-name": "tipos-curso",
-      "started-at": "2026-05-19T18:25:00Z",
-      "current-stage": "requirements",
-      "stages-completed": [],
-      "paused-at": "2026-05-19T18:30:00Z",
-      "paused-from-stage": "requirements"
-    },
     {
       "feature-dir": "_reversa_forward/002-geracao-certificados",
       "feature-id": "002",

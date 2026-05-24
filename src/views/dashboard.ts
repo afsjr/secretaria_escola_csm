@@ -16,6 +16,7 @@ import { MatrizView } from './matriz'
 import { ProfessorTurmasView } from './professor-turmas'
 import { ProfessorAlunosView } from './professor-alunos'
 import { ProfessorRegistrarAulaView } from './professor-registrar-aula'
+import { AlunoNotasView } from './aluno-notas'
 import { FinanceiroView } from './financeiro'
 import { ConfiguracoesView } from './configuracoes'
 import { AuditLogView } from './audit-log'
@@ -123,6 +124,12 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
           <span class="nav-label">Matriz Curricular</span>
         </a>
+        ${_isAluno ? `
+        <a href="#/dashboard/aluno/notas" class="nav-item ${subPath.startsWith('/aluno/notas') ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Minhas Notas" ${subPath.startsWith('/aluno/notas') ? 'aria-current="page"' : ''}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="nav-label">Minhas Notas</span>
+        </a>
+        ` : ''}
         ${_isAdmin || _isSecretaria || _isCoordenacao ? `
           <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;" title="Painel Secretaria" ${subPath === '/secretaria' ? 'aria-current="page"' : ''}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 7h-9m3 3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -281,6 +288,8 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
     contentArea.appendChild(await ProfessorAlunosView(profile as UserProfile))
   } else if (subPath === '/professor/aulas' && _isProfessor) {
     contentArea.appendChild(await ProfessorRegistrarAulaView(profile as UserProfile))
+  } else if (subPath === '/aluno/notas' && _isAluno) {
+    contentArea.appendChild(await AlunoNotasView(profile as UserProfile))
   } else if (subPath === '/professor') {
     // Redirect to turmas by default
     window.location.hash = '#/dashboard/professor/turmas'

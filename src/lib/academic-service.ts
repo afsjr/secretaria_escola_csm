@@ -75,10 +75,10 @@ export const AcademicService = {
   async getTipoDaTurma(turma_id: string): Promise<string | null> {
     const { data } = await supabase
       .from("turmas")
-      .select("cursos(tipo)")
+      .select("cursos(tipo_curso)")
       .eq("id", turma_id)
       .single();
-    return (data as any)?.cursos?.tipo ?? null;
+    return (data as any)?.cursos?.tipo_curso ?? null;
   },
 
   async matricularAluno(aluno_id: string, turma_id: string) {

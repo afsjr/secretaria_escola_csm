@@ -104,7 +104,7 @@ describe('AcademicService - getTipoDaTurma', () => {
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: vi.fn(() =>
-            Promise.resolve({ data: { cursos: { tipo: 'tecnico' } }, error: null })
+            Promise.resolve({ data: { cursos: { tipo_curso: 'tecnico' } }, error: null })
           ),
         })),
       })),
@@ -137,7 +137,7 @@ describe('AcademicService - matricularAluno', () => {
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             single: vi.fn(() =>
-              Promise.resolve({ data: { cursos: { tipo: 'tecnico' } }, error: null })
+              Promise.resolve({ data: { cursos: { tipo_curso: 'tecnico' } }, error: null })
             ),
           })),
         })),
@@ -167,7 +167,7 @@ describe('AcademicService - matricularAluno', () => {
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             single: vi.fn(() =>
-              Promise.resolve({ data: { cursos: { tipo: 'formacao' } }, error: null })
+              Promise.resolve({ data: { cursos: { tipo_curso: 'formacao' } }, error: null })
             ),
           })),
         })),
@@ -194,7 +194,7 @@ describe('AcademicService - matricularAluno', () => {
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             single: vi.fn(() =>
-              Promise.resolve({ data: { cursos: { tipo: 'tecnico' } }, error: null })
+              Promise.resolve({ data: { cursos: { tipo_curso: 'tecnico' } }, error: null })
             ),
           })),
         })),

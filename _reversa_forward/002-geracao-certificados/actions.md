@@ -45,7 +45,7 @@
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T010 | Rodar `tsc --noEmit` + `npm test`, gerar `regression-watch.md` e `legacy-impact.md` | T004, T009 | - | (terminal) | 🟢 | `[ ]` |
+| T010 | Rodar `tsc --noEmit` + `npm test`, gerar `regression-watch.md` e `legacy-impact.md` | T004, T009 | - | (terminal) | 🟢 | `[X]` |
 
 ## Notas de execução
 

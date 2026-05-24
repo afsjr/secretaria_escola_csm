@@ -7,3 +7,4 @@
 {"ts":"2026-05-23T22:05:00Z","action":"T007","status":"done","files":["src/components/Tabs/GerenciarCertificadosTab.ts"]}
 {"ts":"2026-05-23T22:05:30Z","action":"T008","status":"done","files":["src/components/Tabs/GerenciarCertificadosTab.ts","src/views/secretaria.ts"]}
 {"ts":"2026-05-23T22:06:00Z","action":"T009","status":"done","files":["src/lib/certificate-service.ts"]}
+{"ts":"2026-05-23T22:10:00Z","action":"T010","status":"done","files":["_reversa_forward/002-geracao-certificados/regression-watch.md","_reversa_forward/002-geracao-certificados/legacy-impact.md"]}

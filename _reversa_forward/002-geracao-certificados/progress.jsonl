@@ -1,0 +1,3 @@
+{"ts":"2026-05-23T22:00:00Z","action":"T001","status":"done","files":["supabase/migrations/20260523220000_certificados.sql"]}
+{"ts":"2026-05-23T22:00:30Z","action":"T002","status":"done","files":["_reversa_forward/002-geracao-certificados/storage-setup.sql"]}
+{"ts":"2026-05-23T22:01:00Z","action":"T003","status":"done","files":["src/types/domain.ts"]}

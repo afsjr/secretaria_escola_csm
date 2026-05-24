@@ -153,6 +153,43 @@ export interface AulaCompleta extends Aula {
 }
 
 // =====================================================
+// CERTIFICADOS
+// =====================================================
+
+export interface CertificadoModelo {
+  id: string
+  nome: string
+  tipo_curso: 'tecnico' | 'formacao'
+  logo_path?: string | null
+  assinatura_path?: string | null
+  ativo?: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ConteudoProgramatico {
+  id: string
+  curso_id: string
+  disciplina: string
+  carga_horaria: number
+  modulo?: string | null
+  ordem?: number
+  created_at?: string
+}
+
+export interface Certificado {
+  id: string
+  aluno_id: string
+  curso_id: string
+  data_conclusao: string
+  carga_horaria: number
+  codigo_autenticacao: string
+  emitido_por: string
+  emitido_em?: string
+  template_id?: string | null
+}
+
+// =====================================================
 // SOLICITAÇÕES DE DOCUMENTOS
 // =====================================================
 

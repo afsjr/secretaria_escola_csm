@@ -4,8 +4,8 @@
   "feature-id": "002",
   "short-name": "geracao-certificados",
   "started-at": "2026-05-23T21:45:00Z",
-  "current-stage": "plan",
-  "stages-completed": ["clarify", "plan"],
+  "current-stage": "to-do",
+  "stages-completed": ["clarify", "plan", "to-do"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/001-tipos-curso",

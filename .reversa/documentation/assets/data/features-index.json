@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-23T22:40:00-03:00",
+  "specs": [
+    {"id": "academic", "name": "Gestão Acadêmica", "path": "_reversa_sdd/academic", "requirements": true, "design": true, "tasks": true},
+    {"id": "admin", "name": "Administração de Usuários", "path": "_reversa_sdd/admin", "requirements": true, "design": true, "tasks": true},
+    {"id": "audit", "name": "Registro de Auditoria", "path": "_reversa_sdd/audit", "requirements": true, "design": true, "tasks": true},
+    {"id": "auth", "name": "Autenticação e Sessão", "path": "_reversa_sdd/auth", "requirements": true, "design": true, "tasks": true},
+    {"id": "course", "name": "Gestão de Cursos", "path": "_reversa_sdd/course", "requirements": true, "design": true, "tasks": true},
+    {"id": "documents", "name": "Solicitações de Documentos", "path": "_reversa_sdd/documents", "requirements": true, "design": true, "tasks": true},
+    {"id": "financeiro", "name": "Gestão Financeira", "path": "_reversa_sdd/financeiro", "requirements": true, "design": true, "tasks": true},
+    {"id": "professor", "name": "Gestão de Professores", "path": "_reversa_sdd/professor", "requirements": true, "design": true, "tasks": true},
+    {"id": "student", "name": "Dados do Aluno", "path": "_reversa_sdd/student", "requirements": true, "design": true, "tasks": true}
+  ]
+}

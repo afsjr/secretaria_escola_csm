@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feature: Solicitações de Documentos | secretaria_escola_csm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+.back{margin-bottom:2rem}
+.back a{color:#8b5cf6;text-decoration:none;font-size:0.9rem}
+.back a:hover{color:#a78bfa;text-decoration:underline}
+h1{font-size:2rem;font-weight:700;margin-bottom:0.25rem;color:#f0f0ff}
+h1 small{font-size:1rem;color:#8b5cf6;font-weight:400}
+.subtitle{color:#888;margin-bottom:2rem;font-size:0.95rem}
+.card{background:#12121c;border:1px solid #1e1e2e;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.card h2{font-size:1.2rem;font-weight:600;color:#f0f0ff;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e1e2e}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#ccc}
+.card ul li::before{content:"›";position:absolute;left:0;color:#8b5cf6;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{text-align:left;padding:0.6rem 0.75rem;background:#181825;color:#a78bfa;font-weight:600;border-bottom:2px solid #2a2a3e;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+tbody td{padding:0.6rem 0.75rem;border-bottom:1px solid #1e1e2e;color:#ccc}
+tbody tr:hover{background:#181825}
+.tag{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:#1e1e2e;color:#888}
+.tag.must{background:#2d1b4e;color:#a78bfa}
+code{background:#181825;padding:0.1rem 0.3rem;border-radius:4px;font-size:0.85rem}
+@media(max-width:640px){body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="back"><a href="../deck.html">&larr; Voltar ao Deck</a></div>
+<h1>Solicitações de Documentos <small>documents</small></h1>
+<p class="subtitle">Permite que alunos solicitem documentos (declarações, histórico, etc.) e que a secretaria gerencie essas solicitações.</p>
+
+<div class="card">
+<h2>Overview</h2>
+<p style="color:#ccc">Módulo de gestão de solicitações de documentos. Alunos solicitam documentos e secretaria gerencia as solicitações. Catálogo flexível de tipos de documento.</p>
+</div>
+
+<div class="card">
+<h2>Responsabilidades</h2>
+<ul>
+<li>Criar solicitação de documento (aluno)</li>
+<li>Listar próprias solicitações (aluno)</li>
+<li>Listar todas as solicitações (secretaria/admin)</li>
+<li>Atualizar status da solicitação (secretaria)</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Requisitos Funcionais</h2>
+<table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Prioridade</th><th>Critério de Aceite</th></tr></thead>
+<tbody>
+<tr><td>RF-01</td><td>Criar solicitação</td><td><span class="tag must">Must</span></td><td>Solicitação criada com status pendente</td></tr>
+<tr><td>RF-02</td><td>Listar próprias solicitações</td><td><span class="tag must">Must</span></td><td>Lista do aluno</td></tr>
+<tr><td>RF-03</td><td>Listar todas as solicitações</td><td><span class="tag must">Must</span></td><td>Lista completa (admin)</td></tr>
+<tr><td>RF-04</td><td>Atualizar status</td><td><span class="tag must">Must</span></td><td>Status alterado para concluído</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tipos de Documento</h2>
+<ul>
+<li>Catálogo flexível (declaração, histórico, certificado, atestado, etc.)</li>
+<li>Campo para upload de modelo customizado (futuro)</li>
+<li>Modo atual: exibe nome do arquivo, data, status e aluno</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Design Técnico</h2>
+<table>
+<thead><tr><th>Símbolo</th><th>Assinatura</th><th>Retorno</th></tr></thead>
+<tbody>
+<tr><td><code>createRequest</code></td><td><code>(userId, type)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getMyRequests</code></td><td><code>(userId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getAllOpenRequests</code></td><td><code>()</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>updateStatus</code></td><td><code>(id, status)</code></td><td><code>{ data, error }</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tarefas</h2>
+<table>
+<thead><tr><th>ID</th><th>Descrição</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr><td>T-01</td><td>Implementar função createRequest(userId, type)</td><td>🟢</td></tr>
+<tr><td>T-02</td><td>Implementar função getMyRequests(userId)</td><td>🟢</td></tr>
+<tr><td>T-03</td><td>Implementar função getAllOpenRequests()</td><td>🟢</td></tr>
+<tr><td>T-04</td><td>Implementar função updateStatus(id, status)</td><td>🟢</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

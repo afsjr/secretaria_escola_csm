@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>secretaria_escola_csm — Documentação</title>
+<script src="assets/js/data.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(74,158,255,.08) 0%,transparent 60%);pointer-events:none}
+.hero .seal{width:200px;height:200px;margin-bottom:24px;filter:drop-shadow(0 0 40px rgba(212,175,55,.2))}
+.hero h1{font-size:36px;font-weight:700;background:linear-gradient(135deg,#4a9eff,#7abaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:15px;color:#666;margin-top:8px;max-width:500px}
+.hero .badges{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.hero .badge{padding:4px 12px;border-radius:20px;font-size:11px;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.2);color:#7abaff}
+.summary{max-width:1200px;margin:0 auto;padding:0 24px 60px}
+.summary h2{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:#555;margin:40px 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.card{background:rgba(18,18,26,.85);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;text-decoration:none;color:#eaeaea;transition:.2s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-2px);border-color:rgba(74,158,255,.3);background:rgba(24,24,34,.9)}
+.card:hover .card-icon{color:#4a9eff}
+.card .card-icon{font-size:22px;margin-bottom:8px;transition:.2s;color:#666}
+.card h3{font-size:14px;font-weight:600;margin-bottom:4px}
+.card p{font-size:12px;color:#666;line-height:1.5}
+.card .card-count{position:absolute;top:12px;right:12px;font-size:10px;color:#444;background:rgba(255,255,255,.04);padding:2px 8px;border-radius:10px}
+.footer{text-align:center;padding:30px;color:#444;font-size:12px;border-top:1px solid rgba(255,255,255,.04)}
+.footer a{color:#666;text-decoration:none}
+.footer a:hover{color:#999}
+@media(max-width:600px){.hero{padding:40px 20px 24px}.hero h1{font-size:26px}.hero .seal{width:140px;height:140px}}
+</style>
+</head>
+<body>
+<div class="hero">
+<img class="seal" src="assets/img/seal.svg" alt="Selo do projeto">
+<h1>secretaria_escola_csm</h1>
+<p>Sistema de Gestão Escolar CSM — SPA em TypeScript + Vite com Supabase</p>
+<div class="badges">
+<span class="badge">21.257 LOC</span>
+<span class="badge">95 arquivos</span>
+<span class="badge">11 módulos</span>
+<span class="badge">9 features</span>
+<span class="badge">TypeScript</span>
+</div>
+</div>
+<div class="summary">
+<h2>Navegação</h2>
+<div class="grid">
+<a class="card" href="arquitetura.html">
+<div class="card-icon">🏙️</div>
+<h3>Arquitetura 3D</h3>
+<p>Code City interativa com Three.js — visualize prédios por LOC e complexidade</p>
+</a>
+<a class="card" href="modulos.html">
+<div class="card-icon">🔗</div>
+<h3>Mapa de Módulos</h3>
+<p>Grafo de dependências force-directed entre os 11 módulos do sistema</p>
+</a>
+<a class="card" href="metricas.html">
+<div class="card-icon">📊</div>
+<h3>Dashboard de Métricas</h3>
+<p>Treemap, histograma, sankey e mais — 6 gráficos Highcharts</p>
+</a>
+<a class="card" href="deck.html">
+<div class="card-icon">📖</div>
+<h3>Deck de Slides</h3>
+<p>Apresentação navegável (7 slides) com visão geral do sistema</p>
+</a>
+</div>
+
+<h2>Features</h2>
+<div class="grid">
+<a class="card" href="features/academic.html">
+<h3>Gestão Acadêmica</h3>
+<p>Turmas, matrículas, notas e estágio</p>
+</a>
+<a class="card" href="features/admin.html">
+<h3>Administração</h3>
+<p>CRUD de usuários, busca e reset de senha</p>
+</a>
+<a class="card" href="features/audit.html">
+<h3>Auditoria</h3>
+<p>Logs, gráficos de barras e tendência</p>
+</a>
+<a class="card" href="features/auth.html">
+<h3>Autenticação</h3>
+<p>Login, logout, sessão timeout 30min</p>
+</a>
+<a class="card" href="features/course.html">
+<h3>Gestão de Cursos</h3>
+<p>Cursos, matriz curricular e ofertas</p>
+</a>
+<a class="card" href="features/documents.html">
+<h3>Documentos</h3>
+<p>Solicitações de documentos acadêmicos</p>
+</a>
+<a class="card" href="features/financeiro.html">
+<h3>Financeiro</h3>
+<p>Pagamentos, parcelas e acordos</p>
+</a>
+<a class="card" href="features/professor.html">
+<h3>Professor</h3>
+<p>Turmas, alunos e registro de aulas</p>
+</a>
+<a class="card" href="features/student.html">
+<h3>Dados do Aluno</h3>
+<p>Perfil completo, histórico e documentos</p>
+</a>
+</div>
+</div>
+<div class="footer">
+Gerado pelo Reversa Docs &middot; <a href="https://opencode.ai">opencode.ai</a> &middot; 2026
+</div>
+</body>
+</html>

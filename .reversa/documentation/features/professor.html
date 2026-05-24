@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feature: Gestão de Professores | secretaria_escola_csm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+.back{margin-bottom:2rem}
+.back a{color:#8b5cf6;text-decoration:none;font-size:0.9rem}
+.back a:hover{color:#a78bfa;text-decoration:underline}
+h1{font-size:2rem;font-weight:700;margin-bottom:0.25rem;color:#f0f0ff}
+h1 small{font-size:1rem;color:#8b5cf6;font-weight:400}
+.subtitle{color:#888;margin-bottom:2rem;font-size:0.95rem}
+.card{background:#12121c;border:1px solid #1e1e2e;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.card h2{font-size:1.2rem;font-weight:600;color:#f0f0ff;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e1e2e}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#ccc}
+.card ul li::before{content:"›";position:absolute;left:0;color:#8b5cf6;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{text-align:left;padding:0.6rem 0.75rem;background:#181825;color:#a78bfa;font-weight:600;border-bottom:2px solid #2a2a3e;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+tbody td{padding:0.6rem 0.75rem;border-bottom:1px solid #1e1e2e;color:#ccc}
+tbody tr:hover{background:#181825}
+.tag{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:#1e1e2e;color:#888}
+.tag.must{background:#2d1b4e;color:#a78bfa}
+.tag.should{background:#1b2e3a;color:#67e8f9}
+.tag.could{background:#1e2d1b;color:#86efac}
+code{background:#181825;padding:0.1rem 0.3rem;border-radius:4px;font-size:0.85rem}
+@media(max-width:640px){body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="back"><a href="../deck.html">&larr; Voltar ao Deck</a></div>
+<h1>Gestão de Professores <small>professor</small></h1>
+<p class="subtitle">Gerencia as atividades docentes: disciplinas lecionadas, lançamento de notas, registro de aulas e vinculação professor-oferta.</p>
+
+<div class="card">
+<h2>Overview</h2>
+<p style="color:#ccc">Módulo de gestão de professores e suas atividades docentes. Gerencia disciplinas lecionadas, lançamento de notas, registro de aulas e vinculação professor-oferta.</p>
+</div>
+
+<div class="card">
+<h2>Responsabilidades</h2>
+<ul>
+<li>Listar disciplinas/ofertas de um professor</li>
+<li>Listar todas as ofertas (para secretaria)</li>
+<li>Vincular professor a uma oferta</li>
+<li>Buscar e lançar notas de alunos</li>
+<li>Lançamento em lote de notas</li>
+<li>Registro e consulta de aulas</li>
+<li>Contagem de alunos por turma</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Requisitos Funcionais</h2>
+<table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Prioridade</th><th>Critério de Aceite</th></tr></thead>
+<tbody>
+<tr><td>RF-01</td><td>Listar disciplinas do professor</td><td><span class="tag must">Must</span></td><td>Ofertas com dados da disciplina e turma</td></tr>
+<tr><td>RF-02</td><td>Listar todas as ofertas</td><td><span class="tag should">Should</span></td><td>Todas as ofertas (para secretaria)</td></tr>
+<tr><td>RF-03</td><td>Vincular professor a oferta</td><td><span class="tag must">Must</span></td><td>Atualiza professor_id na oferta</td></tr>
+<tr><td>RF-04</td><td>Buscar notas da disciplina</td><td><span class="tag must">Must</span></td><td>Notas de todos os alunos da turma</td></tr>
+<tr><td>RF-05</td><td>Salvar nota individual</td><td><span class="tag must">Must</span></td><td>Nota criada ou atualizada com versionamento</td></tr>
+<tr><td>RF-06</td><td>Salvar notas em lote</td><td><span class="tag should">Should</span></td><td>Múltiplas notas salvas</td></tr>
+<tr><td>RF-07</td><td>Registrar aula</td><td><span class="tag must">Must</span></td><td>Aula registrada com auditoria</td></tr>
+<tr><td>RF-08</td><td>Listar aulas da oferta</td><td><span class="tag must">Must</span></td><td>Aulas da oferta específica</td></tr>
+<tr><td>RF-09</td><td>Listar aulas do professor</td><td><span class="tag must">Must</span></td><td>Todas as aulas por professor</td></tr>
+<tr><td>RF-10</td><td>Contar alunos da turma</td><td><span class="tag must">Must</span></td><td>Número de alunos ativos</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Regras de Negócio</h2>
+<ul>
+<li>Notas entre 0 e 10 (validado via Zod)</li>
+<li>Controle de concorrência via campo versao</li>
+<li>Registro de aulas auditado</li>
+<li>Notas vinculadas a disciplina_base_id (não mais por nome)</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Design Técnico</h2>
+<table>
+<thead><tr><th>Símbolo</th><th>Assinatura</th><th>Retorno</th></tr></thead>
+<tbody>
+<tr><td><code>getDisciplinasDoProfessor</code></td><td><code>(professorId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getAllOfertas</code></td><td><code>()</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>vincularProfessorAOferta</code></td><td><code>(ofertaId, professorId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getNotasDaDisciplina</code></td><td><code>(disciplinaBaseId, turmaId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>salvarNota</code></td><td><code>(alunoId, disciplinaBaseId, NotaData, versao)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>salvarNotasEmLote</code></td><td><code>(disciplinaBaseId, notas[])</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>registrarAula</code></td><td><code>(AulaData)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getAulasDaOferta</code></td><td><code>(ofertaId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getAulasDoProfessor</code></td><td><code>(professorId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getProfessores</code></td><td><code>()</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>contarAlunosTurma</code></td><td><code>(turmaId)</code></td><td><code>{ count, error }</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tarefas</h2>
+<table>
+<thead><tr><th>ID</th><th>Descrição</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr><td>T-01</td><td>Implementar getDisciplinasDoProfessor</td><td>🟢</td></tr>
+<tr><td>T-02</td><td>Implementar getNotasDaDisciplina</td><td>🟡</td></tr>
+<tr><td>T-03</td><td>Implementar salvarNota com locking</td><td>🟢</td></tr>
+<tr><td>T-04</td><td>Implementar salvarNotasEmLote</td><td>🟢</td></tr>
+<tr><td>T-05</td><td>Implementar registrarAula com auditoria</td><td>🟢</td></tr>
+<tr><td>T-06</td><td>Implementar getAulasDaOferta e getAulasDoProfessor</td><td>🟢</td></tr>
+<tr><td>T-07</td><td>Implementar vincularProfessorAOferta</td><td>🟢</td></tr>
+<tr><td>T-08</td><td>Implementar getProfessores</td><td>🟢</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

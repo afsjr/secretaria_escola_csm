@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feature: Dados do Aluno | secretaria_escola_csm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+.back{margin-bottom:2rem}
+.back a{color:#8b5cf6;text-decoration:none;font-size:0.9rem}
+.back a:hover{color:#a78bfa;text-decoration:underline}
+h1{font-size:2rem;font-weight:700;margin-bottom:0.25rem;color:#f0f0ff}
+h1 small{font-size:1rem;color:#8b5cf6;font-weight:400}
+.subtitle{color:#888;margin-bottom:2rem;font-size:0.95rem}
+.card{background:#12121c;border:1px solid #1e1e2e;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.card h2{font-size:1.2rem;font-weight:600;color:#f0f0ff;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e1e2e}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#ccc}
+.card ul li::before{content:"›";position:absolute;left:0;color:#8b5cf6;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{text-align:left;padding:0.6rem 0.75rem;background:#181825;color:#a78bfa;font-weight:600;border-bottom:2px solid #2a2a3e;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+tbody td{padding:0.6rem 0.75rem;border-bottom:1px solid #1e1e2e;color:#ccc}
+tbody tr:hover{background:#181825}
+.tag{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:#1e1e2e;color:#888}
+.tag.must{background:#2d1b4e;color:#a78bfa}
+.tag.could{background:#1e2d1b;color:#86efac}
+code{background:#181825;padding:0.1rem 0.3rem;border-radius:4px;font-size:0.85rem}
+@media(max-width:640px){body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="back"><a href="../deck.html">&larr; Voltar ao Deck</a></div>
+<h1>Dados do Aluno <small>student</small></h1>
+<p class="subtitle">Gerencia dados estendidos do aluno: endereço, responsáveis, observações e dados completos para visão 360°.</p>
+
+<div class="card">
+<h2>Overview</h2>
+<p style="color:#ccc">Módulo de dados completos do aluno. Gerencia endereço, responsáveis, observações e dados completos para visão 360° do aluno.</p>
+</div>
+
+<div class="card">
+<h2>Responsabilidades</h2>
+<ul>
+<li>CRUD de endereço do aluno</li>
+<li>CRUD de responsáveis</li>
+<li>CRUD de observações</li>
+<li>Consulta de dados completos do aluno</li>
+<li>Verificação de menor de idade</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Requisitos Funcionais</h2>
+<table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Prioridade</th><th>Critério de Aceite</th></tr></thead>
+<tbody>
+<tr><td>RF-01</td><td>Buscar endereço</td><td><span class="tag must">Must</span></td><td>Endereço do usuário</td></tr>
+<tr><td>RF-02</td><td>Salvar endereço</td><td><span class="tag must">Must</span></td><td>Upsert de endereço</td></tr>
+<tr><td>RF-03</td><td>Deletar endereço</td><td><span class="tag must">Must</span></td><td>Remove endereço</td></tr>
+<tr><td>RF-04</td><td>Listar responsáveis</td><td><span class="tag must">Must</span></td><td>Responsáveis do aluno</td></tr>
+<tr><td>RF-05</td><td>Adicionar responsável</td><td><span class="tag must">Must</span></td><td>Responsável criado</td></tr>
+<tr><td>RF-06</td><td>Atualizar responsável</td><td><span class="tag must">Must</span></td><td>Dados atualizados</td></tr>
+<tr><td>RF-07</td><td>Deletar responsável</td><td><span class="tag must">Must</span></td><td>Responsável removido</td></tr>
+<tr><td>RF-08</td><td>Listar observações</td><td><span class="tag must">Must</span></td><td>Observações com dados do criador</td></tr>
+<tr><td>RF-09</td><td>Adicionar observação</td><td><span class="tag must">Must</span></td><td>Observação criada</td></tr>
+<tr><td>RF-10</td><td>Atualizar observação</td><td><span class="tag must">Must</span></td><td>Texto/categoria atualizados</td></tr>
+<tr><td>RF-11</td><td>Deletar observação</td><td><span class="tag must">Must</span></td><td>Observação removida</td></tr>
+<tr><td>RF-12</td><td>Consultar dados completos</td><td><span class="tag must">Must</span></td><td>Perfil + endereço + responsáveis + obs + matrícula</td></tr>
+<tr><td>RF-13</td><td>Atualizar dados pessoais</td><td><span class="tag must">Must</span></td><td>Update com versionamento</td></tr>
+<tr><td>RF-14</td><td>Verificar menor de idade</td><td><span class="tag could">Could</span></td><td>RPC retorna boolean</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Regras de Negócio</h2>
+<ul>
+<li>Endereço com upsert (cria ou atualiza)</li>
+<li>Responsáveis ordenados por principal</li>
+<li>Observações incluem dados do criador</li>
+<li>Verificação de menor via RPC (endpoint server-side com validação de data_nascimento)</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Design Técnico</h2>
+<table>
+<thead><tr><th>Símbolo</th><th>Assinatura</th><th>Retorno</th></tr></thead>
+<tbody>
+<tr><td><code>getEndereco</code></td><td><code>(userId)</code></td><td><code>DbResult&lt;Endereco&gt;</code></td></tr>
+<tr><td><code>saveEndereco</code></td><td><code>(userId, Partial&lt;Endereco&gt;)</code></td><td><code>DbResult&lt;Endereco&gt;</code></td></tr>
+<tr><td><code>deleteEndereco</code></td><td><code>(userId)</code></td><td><code>DbResult&lt;unknown&gt;</code></td></tr>
+<tr><td><code>getResponsaveis</code></td><td><code>(alunoId)</code></td><td><code>DbResult&lt;Responsavel[]&gt;</code></td></tr>
+<tr><td><code>addResponsavel</code></td><td><code>(alunoId, Partial&lt;Responsavel&gt;)</code></td><td><code>DbResult&lt;Responsavel&gt;</code></td></tr>
+<tr><td><code>updateResponsavel</code></td><td><code>(id, Partial&lt;Responsavel&gt;)</code></td><td><code>DbResult&lt;Responsavel&gt;</code></td></tr>
+<tr><td><code>deleteResponsavel</code></td><td><code>(id)</code></td><td><code>DbResult&lt;unknown&gt;</code></td></tr>
+<tr><td><code>getObservacoes</code></td><td><code>(alunoId)</code></td><td><code>DbResult&lt;Observacao[]&gt;</code></td></tr>
+<tr><td><code>addObservacao</code></td><td><code>(alunoId, texto, categoria)</code></td><td><code>DbResult&lt;Observacao&gt;</code></td></tr>
+<tr><td><code>updateObservacao</code></td><td><code>(id, Partial&lt;Observacao&gt;)</code></td><td><code>DbResult&lt;Observacao&gt;</code></td></tr>
+<tr><td><code>deleteObservacao</code></td><td><code>(id)</code></td><td><code>DbResult&lt;unknown&gt;</code></td></tr>
+<tr><td><code>getAlunoCompleto</code></td><td><code>(alunoId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>updateDadosPessoais</code></td><td><code>(userId, Partial&lt;UserProfile&gt;, versao)</code></td><td><code>DbResult&lt;UserProfile&gt;</code></td></tr>
+<tr><td><code>isMenorDeIdade</code></td><td><code>(alunoId)</code></td><td><code>Promise&lt;boolean | null&gt;</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tarefas</h2>
+<table>
+<thead><tr><th>ID</th><th>Descrição</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr><td>T-01</td><td>Implementar getEndereco e saveEndereco (upsert)</td><td>🟢</td></tr>
+<tr><td>T-02</td><td>Implementar deleteEndereco</td><td>🟢</td></tr>
+<tr><td>T-03</td><td>Implementar CRUD de responsáveis</td><td>🟢</td></tr>
+<tr><td>T-04</td><td>Implementar CRUD de observações</td><td>🟢</td></tr>
+<tr><td>T-05</td><td>Implementar getAlunoCompleto</td><td>🟡</td></tr>
+<tr><td>T-06</td><td>Implementar updateDadosPessoais com locking</td><td>🟢</td></tr>
+<tr><td>T-07</td><td>Verificar/criar RPC aluno_eh_menor</td><td>🔴</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

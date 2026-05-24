@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feature: Autenticação e Sessão | secretaria_escola_csm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+.back{margin-bottom:2rem}
+.back a{color:#8b5cf6;text-decoration:none;font-size:0.9rem}
+.back a:hover{color:#a78bfa;text-decoration:underline}
+h1{font-size:2rem;font-weight:700;margin-bottom:0.25rem;color:#f0f0ff}
+h1 small{font-size:1rem;color:#8b5cf6;font-weight:400}
+.subtitle{color:#888;margin-bottom:2rem;font-size:0.95rem}
+.card{background:#12121c;border:1px solid #1e1e2e;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.card h2{font-size:1.2rem;font-weight:600;color:#f0f0ff;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e1e2e}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#ccc}
+.card ul li::before{content:"›";position:absolute;left:0;color:#8b5cf6;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{text-align:left;padding:0.6rem 0.75rem;background:#181825;color:#a78bfa;font-weight:600;border-bottom:2px solid #2a2a3e;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+tbody td{padding:0.6rem 0.75rem;border-bottom:1px solid #1e1e2e;color:#ccc}
+tbody tr:hover{background:#181825}
+.tag{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:#1e1e2e;color:#888}
+.tag.must{background:#2d1b4e;color:#a78bfa}
+.tag.should{background:#1b2e3a;color:#67e8f9}
+code{background:#181825;padding:0.1rem 0.3rem;border-radius:4px;font-size:0.85rem}
+@media(max-width:640px){body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="back"><a href="../deck.html">&larr; Voltar ao Deck</a></div>
+<h1>Autenticação e Sessão <small>auth</small></h1>
+<p class="subtitle">Gerencia ciclo de vida de sessões de usuários: login, logout, recuperação de senha e verificação de perfil. Integra com Supabase Auth para autenticação JWT.</p>
+
+<div class="card">
+<h2>Overview</h2>
+<p style="color:#ccc">Módulo de autenticação do sistema CSM. Gerencia login, logout, recuperação de senha e verificação de perfil via Supabase Auth com sessão JWT e timeout de 30 minutos.</p>
+</div>
+
+<div class="card">
+<h2>Responsabilidades</h2>
+<ul>
+<li>Autenticar usuários com email/senha</li>
+<li>Manter sessão ativa com timeout de 30 minutos</li>
+<li>Gerenciar recuperação de senha via email</li>
+<li>Buscar e atualizar perfil do usuário logado</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Requisitos Funcionais</h2>
+<table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Prioridade</th><th>Critério de Aceite</th></tr></thead>
+<tbody>
+<tr><td>RF-01</td><td>Login com email e senha</td><td><span class="tag must">Must</span></td><td>Usuário autenticado e sessão iniciada</td></tr>
+<tr><td>RF-02</td><td>Logout com limpeza de sessão</td><td><span class="tag must">Must</span></td><td>Usuário desautenticado e redirecionado</td></tr>
+<tr><td>RF-03</td><td>Verificar sessão ativa com timeout</td><td><span class="tag must">Must</span></td><td>Retorna sessão válida ou erro de expirado</td></tr>
+<tr><td>RF-04</td><td>Recuperar senha via email</td><td><span class="tag must">Must</span></td><td>Email de reset enviado com link válido</td></tr>
+<tr><td>RF-05</td><td>Atualizar senha após recovery</td><td><span class="tag must">Must</span></td><td>Senha atualizada e sessão mantida</td></tr>
+<tr><td>RF-06</td><td>Buscar perfil do usuário</td><td><span class="tag must">Must</span></td><td>Retorna dados completos do perfil</td></tr>
+<tr><td>RF-07</td><td>Atualizar perfil do usuário</td><td><span class="tag should">Should</span></td><td>Dados atualizados no banco</td></tr>
+<tr><td>RF-08</td><td>Listar todos os perfis</td><td><span class="tag should">Should</span></td><td>Retorna lista ordenada por nome</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Regras de Negócio</h2>
+<ul>
+<li>Sessão expira após 30 minutos de inatividade</li>
+<li>Fluxo de recovery ignora verificação de timeout</li>
+<li>Reset de senha define senha padrão configurável + força mudança</li>
+<li>Registro de usuário cria perfil automaticamente com perfil 'aluno'</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Design Técnico</h2>
+<table>
+<thead><tr><th>Símbolo</th><th>Assinatura</th><th>Retorno</th></tr></thead>
+<tbody>
+<tr><td><code>login</code></td><td><code>(email, password)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>logout</code></td><td><code>()</code></td><td><code>{ error }</code></td></tr>
+<tr><td><code>getSession</code></td><td><code>()</code></td><td><code>{ session, error }</code></td></tr>
+<tr><td><code>resetPassword</code></td><td><code>(email)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>updatePassword</code></td><td><code>(newPassword)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getUserProfile</code></td><td><code>(userId?)</code></td><td><code>Promise&lt;{ data, error }&gt;</code></td></tr>
+<tr><td><code>updateUserProfile</code></td><td><code>(userId, updates)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getAllProfiles</code></td><td><code>()</code></td><td><code>{ data, error }</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tarefas</h2>
+<table>
+<thead><tr><th>ID</th><th>Descrição</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr><td>T-01</td><td>Implementar função login com Supabase Auth</td><td>🟢</td></tr>
+<tr><td>T-02</td><td>Implementar logout com limpeza de timer</td><td>🟢</td></tr>
+<tr><td>T-03</td><td>Implementar verificação de sessão com timeout</td><td>🟢</td></tr>
+<tr><td>T-04</td><td>Implementar session timeout automático</td><td>🟢</td></tr>
+<tr><td>T-05</td><td>Implementar reset password com redirect dinâmico</td><td>🟢</td></tr>
+<tr><td>T-06</td><td>Implementar getUserProfile</td><td>🟢</td></tr>
+<tr><td>T-07</td><td>Implementar updateUserProfile</td><td>🟢</td></tr>
+<tr><td>T-08</td><td>Implementar registerUser com rollback</td><td>🟡</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

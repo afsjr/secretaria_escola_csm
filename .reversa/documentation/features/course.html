@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feature: Gestão de Cursos | secretaria_escola_csm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+.back{margin-bottom:2rem}
+.back a{color:#8b5cf6;text-decoration:none;font-size:0.9rem}
+.back a:hover{color:#a78bfa;text-decoration:underline}
+h1{font-size:2rem;font-weight:700;margin-bottom:0.25rem;color:#f0f0ff}
+h1 small{font-size:1rem;color:#8b5cf6;font-weight:400}
+.subtitle{color:#888;margin-bottom:2rem;font-size:0.95rem}
+.card{background:#12121c;border:1px solid #1e1e2e;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.card h2{font-size:1.2rem;font-weight:600;color:#f0f0ff;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e1e2e}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#ccc}
+.card ul li::before{content:"›";position:absolute;left:0;color:#8b5cf6;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{text-align:left;padding:0.6rem 0.75rem;background:#181825;color:#a78bfa;font-weight:600;border-bottom:2px solid #2a2a3e;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+tbody td{padding:0.6rem 0.75rem;border-bottom:1px solid #1e1e2e;color:#ccc}
+tbody tr:hover{background:#181825}
+.tag{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:#1e1e2e;color:#888}
+.tag.must{background:#2d1b4e;color:#a78bfa}
+.tag.should{background:#1b2e3a;color:#67e8f9}
+code{background:#181825;padding:0.1rem 0.3rem;border-radius:4px;font-size:0.85rem}
+@media(max-width:640px){body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="back"><a href="../deck.html">&larr; Voltar ao Deck</a></div>
+<h1>Gestão de Cursos <small>course</small></h1>
+<p class="subtitle">Gerencia o catálogo de cursos, disciplinas base (matriz curricular) e ofertas de disciplinas às turmas.</p>
+
+<div class="card">
+<h2>Overview</h2>
+<p style="color:#ccc">Módulo de gestão de cursos, matriz curricular e ofertas. Gerencia cursos, disciplinas base e ofertas de disciplinas às turmas.</p>
+</div>
+
+<div class="card">
+<h2>Responsabilidades</h2>
+<ul>
+<li>CRUD de cursos (ativar/desativar)</li>
+<li>Gestão de matriz curricular (disciplinas_base)</li>
+<li>Criação e remoção de ofertas (turma_disciplinas)</li>
+<li>Atribuição de professores a ofertas</li>
+<li>Consulta de turmas por curso</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Requisitos Funcionais</h2>
+<table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Prioridade</th><th>Critério de Aceite</th></tr></thead>
+<tbody>
+<tr><td>RF-01</td><td>Listar cursos</td><td><span class="tag must">Must</span></td><td>Lista de cursos</td></tr>
+<tr><td>RF-02</td><td>Listar cursos ativos</td><td><span class="tag must">Must</span></td><td>Apenas cursos com ativo=true</td></tr>
+<tr><td>RF-03</td><td>Criar curso</td><td><span class="tag must">Must</span></td><td>Curso criado</td></tr>
+<tr><td>RF-04</td><td>Desativar curso</td><td><span class="tag must">Must</span></td><td>Curso marcado como inativo</td></tr>
+<tr><td>RF-05</td><td>Reativar curso</td><td><span class="tag must">Must</span></td><td>Curso marcado como ativo</td></tr>
+<tr><td>RF-06</td><td>Consultar matriz curricular</td><td><span class="tag must">Must</span></td><td>Disciplinas do curso ordenadas</td></tr>
+<tr><td>RF-07</td><td>Adicionar disciplina ao catálogo</td><td><span class="tag must">Must</span></td><td>Disciplina base criada</td></tr>
+<tr><td>RF-08</td><td>Listar turmas do curso</td><td><span class="tag must">Must</span></td><td>Turmas vinculadas ao curso</td></tr>
+<tr><td>RF-09</td><td>Listar ofertas da turma</td><td><span class="tag must">Must</span></td><td>Ofertas com dados da disciplina</td></tr>
+<tr><td>RF-10</td><td>Criar oferta de disciplina</td><td><span class="tag must">Must</span></td><td>Oferta criada</td></tr>
+<tr><td>RF-11</td><td>Atribuir professor à oferta</td><td><span class="tag must">Must</span></td><td>Professor vinculado</td></tr>
+<tr><td>RF-12</td><td>Remover oferta</td><td><span class="tag must">Must</span></td><td>Oferta removida</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Regras de Negócio</h2>
+<ul>
+<li>Curso pode ser ativado/desativado logicamente</li>
+<li>Disciplinas pertencem ao catálogo do curso (não da turma)</li>
+<li>Oferta vincula: turma + disciplina_base + professor</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Design Técnico</h2>
+<table>
+<thead><tr><th>Símbolo</th><th>Assinatura</th><th>Retorno</th></tr></thead>
+<tbody>
+<tr><td><code>getCursos</code></td><td><code>()</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getCursosAtivos</code></td><td><code>()</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>createCurso</code></td><td><code>({ nome, descricao })</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>desativarCurso</code></td><td><code>(cursoId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>reativarCurso</code></td><td><code>(cursoId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getMatrizCurricular</code></td><td><code>(cursoId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>addDisciplinaAoCatalogo</code></td><td><code>(DisciplinaBaseData)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getTurmasDoCurso</code></td><td><code>(cursoId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>getOfertasDaTurma</code></td><td><code>(turmaId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>criarOfertaDisciplina</code></td><td><code>(turmaId, disciplinaBaseId, professorId?)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>atribuirProfessorAEstrutura</code></td><td><code>(ofertaId, professorId)</code></td><td><code>{ data, error }</code></td></tr>
+<tr><td><code>removerOfertaDisciplina</code></td><td><code>(ofertaId)</code></td><td><code>{ data, error }</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tarefas</h2>
+<table>
+<thead><tr><th>ID</th><th>Descrição</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr><td>T-01</td><td>Implementar getCursos e getCursosAtivos</td><td>🟢</td></tr>
+<tr><td>T-02</td><td>Implementar createCurso</td><td>🟢</td></tr>
+<tr><td>T-03</td><td>Implementar desativarCurso e reativarCurso</td><td>🟢</td></tr>
+<tr><td>T-04</td><td>Implementar getMatrizCurricular</td><td>🟢</td></tr>
+<tr><td>T-05</td><td>Implementar addDisciplinaAoCatalogo</td><td>🟢</td></tr>
+<tr><td>T-06</td><td>Implementar getTurmasDoCurso</td><td>🟡</td></tr>
+<tr><td>T-07</td><td>Implementar getOfertasDaTurma</td><td>🟢</td></tr>
+<tr><td>T-08</td><td>Implementar criarOfertaDisciplina</td><td>🟢</td></tr>
+<tr><td>T-09</td><td>Implementar atribuirProfessorAEstrutura</td><td>🟢</td></tr>
+<tr><td>T-10</td><td>Implementar removerOfertaDisciplina</td><td>🟢</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

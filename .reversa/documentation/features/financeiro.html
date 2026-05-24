@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feature: Gestão Financeira | secretaria_escola_csm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+.back{margin-bottom:2rem}
+.back a{color:#8b5cf6;text-decoration:none;font-size:0.9rem}
+.back a:hover{color:#a78bfa;text-decoration:underline}
+h1{font-size:2rem;font-weight:700;margin-bottom:0.25rem;color:#f0f0ff}
+h1 small{font-size:1rem;color:#8b5cf6;font-weight:400}
+.subtitle{color:#888;margin-bottom:2rem;font-size:0.95rem}
+.card{background:#12121c;border:1px solid #1e1e2e;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.card h2{font-size:1.2rem;font-weight:600;color:#f0f0ff;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e1e2e}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#ccc}
+.card ul li::before{content:"›";position:absolute;left:0;color:#8b5cf6;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{text-align:left;padding:0.6rem 0.75rem;background:#181825;color:#a78bfa;font-weight:600;border-bottom:2px solid #2a2a3e;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+tbody td{padding:0.6rem 0.75rem;border-bottom:1px solid #1e1e2e;color:#ccc}
+tbody tr:hover{background:#181825}
+.tag{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:#1e1e2e;color:#888}
+.tag.must{background:#2d1b4e;color:#a78bfa}
+code{background:#181825;padding:0.1rem 0.3rem;border-radius:4px;font-size:0.85rem}
+@media(max-width:640px){body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="back"><a href="../deck.html">&larr; Voltar ao Deck</a></div>
+<h1>Gestão Financeira <small>financeiro</small></h1>
+<p class="subtitle">Sistema de gestão financeira inspirado em modelo comercial CSM. Gerencia cobranças de mensalidades, acordos de parcelamento, inadimplência e emissão de recibos/termos.</p>
+
+<div class="card">
+<h2>Overview</h2>
+<p style="color:#ccc">Módulo de gestão de cobranças, acordos e inadimplência. Gerencia mensalidades, acordos de parcelamento, inadimplência e emissão de recibos/termos.</p>
+</div>
+
+<div class="card">
+<h2>Responsabilidades</h2>
+<ul>
+<li>Dashboard financeiro com indicadores de inadimplência</li>
+<li>Gestão de alunos inadimplentes</li>
+<li>Histórico financeiro por aluno</li>
+<li>Criação e gestão de acordos de pagamento</li>
+<li>Lançamento de novos débitos/mensalidades</li>
+<li>Cálculo automático de multas e juros</li>
+<li>Geração de termos de acordo em PDF</li>
+<li>Exportação de dados para Excel</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Requisitos Funcionais</h2>
+<table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Prioridade</th><th>Critério de Aceite</th></tr></thead>
+<tbody>
+<tr><td>RF-01</td><td>Dashboard financeiro</td><td><span class="tag must">Must</span></td><td>Exibe total inadimplente, recuperado, previsto e contagem atrasados</td></tr>
+<tr><td>RF-02</td><td>Listar inadimplentes</td><td><span class="tag must">Must</span></td><td>Lista alunos com pagamentos status='atrasado'</td></tr>
+<tr><td>RF-03</td><td>Histórico do aluno</td><td><span class="tag must">Must</span></td><td>Lista todos pagamentos de um aluno específico</td></tr>
+<tr><td>RF-04</td><td>Criar acordo</td><td><span class="tag must">Must</span></td><td>Cria registro em financeiro_acordos e atualiza pagamentos</td></tr>
+<tr><td>RF-05</td><td>Consultar configurações</td><td><span class="tag must">Must</span></td><td>Retorna configurações (multa_atraso, juros_mensal)</td></tr>
+<tr><td>RF-06</td><td>Listar todos pagamentos</td><td><span class="tag must">Must</span></td><td>Lista todos registros da tabela pagamentos</td></tr>
+<tr><td>RF-07</td><td>Criar pagamento/débito</td><td><span class="tag must">Must</span></td><td>Cria novo registro de cobrança para aluno</td></tr>
+<tr><td>RF-08</td><td>Calcular multa e juros</td><td><span class="tag must">Must</span></td><td>Aplica 2% multa + 1% juros mensal sobre valor atrasado</td></tr>
+<tr><td>RF-09</td><td>Gerar termo de acordo PDF</td><td><span class="tag must">Must</span></td><td>Gera PDF com dados do acordo e aluno</td></tr>
+<tr><td>RF-10</td><td>Exportar Excel</td><td><span class="tag must">Must</span></td><td>Exporta lista de alunos com status financeiro</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Regras de Negócio</h2>
+<ul>
+<li>Status de pagamento válidos: 'pendente', 'pago', 'atrasado', 'acordo'</li>
+<li>Multa por atraso: 2% sobre valor original</li>
+<li>Juros mensal: 1% sobre valor original</li>
+<li>Acordo altera status dos pagamentos originais para 'acordo'</li>
+<li>Data de vencimento inferior a hoje = status 'atrasado'</li>
+<li>Configurações armazenadas em tabela 'financeiro_config'</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Design Técnico</h2>
+<table>
+<thead><tr><th>Símbolo</th><th>Assinatura</th><th>Retorno</th></tr></thead>
+<tbody>
+<tr><td><code>getResumo</code></td><td><code>()</code></td><td><code>{ data: { totalInadimplente, totalRecuperado, totalPrevisto, contagemAtrasados }, error }</code></td></tr>
+<tr><td><code>getInadimplentes</code></td><td><code>()</code></td><td><code>{ data: perfis[], error }</code></td></tr>
+<tr><td><code>getHistoricoAluno</code></td><td><code>(alunoId)</code></td><td><code>{ data: pagamentos[], error }</code></td></tr>
+<tr><td><code>criarAcordo</code></td><td><code>(dados: AcordoData)</code></td><td><code>{ data: acordo, error }</code></td></tr>
+<tr><td><code>getConfig</code></td><td><code>()</code></td><td><code>{ data: Record&lt;string, number&gt;, error }</code></td></tr>
+<tr><td><code>getAllPagamentos</code></td><td><code>()</code></td><td><code>{ data: pagamentos[], error }</code></td></tr>
+<tr><td><code>createPagamento</code></td><td><code>(payload: PagamentoPayload)</code></td><td><code>{ data: pagamento, error }</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Tarefas</h2>
+<table>
+<thead><tr><th>ID</th><th>Descrição</th><th>Confiança</th></tr></thead>
+<tbody>
+<tr><td>T-01</td><td>Implementar getResumo()</td><td>🟢</td></tr>
+<tr><td>T-02</td><td>Implementar getInadimplentes()</td><td>🟢</td></tr>
+<tr><td>T-03</td><td>Implementar getHistoricoAluno(alunoId)</td><td>🟢</td></tr>
+<tr><td>T-04</td><td>Implementar criarAcordo(dados)</td><td>🟢</td></tr>
+<tr><td>T-05</td><td>Implementar getConfig()</td><td>🟢</td></tr>
+<tr><td>T-06</td><td>Implementar getAllPagamentos()</td><td>🟢</td></tr>
+<tr><td>T-07</td><td>Implementar createPagamento(payload)</td><td>🟢</td></tr>
+<tr><td>T-08</td><td>Implementar View FinanceiroView()</td><td>🟢</td></tr>
+<tr><td>T-09</td><td>Implementar cálculo dinâmico de multas/juros</td><td>🟢</td></tr>
+<tr><td>T-10</td><td>Implementar geração PDF de termo de acordo</td><td>🟢</td></tr>
+<tr><td>T-11</td><td>Implementar exportação Excel</td><td>🟢</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

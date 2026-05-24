@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mapa de Módulos | secretaria_escola_csm</title>
+<script src="assets/vendor/d3.v7.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:system-ui,sans-serif;overflow:hidden;height:100vh}
+#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0a10;color:#888;font-size:20px;z-index:100;transition:opacity .5s}
+#loader.hidden{opacity:0;pointer-events:none}
+svg{position:fixed;inset:0;width:100%;height:100%}
+#sidebar{position:fixed;top:0;right:0;width:260px;height:100vh;background:rgba(12,12,18,.92);border-left:1px solid rgba(255,255,255,.06);padding:20px 16px;overflow-y:auto;z-index:10;backdrop-filter:blur(12px)}
+#sidebar h3{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin-bottom:20px}
+#sidebar label{display:block;font-size:12px;color:#999;margin-bottom:14px}
+#sidebar input[type=range]{width:100%;margin-top:4px;background:transparent}
+#sidebar select{width:100%;padding:4px 8px;background:#1a1a24;color:#ccc;border:1px solid #333;border-radius:4px;font-size:12px;margin-top:4px}
+#sidebar .btn-group{display:flex;gap:8px;margin-top:16px}
+#sidebar button{flex:1;padding:8px 12px;border:none;border-radius:6px;font-size:12px;cursor:pointer;transition:.2s}
+#reset-btn{background:#2a2a3a;color:#aaa}
+#reset-btn:hover{background:#3a3a4a;color:#fff}
+#export-btn{background:#1a3a5a;color:#7abaff}
+#export-btn:hover{background:#2a4a6a;color:#9acfff}
+.tooltip{position:fixed;padding:10px 14px;background:rgba(0,0,0,.88);color:#eaeaea;border-radius:8px;font-size:12px;pointer-events:none;z-index:50;display:none;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);max-width:280px;line-height:1.5}
+.tooltip.visible{display:block}
+.tooltip .fn{color:#7abaff;font-weight:600}
+.tooltip .meta{color:#999;font-size:11px}
+.legend{position:fixed;bottom:20px;left:20px;z-index:10;padding:12px 16px;background:rgba(12,12,18,.85);border-radius:8px;border:1px solid rgba(255,255,255,.06);font-size:11px;color:#999;line-height:1.8}
+.legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="loader">Carregando mapa de dependências...</div>
+<svg id="graph"></svg>
+<div id="tooltip" class="tooltip"></div>
+<div class="legend">
+<div><span class="dot" style="background:#4a9eff"></span>Código (code)</div>
+<div><span class="dot" style="background:#6cc46c"></span>Teste</div>
+<div><span class="dot" style="background:#ff9aa2"></span>Estilo</div>
+<div><span class="dot" style="background:#8a6eff"></span>Raiz</div>
+<div style="margin-top:6px;color:#666;font-size:10px">Nó <span style="color:#4a9eff">=</span> módulo | Seta <span style="color:#555">→</span> dependência</div>
+</div>
+<aside id="sidebar">
+<h3>Mapa de Módulos</h3>
+<label>Força de repulsão
+<input type="range" min="-300" max="-30" step="10" value="-150" data-param="repulsion">
+</label>
+<label>Distância mínima
+<input type="range" min="30" max="300" step="10" value="120" data-param="minDist">
+</label>
+<label>Intensidade das arestas
+<input type="range" min="0.1" max="1.0" step="0.1" value="0.5" data-param="linkStrength">
+</label>
+<label>Filtrar complexidade
+<select data-param="complexFilter"><option value="all">Todas</option><option value="3">Alta (3)</option><option value="2">Média (2)</option><option value="1">Baixa (1)</option></select>
+</label>
+<div class="btn-group">
+<button id="reset-btn">Reset</button>
+<button id="export-btn">Exportar PNG</button>
+</div>
+</aside>
+
+<script id="data" type="application/json">{"modules":[{"id":"auth","name":"Authentication","folder":"src/auth","loc":422,"complexity":2,"type":"code"},{"id":"components-root","name":"Components (root)","folder":"src/components","loc":1115,"complexity":2,"type":"code"},{"id":"components-tabs","name":"Components - Tabs","folder":"src/components/Tabs","loc":1785,"complexity":2,"type":"code"},{"id":"components-audit","name":"Components - Audit","folder":"src/components/audit","loc":216,"complexity":1,"type":"code"},{"id":"hooks","name":"Hooks","folder":"src/hooks","loc":54,"complexity":1,"type":"code"},{"id":"lib","name":"Library / Services","folder":"src/lib","loc":7214,"complexity":3,"type":"code"},{"id":"styles","name":"Styles","folder":"src/styles","loc":1705,"complexity":1,"type":"style"},{"id":"test","name":"Test Infrastructure","folder":"src/test","loc":91,"complexity":1,"type":"test"},{"id":"types","name":"Types / Interfaces","folder":"src/types","loc":478,"complexity":1,"type":"code"},{"id":"views","name":"Views / Pages","folder":"src/views","loc":7985,"complexity":2,"type":"code"},{"id":"root","name":"Root Source","folder":"src","loc":192,"complexity":2,"type":"code"}],"edges":[{"from":"components-root","to":"lib"},{"from":"components-root","to":"auth"},{"from":"components-tabs","to":"lib"},{"from":"components-tabs","to":"components-root"},{"from":"components-tabs","to":"types"},{"from":"components-audit","to":"hooks"},{"from":"components-audit","to":"lib"},{"from":"hooks","to":"lib"},{"from":"lib","to":"types"},{"from":"lib","to":"auth"},{"from":"views","to":"lib"},{"from":"views","to":"components-root"},{"from":"views","to":"components-tabs"},{"from":"views","to":"components-audit"},{"from":"views","to":"hooks"},{"from":"views","to":"auth"},{"from":"views","to":"types"},{"from":"root","to":"views"},{"from":"root","to":"lib"},{"from":"root","to":"auth"},{"from":"root","to":"styles"},{"from":"test","to":"lib"}]}</script>
+
+<script>
+(function(){
+var D = JSON.parse(document.getElementById('data').textContent);
+var modules = D.modules, edges = D.edges;
+
+var TCOL = {code:'#4a9eff',test:'#6cc46c',style:'#ff9aa2',config:'#ffc857'};
+function nodeColor(m){ return m.id === 'root' ? '#8a6eff' : TCOL[m.type] || '#999'; }
+
+var svg = d3.select('#graph');
+var W = window.innerWidth, H = window.innerHeight;
+svg.attr('viewBox', [0,0,W,H]);
+
+var g = svg.append('g');
+var zoom = d3.zoom().scaleExtent([0.1,4]).on('zoom', function(e){ g.attr('transform', e.transform); });
+svg.call(zoom);
+
+var tip = document.getElementById('tooltip');
+var sim = d3.forceSimulation(modules)
+.force('link', d3.forceLink(edges).id(function(d){ return d.id; }).distance(120).strength(0.5))
+.force('charge', d3.forceManyBody().strength(-150))
+.force('center', d3.forceCenter(W/2, H/2))
+.force('collision', d3.forceCollide().radius(function(d){ return Math.sqrt(d.loc)*0.3 + 15; }));
+
+var link = g.append('g').selectAll('line')
+.data(edges).join('line')
+.attr('stroke', '#2a2a3a')
+.attr('stroke-width', 1.5)
+.attr('stroke-opacity', 0.5)
+.attr('marker-end', 'url(#arrow)');
+
+var defs = svg.append('defs');
+defs.append('marker').attr('id','arrow').attr('viewBox','0 -5 10 10').attr('refX',25).attr('refY',0).attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
+.append('path').attr('d','M0,-5L10,0L0,5').attr('fill','#4a4a5a');
+
+var node = g.append('g').selectAll('g')
+.data(modules).join('g').attr('cursor','pointer');
+
+node.append('circle')
+.attr('r', function(d){ return Math.sqrt(d.loc)*0.3 + 10; })
+.attr('fill', function(d){ return nodeColor(d); })
+.attr('stroke', '#1a1a24')
+.attr('stroke-width', 2)
+.attr('opacity', 0.9);
+
+node.append('text')
+.text(function(d){ return d.name; })
+.attr('x', function(d){ return Math.sqrt(d.loc)*0.3 + 14; })
+.attr('y', 4)
+.attr('fill', '#ccc')
+.attr('font-size', 11)
+.attr('font-family', 'system-ui,sans-serif');
+
+node.append('title').text(function(d){ return d.id + '\nLOC: ' + d.loc + '\nComplexidade: ' + d.complexity; });
+
+node.call(d3.drag()
+.on('start', function(e,d){ if(!e.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+.on('drag', function(e,d){ d.fx = e.x; d.fy = e.y; })
+.on('end', function(e,d){ if(!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; })
+);
+
+sim.on('tick', function(){
+link.attr('x1', function(d){ return d.source.x; }).attr('y1', function(d){ return d.source.y; })
+.attr('x2', function(d){ return d.target.x; }).attr('y2', function(d){ return d.target.y; });
+node.attr('transform', function(d){ return 'translate('+d.x+','+d.y+')'; });
+});
+
+node.on('mouseenter', function(e,d){
+tip.innerHTML = '<div class="fn">'+d.name+'</div><div class="meta">'+d.folder+'<br>LOC: '+d.loc+' | Complexidade: '+d.complexity+' | Tipo: '+d.type+'</div>';
+tip.className = 'tooltip visible';
+}).on('mousemove', function(e){
+tip.style.left = (e.clientX+16)+'px'; tip.style.top = (e.clientY-10)+'px';
+}).on('mouseleave', function(){
+tip.className = 'tooltip';
+});
+
+// Sidebar controls
+var sliders = document.querySelectorAll('#sidebar input[type=range]');
+sliders.forEach(function(sl){
+sl.addEventListener('input', function(e){
+var v = parseFloat(e.target.value);
+if(e.target.dataset.param === 'repulsion'){
+sim.force('charge').strength(v); sim.alpha(0.3).restart();
+}
+if(e.target.dataset.param === 'minDist'){
+sim.force('link').distance(v); sim.alpha(0.3).restart();
+}
+if(e.target.dataset.param === 'linkStrength'){
+sim.force('link').strength(v); sim.alpha(0.3).restart();
+}
+});
+});
+
+var complexFilter = document.querySelector('select[data-param=complexFilter]');
+complexFilter.addEventListener('change', function(e){
+var val = e.target.value;
+if(val === 'all'){
+node.style('display', null);
+link.style('display', null);
+} else {
+var lvl = parseInt(val);
+node.style('display', function(d){ return d.complexity === lvl ? null : 'none'; });
+link.style('display', function(d){
+var src = typeof d.source === 'object' ? d.source : modules.find(function(m){ return m.id === d.source; });
+var tgt = typeof d.target === 'object' ? d.target : modules.find(function(m){ return m.id === d.target; });
+return (src && src.complexity === lvl) || (tgt && tgt.complexity === lvl) ? null : 'none';
+});
+}
+});
+
+document.getElementById('reset-btn').addEventListener('click', function(){
+svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+});
+
+document.getElementById('export-btn').addEventListener('click', function(){
+var s = document.querySelector('svg');
+var sHTML = s.outerHTML;
+var blob = new Blob([sHTML], {type:'image/svg+xml'});
+var u = URL.createObjectURL(blob);
+var img = new Image();
+img.onload = function(){
+var c = document.createElement('canvas');
+c.width = W; c.height = H;
+var ctx = c.getContext('2d');
+ctx.fillStyle = '#0a0a10'; ctx.fillRect(0,0,W,H);
+ctx.drawImage(img,0,0);
+c.toBlob(function(b){
+var url2 = URL.createObjectURL(b);
+var a = document.createElement('a'); a.href = url2; a.download = 'modulos.png'; a.click();
+URL.revokeObjectURL(url2);
+});
+};
+img.src = u;
+});
+
+window.addEventListener('resize', function(){
+W = window.innerWidth; H = window.innerHeight;
+svg.attr('viewBox', [0,0,W,H]);
+sim.force('center', d3.forceCenter(W/2, H/2)).alpha(0.3).restart();
+});
+
+setTimeout(function(){ document.getElementById('loader').className = 'loader hidden'; }, 300);
+})();
+</script>
+</body>
+</html>

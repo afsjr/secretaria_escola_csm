@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-23T22:30:00-03:00",
+  "reversa": { "version": "1.2.43" },
+  "projectName": "secretaria_escola_csm",
+  "interview": {
+    "readerProfile": "auditor",
+    "depth": "full",
+    "visualStyle": "premium"
+  },
+  "seed": {
+    "hash": "sha256:d4decb8b008ed40b2675a278437b6f8835bfae01c1019cc391e48e792550e003",
+    "source": "project_name"
+  },
+  "knowledgeSources": {
+    "soul": false,
+    "chronicle": false,
+    "topology": true,
+    "sddSpecs": ["academic", "admin", "audit", "auth", "course", "documents", "financeiro", "professor", "student"],
+    "sourceCode": true
+  },
+  "pagesPlanned": [
+    "arquitetura.html",
+    "modulos.html",
+    "topologia.html",
+    "metricas.html",
+    "glossario.html",
+    "deck.html",
+    "features/academic.html",
+    "features/admin.html",
+    "features/audit.html",
+    "features/auth.html",
+    "features/course.html",
+    "features/documents.html",
+    "features/financeiro.html",
+    "features/professor.html",
+    "features/student.html",
+    "index.html"
+  ],
+  "pagesOmitted": [
+    { "page": "timeline.html", "reason": "chronicle.md ausente" }
+  ]
+}

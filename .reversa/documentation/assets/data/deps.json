@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-23T22:30:00-03:00",
+  "project": "secretaria_escola_csm",
+  "nodes": ["auth", "components-root", "components-tabs", "components-audit", "hooks", "lib", "styles", "test", "types", "views", "root"],
+  "edges": [
+    {"from": "components-root", "to": "lib"},
+    {"from": "components-root", "to": "auth"},
+    {"from": "components-tabs", "to": "lib"},
+    {"from": "components-tabs", "to": "components-root"},
+    {"from": "components-tabs", "to": "types"},
+    {"from": "components-audit", "to": "hooks"},
+    {"from": "components-audit", "to": "lib"},
+    {"from": "hooks", "to": "lib"},
+    {"from": "lib", "to": "types"},
+    {"from": "lib", "to": "auth"},
+    {"from": "views", "to": "lib"},
+    {"from": "views", "to": "components-root"},
+    {"from": "views", "to": "components-tabs"},
+    {"from": "views", "to": "components-audit"},
+    {"from": "views", "to": "hooks"},
+    {"from": "views", "to": "auth"},
+    {"from": "views", "to": "types"},
+    {"from": "root", "to": "views"},
+    {"from": "root", "to": "lib"},
+    {"from": "root", "to": "auth"},
+    {"from": "root", "to": "styles"},
+    {"from": "test", "to": "lib"}
+  ],
+  "cycles": []
+}

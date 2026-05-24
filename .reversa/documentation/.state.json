@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-05-23T22:30:00-03:00",
+  "lastCheckpoint": "2026-05-23T22:42:00-03:00",
+  "pipelineDurationMs": 720000,
+  "completedAgents": ["reversa-docs-mapper", "reversa-docs-analyst", "reversa-docs-storyteller", "reversa-docs-publisher"],
+  "pendingAgents": [],
+  "pages": {
+    "index.html": {"status": "created", "agent": "reversa-docs-publisher"},
+    "arquitetura.html": {"status": "created", "agent": "reversa-docs-mapper"},
+    "modulos.html": {"status": "created", "agent": "reversa-docs-mapper"},
+    "metricas.html": {"status": "created", "agent": "reversa-docs-analyst"},
+    "deck.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/academic.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/admin.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/audit.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/auth.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/course.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/documents.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/financeiro.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/professor.html": {"status": "created", "agent": "reversa-docs-storyteller"},
+    "features/student.html": {"status": "created", "agent": "reversa-docs-storyteller"}
+  },
+  "pagesGenerated": [
+    "index.html", "arquitetura.html", "modulos.html", "metricas.html",
+    "deck.html", "features/"
+  ],
+  "pagesOmitted": [
+    {"page": "topologia.html", "reason": "Sem variantes de topologia em architecture.md"},
+    {"page": "timeline.html", "reason": "chronicle.md nao encontrado"},
+    {"page": "glossario.html", "reason": "soul.md nao encontrado"}
+  ],
+  "auxiliaryHtmls": [],
+  "auxiliaryHtmlsDiscovered": 0,
+  "auxiliaryDiscoveryAborted": false,
+  "cdnFallbackUsed": true,
+  "cdnFallbackDetails": [
+    {"lib": "highcharts-accessibility", "primary": "code.highcharts.com", "used": "unpkg.com"},
+    {"lib": "highcharts-exporting", "primary": "code.highcharts.com", "used": "unpkg.com"},
+    {"lib": "highcharts-treemap", "primary": "code.highcharts.com", "used": "unpkg.com"},
+    {"lib": "highcharts-sankey", "primary": "code.highcharts.com", "used": "unpkg.com"}
+  ],
+  "vendorMissing": [],
+  "smokeTestFailed": false,
+  "smokeTestErrors": [],
+  "brokenLinks": []
+}

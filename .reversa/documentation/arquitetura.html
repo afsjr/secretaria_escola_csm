@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Arquitetura 3D | secretaria_escola_csm</title>
+<script src="assets/vendor/three.min.js"></script>
+<script src="assets/vendor/OrbitControls.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a10;color:#eaeaea;font-family:system-ui,sans-serif;overflow:hidden;height:100vh}
+#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0a10;color:#888;font-size:20px;z-index:100;transition:opacity .5s}
+#loader.hidden{opacity:0;pointer-events:none}
+#scene{position:fixed;inset:0;display:block}
+#sidebar{position:fixed;top:0;right:0;width:280px;height:100vh;background:rgba(12,12,18,.92);border-left:1px solid rgba(255,255,255,.06);padding:20px 16px;overflow-y:auto;z-index:10;backdrop-filter:blur(12px)}
+#sidebar h3{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin-bottom:20px}
+#sidebar label{display:block;font-size:12px;color:#999;margin-bottom:14px}
+#sidebar input[type=range]{width:100%;margin-top:4px;background:transparent}
+#sidebar select{width:100%;padding:4px 8px;background:#1a1a24;color:#ccc;border:1px solid #333;border-radius:4px;font-size:12px;margin-top:4px}
+#sidebar .btn-group{display:flex;gap:8px;margin-top:16px}
+#sidebar button{flex:1;padding:8px 12px;border:none;border-radius:6px;font-size:12px;cursor:pointer;transition:.2s}
+#reset{background:#2a2a3a;color:#aaa}
+#reset:hover{background:#3a3a4a;color:#fff}
+#export-png{background:#1a3a5a;color:#7abaff}
+#export-png:hover{background:#2a4a6a;color:#9acfff}
+.tooltip{position:fixed;padding:10px 14px;background:rgba(0,0,0,.88);color:#eaeaea;border-radius:8px;font-size:12px;pointer-events:none;z-index:50;display:none;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);max-width:280px;line-height:1.5}
+.tooltip.visible{display:block}
+.tooltip .fn{color:#7abaff;font-weight:600}
+.tooltip .meta{color:#999;font-size:11px}
+#district-labels{position:fixed;inset:0;pointer-events:none;z-index:4}
+.dl{position:absolute;color:#555;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 0 8px rgba(0,0,0,.9);transform:translate(-50%,-50%)}
+</style>
+</head>
+<body>
+<div id="loader">Carregando Code City 3D...</div>
+<canvas id="scene"></canvas>
+<div id="district-labels"></div>
+<div id="tooltip" class="tooltip"></div>
+<aside id="sidebar">
+<h3>Code City</h3>
+<label>Altura (LOC)
+<input type="range" min="0.05" max="1.0" step="0.05" value="0.25" data-param="locScale">
+</label>
+<label>Base (complexidade)
+<input type="range" min="0.2" max="2.0" step="0.1" value="0.6" data-param="complexityScale">
+</label>
+<label>
+<input type="checkbox" data-param="showDistricts" checked> Mostrar distritos
+</label>
+<label>Filtrar pasta
+<select data-param="folderFilter"><option value="all">Todas</option></select>
+</label>
+<div class="btn-group">
+<button id="reset">Reset</button>
+<button id="export-png">Exportar PNG</button>
+</div>
+</aside>
+
+<script id="data" type="application/json">{"modules":[{"n":"src/auth/session.test.ts","f":"src/auth","l":226,"c":2,"t":"test"},{"n":"src/auth/session.ts","f":"src/auth","l":125,"c":2,"t":"code"},{"n":"src/auth/signup-handler.ts","f":"src/auth","l":71,"c":2,"t":"code"},{"n":"src/components/NotificationDropdown.ts","f":"src/components","l":234,"c":2,"t":"code"},{"n":"src/components/RequestTable.ts","f":"src/components","l":238,"c":2,"t":"code"},{"n":"src/components/empty-state.ts","f":"src/components","l":30,"c":2,"t":"code"},{"n":"src/components/index.ts","f":"src/components","l":18,"c":2,"t":"code"},{"n":"src/components/modal.ts","f":"src/components","l":130,"c":2,"t":"code"},{"n":"src/components/search-palette.ts","f":"src/components","l":248,"c":2,"t":"code"},{"n":"src/components/skeleton.ts","f":"src/components","l":41,"c":2,"t":"code"},{"n":"src/components/tabela-alunos.ts","f":"src/components","l":86,"c":2,"t":"code"},{"n":"src/components/tabela-professores.ts","f":"src/components","l":90,"c":2,"t":"code"},{"n":"src/components/Tabs/CadastroAlunoTab.ts","f":"src/components/Tabs","l":201,"c":2,"t":"code"},{"n":"src/components/Tabs/CadastroProfessorTab.ts","f":"src/components/Tabs","l":165,"c":2,"t":"code"},{"n":"src/components/Tabs/GerenciarAlunosTab.test.ts","f":"src/components/Tabs","l":98,"c":2,"t":"test"},{"n":"src/components/Tabs/GerenciarAlunosTab.ts","f":"src/components/Tabs","l":146,"c":2,"t":"code"},{"n":"src/components/Tabs/GerenciarCertificadosTab.ts","f":"src/components/Tabs","l":208,"c":2,"t":"code"},{"n":"src/components/Tabs/GerenciarCursosTab.ts","f":"src/components/Tabs","l":333,"c":2,"t":"code"},{"n":"src/components/Tabs/GerenciarProfessoresTab.ts","f":"src/components/Tabs","l":328,"c":2,"t":"code"},{"n":"src/components/Tabs/NotasEstagioTab.ts","f":"src/components/Tabs","l":205,"c":2,"t":"code"},{"n":"src/components/Tabs/OverviewTab.ts","f":"src/components/Tabs","l":101,"c":2,"t":"code"},{"n":"src/components/audit/AuditBarChart.ts","f":"src/components/audit","l":71,"c":1,"t":"code"},{"n":"src/components/audit/AuditCards.ts","f":"src/components/audit","l":42,"c":1,"t":"code"},{"n":"src/components/audit/AuditTrendChart.ts","f":"src/components/audit","l":103,"c":1,"t":"code"},{"n":"src/hooks/useAuditStats.ts","f":"src/hooks","l":54,"c":1,"t":"code"},{"l":317,"t":"test","n":"src/lib/academic-service.test.ts","f":"src/lib","c":3},{"l":251,"t":"code","n":"src/lib/academic-service.ts","f":"src/lib","c":3},{"l":433,"t":"code","n":"src/lib/admin-service.ts","f":"src/lib","c":3},{"l":165,"t":"test","n":"src/lib/audit-service.test.ts","f":"src/lib","c":3},{"l":254,"t":"code","n":"src/lib/audit-service.ts","f":"src/lib","c":3},{"l":153,"t":"test","n":"src/lib/authz.test.ts","f":"src/lib","c":3},{"l":164,"t":"code","n":"src/lib/authz.ts","f":"src/lib","c":3},{"l":86,"t":"test","n":"src/lib/certificate-service.test.ts","f":"src/lib","c":3},{"l":157,"t":"code","n":"src/lib/certificate-service.ts","f":"src/lib","c":3},{"l":78,"t":"test","n":"src/lib/concurrency-control.test.ts","f":"src/lib","c":3},{"l":71,"t":"code","n":"src/lib/concurrency-control.ts","f":"src/lib","c":3},{"l":276,"t":"test","n":"src/lib/course-service.test.ts","f":"src/lib","c":3},{"l":262,"t":"code","n":"src/lib/course-service.ts","f":"src/lib","c":3},{"l":13,"t":"code","n":"src/lib/date-utils.ts","f":"src/lib","c":3},{"l":82,"t":"test","n":"src/lib/documents-service.test.ts","f":"src/lib","c":3},{"l":60,"t":"code","n":"src/lib/documents-service.ts","f":"src/lib","c":3},{"l":28,"t":"code","n":"src/lib/dom-utils.ts","f":"src/lib","c":3},{"l":236,"t":"code","n":"src/lib/excel-service.ts","f":"src/lib","c":3},{"l":157,"t":"code","n":"src/lib/financeiro-service.ts","f":"src/lib","c":3},{"l":74,"t":"code","n":"src/lib/grades-utils.ts","f":"src/lib","c":3},{"l":240,"t":"test","n":"src/lib/grades.test.ts","f":"src/lib","c":3},{"l":57,"t":"code","n":"src/lib/icons.ts","f":"src/lib","c":3},{"l":184,"t":"code","n":"src/lib/instituicao-service.ts","f":"src/lib","c":3},{"l":48,"t":"code","n":"src/lib/keyboard-shortcuts.ts","f":"src/lib","c":3},{"l":939,"t":"code","n":"src/lib/pdf-service.ts","f":"src/lib","c":3},{"l":121,"t":"code","n":"src/lib/professor-details-service.ts","f":"src/lib","c":3},{"l":393,"t":"test","n":"src/lib/professor-service.test.ts","f":"src/lib","c":3},{"l":311,"t":"code","n":"src/lib/professor-service.ts","f":"src/lib","c":3},{"l":100,"t":"code","n":"src/lib/rate-limiter.ts","f":"src/lib","c":3},{"l":89,"t":"test","n":"src/lib/security.test.ts","f":"src/lib","c":3},{"l":128,"t":"code","n":"src/lib/security.ts","f":"src/lib","c":3},{"l":248,"t":"test","n":"src/lib/student-details-service.test.ts","f":"src/lib","c":3},{"l":235,"t":"code","n":"src/lib/student-details-service.ts","f":"src/lib","c":3},{"l":128,"t":"code","n":"src/lib/supabase.ts","f":"src/lib","c":3},{"l":91,"t":"code","n":"src/lib/toast.ts","f":"src/lib","c":3},{"l":343,"t":"test","n":"src/lib/validation.test.ts","f":"src/lib","c":3},{"l":242,"t":"code","n":"src/lib/validation.ts","f":"src/lib","c":3},{"n":"src/styles/main.css","f":"src/styles","l":1705,"c":1,"t":"style"},{"n":"src/test/__mocks__/supabase.ts","f":"src/test","l":44,"c":1,"t":"test"},{"n":"src/test/setup.ts","f":"src/test","l":47,"c":1,"t":"code"},{"n":"src/types/dom.d.ts","f":"src/types","l":17,"c":1,"t":"code"},{"n":"src/types/domain.ts","f":"src/types","l":358,"c":1,"t":"code"},{"n":"src/types/index.ts","f":"src/types","l":103,"c":1,"t":"code"},{"n":"src/views/audit-dashboard.ts","f":"src/views","l":98,"c":2,"t":"code"},{"n":"src/views/audit-log.ts","f":"src/views","l":338,"c":2,"t":"code"},{"n":"src/views/configuracoes.ts","f":"src/views","l":252,"c":2,"t":"code"},{"n":"src/views/dashboard-home.ts","f":"src/views","l":301,"c":2,"t":"code"},{"n":"src/views/dashboard.ts","f":"src/views","l":406,"c":2,"t":"code"},{"n":"src/views/directory.ts","f":"src/views","l":201,"c":2,"t":"code"},{"n":"src/views/documents.ts","f":"src/views","l":146,"c":2,"t":"code"},{"n":"src/views/financeiro.ts","f":"src/views","l":405,"c":2,"t":"code"},{"n":"src/views/force-change-password.ts","f":"src/views","l":105,"c":2,"t":"code"},{"n":"src/views/forgot-password.ts","f":"src/views","l":58,"c":2,"t":"code"},{"n":"src/views/gestao-turmas.ts","f":"src/views","l":818,"c":2,"t":"code"},{"n":"src/views/home.ts","f":"src/views","l":59,"c":2,"t":"code"},{"n":"src/views/login.ts","f":"src/views","l":111,"c":2,"t":"code"},{"n":"src/views/matriz.ts","f":"src/views","l":220,"c":2,"t":"code"},{"n":"src/views/professor-alunos.ts","f":"src/views","l":149,"c":2,"t":"code"},{"n":"src/views/professor-details.ts","f":"src/views","l":334,"c":2,"t":"code"},{"n":"src/views/professor-registrar-aula.ts","f":"src/views","l":375,"c":2,"t":"code"},{"n":"src/views/professor-turmas.ts","f":"src/views","l":860,"c":2,"t":"code"},{"n":"src/views/professor.ts","f":"src/views","l":1068,"c":2,"t":"code"},{"n":"src/views/profile.ts","f":"src/views","l":379,"c":2,"t":"code"},{"n":"src/views/reset-password.ts","f":"src/views","l":108,"c":2,"t":"code"},{"n":"src/views/secretaria.test.ts","f":"src/views","l":120,"c":2,"t":"test"},{"n":"src/views/secretaria.ts","f":"src/views","l":168,"c":2,"t":"code"},{"n":"src/views/signup.ts","f":"src/views","l":185,"c":2,"t":"code"},{"n":"src/views/student-details.ts","f":"src/views","l":721,"c":2,"t":"code"},{"n":"src/main.ts","f":"src","l":181,"c":2,"t":"code"},{"n":"src/vite-env.d.ts","f":"src","l":11,"c":2,"t":"code"}]}</script>
+
+<script>
+(function(){
+var D = JSON.parse(document.getElementById('data').textContent);
+var mods = D.modules.map(function(m){ return {name:m.n,folder:m.f,loc:m.l,complexity:m.c,type:m.t}; });
+
+var LOC_SCALE = 0.25, COMPLEXITY_SCALE = 0.6, MIN_H = 1, MIN_W = 2, SHOW_DISTRICTS = true, FOLDER_FILTER = 'all';
+
+var TCOL = {code:0x4a9eff,test:0x6cc46c,config:0xffc857,style:0xff9aa2,asset:0x999999};
+
+var ctn = document.getElementById('scene');
+var tip = document.getElementById('tooltip');
+var dlEl = document.getElementById('district-labels');
+
+var sc = new THREE.Scene(); sc.background = new THREE.Color(0x0a0a10); sc.fog = new THREE.Fog(0x0a0a10,200,600);
+var cam = new THREE.PerspectiveCamera(45, ctn.clientWidth/ctn.clientHeight, 0.1, 2000);
+cam.position.set(160,120,200);
+var ren = new THREE.WebGLRenderer({antialias:true,alpha:true});
+ren.setPixelRatio(Math.min(window.devicePixelRatio,2));
+ren.setSize(ctn.clientWidth, ctn.clientHeight); ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap;
+ctn.appendChild(ren.domElement);
+var ctrl = new THREE.OrbitControls(cam, ren.domElement);
+ctrl.enableDamping = true; ctrl.dampingFactor = 0.08; ctrl.minDistance = 20; ctrl.maxDistance = 800; ctrl.target.set(40,0,40);
+
+sc.add(new THREE.AmbientLight(0xffffff,0.3));
+var hemi = new THREE.HemisphereLight(0xddeeff,0x202028,0.5); hemi.position.set(0,200,0); sc.add(hemi);
+var dir = new THREE.DirectionalLight(0xffffff,0.8); dir.position.set(80,200,100); dir.castShadow = true;
+dir.shadow.mapSize.set(2048,2048); sc.add(dir);
+
+var gnd = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), new THREE.MeshStandardMaterial({color:0x14141a,roughness:1}));
+gnd.rotation.x = -Math.PI/2; gnd.position.set(40,-0.5,40); gnd.receiveShadow = true; sc.add(gnd);
+
+var dists = {};
+mods.forEach(function(m){ if(!dists[m.folder]) dists[m.folder] = []; dists[m.folder].push(m); });
+var fkeys = Object.keys(dists).sort();
+var gcols = Math.ceil(Math.sqrt(fkeys.length));
+function dSize(c){ return Math.sqrt(c)*6*1.5; }
+var dpos = {};
+var ox=0, oz=0;
+fkeys.forEach(function(fk,i){
+var sz = dSize(dists[fk].length);
+dpos[fk] = {x:ox,z:oz,size:sz};
+ox += sz + 8; if((i+1)%gcols === 0){ ox=0; oz += sz+8; }
+});
+
+mods.forEach(function(m){
+var d = dpos[m.folder], ms = dists[m.folder];
+var cols = Math.ceil(Math.sqrt(ms.length)), rows = Math.ceil(ms.length/cols);
+var idx = ms.indexOf(m), col = idx%cols, row = Math.floor(idx/cols);
+var cw = (d.size-2)/cols;
+m._x = d.x+2+col*cw+cw/2; m._z = d.z+2+row*cw+cw/2;
+m._w = Math.max(MIN_W, cw*0.6); m._d = Math.max(MIN_W, cw*0.6);
+m._h = Math.max(MIN_H, m.loc*LOC_SCALE); m._col = TCOL[m.type]||0xcccccc;
+});
+
+var bg = new THREE.Group(); sc.add(bg);
+
+var boxGeo = new THREE.BoxGeometry(1,1,1); boxGeo.translate(0,0.5,0);
+function build(){
+while(bg.children.length){ var c = bg.children[0]; if(c.geometry)c.geometry.dispose(); if(c.material)c.material.dispose(); bg.remove(c); }
+var flt = mods.filter(function(m){ return FOLDER_FILTER === 'all' || m.folder === FOLDER_FILTER; });
+if(!flt.length) return;
+var mat = new THREE.MeshStandardMaterial({roughness:0.5,metalness:0.1});
+var im = new THREE.InstancedMesh(boxGeo,mat,flt.length);
+im.castShadow = true; im.receiveShadow = true;
+var dummy = new THREE.Object3D(), col = new THREE.Color();
+flt.forEach(function(m,i){
+dummy.position.set(m._x,0,m._z); dummy.scale.set(m._w,m._h,m._d);
+dummy.updateMatrix(); im.setMatrixAt(i,dummy.matrix);
+col.setHex(m._col); im.setColorAt(i,col);
+});
+im.instanceMatrix.needsUpdate = true; if(im.instanceColor) im.instanceColor.needsUpdate = true;
+bg.add(im);
+if(SHOW_DISTRICTS && FOLDER_FILTER==='all'){
+fkeys.forEach(function(fk){
+var d = dpos[fk];
+var pl = new THREE.Mesh(new THREE.PlaneGeometry(d.size,d.size),new THREE.MeshStandardMaterial({color:0x4a9eff,transparent:true,opacity:0.07,depthWrite:false}));
+pl.rotation.x = -Math.PI/2; pl.position.set(d.x+d.size/2,0.01,d.z+d.size/2); bg.add(pl);
+});
+}
+}
+
+function syncDL(){
+dlEl.innerHTML = '';
+if(FOLDER_FILTER !== 'all') return;
+fkeys.forEach(function(fk){
+var d = dpos[fk];
+var p = new THREE.Vector3(d.x+d.size/2,0,d.z+d.size/2);
+p.project(cam);
+var x = (p.x*0.5+0.5)*window.innerWidth;
+var y = (-p.y*0.5+0.5)*window.innerHeight;
+if(p.z > 1) return;
+var el = document.createElement('div'); el.className = 'dl';
+el.textContent = fk.split('/').pop(); el.style.left = x+'px'; el.style.top = y+'px';
+dlEl.appendChild(el);
+});
+}
+build(); syncDL();
+
+var ray = new THREE.Raycaster(); var ptr = new THREE.Vector2();
+ren.domElement.addEventListener('pointermove',function(e){
+var r = ren.domElement.getBoundingClientRect();
+ptr.x = ((e.clientX-r.left)/r.width)*2-1;
+ptr.y = -((e.clientY-r.top)/r.height)*2+1;
+ray.setFromCamera(ptr,cam);
+var hits = ray.intersectObjects(bg.children.filter(function(c){return c.isInstancedMesh;}));
+if(hits.length && hits[0].instanceId !== undefined){
+var flt = mods.filter(function(m){return FOLDER_FILTER === 'all'||m.folder===FOLDER_FILTER;});
+var m = flt[hits[0].instanceId];
+if(m){ tip.innerHTML = '<div class="fn">'+m.name+'</div><div class="meta">LOC: '+m.loc+' | Complexidade: '+m.complexity+'<br>'+m.folder+'</div>';
+tip.className = 'tooltip visible'; tip.style.left = (e.clientX+16)+'px'; tip.style.top = (e.clientY-10)+'px'; }
+} else { tip.className = 'tooltip'; }
+});
+
+document.querySelectorAll('aside input[type=range]').forEach(function(sl){
+sl.addEventListener('input',function(e){
+var v = parseFloat(e.target.value);
+if(e.target.dataset.param === 'locScale') LOC_SCALE = v;
+if(e.target.dataset.param === 'complexityScale') COMPLEXITY_SCALE = v;
+mods.forEach(function(m){ m._h = Math.max(MIN_H, m.loc*LOC_SCALE); });
+build();
+});
+});
+document.querySelectorAll('aside input[type=checkbox]').forEach(function(cb){
+cb.addEventListener('change',function(e){
+SHOW_DISTRICTS = e.target.checked; build();
+});
+});
+var sel = document.querySelector('select[data-param=folderFilter]');
+fkeys.forEach(function(fk){ var o=document.createElement('option'); o.value=fk; o.textContent=fk; sel.appendChild(o); });
+sel.addEventListener('change',function(e){ FOLDER_FILTER = e.target.value; build(); syncDL(); });
+document.getElementById('reset').addEventListener('click',function(){cam.position.set(160,120,200);ctrl.target.set(40,0,40);ctrl.update();});
+document.getElementById('export-png').addEventListener('click',function(){
+ren.render(sc,cam); ren.domElement.toBlob(function(b){var u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='arquitetura-3d.png';a.click();URL.revokeObjectURL(u);});
+});
+window.addEventListener('resize',function(){var w=ctn.clientWidth,h=ctn.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();ren.setSize(w,h);syncDL();});
+setTimeout(function(){document.getElementById('loader').className='loader hidden';},200);
+(function tick(){ctrl.update();ren.render(sc,cam);syncDL();requestAnimationFrame(tick);})();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-24T01:34:31.748Z",
+  "treemap_loc_by_folder": [
+    {
+      "folder": "src/auth",
+      "loc": 422,
+      "modules": 3
+    },
+    {
+      "folder": "src/components-root",
+      "loc": 1115,
+      "modules": 9
+    },
+    {
+      "folder": "src/components-tabs",
+      "loc": 1785,
+      "modules": 9
+    },
+    {
+      "folder": "src/components-audit",
+      "loc": 216,
+      "modules": 3
+    },
+    {
+      "folder": "src/hooks",
+      "loc": 54,
+      "modules": 1
+    },
+    {
+      "folder": "src/lib",
+      "loc": 7214,
+      "modules": 37
+    },
+    {
+      "folder": "src/styles",
+      "loc": 1705,
+      "modules": 1
+    },
+    {
+      "folder": "src/test",
+      "loc": 91,
+      "modules": 2
+    },
+    {
+      "folder": "src/types",
+      "loc": 478,
+      "modules": 3
+    },
+    {
+      "folder": "src/views",
+      "loc": 7985,
+      "modules": 25
+    },
+    {
+      "folder": "src/root",
+      "loc": 192,
+      "modules": 2
+    }
+  ],
+  "top_complexity": [
+    {
+      "id": "lib",
+      "complexity": 3,
+      "loc": 7214
+    },
+    {
+      "id": "views",
+      "complexity": 2,
+      "loc": 7985
+    },
+    {
+      "id": "components-tabs",
+      "complexity": 2,
+      "loc": 1785
+    },
+    {
+      "id": "components-root",
+      "complexity": 2,
+      "loc": 1115
+    },
+    {
+      "id": "auth",
+      "complexity": 2,
+      "loc": 422
+    },
+    {
+      "id": "root",
+      "complexity": 2,
+      "loc": 192
+    },
+    {
+      "id": "styles",
+      "complexity": 1,
+      "loc": 1705
+    },
+    {
+      "id": "types",
+      "complexity": 1,
+      "loc": 478
+    },
+    {
+      "id": "components-audit",
+      "complexity": 1,
+      "loc": 216
+    },
+    {
+      "id": "test",
+      "complexity": 1,
+      "loc": 91
+    },
+    {
+      "id": "hooks",
+      "complexity": 1,
+      "loc": 54
+    }
+  ],
+  "loc_histogram": {
+    "bins": [
+      0,
+      50,
+      100,
+      200,
+      500,
+      1000,
+      5000
+    ],
+    "counts": [
+      11,
+      18,
+      26,
+      34,
+      4,
+      2,
+      0
+    ]
+  },
+  "dependency_sankey": {
+    "nodes": [
+      {
+        "id": "auth"
+      },
+      {
+        "id": "components-root"
+      },
+      {
+        "id": "components-tabs"
+      },
+      {
+        "id": "components-audit"
+      },
+      {
+        "id": "hooks"
+      },
+      {
+        "id": "lib"
+      },
+      {
+        "id": "styles"
+      },
+      {
+        "id": "test"
+      },
+      {
+        "id": "types"
+      },
+      {
+        "id": "views"
+      },
+      {
+        "id": "root"
+      }
+    ],
+    "links": [
+      {
+        "source": "components-root",
+        "target": "lib",
+        "value": 1
+      },
+      {
+        "source": "components-root",
+        "target": "auth",
+        "value": 1
+      },
+      {
+        "source": "components-tabs",
+        "target": "lib",
+        "value": 1
+      },
+      {
+        "source": "components-tabs",
+        "target": "components-root",
+        "value": 1
+      },
+      {
+        "source": "components-tabs",
+        "target": "types",
+        "value": 1
+      },
+      {
+        "source": "components-audit",
+        "target": "hooks",
+        "value": 1
+      },
+      {
+        "source": "components-audit",
+        "target": "lib",
+        "value": 1
+      },
+      {
+        "source": "hooks",
+        "target": "lib",
+        "value": 1
+      },
+      {
+        "source": "lib",
+        "target": "types",
+        "value": 1
+      },
+      {
+        "source": "lib",
+        "target": "auth",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "lib",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "components-root",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "components-tabs",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "components-audit",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "hooks",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "auth",
+        "value": 1
+      },
+      {
+        "source": "views",
+        "target": "types",
+        "value": 1
+      },
+      {
+        "source": "root",
+        "target": "views",
+        "value": 1
+      },
+      {
+        "source": "root",
+        "target": "lib",
+        "value": 1
+      },
+      {
+        "source": "root",
+        "target": "auth",
+        "value": 1
+      },
+      {
+        "source": "root",
+        "target": "styles",
+        "value": 1
+      },
+      {
+        "source": "test",
+        "target": "lib",
+        "value": 1
+      }
+    ]
+  },
+  "language_distribution": [
+    {
+      "language": "TypeScript",
+      "modules": 94,
+      "loc": 19552
+    },
+    {
+      "language": "CSS",
+      "modules": 1,
+      "loc": 1705
+    }
+  ]
+}

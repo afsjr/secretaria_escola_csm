@@ -24,22 +24,22 @@
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T004 | Escrever testes para `certificate-service.ts`: validação de conclusão, geração de hash, templates | T003 | `[//]` | `src/lib/certificate-service.test.ts` | 🟢 | `[ ]` |
+| T004 | Escrever testes para `certificate-service.ts`: validação de conclusão, geração de hash, templates | T003 | `[//]` | `src/lib/certificate-service.test.ts` | 🟢 | `[X]` |
 
 ## Fase 3, Núcleo
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T005 | Criar `src/lib/certificate-service.ts`: validate conclusão, generateHash, getConteudoProgramatico, buscar imagens do storage | T003 | - | `src/lib/certificate-service.ts` | 🟢 | `[ ]` |
-| T006 | Implementar geração de PDF com jsPDF: template Formação (frente + verso) e template Técnico | T005 | - | `src/lib/certificate-service.ts` | 🟢 | `[ ]` |
+| T005 | Criar `src/lib/certificate-service.ts`: validate conclusão, generateHash, getConteudoProgramatico, buscar imagens do storage | T003 | - | `src/lib/certificate-service.ts` | 🟢 | `[X]` |
+| T006 | Implementar geração de PDF com jsPDF: template Formação (frente + verso) e template Técnico | T005 | - | `src/lib/certificate-service.ts` | 🟢 | `[X]` |
 
 ## Fase 4, Integração
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T007 | Criar view de gestão de imagens: upload/delete logo + assinatura, listagem, restrito a master_admin | T002, T005 | - | `src/components/Tabs/GerenciarCertificadosTab.ts` | 🟢 | `[ ]` |
-| T008 | Criar view de geração de certificados: seleção de aluno, geração individual e em lote, download do PDF | T005, T006, T007 | - | `src/views/certificados.ts` | 🟡 | `[ ]` |
-| T009 | Integrar auditoria: registrar `gerar_certificado`, `upload_logo`, `upload_assinatura`, `download_certificado` | T008 | - | `src/lib/audit-service.ts` | 🟢 | `[ ]` |
+| T007 | Criar view de gestão de imagens: upload/delete logo + assinatura, listagem, restrito a master_admin | T002, T005 | - | `src/components/Tabs/GerenciarCertificadosTab.ts` | 🟢 | `[X]` |
+| T008 | Criar view de geração de certificados: seleção de aluno, geração individual e em lote, download do PDF | T005, T006, T007 | - | `src/components/Tabs/GerenciarCertificadosTab.ts` | 🟡 | `[X]` |
+| T009 | Integrar auditoria: registrar `gerar_certificado`, `upload_logo`, `upload_assinatura`, `download_certificado` | T008 | - | `src/lib/certificate-service.ts` | 🟢 | `[X]` |
 
 ## Fase 5, Polimento
 

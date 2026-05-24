@@ -11,6 +11,7 @@ import { CadastroProfessorTab } from '../components/Tabs/CadastroProfessorTab'
 import { GerenciarAlunosTab } from '../components/Tabs/GerenciarAlunosTab'
 import { GerenciarProfessoresTab } from '../components/Tabs/GerenciarProfessoresTab'
 import { GerenciarCursosTab } from '../components/Tabs/GerenciarCursosTab'
+import { GerenciarCertificadosTab } from '../components/Tabs/GerenciarCertificadosTab'
 import { NotasEstagioTab } from '../components/Tabs/NotasEstagioTab'
 import { OverviewTab } from '../components/Tabs/OverviewTab'
 import { ICONS } from '../lib/icons'
@@ -63,6 +64,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       <button class="tab-btn" data-tab="cadastro-professor">Cadastrar Professor</button>
       <button class="tab-btn" data-tab="gerenciar-professores">Gerenciar Professores</button>
       <button class="tab-btn" data-tab="gerenciar-cursos">Gerenciar Cursos</button>
+      <button class="tab-btn" data-tab="certificados">Certificados</button>
     </div>
 
     <div id="tab-overview" class="tab-content"></div>
@@ -73,6 +75,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     <div id="tab-cadastro-professor" class="tab-content" style="display: none;"></div>
     <div id="tab-gerenciar-professores" class="tab-content" style="display: none;"></div>
     <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;"></div>
+    <div id="tab-certificados" class="tab-content" style="display: none;"></div>
   `
 
   // 3. Lógica de Navegação de Abas (com animação fadeInScale)
@@ -156,8 +159,10 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   }))
   inject('#tab-gerenciar-cursos', GerenciarCursosTab({
     cursos,
-    onRefresh: () => window.location.reload()
+    onRefresh: load,
   }))
+
+  inject('#tab-certificados', GerenciarCertificadosTab())
 
   return container
 }

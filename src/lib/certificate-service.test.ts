@@ -50,7 +50,7 @@ describe('CertificateService - validateConclusao', () => {
     const { CertificateService } = await import('./certificate-service')
     const result = await CertificateService.validateConclusao('aluno-1', 'curso-1')
     expect(result.error).toBeTruthy()
-    expect(result.error!.message).toContain('concluído')
+    expect(result.error!.message).toContain('concluída')
   })
 
   it('deve retornar sucesso se aluno estiver concluído', async () => {

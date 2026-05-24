@@ -1,3 +1,9 @@
 {"ts":"2026-05-23T22:00:00Z","action":"T001","status":"done","files":["supabase/migrations/20260523220000_certificados.sql"]}
 {"ts":"2026-05-23T22:00:30Z","action":"T002","status":"done","files":["_reversa_forward/002-geracao-certificados/storage-setup.sql"]}
 {"ts":"2026-05-23T22:01:00Z","action":"T003","status":"done","files":["src/types/domain.ts"]}
+{"ts":"2026-05-23T22:02:00Z","action":"T004","status":"done","files":["src/lib/certificate-service.test.ts"]}
+{"ts":"2026-05-23T22:02:30Z","action":"T005","status":"done","files":["src/lib/certificate-service.ts"]}
+{"ts":"2026-05-23T22:02:45Z","action":"T006","status":"done","files":["src/lib/certificate-service.ts"]}
+{"ts":"2026-05-23T22:05:00Z","action":"T007","status":"done","files":["src/components/Tabs/GerenciarCertificadosTab.ts"]}
+{"ts":"2026-05-23T22:05:30Z","action":"T008","status":"done","files":["src/components/Tabs/GerenciarCertificadosTab.ts","src/views/secretaria.ts"]}
+{"ts":"2026-05-23T22:06:00Z","action":"T009","status":"done","files":["src/lib/certificate-service.ts"]}

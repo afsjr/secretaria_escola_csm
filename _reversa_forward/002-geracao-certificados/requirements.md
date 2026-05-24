@@ -19,8 +19,8 @@
 
 | ID | Requisito | Prioridade | Critério de Aceite |
 |----|-----------|------------|-------------------|
-| RF-01 | Upload de logo do colégio | Must | Apenas master_admin pode carregar |
-| RF-02 | Upload de assinatura | Must | Apenas master_admin pode carregar |
+| RF-01 | Upload de logo do colégio | Must | Apenas master_admin pode carregar. Formatos: PNG e JPEG |
+| RF-02 | Upload de assinatura | Must | Apenas master_admin pode carregar. Formatos: PNG e JPEG |
 | RF-03 | Armazenar imagens em repositório | Must | Bucket/storage dedicado |
 | RF-04 | Listar imagens existentes | Must | Apenas master_admin |
 | RF-05 | Deletar imagem | Must | Apenas master_admin |
@@ -37,11 +37,11 @@
 
 | ID | Requisito | Prioridade | Critério de Aceite |
 |----|-----------|------------|-------------------|
-| RF-09 | Gerar certificado PDF | Must | PDF com frente e verso |
+| RF-09 | Gerar certificado PDF | Must | PDF gerado sob demanda (sem persistência do arquivo). Suporta geração individual e em lote |
 | RF-10 | Validar conclusão do curso | Must | Aluno sem pendências |
 | RF-11 | Listar certificados emitidos | Must | Por aluno, por curso |
-| RF-12 | Download do certificado | Must | PDF para o aluno |
-| RF-13 | Certificado com código de autenticação | Must | QR code ou hash para validação |
+| RF-12 | Download do certificado | Must | PDF gerado em memória e servido para download |
+| RF-13 | Certificado com código de autenticação | Must | Hash alfanumérico (ex: `CERT-2026-XXXXX`) para validação |
 
 ### 2.4. Auditoria
 
@@ -100,9 +100,12 @@
 
 ---
 
-## 5. Layout do Certificado (Template Fixo)
+## 5. Layout do Certificado
 
-### Frente
+Existem dois templates:
+
+### Template Formação (padrão, com verso)
+#### Frente
 - Nome do colégio (fixo)
 - Logo do colégio
 - Título "CERTIFICADO DE CONCLUSÃO"
@@ -112,11 +115,16 @@
 - Data de conclusão
 - Código de autenticação
 
-### Verso
+#### Verso
 - Conteúdo programático (tabela)
   - Disciplina | Carga Horária
 - Assinatura do diretor
 - Nome e endereço do colégio
+
+### Template Técnico (curso técnico)
+- Mesmo layout da frente do template Formação
+- Verso com conteúdo programático equivalente (adaptado ao formato de notas)
+- Ambos os templates usam logo e assinatura do repositório
 
 ---
 
@@ -148,7 +156,28 @@ Then Retorna erro "Aluno não pode receber certificado"
 
 ---
 
-## 8. Rastreabilidade
+## 8. Esclarecimentos
+
+### Sessão 2026-05-23
+
+- **Q:** Qual formato de arquivo para logo e assinatura?
+  **R:** PNG e JPEG.
+
+- **Q:** O certificado deve ser gerado em lote (vários alunos) ou individual?
+  **R:** Ambos — individual e lote. O professor/master_admin pode gerar um certificado por vez ou selecionar múltiplos alunos da mesma turma.
+
+- **Q:** O código de autenticação deve ser hash simples ou QR code com URL?
+  **R:** Apenas hash alfanumérico (ex: `CERT-2026-ABC123`).
+
+- **Q:** Comportamento ao gerar certificado para curso técnico (notas 0-10)?
+  **R:** Gerar com template diferente para cursos técnicos. O template de formação tem verso com conteúdo programático; o template técnico segue layout similar mas adaptado.
+
+- **Q:** Onde o PDF do certificado deve ficar armazenado?
+  **R:** Gerado sob demanda e enviado para download imediato, sem persistência do PDF. O registro na tabela `certificados` persiste os metadados (hash, data, aluno, curso), mas o arquivo PDF é gerado em memória e servido para download.
+
+---
+
+## 10. Rastreabilidade
 
 | Origem | Artefato |
 |--------|----------|
@@ -158,6 +187,6 @@ Then Retorna erro "Aluno não pode receber certificado"
 
 ---
 
-## 9. Pendências
+## 11. Pendências
 
 Nenhuma — requisitos definidos.

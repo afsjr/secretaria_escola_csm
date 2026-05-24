@@ -9,7 +9,7 @@ export function GerenciarCertificadosTab(): HTMLDivElement {
   const container = document.createElement('div')
 
   const render = async () => {
-    const profile = await getUserProfile()
+    const { data: profile } = await getUserProfile()
     const isMasterAdmin = profile?.perfil === 'master_admin'
 
     const { data: modelos } = await supabase
@@ -177,7 +177,7 @@ export function GerenciarCertificadosTab(): HTMLDivElement {
         const alunoNome = option.getAttribute('data-aluno-nome')!
         const alunoCpf = option.getAttribute('data-aluno-cpf')!
 
-        const profile = await getUserProfile()
+        const { data: profile } = await getUserProfile()
         if (!profile) { toast.error('Usuário não autenticado.'); return }
 
         btnGerar.disabled = true

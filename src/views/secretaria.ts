@@ -159,7 +159,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   }))
   inject('#tab-gerenciar-cursos', GerenciarCursosTab({
     cursos,
-    onRefresh: load,
+    onRefresh: () => window.location.reload(),
   }))
 
   inject('#tab-certificados', GerenciarCertificadosTab())

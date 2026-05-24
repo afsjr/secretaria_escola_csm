@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/002-geracao-certificados",
-  "feature-id": "002",
-  "short-name": "geracao-certificados",
-  "started-at": "2026-05-23T21:45:00Z",
-  "current-stage": "coding",
-  "stages-completed": ["clarify", "plan", "to-do", "coding"],
+  "feature-dir": "_reversa_forward/005-aluno-notas",
+  "feature-id": "005",
+  "short-name": "aluno-notas",
+  "started-at": "2026-05-23T22:45:00-03:00",
+  "current-stage": "requirements",
+  "stages-completed": [],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/001-tipos-curso",
@@ -15,6 +15,16 @@
       "current-stage": "coding",
       "stages-completed": ["requirements", "plan", "to-do", "coding"],
       "paused-at": "2026-05-23T21:44:00Z",
+      "paused-from-stage": "coding"
+    },
+    {
+      "feature-dir": "_reversa_forward/002-geracao-certificados",
+      "feature-id": "002",
+      "short-name": "geracao-certificados",
+      "started-at": "2026-05-23T21:45:00Z",
+      "current-stage": "coding",
+      "stages-completed": ["clarify", "plan", "to-do", "coding"],
+      "paused-at": "2026-05-23T22:30:00Z",
       "paused-from-stage": "coding"
     }
   ]

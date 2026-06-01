@@ -99,5 +99,5 @@ export type Permission =
 // Re-export from domain types
 // =====================================================
 
-export type { PerfilCompleto, Endereco, Curso, Turma, Disciplina, Matricula, Boletim, Aula, Solicitacao } from './domain'
+export type { PerfilCompleto, Endereco, Curso, Turma, Disciplina, Matricula, Boletim, Frequencia, Aula, Solicitacao } from './domain'
 export type { DbResult, DbResultSingle, DbResultList, DadosProfessorCompleto, AlunoComNotas, ServiceResult, ServiceResultList, CreateTurmaResult, UpdateTurmaResult } from './domain'

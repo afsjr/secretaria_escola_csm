@@ -384,10 +384,37 @@ describe('ProfessorService - auxiliares', () => {
     expect(result.data).toHaveLength(1)
   })
 
-  it('salvarFrequencia: deve retornar sucesso (stub)', async () => {
-    const result = await ProfessorService.salvarFrequencia('t1', 'd1', '2026-01-01', [])
+  it('salvarFrequencia: deve criar aula e salvar frequencia', async () => {
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: { id: 'aula-1' }, error: null })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        delete: vi.fn(() => ({
+          eq: vi.fn(() => Promise.resolve({ data: null, error: null })),
+        })),
+      })
+      .mockReturnValueOnce({
+        insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
+      })
+
+    const result = await ProfessorService.salvarFrequencia('t1', 'd1', '2026-01-01', 'prof-1', ['a1', 'a2'])
 
     expect(result.error).toBeNull()
-    expect(result.data).toBe(true)
+    expect(result.data?.aulaId).toBe('aula-1')
+    expect(result.data?.totalAusentes).toBe(2)
   })
 })

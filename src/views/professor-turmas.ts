@@ -379,7 +379,7 @@ export async function ProfessorTurmasView(
   // Load frequency for first discipline of each turma
   turmas.forEach((turma) => {
     if (turma.disciplinas.length > 0) {
-      loadFrequenciaAlunos(turma, container);
+      loadFrequenciaAlunos(turma, container, profile.id);
     }
   });
 
@@ -770,6 +770,7 @@ async function loadAulasDaDisciplina(
 async function loadFrequenciaAlunos(
   turma: TurmaGroup,
   container: HTMLElement,
+  professorId: string,
 ): Promise<void> {
   const freqList = container.querySelector(
     `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
@@ -836,10 +837,18 @@ async function loadFrequenciaAlunos(
       btnSalvar.disabled = true;
       btnSalvar.textContent = "Salvando...";
 
+      if (!disciplinaId) {
+        toast.error("Selecione uma disciplina.");
+        btnSalvar.disabled = false;
+        btnSalvar.innerHTML = `${ICONS.save} Salvar Frequência`;
+        return;
+      }
+
       const { error } = await ProfessorService.salvarFrequencia(
         turma.id!,
-        dataAula,
         disciplinaId,
+        dataAula,
+        professorId,
         alunosAusentesIds,
       );
 
@@ -852,9 +861,66 @@ async function loadFrequenciaAlunos(
         toast.success("Frequência salva com sucesso!");
       }
     });
+
+    // Carregar frequência existente se data+disciplina já selecionados
+    carregarFrequenciaExistente(turma, container);
+
+    // Recarregar ao mudar data ou disciplina
+    const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
+    const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
+
+    if (freqDataInput) {
+      freqDataInput.addEventListener("change", () => carregarFrequenciaExistente(turma, container));
+    }
+    if (freqDiscInput) {
+      freqDiscInput.addEventListener("change", () => carregarFrequenciaExistente(turma, container));
+    }
   } catch (err: any) {
     console.error("Erro ao carregar alunos:", err);
     freqList.innerHTML =
       '<p style="color: var(--danger);">Erro ao carregar alunos.</p>';
   }
+}
+
+async function carregarFrequenciaExistente(
+  turma: TurmaGroup,
+  container: HTMLElement,
+): Promise<void> {
+  const freqList = container.querySelector(
+    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
+  ) as HTMLElement;
+  if (!freqList) return;
+
+  const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
+  const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
+
+  const data = freqDataInput?.value;
+  const disciplinaId = freqDiscInput?.value;
+
+  if (!data || !disciplinaId) return;
+
+  const { data: aula } = await supabase
+    .from("aulas")
+    .select("id")
+    .eq("turma_disciplina_id", disciplinaId)
+    .eq("data", data)
+    .maybeSingle();
+
+  if (!aula) return;
+
+  const { data: registros } = await supabase
+    .from("frequencia")
+    .select("aluno_id")
+    .eq("aula_id", aula.id);
+
+  if (!registros || registros.length === 0) return;
+
+  const ausentesIds = new Set(registros.map((r) => r.aluno_id));
+
+  freqList.querySelectorAll(".freq-checkbox").forEach((cb) => {
+    const alunoId = (cb as HTMLInputElement).getAttribute("data-aluno-id");
+    if (alunoId && ausentesIds.has(alunoId)) {
+      (cb as HTMLInputElement).checked = true;
+    }
+  });
 }

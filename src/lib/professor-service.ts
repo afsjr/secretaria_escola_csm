@@ -301,11 +301,59 @@ export const ProfessorService = {
     return { error }
   },
 
-  async salvarFrequencia(turmaId: string, disciplinaId: string, data: string, presencas: any[]) {
-    // Implementação simplificada para compatibilidade
-    // Na prática, isso deve inserir na tabela de frequencia se existir
-    console.log('Frequencia recebida:', { turmaId, disciplinaId, data, count: presencas.length })
-    return { data: true, error: null }
+  async salvarFrequencia(turmaId: string, disciplinaId: string, data: string, professorId: string, ausentesIds: string[]) {
+    // 1. Verificar se já existe aula para esta data+disciplina
+    const { data: aulaExistente } = await supabase
+      .from('aulas')
+      .select('id')
+      .eq('turma_disciplina_id', disciplinaId)
+      .eq('data', data)
+      .maybeSingle()
+
+    let aulaId: string
+
+    if (aulaExistente) {
+      aulaId = aulaExistente.id
+    } else {
+      const { data: aulaNova, error: errorAula } = await this.registrarAula({
+        turma_disciplina_id: disciplinaId,
+        professor_id: professorId,
+        data,
+        conteudo: 'Registro de frequência'
+      })
+
+      if (errorAula || !aulaNova) {
+        return { data: null, error: errorAula || { message: 'Erro ao criar aula' } }
+      }
+      aulaId = aulaNova.id
+    }
+
+    // 2. Remover registros antigos de frequencia desta aula
+    const { error: errorDelete } = await supabase
+      .from('frequencia')
+      .delete()
+      .eq('aula_id', aulaId)
+
+    if (errorDelete) {
+      return { data: null, error: errorDelete }
+    }
+
+    // 3. Inserir um registro por aluno ausente
+    if (ausentesIds.length > 0) {
+      const { error: errorInsert } = await supabase
+        .from('frequencia')
+        .insert(ausentesIds.map(alunoId => ({
+          aula_id: aulaId,
+          aluno_id: alunoId,
+          ausente: true
+        })))
+
+      if (errorInsert) {
+        return { data: null, error: errorInsert }
+      }
+    }
+
+    return { data: { aulaId, totalAusentes: ausentesIds.length }, error: null }
   }
 }
 

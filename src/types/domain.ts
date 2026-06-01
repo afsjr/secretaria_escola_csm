@@ -139,6 +139,19 @@ export interface Boletim {
 }
 
 // =====================================================
+// FREQUENCIA
+// =====================================================
+
+export interface Frequencia {
+  id: string
+  aula_id: string
+  aluno_id: string
+  ausente: boolean
+  justificativa?: string | null
+  created_at?: string
+}
+
+// =====================================================
 // AULA
 // =====================================================
 

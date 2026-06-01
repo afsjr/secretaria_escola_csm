@@ -83,8 +83,8 @@ vi.mock('../../lib/supabase', () => {
 })
 
 const mockAlunos = [
-  { perfis: { id: 'aluno-1', nome_completo: 'João Aluno', email: 'joao@test.com' } },
-  { perfis: { id: 'aluno-2', nome_completo: 'Maria Aluna', email: 'maria@test.com' } },
+  { id: 'aluno-1', nome_completo: 'João Aluno', email: 'joao@test.com' },
+  { id: 'aluno-2', nome_completo: 'Maria Aluna', email: 'maria@test.com' },
 ]
 
 const mockAlunoData = {

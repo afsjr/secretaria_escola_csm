@@ -53,7 +53,7 @@ export function DocumentosTab({ alunos, profile }: DocumentosTabProps): HTMLDivE
           <label class="label" for="doc-aluno-select">Aluno:</label>
           <select id="doc-aluno-select" class="input">
             <option value="">-- Selecione --</option>
-            ${alunos.map(a => `<option value="${escapeHTML(a.perfis?.id || '')}">${escapeHTML(a.perfis?.nome_completo || 'N/A')}</option>`).join('')}
+            ${alunos.map(a => `<option value="${escapeHTML(a.id || '')}">${escapeHTML(a.nome_completo || 'N/A')}</option>`).join('')}
           </select>
         </div>
 

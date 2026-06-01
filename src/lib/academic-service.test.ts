@@ -354,13 +354,11 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
         eq: vi.fn(() => ({
           gte: vi.fn(() => ({
             lte: vi.fn(() => ({
-              order: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: rawMockData, error: null })),
-              })),
+              order: vi.fn(() => Promise.resolve({ data: rawMockData, error: null })),
             })),
           })),
         })),
-      })),
+      }))
     })
 
     const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')
@@ -391,13 +389,11 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
         eq: vi.fn(() => ({
           gte: vi.fn(() => ({
             lte: vi.fn(() => ({
-              order: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: dataForaDeOrdem, error: null })),
-              })),
+              order: vi.fn(() => Promise.resolve({ data: dataForaDeOrdem, error: null })),
             })),
           })),
         })),
-      })),
+      }))
     })
 
     const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')
@@ -413,9 +409,7 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
         eq: vi.fn(() => ({
           gte: vi.fn(() => ({
             lte: vi.fn(() => ({
-              order: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-              })),
+              order: vi.fn(() => Promise.resolve({ data: [], error: null })),
             })),
           })),
         })),
@@ -434,9 +428,7 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
         eq: mockEq.mockReturnValue({
           gte: vi.fn(() => ({
             lte: vi.fn(() => ({
-              order: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-              })),
+              order: vi.fn(() => Promise.resolve({ data: [], error: null })),
             })),
           })),
         }),
@@ -457,9 +449,7 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
         eq: vi.fn(() => ({
           gte: mockGte.mockReturnValue({
             lte: mockLte.mockReturnValue({
-              order: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-              })),
+              order: vi.fn(() => Promise.resolve({ data: [], error: null })),
             }),
           }),
         })),
@@ -478,13 +468,11 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
         eq: vi.fn(() => ({
           gte: vi.fn(() => ({
             lte: vi.fn(() => ({
-              order: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: null, error: { message: 'Erro de conexão' } })),
-              })),
+              order: vi.fn(() => Promise.resolve({ data: null, error: { message: 'Erro de conexão' } })),
             })),
           })),
         })),
-      })),
+      }))
     })
 
     const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')

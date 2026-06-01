@@ -232,7 +232,6 @@ export const AcademicService = {
       .eq('turma_disciplinas.turma_id', turmaId)
       .gte('data', dataInicio)
       .lte('data', dataFim)
-      .order('turma_disciplinas.disciplinas_base.nome', { ascending: true })
       .order('data', { ascending: true })
 
     if (error) return { data: null, error }
@@ -268,7 +267,8 @@ export const AcademicService = {
       disc.aulas.sort((a: any, b: any) => a.data.localeCompare(b.data))
     })
 
-    const disciplinas = Object.values(disciplinaMap)
+    const disciplinas = Object.values(disciplinaMap) as any[]
+    disciplinas.sort((a, b) => a.disciplina_nome.localeCompare(b.disciplina_nome))
 
     return { data: { disciplinas }, error: null }
   },

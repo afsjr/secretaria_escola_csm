@@ -142,6 +142,15 @@ describe('DocumentosTab', () => {
     expect(options[2].textContent).toContain('Maria Aluna')
   })
 
+  it('nao deve exibir N/A nos nomes dos alunos', async () => {
+    await renderTab()
+
+    const options = document.querySelectorAll('#doc-aluno-select option')
+    for (let i = 1; i < options.length; i++) {
+      expect(options[i].textContent).not.toContain('N/A')
+    }
+  })
+
   it('deve listar tipos de documento', async () => {
     await renderTab()
 

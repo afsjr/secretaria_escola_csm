@@ -30,6 +30,7 @@ vi.mock('../components/RequestTable', () => ({ RequestTableComponent: vi.fn().mo
 vi.mock('../components/Tabs/CadastroAlunoTab', () => ({ CadastroAlunoTab: vi.fn().mockReturnValue(document.createElement('div')) }))
 vi.mock('../components/Tabs/CadastroProfessorTab', () => ({ CadastroProfessorTab: vi.fn().mockReturnValue(document.createElement('div')) }))
 vi.mock('../components/Tabs/DiarioClasseTab', () => ({ DiarioClasseTab: vi.fn().mockReturnValue(document.createElement('div')) }))
+vi.mock('../components/Tabs/DocumentosTab', () => ({ DocumentosTab: vi.fn().mockReturnValue(document.createElement('div')) }))
 
 describe('disciplinaTemEstagio - Business Rules', () => {
   it('deve bloquear estágio para o 1º módulo', () => {
@@ -128,6 +129,19 @@ describe('SecretariaView - Integração Estágio', () => {
     const tabBtn = view.querySelector('[data-tab="diario-classe"]') as HTMLButtonElement
     expect(tabBtn).not.toBeNull()
     expect(tabBtn.textContent).toContain('Diário de Classe')
+
+    document.body.removeChild(view)
+  })
+
+  it('deve renderizar a aba Documentos', async () => {
+    vi.clearAllMocks()
+
+    const view = await SecretariaView({ id: 'admin-1', perfil: 'admin' })
+    document.body.appendChild(view)
+
+    const tabBtn = view.querySelector('[data-tab="documentos"]') as HTMLButtonElement
+    expect(tabBtn).not.toBeNull()
+    expect(tabBtn.textContent).toContain('Documentos')
 
     document.body.removeChild(view)
   })

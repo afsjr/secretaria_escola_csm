@@ -15,6 +15,7 @@ import { GerenciarCertificadosTab } from '../components/Tabs/GerenciarCertificad
 import { NotasEstagioTab } from '../components/Tabs/NotasEstagioTab'
 import { OverviewTab } from '../components/Tabs/OverviewTab'
 import { DiarioClasseTab } from '../components/Tabs/DiarioClasseTab'
+import { DocumentosTab } from '../components/Tabs/DocumentosTab'
 import { ICONS } from '../lib/icons'
 
 export async function SecretariaView(profile?: { id: string; perfil: string }): Promise<HTMLDivElement> {
@@ -67,6 +68,7 @@ export async function SecretariaView(profile?: { id: string; perfil: string }): 
       <button class="tab-btn" data-tab="gerenciar-cursos">Gerenciar Cursos</button>
       <button class="tab-btn" data-tab="certificados">Certificados</button>
       <button class="tab-btn" data-tab="diario-classe">Diário de Classe</button>
+      <button class="tab-btn" data-tab="documentos">Documentos</button>
     </div>
 
     <div id="tab-overview" class="tab-content"></div>
@@ -79,6 +81,7 @@ export async function SecretariaView(profile?: { id: string; perfil: string }): 
     <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;"></div>
     <div id="tab-certificados" class="tab-content" style="display: none;"></div>
     <div id="tab-diario-classe" class="tab-content" style="display: none;"></div>
+    <div id="tab-documentos" class="tab-content" style="display: none;"></div>
   `
 
   // 3. Lógica de Navegação de Abas (com animação fadeInScale)
@@ -168,6 +171,11 @@ export async function SecretariaView(profile?: { id: string; perfil: string }): 
   inject('#tab-certificados', GerenciarCertificadosTab())
   inject('#tab-diario-classe', DiarioClasseTab({
     turmas,
+    profile: profile || { id: '', perfil: 'secretaria' }
+  }))
+
+  inject('#tab-documentos', DocumentosTab({
+    alunos,
     profile: profile || { id: '', perfil: 'secretaria' }
   }))
 

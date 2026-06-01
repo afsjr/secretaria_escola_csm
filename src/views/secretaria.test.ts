@@ -29,6 +29,7 @@ vi.mock('../lib/security', () => ({ escapeHTML: vi.fn((str) => str) }))
 vi.mock('../components/RequestTable', () => ({ RequestTableComponent: vi.fn().mockResolvedValue(document.createElement('div')) }))
 vi.mock('../components/Tabs/CadastroAlunoTab', () => ({ CadastroAlunoTab: vi.fn().mockReturnValue(document.createElement('div')) }))
 vi.mock('../components/Tabs/CadastroProfessorTab', () => ({ CadastroProfessorTab: vi.fn().mockReturnValue(document.createElement('div')) }))
+vi.mock('../components/Tabs/DiarioClasseTab', () => ({ DiarioClasseTab: vi.fn().mockReturnValue(document.createElement('div')) }))
 
 describe('disciplinaTemEstagio - Business Rules', () => {
   it('deve bloquear estágio para o 1º módulo', () => {
@@ -71,7 +72,7 @@ describe('SecretariaView - Integração Estágio', () => {
   })
 
   it('deve realizar o fluxo completo de lançamento de nota', async () => {
-    const view = await SecretariaView()
+    const view = await SecretariaView({ id: 'admin-1', perfil: 'admin' })
     document.body.appendChild(view)
 
     // Simular clique na tab de estágio para carregar o componente
@@ -114,6 +115,19 @@ describe('SecretariaView - Integração Estágio', () => {
     await vi.waitFor(() => {
       expect(AcademicService.upsertNotaEstagio).toHaveBeenCalledWith('aluno-1', 'base-1', 10)
     })
+
+    document.body.removeChild(view)
+  })
+
+  it('deve renderizar a aba Diário de Classe', async () => {
+    vi.clearAllMocks()
+
+    const view = await SecretariaView({ id: 'admin-1', perfil: 'admin' })
+    document.body.appendChild(view)
+
+    const tabBtn = view.querySelector('[data-tab="diario-classe"]') as HTMLButtonElement
+    expect(tabBtn).not.toBeNull()
+    expect(tabBtn.textContent).toContain('Diário de Classe')
 
     document.body.removeChild(view)
   })

@@ -215,6 +215,64 @@ export const AcademicService = {
     return { data, error };
   },
 
+  // === DIÁRIO DE CLASSE ===
+
+  async getAulasPorTurmaPeriodo(turmaId: string, dataInicio: string, dataFim: string) {
+    const { data, error } = await supabase
+      .from('aulas')
+      .select(`
+        data,
+        conteudo,
+        turma_disciplinas!inner(
+          turma_id!inner(),
+          disciplinas_base (nome, carga_horaria),
+          perfis!turma_disciplinas_professor_id_fkey (nome_completo)
+        )
+      `)
+      .eq('turma_disciplinas.turma_id', turmaId)
+      .gte('data', dataInicio)
+      .lte('data', dataFim)
+      .order('turma_disciplinas.disciplinas_base.nome', { ascending: true })
+      .order('data', { ascending: true })
+
+    if (error) return { data: null, error }
+
+    const aulas = data || []
+    const disciplinaMap: Record<string, any> = {}
+
+    aulas.forEach((aula: any) => {
+      const td = aula.turma_disciplinas
+      if (!td) return
+      const disc = td.disciplinas_base
+      if (!disc) return
+      const prof = td.perfis
+      const nomeDisc = disc.nome
+      if (!disciplinaMap[nomeDisc]) {
+        disciplinaMap[nomeDisc] = {
+          disciplina_nome: nomeDisc,
+          carga_horaria: disc.carga_horaria || 0,
+          professor_nome: prof?.nome_completo || 'Sem professor',
+          aulas: [],
+          total_aulas: 0,
+        }
+      }
+      disciplinaMap[nomeDisc].aulas.push({
+        data: aula.data,
+        conteudo: aula.conteudo,
+        professor_nome: prof?.nome_completo || 'Sem professor',
+      })
+      disciplinaMap[nomeDisc].total_aulas++
+    })
+
+    Object.values(disciplinaMap).forEach((disc: any) => {
+      disc.aulas.sort((a: any, b: any) => a.data.localeCompare(b.data))
+    })
+
+    const disciplinas = Object.values(disciplinaMap)
+
+    return { data: { disciplinas }, error: null }
+  },
+
   // Salvar nota de estágio (Fluxo Secretaria)
   async upsertNotaEstagio(alunoId: string, disciplinaBaseId: string, nota: number) {
     // 1. Verificar se já existe registro

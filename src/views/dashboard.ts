@@ -279,7 +279,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   } else if (subPath === '/financeiro' && (_isFinanceiro || _isAdmin)) {
     contentArea.appendChild(await FinanceiroView())
   } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria || _isCoordenacao)) {
-    contentArea.appendChild(await SecretariaView())
+    contentArea.appendChild(await SecretariaView(profile as { id: string; perfil: string }))
   } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria || _isCoordenacao)) {
     contentArea.appendChild(await GestaoTurmasView({ id: profile?.id || '', perfil: userRole as any }))
   } else if (subPath === '/professor/turmas' && _isProfessor) {

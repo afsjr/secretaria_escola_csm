@@ -872,6 +872,128 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
   },
 
   // =====================================================
+  // DIÁRIO DE CLASSE
+  // =====================================================
+
+  generateDiarioClassePDF(data: any, turmaInfo: any): jsPDF {
+    if (!data.disciplinas || data.disciplinas.length === 0) {
+      throw new Error('Nenhuma disciplina para gerar o Diário de Classe.')
+    }
+    if (!data.turma_nome) {
+      throw new Error('Nome da turma é obrigatório.')
+    }
+
+    const doc = new jsPDF('portrait', 'mm', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const marginLeft = 20
+    const marginRight = 20
+    const contentWidth = pageWidth - marginLeft - marginRight
+
+    let y = 20
+
+    const addHeader = () => {
+      doc.setFontSize(16)
+      doc.setFont('helvetica', 'bold')
+      doc.text('COLÉGIO SANTA MÔNICA', pageWidth / 2, y, { align: 'center' })
+      y += 8
+
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'normal')
+      doc.text('Limoeiro - PE', pageWidth / 2, y, { align: 'center' })
+      y += 12
+
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.text('DIÁRIO DE CLASSE', pageWidth / 2, y, { align: 'center' })
+      y += 8
+
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`Turma: ${data.turma_nome}`, marginLeft, y)
+      y += 6
+      doc.text(`Período: ${data.periodo}`, marginLeft, y)
+      y += 10
+
+      doc.setDrawColor(0, 0, 0)
+      doc.line(marginLeft, y, pageWidth - marginRight, y)
+      y += 6
+    }
+
+    addHeader()
+
+    data.disciplinas.forEach((disciplina: any, index: number) => {
+      const spaceNeeded = 20 + disciplina.aulas.length * 8 + 20
+
+      if (y + spaceNeeded > pageHeight - 30) {
+        doc.addPage()
+        y = 20
+      }
+
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.text(disciplina.disciplina_nome, marginLeft, y)
+      y += 5
+
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`Professor(a): ${disciplina.professor_nome}`, marginLeft, y)
+      y += 4
+      doc.text(`Carga Horária: ${disciplina.carga_horaria}h`, marginLeft, y)
+      y += 6
+
+      const tableData = disciplina.aulas.map((aula: any) => [
+        aula.data || '',
+        aula.conteudo || '',
+      ])
+
+      autoTable(doc, {
+        head: [['Data', 'Conteúdo']],
+        body: tableData,
+        startY: y,
+        margin: { left: marginLeft, right: marginRight },
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold' },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: contentWidth - 30 },
+        },
+      })
+
+      y = (doc as any).lastAutoTable.finalY + 8
+
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'italic')
+      doc.text(`Total de aulas: ${disciplina.total_aulas}`, marginLeft, y)
+      y += 12
+    })
+
+    y = Math.max(y, pageHeight - 40)
+    doc.setDrawColor(0, 0, 0)
+    doc.line(marginLeft, y, pageWidth - marginRight, y)
+    y += 10
+
+    const today = new Date()
+    const dateStr = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Emitido em: ${dateStr}`, marginLeft, y)
+    y += 20
+
+    doc.text('_________________________________________', marginLeft, y)
+    y += 5
+    doc.setFont('helvetica', 'bold')
+    doc.text('Secretaria Escolar', marginLeft, y)
+    y += 5
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.text('(Documento Oficial - Carimbo Obrigatório)', marginLeft, y)
+
+    return doc
+  },
+
+  // =====================================================
   // HELPER METHODS
   // =====================================================
 

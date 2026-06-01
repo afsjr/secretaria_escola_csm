@@ -315,3 +315,181 @@ describe('AcademicService - getBoletim', () => {
     expect(result.data![0].disciplinas_base.nome).toBe('Matemática')
   })
 })
+
+describe('AcademicService - getAulasPorTurmaPeriodo', () => {
+  const rawMockData = [
+    {
+      data: '2026-02-05',
+      conteudo: 'Sistema esquelético - ossos do crânio',
+      turma_disciplinas: {
+        disciplinas_base: { nome: 'Anatomia e Fisiologia Humana', carga_horaria: 80 },
+        perfis: { nome_completo: 'João Silva' },
+      },
+    },
+    {
+      data: '2026-02-12',
+      conteudo: 'Sistema muscular - contração muscular',
+      turma_disciplinas: {
+        disciplinas_base: { nome: 'Anatomia e Fisiologia Humana', carga_horaria: 80 },
+        perfis: { nome_completo: 'João Silva' },
+      },
+    },
+    {
+      data: '2026-02-10',
+      conteudo: 'Bactérias Gram-positivas',
+      turma_disciplinas: {
+        disciplinas_base: { nome: 'Microbiologia e Parasitologia', carga_horaria: 60 },
+        perfis: { nome_completo: 'Maria Santos' },
+      },
+    },
+  ]
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('deve retornar aulas agrupadas por disciplina', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          gte: vi.fn(() => ({
+            lte: vi.fn(() => ({
+              order: vi.fn(() => ({
+                order: vi.fn(() => Promise.resolve({ data: rawMockData, error: null })),
+              })),
+            })),
+          })),
+        })),
+      })),
+    })
+
+    const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')
+
+    expect(result.error).toBeNull()
+    expect(result.data?.disciplinas).toHaveLength(2)
+
+    const anatomia = result.data!.disciplinas.find(d => d.disciplina_nome === 'Anatomia e Fisiologia Humana')
+    expect(anatomia).toBeDefined()
+    expect(anatomia!.aulas).toHaveLength(2)
+    expect(anatomia!.professor_nome).toBe('João Silva')
+    expect(anatomia!.carga_horaria).toBe(80)
+
+    const microbio = result.data!.disciplinas.find(d => d.disciplina_nome === 'Microbiologia e Parasitologia')
+    expect(microbio).toBeDefined()
+    expect(microbio!.aulas).toHaveLength(1)
+    expect(microbio!.professor_nome).toBe('Maria Santos')
+  })
+
+  it('deve ordenar aulas por data dentro de cada disciplina', async () => {
+    const dataForaDeOrdem = [
+      { ...rawMockData[1] },
+      { ...rawMockData[0] },
+    ]
+
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          gte: vi.fn(() => ({
+            lte: vi.fn(() => ({
+              order: vi.fn(() => ({
+                order: vi.fn(() => Promise.resolve({ data: dataForaDeOrdem, error: null })),
+              })),
+            })),
+          })),
+        })),
+      })),
+    })
+
+    const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')
+
+    const anatomia = result.data!.disciplinas.find(d => d.disciplina_nome === 'Anatomia e Fisiologia Humana')
+    expect(anatomia!.aulas[0].data).toBe('2026-02-05')
+    expect(anatomia!.aulas[1].data).toBe('2026-02-12')
+  })
+
+  it('deve retornar disciplinas vazio quando não há aulas no período', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          gte: vi.fn(() => ({
+            lte: vi.fn(() => ({
+              order: vi.fn(() => ({
+                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
+              })),
+            })),
+          })),
+        })),
+      })),
+    })
+
+    const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')
+
+    expect(result.data?.disciplinas).toHaveLength(0)
+  })
+
+  it('deve filtrar por turma corretamente', async () => {
+    const mockEq = vi.fn()
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: mockEq.mockReturnValue({
+          gte: vi.fn(() => ({
+            lte: vi.fn(() => ({
+              order: vi.fn(() => ({
+                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
+              })),
+            })),
+          })),
+        }),
+      })),
+    })
+
+    await AcademicService.getAulasPorTurmaPeriodo('turma-x', '2026-01-01', '2026-12-31')
+
+    expect(mockFrom).toHaveBeenCalledWith('aulas')
+    expect(mockEq).toHaveBeenCalledWith('turma_disciplinas.turma_id', 'turma-x')
+  })
+
+  it('deve filtrar por período (gte e lte)', async () => {
+    const mockGte = vi.fn()
+    const mockLte = vi.fn()
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          gte: mockGte.mockReturnValue({
+            lte: mockLte.mockReturnValue({
+              order: vi.fn(() => ({
+                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
+              })),
+            }),
+          }),
+        })),
+      })),
+    })
+
+    await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-03-01', '2026-06-30')
+
+    expect(mockGte).toHaveBeenCalledWith('data', '2026-03-01')
+    expect(mockLte).toHaveBeenCalledWith('data', '2026-06-30')
+  })
+
+  it('deve propagar erro do banco', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          gte: vi.fn(() => ({
+            lte: vi.fn(() => ({
+              order: vi.fn(() => ({
+                order: vi.fn(() => Promise.resolve({ data: null, error: { message: 'Erro de conexão' } })),
+              })),
+            })),
+          })),
+        })),
+      })),
+    })
+
+    const result = await AcademicService.getAulasPorTurmaPeriodo('turma-1', '2026-01-01', '2026-12-31')
+
+    expect(result.data).toBeNull()
+    expect(result.error?.message).toBe('Erro de conexão')
+  })
+})

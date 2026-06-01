@@ -14,9 +14,10 @@ import { GerenciarCursosTab } from '../components/Tabs/GerenciarCursosTab'
 import { GerenciarCertificadosTab } from '../components/Tabs/GerenciarCertificadosTab'
 import { NotasEstagioTab } from '../components/Tabs/NotasEstagioTab'
 import { OverviewTab } from '../components/Tabs/OverviewTab'
+import { DiarioClasseTab } from '../components/Tabs/DiarioClasseTab'
 import { ICONS } from '../lib/icons'
 
-export async function SecretariaView(): Promise<HTMLDivElement> {
+export async function SecretariaView(profile?: { id: string; perfil: string }): Promise<HTMLDivElement> {
   const container = document.createElement('div')
   container.className = 'secretaria-view animate-in'
 
@@ -65,6 +66,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
       <button class="tab-btn" data-tab="gerenciar-professores">Gerenciar Professores</button>
       <button class="tab-btn" data-tab="gerenciar-cursos">Gerenciar Cursos</button>
       <button class="tab-btn" data-tab="certificados">Certificados</button>
+      <button class="tab-btn" data-tab="diario-classe">Diário de Classe</button>
     </div>
 
     <div id="tab-overview" class="tab-content"></div>
@@ -76,6 +78,7 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
     <div id="tab-gerenciar-professores" class="tab-content" style="display: none;"></div>
     <div id="tab-gerenciar-cursos" class="tab-content" style="display: none;"></div>
     <div id="tab-certificados" class="tab-content" style="display: none;"></div>
+    <div id="tab-diario-classe" class="tab-content" style="display: none;"></div>
   `
 
   // 3. Lógica de Navegação de Abas (com animação fadeInScale)
@@ -163,6 +166,10 @@ export async function SecretariaView(): Promise<HTMLDivElement> {
   }))
 
   inject('#tab-certificados', GerenciarCertificadosTab())
+  inject('#tab-diario-classe', DiarioClasseTab({
+    turmas,
+    profile: profile || { id: '', perfil: 'secretaria' }
+  }))
 
   return container
 }

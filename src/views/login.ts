@@ -23,7 +23,7 @@ export function LoginView(): HTMLElement {
           </div>
           
           <h1 class="brand-title-split" style="color: #d11218 !important;">
-            Secretaria<br>Escola CSM
+            Secretaria<br>Colégio Santa Mônica - CSM
           </h1>
           
           <p class="brand-desc-split" style="color: #4b5563 !important;">
@@ -148,7 +148,7 @@ export function LoginView(): HTMLElement {
     }
 
     const submitBtn = form.querySelector(
-      '.btn-submit-premium',
+      ".btn-submit-premium",
     ) as HTMLButtonElement;
     submitBtn.disabled = true;
     submitBtn.textContent = "Autenticando...";

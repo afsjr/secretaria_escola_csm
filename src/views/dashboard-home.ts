@@ -284,12 +284,12 @@ export async function DashboardHomeView(profile: UserProfile, _session: Session)
       <p style="color:var(--text-muted);">Seja bem-vindo(a) ao Portal Oficial CSM.</p>
     </header>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2rem;">
       ${renderStatCards(cards)}
     </div>
 
     ${chartsHTML ? `
-    <div style="margin-top:2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
+    <div style="margin-top:2.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem;">
       ${chartsHTML}
     </div>
     ` : ''}

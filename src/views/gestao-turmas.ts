@@ -58,16 +58,19 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         </div>
       ` : ''
       return `
-          <li style="padding: 1rem; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;" class="turma-item" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" onmouseover="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='var(--secondary)'; this.style.boxShadow='none'">
-            <div style="font-weight: 600; color: var(--primary); font-size: 1.05rem;">
-              <span class="turma-nome-display">${escapeHTML(t.nome)}</span>
-              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHTML(t.periodo)})</span>
-              <input type="text" class="turma-nome-input" style="display: none; font-size: 1.05rem; font-weight: 600; color: var(--primary); border: 1px solid var(--accent); border-radius: 4px; padding: 0.2rem 0.4rem; width: 60%;" />
+          <li style="padding: 1.2rem; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white; display: flex; flex-direction: column; justify-content: space-between;" class="turma-item" data-id="${escapeHTML(t.id)}" data-nome="${escapeHTML(t.nome)}" onmouseover="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='var(--secondary)'; this.style.boxShadow='none'">
+            <div>
+              <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem; margin-bottom: 0.2rem;">
+                <span class="turma-nome-display">${escapeHTML(t.nome)}</span>
+                <input type="text" class="turma-nome-input" style="display: none; font-size: 1.05rem; font-weight: 600; color: var(--primary); border: 1px solid var(--accent); border-radius: 4px; padding: 0.2rem 0.4rem; width: 100%;" />
+              </div>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 1rem;">Período: <b>${escapeHTML(t.periodo)}</b></div>
             </div>
-            <div style="font-size: 0.8rem; margin-top: 8px;">
-              <span class="badge" style="background: ${statusBg}; color: ${statusColor}; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600;">${escapeHTML(t.status_ingresso)}</span>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+              <span class="badge" style="background: ${statusBg}; color: ${statusColor}; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600; font-size: 0.75rem;">${escapeHTML(t.status_ingresso)}</span>
+              ${manageButtons}
             </div>
-            ${manageButtons}
           </li>
         `
     }).join('')
@@ -82,42 +85,43 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       <p>Crie novas turmas, matricule os alunos e gerencie o status acadêmico/financeiro.</p>
     </header>
 
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-
-      <!-- Lado Esquerdo: Criar Turma e Lista de Turmas -->
-      <div>
-        <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 2rem; border-top: 4px solid var(--primary);">
-          <h3 style="margin-bottom: 1rem;">Abrir Nova Turma</h3>
-          <form id="form-nova-turma">
-            <div class="form-group">
-              <label class="label" for="turma-curso">Curso *</label>
-              <select id="turma-curso" name="turma_curso" class="input" required>
-                <option value="">-- Selecione o Curso --</option>
-                ${cursosOptions}
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="label" for="turma-nome">Nome da Turma</label>
-              <input type="text" id="turma-nome" name="turma_nome" class="input" placeholder="Ex: Tec. Enfermagem 12A" required>
-            </div>
-            <div class="form-group">
-              <label class="label" for="turma-periodo">Período letivo</label>
-              <input type="text" id="turma-periodo" name="turma_periodo" class="input" placeholder="Ex: 2026.1" required>
-            </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: stretch; margin-bottom: 2rem;">
+      <!-- Lado Esquerdo: Criar Turma -->
+      <div style="flex: 1; min-width: 300px; max-width: 400px; background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border-top: 4px solid var(--primary); display: flex; flex-direction: column;">
+        <h3 style="margin-bottom: 1rem;">Abrir Nova Turma</h3>
+        <form id="form-nova-turma" style="flex: 1; display: flex; flex-direction: column;">
+          <div class="form-group">
+            <label class="label" for="turma-curso">Curso *</label>
+            <select id="turma-curso" name="turma_curso" class="input" required>
+              <option value="">-- Selecione o Curso --</option>
+              ${cursosOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="label" for="turma-nome">Nome da Turma</label>
+            <input type="text" id="turma-nome" name="turma_nome" class="input" placeholder="Ex: Tec. Enfermagem 12A" required>
+          </div>
+          <div class="form-group">
+            <label class="label" for="turma-periodo">Período letivo</label>
+            <input type="text" id="turma-periodo" name="turma_periodo" class="input" placeholder="Ex: 2026.1" required>
+          </div>
+          <div style="margin-top: auto;">
             <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar Turma</button>
-          </form>
-        </div>
-
-        <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-          <h3 style="margin-bottom: 1rem;">Turmas Ativas</h3>
-          <ul id="lista-turmas" style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-            ${turmasList}
-          </ul>
-        </div>
+          </div>
+        </form>
       </div>
 
-      <!-- Lado Direito: Detalhes da Turma e Matrículas -->
-      <div id="painel-matriculas" style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: none;">
+      <!-- Lado Direito: Lista de Turmas -->
+      <div style="flex: 2; min-width: 300px; background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
+        <h3 style="margin-bottom: 1rem;">Turmas Ativas</h3>
+        <ul id="lista-turmas" style="list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; overflow-y: auto; max-height: 400px; padding-right: 0.5rem; scrollbar-width: thin;">
+          ${turmasList}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Painel Inferior: Detalhes da Turma e Matrículas -->
+    <div id="painel-matriculas" style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: none; width: 100%;">
         <h2 id="titulo-turma-selecionada" style="margin-bottom: 0.5rem; color: var(--primary); border-bottom: 3px solid var(--accent); padding-bottom: 0.5rem;">Selecione uma Turma</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Gerencie matrículas, status acadêmico/financeiro e visualize notas dos alunos.</p>
 
@@ -649,6 +653,11 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       loadTurmaGrade(selectedTurmaId!)
       loadTurmaCalendario(selectedTurmaId!)
       toggleTabsPorTipo()
+      
+      // Rola a página suavemente para o painel de matrículas
+      setTimeout(() => {
+        painelMatriculas.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
     })
   })
 

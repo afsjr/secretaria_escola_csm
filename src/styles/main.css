@@ -936,10 +936,109 @@ html.dark .search-result-item.active {
 }
 
 /* Tabs Modular Design */
+
+/* Wrapper que contém as setas + a faixa de abas */
+.tabs-wrapper {
+  position: relative;
+  margin-bottom: 2.5rem;
+}
+
+/* Botões de seta de scroll (esq / dir) */
+.tabs-scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  opacity: 0;
+  pointer-events: none; /* invisível = não interativo */
+}
+
+.tabs-scroll-arrow.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tabs-scroll-arrow:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.tabs-scroll-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.tabs-scroll-arrow--left {
+  left: -14px;
+}
+
+.tabs-scroll-arrow--right {
+  right: -14px;
+}
+
+/* Gradientes laterais indicadores de overflow */
+.tabs-wrapper::before,
+.tabs-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.tabs-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(245,245,245,0.9), transparent);
+  border-radius: 12px 0 0 12px;
+}
+
+.tabs-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(245,245,245,0.9), transparent);
+  border-radius: 0 12px 12px 0;
+}
+
+.tabs-wrapper.has-overflow-left::before  { opacity: 1; }
+.tabs-wrapper.has-overflow-right::after  { opacity: 1; }
+
+html.dark .tabs-wrapper::before {
+  background: linear-gradient(to right, rgba(19,19,31,0.95), transparent);
+}
+
+html.dark .tabs-wrapper::after {
+  background: linear-gradient(to left, rgba(19,19,31,0.95), transparent);
+}
+
+html.dark .tabs-scroll-arrow {
+  background: #2D2D3D;
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+html.dark .tabs-scroll-arrow:hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
 .tabs-container {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 2.5rem;
   padding: 0.5rem;
   background: rgba(0,0,0,0.03);
   border-radius: 12px;

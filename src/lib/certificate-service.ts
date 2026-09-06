@@ -117,7 +117,7 @@ export const CertificateService = {
         body: conteudo.data.map(c => [c.disciplina, `${c.carga_horaria}h`]),
         theme: 'grid',
         styles: { fontSize: 10 },
-        headStyles: { fillColor: [41, 98, 255] },
+        headStyles: { fillColor: [196, 30, 58] },
       })
 
       if (assinaturaUrl) {

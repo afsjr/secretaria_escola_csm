@@ -171,7 +171,7 @@ export const InstituicaoService = {
       telefone: inst?.telefone || '',
       email: inst?.email || '',
       logo_url: inst?.logo_url || null,
-      cor_primaria: inst?.cor_primaria || '#1E3A5F',
+      cor_primaria: inst?.cor_primaria || '#C41E3A',
     }
   },
 

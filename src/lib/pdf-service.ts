@@ -91,7 +91,7 @@ export const PDFService = {
     title: string,
   ) {
     // Fundo colorido com a cor primária da instituição
-    const cor = inst.cor_primaria || "#1E3A5F";
+    const cor = inst.cor_primaria || "#C41E3A";
     const r = parseInt(cor.slice(1, 3), 16);
     const g = parseInt(cor.slice(3, 5), 16);
     const b = parseInt(cor.slice(5, 7), 16);
@@ -154,7 +154,7 @@ export const PDFService = {
     }
 
     // --- Header ---
-    doc.setFillColor(30, 58, 95); // var(--primary)
+    doc.setFillColor(196, 30, 58); // var(--primary)
     doc.rect(0, 0, pageWidth, 35, "F");
 
     doc.setTextColor(255, 255, 255);
@@ -164,12 +164,12 @@ export const PDFService = {
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Limoeiro/PE - CNPJ: XX.XXX.XXX/0001-XX", marginLeft, 21);
+    doc.text("Limoeiro/PE - CNPJ: 70.077.433/0001-20", marginLeft, 21);
     doc.text("Rua Principal, 123 - Centro - CEP: 55700-000", marginLeft, 26);
-    doc.text("Tel: (81) 3621-XXXX | secretaria@csm.edu.br", marginLeft, 31);
+    doc.text("Tel/WhatsApp: 81 99592 3688 | secretaria@csm.edu.br", marginLeft, 31);
 
     // --- Title ---
-    doc.setTextColor(30, 58, 95);
+    doc.setTextColor(196, 30, 58);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("BOLETIM ESCOLAR", pageWidth / 2, 48, { align: "center" });
@@ -212,7 +212,7 @@ export const PDFService = {
       }
 
       // Module header
-      doc.setFillColor(30, 58, 95);
+      doc.setFillColor(196, 30, 58);
       doc.rect(marginLeft, currentY - 4, contentWidth, 8, "F");
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(10);
@@ -264,7 +264,7 @@ export const PDFService = {
         },
         headStyles: {
           fillColor: [240, 244, 248],
-          textColor: [30, 58, 95],
+          textColor: [196, 30, 58],
           fontStyle: "bold",
           fontSize: 7,
         },
@@ -350,7 +350,7 @@ export const PDFService = {
     }
 
     // --- Header ---
-    doc.setFillColor(30, 58, 95);
+    doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
 
     doc.setTextColor(255, 255, 255);
@@ -360,7 +360,7 @@ export const PDFService = {
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Limoeiro/PE - CNPJ: XX.XXX.XXX/0001-XX", pageWidth / 2, 21, {
+    doc.text("Limoeiro/PE - CNPJ: 70.077.433/0001-20", pageWidth / 2, 21, {
       align: "center",
     });
     doc.text(
@@ -369,12 +369,12 @@ export const PDFService = {
       26,
       { align: "center" },
     );
-    doc.text("Tel: (81) 3621-XXXX | secretaria@csm.edu.br", pageWidth / 2, 31, {
+    doc.text("Tel/WhatsApp: 81 99592 3688 | secretaria@csm.edu.br", pageWidth / 2, 31, {
       align: "center",
     });
 
     // --- Title ---
-    doc.setTextColor(30, 58, 95);
+    doc.setTextColor(196, 30, 58);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text("DECLARAÇÃO DE MATRÍCULA", pageWidth / 2, 55, { align: "center" });
@@ -444,7 +444,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     }
 
     // --- Header ---
-    doc.setFillColor(30, 58, 95);
+    doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
 
     doc.setTextColor(255, 255, 255);
@@ -454,7 +454,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Limoeiro/PE - CNPJ: XX.XXX.XXX/0001-XX", pageWidth / 2, 21, {
+    doc.text("Limoeiro/PE - CNPJ: 70.077.433/0001-20", pageWidth / 2, 21, {
       align: "center",
     });
     doc.text(
@@ -463,12 +463,12 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
       26,
       { align: "center" },
     );
-    doc.text("Tel: (81) 3621-XXXX | secretaria@csm.edu.br", pageWidth / 2, 31, {
+    doc.text("Tel/WhatsApp: 81 99592 3688 | secretaria@csm.edu.br", pageWidth / 2, 31, {
       align: "center",
     });
 
     // --- Title ---
-    doc.setTextColor(30, 58, 95);
+    doc.setTextColor(196, 30, 58);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text("DECLARAÇÃO DE VÍNCULO", pageWidth / 2, 55, { align: "center" });
@@ -548,7 +548,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     }
 
     // --- Header ---
-    doc.setFillColor(30, 58, 95);
+    doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
 
     doc.setTextColor(255, 255, 255);
@@ -558,7 +558,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Limoeiro/PE - CNPJ: XX.XXX.XXX/0001-XX", pageWidth / 2, 21, {
+    doc.text("Limoeiro/PE - CNPJ: 70.077.433/0001-20", pageWidth / 2, 21, {
       align: "center",
     });
     doc.text(
@@ -569,7 +569,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     );
 
     // --- Title ---
-    doc.setTextColor(30, 58, 95);
+    doc.setTextColor(196, 30, 58);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("HISTÓRICO ACADÊMICO", pageWidth / 2, 48, { align: "center" });
@@ -657,7 +657,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
         lineWidth: 0.1,
       },
       headStyles: {
-        fillColor: [30, 58, 95],
+        fillColor: [196, 30, 58],
         textColor: [255, 255, 255],
         fontStyle: "bold",
         fontSize: 7,
@@ -750,7 +750,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("DEPARTAMENTO FINANCEIRO", pageWidth / 2, 26, { align: "center" });
-    doc.text("Limoeiro/PE - Tel: (81) 3621-XXXX", pageWidth / 2, 32, {
+    doc.text("Limoeiro/PE - Tel/WhatsApp: 81 99592 3688", pageWidth / 2, 32, {
       align: "center",
     });
 
@@ -953,7 +953,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
         startY: y,
         margin: { left: marginLeft, right: marginRight },
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold' },
+        headStyles: { fillColor: [196, 30, 58], textColor: 255, fontStyle: 'bold' },
         columnStyles: {
           0: { cellWidth: 30 },
           1: { cellWidth: contentWidth - 30 },

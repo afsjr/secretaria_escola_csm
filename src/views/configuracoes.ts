@@ -122,7 +122,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
           <div style="display: grid; grid-template-columns: 120px 1fr; gap: 1rem; align-items: center;">
             <div class="form-group">
               <label class="label" for="inst-cor">Cor Principal</label>
-              <input type="color" id="inst-cor" name="cor_primaria" class="input" value="${(inst as any)?.cor_primaria || '#1E3A5F'}" style="height: 45px; padding: 4px; cursor: pointer;">
+              <input type="color" id="inst-cor" name="cor_primaria" class="input" value="${(inst as any)?.cor_primaria || '#C41E3A'}" style="height: 45px; padding: 4px; cursor: pointer;">
             </div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;">
               Cor usada no cabeçalho dos documentos PDF e nos elementos principais do sistema.

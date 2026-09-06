@@ -36,6 +36,7 @@ erDiagram
         uuid id PK
         text nome
         text descricao
+        text tipo_curso
         boolean ativo
         timestamp created_at
     }
@@ -165,9 +166,41 @@ erDiagram
         timestamp created_at
     }
 
+    CERTIFICADOS_MODELOS {
+        uuid id PK
+        uuid curso_id FK
+        text tipo
+        text template_html
+        boolean ativo
+        timestamp created_at
+    }
+
+    CERTIFICADOS {
+        uuid id PK
+        uuid aluno_id FK
+        uuid curso_id FK
+        text codigo_autenticidade
+        timestamp emitido_em
+        uuid emitido_por FK
+        jsonb dados_snapshot
+    }
+
+    CONTEUDO_PROGRAMATICO {
+        uuid id PK
+        uuid curso_id FK
+        text modulo
+        text ementa
+        int carga_horaria
+        timestamp created_at
+    }
+
     PERFIS ||--o| PERFIS_ENDERECOS : "tem"
     CURSOS ||--o{ TURMAS : "possui"
     CURSOS ||--o{ DISCIPLINAS_BASE : "tem"
+    CURSOS ||--o{ CERTIFICADOS_MODELOS : "tem"
+    CURSOS ||--o{ CONTEUDO_PROGRAMATICO : "possui"
+    CURSOS ||--o{ CERTIFICADOS : "emite"
+    PERFIS ||--o{ CERTIFICADOS : "recebe"
     TURMAS ||--o{ MATRICULAS : "possui"
     TURMAS ||--o{ TURMA_DISCIPLINAS : "tem"
     DISCIPLINAS_BASE ||--o{ TURMA_DISCIPLINAS : "oferecida_em"

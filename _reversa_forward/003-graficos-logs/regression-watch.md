@@ -16,9 +16,13 @@
 
 ## Histórico de Re-extrações
 
-| Data | feature-id | Veredito | Observações |
-|------|------------|----------|-------------|
-| — | — | — | Nenhuma re-extração executada ainda |
+### Re-extração 2026-09-06 15:28
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Funções de auditoria preservadas em `src/lib/audit-service.ts` |
+| W002 | 🟢 verde | Mapeamento ação/severidade preservado em `audit/requirements.md` e UI |
+| W003 | 🟢 verde | Acesso a audit-log e gráficos restrito a admin e master_admin |
 
 ---
 

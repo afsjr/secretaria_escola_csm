@@ -17,7 +17,13 @@
 
 ## Histórico de re-extrações
 
-(Será preenchido pelo agente reverso ao rodar `/reversa` novamente.)
+### Re-extração 2026-09-06 15:28
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Validação de conclusão mantida em `certificate-service.ts:validateConclusao` |
+| W002 | 🟢 verde | Geração de hash SHA-256 preservada em `certificate-service.ts:generateHash` |
+| W003 | 🟢 verde | Bucket `certificados-imagens` restrito a `master_admin` confirmado |
 
 ## Arquivadas
 

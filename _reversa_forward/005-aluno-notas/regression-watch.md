@@ -13,9 +13,13 @@
 
 ## Histórico de re-extrações
 
-| Data | Resultado | Observações |
-|------|-----------|-------------|
-| — | — | Nenhuma re-extração executada ainda |
+### Re-extração 2026-09-06 15:28
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Interface `Boletim` preservada em `src/types/domain.ts` e documentada no `data-dictionary.md` |
+| W002 | 🟢 verde | Rota `#/dashboard/aluno/notas` com guard `_isAluno` preservada no `dashboard.ts` |
+| W003 | 🟢 verde | Link "Minhas Notas" preservado no sidebar condicionado a `_isAluno` |
 
 ## Arquivadas
 

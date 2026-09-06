@@ -20,6 +20,50 @@ O Reversa é um time de especialistas. Cada agente faz uma coisa só — e faz b
 
 ---
 
+## Menu principal
+
+| O que você quer fazer? | Comando | Time |
+|---|---|---|
+| Descobrir e documentar um sistema legado | `/reversa` | Reversa Agents Core |
+| Clarear a ideia antes de qualquer código | `/reversa-brainstorm` | Ideation Agents |
+| Criar um projeto novo a partir de uma ideia | `/reversa-new` | Code New Project Agents |
+| Implementar ou evoluir código a partir das specs | `/reversa-forward` | Code Forward Agents |
+| Planejar a migração de um legado | `/reversa-migrate` | Migration Agents |
+| Gerar um mini-site visual da documentação | `/reversa-docs` | Documentation Agents |
+| Entender qual agente usar | `/reversa-agents-help` | Guia de agentes |
+
+Os times de Pricing e Translators têm comandos especializados. Use `/reversa-pricing-profile`, `/reversa-pricing-size`, `/reversa-pricing-estimate` ou `/reversa-n8n` conforme a necessidade.
+
+---
+
+## 💡 Reversa Brainstorm, a mesa antes da obra
+**Comando:** `/reversa-brainstorm`
+
+Antes de o pedreiro levantar parede, alguém senta na mesa e pergunta o que se quer com a casa: para quem é, o que dói morar como está hoje, quais os caminhos possíveis, o que pode dar errado. Ninguém desenha planta nessa mesa. Só se decide o que vale construir.
+
+> Use o Reversa Brainstorm quando a ideia ainda está bruta, em projeto novo ou em legado. Ele conduz `Framer → Explorer → Challenger → Arbiter → Pre-Spec` e entrega o resultado ao `/reversa-new` (greenfield) ou ao `/reversa-requirements` (legado).
+
+**Os cinco da mesa:**
+
+| Agente | Analogia | Comando |
+|---|---|---|
+| **Framer** | O médico que não aceita "quero remédio X" e pergunta onde dói | `/reversa-framer` |
+| **Explorer** | O guia que mostra todas as trilhas, inclusive a de não subir a montanha | `/reversa-explorer` |
+| **Challenger** | O advogado do diabo que já viu esse projeto fracassar antes | `/reversa-challenger` |
+| **Arbiter** | O juiz que dá o veredito e assume o que se perde com ele, mas quem decide é você | `/reversa-arbiter` |
+| **Pre-Spec** | O escrivão que entrega o mínimo para a obra começar, e nada além | `/reversa-pre-spec` |
+
+---
+
+## 🆕 Reversa New — o fundador de produto
+**Comando:** `/reversa-new`
+
+O fundador começa com uma ideia ainda bruta, investiga o problema, entende para quem o produto existe, consolida um PRD e transforma tudo em especificações prontas para implementação.
+
+> Use o Reversa New para projetos greenfield. Ele conduz `Ideator → Researcher → Drafter → Spec SDD` e entrega o resultado ao `/reversa-forward`.
+
+---
+
 ## 🎼 Reversa — orquestrador central
 **Comando:** `/reversa`
 
@@ -122,11 +166,13 @@ O estilista cataloga o guarda-roupa: paleta de cores, tipografia, espaçamentos,
 ## Sequência recomendada
 
 ```
-/reversa → orquestra tudo automaticamente
+Projeto legado: /reversa → descoberta e especificações
+Projeto novo:   /reversa-new → PRD e specs → /reversa-forward
+Migração:       /reversa → /reversa-migrate → /reversa-forward
 
-Ou manualmente:
+Pipeline legado manual:
 Scout → Archaeologist (N sessões) → Detective → Architect → Writer → Reviewer
 
 Opcionais em qualquer fase:
-Soul Extractor · Visor · Data Master · Design System
+Soul Extractor · Visor · Data Master · Design System · Reversa Docs
 ```

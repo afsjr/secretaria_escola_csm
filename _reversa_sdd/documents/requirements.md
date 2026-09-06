@@ -23,12 +23,19 @@ Permite que alunos solicitem documentos (declarações, histórico, etc.) e que 
 |----|-----------|-----------|-------------------|
 | RF-01 | Criar solicitação | Must | Solicitação criada com status pendente |
 | RF-02 | Listar próprias solicitações | Must | Lista do aluno |
-| RF-03 | Listar todas as solicitações | Must | Lista completa (admin) |
+| RF-03 | Listar todas as solicitações | Must | Lista completa (admin/secretaria) |
 | RF-04 | Atualizar status | Must | Status alterado para concluído |
+| RF-05 | Gerar Certificado em PDF | Must | PDF frente e verso gerado com jsPDF + autotable conforme tipo do curso |
+| RF-06 | Validar conclusão do aluno | Must | Verifica 100% de aprovação nas disciplinas obrigatórias e estágio antes da emissão |
+| RF-07 | Código de Autenticidade | Must | Hash SHA-256 único impresso no verso do certificado para validação pública |
+| RF-08 | Gestão de Modelos e Assinaturas | Should | Upload e exclusão de logos e assinaturas no bucket 'certificados-imagens' (master_admin) |
+| RF-09 | Central de Notificações no Header | Must | Dropdown com badge de contagem de solicitações pendentes para secretaria e aluno |
 
 ## Rastreabilidade
 
-| Arquivo | Função | Cobertura |
-|---------|--------|-----------|
-| `src/lib/documents-service.ts` | createRequest, getMyRequests | 🟢 |
-| `src/lib/documents-service.ts` | getAllOpenRequests, updateStatus | 🟢 |
+| Arquivo | Função / Componente | Cobertura |
+|---------|---------------------|-----------|
+| `src/lib/documents-service.ts` | createRequest, getMyRequests, getAllOpenRequests, updateStatus, getPendingByUser | 🟢 |
+| `src/lib/certificate-service.ts` | validateConclusao, generateHash, gerarCertificadoPDF, uploadLogo | 🟢 |
+| `src/components/NotificationDropdown.ts` | NotificationDropdown (badge + listagem rápida) | 🟢 |
+| `src/components/Tabs/GerenciarCertificadosTab.ts` | GerenciarCertificadosTab (emissão individual/lote) | 🟢 |

@@ -172,6 +172,53 @@ const key = `${normalizedName}-${normalizedModulo}`
 
 ---
 
+### RB13: Tipos de Curso determinam sistema de avaliação (Técnico vs Formação)
+
+**Evidência:** `course-service.ts`, `professor-service.ts`
+- Cursos técnicos exigem avaliação numérica (0 a 10).
+- Cursos de formação avaliam por conceito (A, B, C).
+- Proibida alteração de `tipo_curso` se o curso possuir turmas ativas vinculadas.
+
+**Trigger:** Cadastro de curso e lançamento de notas pelo professor.
+**Consequência:** Validação e interface dinâmicas conforme a modalidade do curso.
+
+---
+
+### RB14: Requisitos de Conclusão e Emissão de Certificados
+
+**Evidência:** `certificate-service.ts:validateConclusao`
+- Aluno só pode ter certificado emitido se aprovado em 100% das disciplinas obrigatórias e estágio supervisionado.
+- Todo certificado emitido gera um código de autenticidade único via hash SHA-256.
+- Template do certificado (frente e verso com conteúdo programático) varia conforme o tipo do curso.
+
+**Trigger:** Solicitação ou emissão em lote de certificados.
+**Consequência:** Garantia de validade acadêmica e prevenção de emissão indevida.
+
+---
+
+### RB15: Acesso de Alunos ao Boletim (Somente Leitura)
+
+**Evidência:** `aluno-notas.ts`, RLS Supabase
+- Aluno só acessa seu próprio boletim (`aluno_id = auth.uid()`).
+- Nenhuma permissão de escrita/alteração de notas para perfil aluno.
+- Disciplinas não finalizadas (`status = pendente`) são apresentadas como "Cursando".
+
+**Trigger:** Aluno acessa a rota `#/dashboard/aluno/notas`.
+**Consequência:** Transparência para o aluno sem risco de violação de integridade das notas.
+
+---
+
+### RB16: Notificações de Documentos no Header
+
+**Evidência:** `NotificationDropdown.ts`, `documents-service.ts:getPendingByUser`
+- Solicitações abertas disparam badge de contagem no topo do dashboard.
+- Secretaria enxerga solicitações pendentes globais; aluno enxerga apenas suas próprias.
+
+**Trigger:** Nova solicitação criada ou consulta ao carregar dashboard.
+**Consequência:** Redução do tempo de resposta da secretaria e visibilidade imediata ao aluno.
+
+---
+
 ## Regras de Domínio por Tipo de Entidade
 
 ### Aluno (`perfis.perfil = 'aluno'`)

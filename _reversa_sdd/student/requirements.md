@@ -36,6 +36,10 @@ Gerencia dados estendidos do aluno: endereço, responsáveis, observações e da
 | RF-12 | Consultar dados completos | Must | Perfil + endereço + responsáveis + obs + matrícula |
 | RF-13 | Atualizar dados pessoais | Must | Update com versionamento |
 | RF-14 | Verificar menor de idade | Could | RPC retorna boolean |
+| RF-15 | Visualizar boletim (Minhas Notas) | Must | Aluno logado consulta notas N1, N2, N3, Rec e Média das suas disciplinas |
+| RF-16 | Agrupamento por módulo | Should | Disciplinas organizadas visualmente por módulo da matriz curricular |
+| RF-17 | Badges de status | Must | Badge visual para Aprovado, Reprovado e Cursando (pendente) |
+| RF-18 | Somente leitura | Must | Aluno não tem permissão para editar ou alterar notas |
 
 ## Rastreabilidade de Código
 
@@ -46,3 +50,5 @@ Gerencia dados estendidos do aluno: endereço, responsáveis, observações e da
 | `src/lib/student-details-service.ts` | `getObservacoes`, `addObservacao`, `updateObservacao`, `deleteObservacao` | 🟢 |
 | `src/lib/student-details-service.ts` | `getAlunoCompleto` | 🟢 |
 | `src/lib/student-details-service.ts` | `updateDadosPessoais`, `isMenorDeIdade` | 🟡 |
+| `src/views/aluno-notas.ts` | `AlunoNotasView` (render, grouping, status) | 🟢 |
+| `src/lib/grades-utils.ts` | `calcularMediaParcial`, `calcularNotaFinal` | 🟢 |

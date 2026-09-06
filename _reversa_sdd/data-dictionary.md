@@ -53,6 +53,7 @@
 | nome | text | sim | Nome do curso |
 | descricao | text | não | Descrição |
 | ativo | boolean | sim | Status ativo/inativo |
+| tipo_curso | text | sim | 'tecnico' ou 'formacao' (default 'tecnico') |
 | created_at | timestamp | sim | Data de criação |
 
 ---
@@ -120,8 +121,11 @@
 | n3 | numeric | não | Nota 3 |
 | rec | numeric | não | Nota de recuperação |
 | nota_estagio | numeric | não | Nota de estágio |
+| estagio_parecer | text | não | Parecer do estágio supervisionado |
+| status | text | não | Status da disciplina: pendente, aprovado, reprovado |
+| conceito | text | não | Conceito para cursos de formação (A, B, C) |
 | faltas | integer | não | Total de faltas |
-| versao | integer | não | Versão para controle de concorrência |
+| versao | integer | não | Versão para controle de concorrência (optimistic lock) |
 | created_at | timestamp | sim | Data de criação |
 
 ---
@@ -178,6 +182,46 @@
 | tipo | text | sim | Tipo de documento |
 | status | text | sim | Status: pendente, concluido |
 | criado_em | timestamp | sim | Data de criação |
+
+---
+
+### Modelos de Certificado (certificados_modelos)
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|------------|
+| id | uuid | sim | ID único |
+| curso_id | uuid | sim | FK para cursos.id |
+| tipo | text | sim | 'tecnico' ou 'formacao' |
+| template_html | text | não | Layout customizado do certificado |
+| ativo | boolean | sim | Modelo ativo/inativo |
+| created_at | timestamp | sim | Data de criação |
+
+---
+
+### Certificados Emitidos (certificados)
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|------------|
+| id | uuid | sim | ID único |
+| aluno_id | uuid | sim | FK para perfis.id |
+| curso_id | uuid | sim | FK para cursos.id |
+| codigo_autenticidade | text | sim | Hash SHA-256 para validação pública |
+| emitido_em | timestamp | sim | Data de emissão |
+| emitido_por | uuid | sim | FK para perfis.id (secretaria/admin) |
+| dados_snapshot | jsonb | não | Snapshot dos dados acadêmicos na data de emissão |
+
+---
+
+### Conteúdo Programático (conteudo_programatico)
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|------------|
+| id | uuid | sim | ID único |
+| curso_id | uuid | sim | FK para cursos.id |
+| modulo | text | sim | Identificação do módulo |
+| ementa | text | sim | Descrição do conteúdo programático |
+| carga_horaria | integer | sim | Carga horária em horas |
+| created_at | timestamp | sim | Data de criação |
 
 ---
 

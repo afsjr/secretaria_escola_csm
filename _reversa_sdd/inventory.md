@@ -49,34 +49,47 @@ secretaria_escola_csm/
 │   │   ├── dom-utils.ts
 │   │   ├── date-utils.ts
 │   │   ├── audit-service.ts
+│   │   ├── certificate-service.ts
+│   │   ├── certificate-service.test.ts
+│   │   ├── grades-utils.ts
 │   │   ├── instituicao-service.ts
 │   │   ├── concurrency-control.ts
-│   │   └── *.test.ts (6 arquivos de teste)
+│   │   └── *.test.ts (11 arquivos de teste)
+│   ├── hooks/
+│   │   └── useAuditStats.ts
 │   ├── components/
 │   │   ├── index.ts
 │   │   ├── modal.ts
+│   │   ├── NotificationDropdown.ts
 │   │   ├── tabela-alunos.ts
 │   │   ├── tabela-professores.ts
 │   │   ├── RequestTable.ts
+│   │   ├── audit/
+│   │   │   ├── AuditBarChart.ts
+│   │   │   ├── AuditCards.ts
+│   │   │   └── AuditTrendChart.ts
 │   │   └── Tabs/
 │   │       ├── OverviewTab.ts
 │   │       ├── CadastroAlunoTab.ts
 │   │       ├── CadastroProfessorTab.ts
 │   │       ├── GerenciarAlunosTab.ts
 │   │       ├── GerenciarAlunosTab.test.ts
+│   │       ├── GerenciarCertificadosTab.ts
 │   │       ├── GerenciarProfessoresTab.ts
 │   │       ├── GerenciarCursosTab.ts
 │   │       └── NotasEstagioTab.ts
-│   ├── views/                  # Páginas da aplicação (25 arquivos)
+│   ├── views/                  # Páginas da aplicação (28 arquivos)
 │   │   ├── login.ts
 │   │   ├── signup.ts
 │   │   ├── home.ts
 │   │   ├── dashboard.ts
+│   │   ├── dashboard-home.ts
+│   │   ├── aluno-notas.ts
 │   │   ├── forgot-password.ts
 │   │   ├── reset-password.ts
 │   │   ├── force-change-password.ts
-│   │   ├── SecretariaView.ts
-│   │   ├── SecretariaView.test.ts
+│   │   ├── secretaria.ts
+│   │   ├── secretaria.test.ts
 │   │   ├── student-details.ts
 │   │   ├── professor-details.ts
 │   │   ├── professor.ts
@@ -90,6 +103,7 @@ secretaria_escola_csm/
 │   │   ├── configuracoes.ts
 │   │   ├── directory.ts
 │   │   ├── audit-log.ts
+│   │   ├── audit-dashboard.ts
 │   │   └── profile.ts
 │   └── test/
 │       ├── setup.ts
@@ -98,6 +112,13 @@ secretaria_escola_csm/
 │
 ├── supabase/
 │   ├── schema.sql
+│   ├── migrations/
+│   │   ├── 20260523153000_tipos_curso.sql
+│   │   └── 20260523220000_certificados.sql
+│   └── functions/
+│       ├── admin-create-user/
+│       ├── admin-reset-password/
+│       └── get-logs-agrupados/
 │   ├── migration.sql
 │   ├── rls_fix.sql
 │   ├── security_hardening_v4.sql

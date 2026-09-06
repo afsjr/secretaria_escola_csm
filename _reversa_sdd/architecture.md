@@ -74,13 +74,13 @@ Sistema de Gestão Escolar CSM é uma **SPA (Single Page Application)** com back
 |--------|------------------|-------------|
 | **Auth** | Login, logout, recovery, sessão | Supabase Auth |
 | **Admin** | CRUD usuários, reset senha | Edge Functions |
-| **Academic** | Turmas, matrículas, notas | Supabase DB |
-| **Professor** | Notas, aulas, disciplinas | Supabase DB |
-| **Course** | Cursos, matriz, ofertas | Supabase DB |
-| **Student** | Dados completos aluno | Supabase DB |
-| **Documents** | Solicitações documentos | Supabase DB |
+| **Academic** | Turmas, matrículas, notas, boletim | Supabase DB |
+| **Professor** | Notas (técnico/formação), aulas, ofertas | Supabase DB |
+| **Course** | Cursos (técnico/formação), matriz, ofertas | Supabase DB |
+| **Student** | Dados completos aluno, visão Minhas Notas | Supabase DB |
+| **Documents** | Solicitações, Certificados PDF, Notificações | Supabase DB + Storage + jsPDF |
 | **Financeiro** | Pagamentos, acordos | Supabase DB |
-| **Audit** | Log de auditoria | Supabase DB |
+| **Audit** | Log de auditoria, métricas e gráficos temporais | Supabase DB + Edge Functions |
 
 ---
 

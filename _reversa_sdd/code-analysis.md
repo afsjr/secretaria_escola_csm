@@ -194,16 +194,17 @@ Aulas:
 
 ## 📖 Módulo: Course
 
-**Arquivos:** `src/lib/course-service.ts`
+**Arquivos:** `src/lib/course-service.ts`, `src/components/Tabs/GerenciarCursosTab.ts`, `src/views/matriz.ts`
 
 ### Fluxo de Controle
 
 ```
 Cursos:
-  getCursos → todos
+  getCursos → todos (com suporte a filtro por tipo_curso)
   getCursosAtivos → filtro ativo=true
-  createCurso → insert
+  createCurso → insert (nome, descricao, tipo_curso: 'tecnico' | 'formacao')
   desativarCurso / reativarCurso → update ativo
+  validarBloqueioEdicao → impede troca de tipo_curso se houver turmas ativas vinculadas
 
 Matriz Curricular:
   getMatrizCurricular → disciplinas_base where curso_id → order by modulo, nome
@@ -219,7 +220,7 @@ Ofertas:
 
 | Entidade | Descrição |
 |----------|------------|
-| Curso | id, nome, descricao, ativo |
+| Curso | id, nome, descricao, ativo, tipo_curso ('tecnico' \| 'formacao') |
 | DisciplinaBase | id, nome, modulo, curso_id, carga_horaria |
 | TurmaDisciplina | id, turma_id, disciplina_base_id, professor_id |
 
@@ -227,7 +228,7 @@ Ofertas:
 
 ## 🎓 Módulo: Student
 
-**Arquivos:** `src/lib/student-details-service.ts`
+**Arquivos:** `src/lib/student-details-service.ts`, `src/views/student-details.ts`, `src/views/aluno-notas.ts`
 
 ### Fluxo de Controle
 
@@ -249,9 +250,14 @@ Observações:
   updateObservacao → update
   deleteObservacao → delete
 
+Minhas Notas (Visão do Aluno - aluno-notas.ts):
+  getBoletim(alunoId) → notas N1, N2, N3, Rec por disciplina
+  calcularMediaParcial + calcularNotaFinal (via grades-utils.ts)
+  agrupamento de disciplinas por módulo da matriz
+  exibição de status derivado (Aprovado, Reprovado, Cursando)
+
 Dados Completos:
   getAlunoCompleto → perfil + endereco + responsaveis + observacoes + matricula
-  (paralelo via Promise não utilizado - sequencial)
 ```
 
 ### Algoritmos Importantes
@@ -262,7 +268,14 @@ Dados Completos:
    if (existing) → update else → insert
    ```
 
-2. **Menor de Idade via RPC**
+2. **Cálculo de Média e Status do Aluno**
+   ```typescript
+   const media = calcularMediaParcial(n1, n2, n3)
+   const final = calcularNotaFinal(media, rec)
+   const status = disciplina.status === 'pendente' ? 'Cursando' : calcularStatusAluno(final)
+   ```
+
+3. **Menor de Idade via RPC**
    ```typescript
    await supabase.rpc('aluno_eh_menor', { aluno_id })
    ```
@@ -271,16 +284,40 @@ Dados Completos:
 
 ## 📄 Módulo: Documents
 
-**Arquivos:** `src/lib/documents-service.ts` | Complexity: LOW
+**Arquivos:** `src/lib/documents-service.ts`, `src/lib/certificate-service.ts`, `src/components/NotificationDropdown.ts`, `src/components/Tabs/GerenciarCertificadosTab.ts` | Complexity: MEDIUM-HIGH
 
 ### Fluxo de Controle
 
 ```
-createRequest → insert (user_id, tipo='pendente')
-getMyRequests → select where user_id
-getAllOpenRequests → select * (admin)
-updateStatus → update status
+Solicitações de Documentos:
+  createRequest → insert (user_id, tipo='pendente')
+  getMyRequests → select where user_id
+  getAllOpenRequests → select * (admin)
+  getPendingByUser → select pendentes filtradas por user_id (usado no dropdown de notificações)
+  updateStatus → update status
+
+Geração de Certificados (CertificateService):
+  validateConclusao → verifica aprovação em todas as disciplinas obrigatórias e estágio
+  generateHashAutenticidade → gera hash SHA-256 para validação pública do certificado
+  getConteudoProgramatico → busca ementa e carga horária por módulo
+  gerarCertificadoPDF → renderização com jsPDF (templates Técnico e Formação, frente e verso)
+  uploadLogo / uploadAssinatura → gestão de assets no bucket 'certificados-imagens' do Supabase Storage
+  emissaoEmLote → processa lista de alunos aptos com download em lote
+
+Central de Notificações (NotificationDropdown):
+  escuta solicitações pendentes no header do dashboard
+  badge dinâmico com contagem não lida
+  ação rápida para visualização e conclusão
 ```
+
+### Estruturas de Dados
+
+| Entidade | Campos |
+|----------|--------|
+| Solicitacao | id, user_id, tipo_documento, status, created_at |
+| CertificadoModelo | id, curso_id, tipo, template_html, ativo |
+| ConteudoProgramatico | id, curso_id, modulo, descricao, carga_horaria |
+| CertificadoEmitido | id, aluno_id, curso_id, codigo_autenticidade, emitido_em |
 
 ---
 
@@ -296,6 +333,25 @@ getInadimplentes → perfis + pagamentos (join) where status='atrasado'
 getHistoricoAluno → pagamentos where aluno_id
 criarAcordo → insert acordo + update pagamentos para 'acordo'
 getConfig → financiero_config → transforma em key-value object
+```
+
+---
+
+## 🛡️ Módulo: Audit
+
+**Arquivos:** `src/lib/audit-service.ts`, `src/hooks/useAuditStats.ts`, `src/components/audit/AuditBarChart.ts`, `src/components/audit/AuditCards.ts`, `src/components/audit/AuditTrendChart.ts`, `src/views/audit-dashboard.ts`
+
+### Fluxo de Controle
+
+```
+Registro de Logs:
+  registrarLog → insert tabela 'audit_log' (acao, usuario_id, tabela, dados_anteriores, dados_novos)
+
+Agregação e Estatísticas:
+  Edge Function get-logs-agrupados → agrega eventos por período (7d, 30d, 3m, 6m, 12m)
+  useAuditStats hook → consome dados agregados com cache client-side (5 min TTL)
+  AuditCards → métricas consolidadas (total de eventos, usuários ativos, ações críticas)
+  AuditBarChart & AuditTrendChart → renderização de barras e tendências temporais
 ```
 
 ### Algoritmos Importantes

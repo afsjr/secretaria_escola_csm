@@ -24,6 +24,10 @@ Sistema de registro imutável de todas as ações sensíveis do sistema. Utiliza
 | RF-06 | Contagem por severidade | Must | Retorna contagem de logs por nível (alta/média/baixa) |
 | RF-07 | Logs alta severidade | Must | Retorna apenas logs de ações críticas |
 | RF-08 | Painel de auditoria | Must | Renderiza UI com tabela, filtros, contadores e paginação |
+| RF-09 | Agregação por período | Must | Edge Function get-logs-agrupados consolida eventos por 7d, 30d, 3m, 6m, 12m |
+| RF-10 | Gráfico de barras de logs | Should | AuditBarChart exibe distribuição de ações no período selecionado |
+| RF-11 | Gráfico de tendência temporal | Should | AuditTrendChart exibe evolução temporal do volume de eventos |
+| RF-12 | Cache client-side de métricas | Should | Hook useAuditStats implementa cache de 5 minutos (TTL) |
 
 ## Regras de Negório
 
@@ -37,12 +41,18 @@ Sistema de registro imutável de todas as ações sensíveis do sistema. Utiliza
 
 ## Rastreabilidade
 
-| Arquivo | Função | Cobertura |
-|---------|--------|-----------|
+| Arquivo | Função / Componente | Cobertura |
+|---------|---------------------|-----------|
 | `src/lib/audit-service.ts` | log, getLogs, getUniqueActions, getLogsByUser, getRecentLogs, getCountsBySeverity, getHighSeverityLogs, withAudit | 🟢 |
 | `src/views/audit-log.ts` | AuditLogView com filtros, tabela e paginação | 🟢 |
+| `src/views/audit-dashboard.ts` | Dashboard consolidado com gráficos e filtros de período | 🟢 |
+| `src/hooks/useAuditStats.ts` | Hook com cache de 5 min para agregação | 🟢 |
+| `src/components/audit/AuditBarChart.ts` | Componente de gráfico de barras | 🟢 |
+| `src/components/audit/AuditTrendChart.ts` | Componente de gráfico de tendência de linha | 🟢 |
+| `src/components/audit/AuditCards.ts` | Cards consolidados de métricas de auditoria | 🟢 |
+| `supabase/functions/get-logs-agrupados/` | Edge Function para agregação no PostgreSQL | 🟢 |
 
 ## Confiança
 
-- 🟢 Todas as funções extraídas diretamente do código
+- 🟢 Todas as funções e componentes extraídos diretamente do código
 - 🟢 Mapeamento de ações/severidade completo (extraído do código)

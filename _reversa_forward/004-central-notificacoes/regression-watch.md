@@ -22,7 +22,15 @@ Itens com confidência 🟡 ou 🔴 no requirements original, sem peso de regres
 
 ## Histórico de re-extrações
 
-*(preenchido pelo agente reverso após executar `/reversa` novamente)*
+### Re-extração 2026-09-06 15:28
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Regra de apenas 1 matrícula ativa preservada em `_reversa_sdd/domain.md#RB01` |
+| W002 | 🟢 verde | Botão `#header-notification-btn` com `aria-haspopup="true"` preservado em `src/views/dashboard.ts` |
+| W003 | 🟢 verde | Classes CSS `.notification-dropdown`, `.notification-badge-count` preservadas em `main.css` |
+| W004 | 🟢 verde | Dropdown adaptado por perfil de usuário preservado em `NotificationDropdown.ts` |
+| W005 | 🟢 verde | Hash param `?solicitacoes` preservado em `src/views/secretaria.ts` |
 
 ## Arquivadas
 

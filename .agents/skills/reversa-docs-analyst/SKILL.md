@@ -1,6 +1,7 @@
 ---
 name: reversa-docs-analyst
-description: "Analista do Time Reversa Docs. Produz as páginas de dados quantitativos do mini-site: dashboard de métricas com Highcharts (treemap LOC, barras complexidade, sankey dependências, histograma) e timeline interativa de eventos do projeto. Ative com /reversa-docs-analyst, reversa-docs-analyst, regenerar métricas, refazer timeline, dashboard do projeto."
+description: 'Analista do Time Reversa Docs. Produz as páginas de dados quantitativos do mini-site: dashboard de métricas com Highcharts (treemap LOC, barras complexidade, sankey dependências, histograma) e timeline interativa de eventos do projeto.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:
@@ -20,25 +21,25 @@ Segundo agente do pipeline `/reversa-docs`. Reusa os JSONs intermediários do Ma
 
 ## Inputs
 
-- `.reversa/documentation/assets/data/modules.json` (do Mapper, ou extrai sob demanda)
-- `.reversa/documentation/assets/data/deps.json`
+- `_reversa_docs/assets/data/modules.json` (do Mapper, ou extrai sob demanda)
+- `_reversa_docs/assets/data/deps.json`
 - `.reversa/chronicle.md` (histórico, se existir)
-- `.reversa/documentation/.config.json`
+- `_reversa_docs/.config.json`
 - Skill: `reversa-highcharts-visualizer`
 
 ## Outputs
 
-- `.reversa/documentation/metricas.html` (dashboard 4+ gráficos)
-- `.reversa/documentation/timeline.html` (omitida se chronicle ausente)
-- `.reversa/documentation/assets/data/metrics.json`
-- `.reversa/documentation/assets/data/timeline.json` (apenas se chronicle existir)
+- `_reversa_docs/metricas.html` (dashboard 4+ gráficos)
+- `_reversa_docs/timeline.html` (omitida se chronicle ausente)
+- `_reversa_docs/assets/data/metrics.json`
+- `_reversa_docs/assets/data/timeline.json` (apenas se chronicle existir)
 
 ## Antes de começar
 
 1. Leia `.reversa/state.json` para `user_name`, `chat_language`.
-2. Leia `.reversa/documentation/.config.json`. Se ausente, conduza entrevista mínima.
+2. Leia `_reversa_docs/.config.json`. Se ausente, conduza entrevista mínima.
 3. Verifique presença de `modules.json` e `deps.json`. Se ausentes, invoque os scripts do Mapper para gerá-los (`extract_modules.py`, `extract_deps.py`). Política de cache em `agents/reversa-docs-mapper/references/extraction-policy.md`.
-4. Verifique se `.reversa/documentation/assets/vendor/highcharts.js` (e módulos associados) existe. Se ausente em modo isolado, execute o Passo 0 do Publisher (`agents/reversa-docs-publisher/SKILL.md`) lendo `vendor-pins.yaml` para baixar Highcharts + módulos com retry de CDN. No modo orquestrado, isso já foi feito na Fase 0.
+4. Verifique se `_reversa_docs/assets/vendor/highcharts.js` (e módulos associados) existe. Se ausente em modo isolado, execute o Passo 0 do Publisher (`agents/reversa-docs-publisher/SKILL.md`) lendo `vendor-pins.yaml` para baixar Highcharts + módulos com retry de CDN. No modo orquestrado, isso já foi feito na Fase 0.
 
 ## Entrevista mínima
 
@@ -74,7 +75,7 @@ Carregue `modules.json` e `deps.json`. Agregue:
 }
 ```
 
-Salve em `.reversa/documentation/assets/data/metrics.json`.
+Salve em `_reversa_docs/assets/data/metrics.json`.
 
 ### 2. Gerar `metricas.html` (dashboard)
 
@@ -90,7 +91,7 @@ Salve em `.reversa/documentation/assets/data/metrics.json`.
    - **NUNCA** use `fetch("assets/data/metrics.json")`. O script da página lê `window.RV_DATA.metrics` (injetado pelo `assets/js/data.js` que o Publisher gera). Páginas com fetch local quebram via `file://` por CORS.
    - Use `templates/documentation/pages/metricas.html.tpl` como guia de estrutura do PAYLOAD.
 4. Layout responsivo em grid 2x2. Adicione 5º/6º gráficos se houver dados ricos (ex: `language_distribution`).
-5. Salve em `.reversa/documentation/metricas.html`.
+5. Salve em `_reversa_docs/metricas.html`.
 
 ### 3. Derivar `timeline.json` (se chronicle existir)
 
@@ -100,7 +101,7 @@ Salve em `.reversa/documentation/assets/data/metrics.json`.
    ```
    python templates/documentation/scripts/convert_chronicle.py \
        --src .reversa/chronicle.md \
-       --out .reversa/documentation/assets/data/timeline.json
+       --out _reversa_docs/assets/data/timeline.json
    ```
 4. Se Python indisponível, faça parsing inline: cada item de bullet ou heading com data ISO-8601 vira um evento.
 
@@ -112,7 +113,7 @@ Salve em `.reversa/documentation/assets/data/metrics.json`.
 4. HEAD_EXTRAS: `<script src="assets/vendor/highcharts.js"></script>` + `assets/vendor/highcharts-accessibility.js` + `assets/vendor/highcharts-timeline.js` (Publisher baixa via `vendor-pins.yaml`).
 5. Leia dados de `window.RV_DATA.timeline`. **Sem fetch local**.
 6. Cada evento clicável abre painel lateral com detalhes (use `EVENT_DETAILS` marker).
-7. Salve em `.reversa/documentation/timeline.html`.
+7. Salve em `_reversa_docs/timeline.html`.
 
 ### 5. Atualizar `.state.json`
 
@@ -121,11 +122,11 @@ Salve em `.reversa/documentation/assets/data/metrics.json`.
 
 ## Backup automático
 
-`.reversa/documentation/.backup-<YYYYMMDD-HHMMSS>/` antes de sobrescrever.
+`_reversa_docs/.backup-<YYYYMMDD-HHMMSS>/` antes de sobrescrever.
 
 ## Diretiva non-destructive
 
-Apenas escreve em `.reversa/documentation/`. `chronicle.md`, `modules.json`, `deps.json` são lidos sem modificação.
+Apenas escreve em `_reversa_docs/`. `chronicle.md`, `modules.json`, `deps.json` são lidos sem modificação.
 
 ## Tratamento gracioso
 
@@ -155,7 +156,7 @@ Apenas escreve em `.reversa/documentation/`. `chronicle.md`, `modules.json`, `de
 
 ## Regras absolutas
 
-- Nunca escreva fora de `.reversa/documentation/`.
+- Nunca escreva fora de `_reversa_docs/`.
 - Nunca modifique chronicle.md ou os JSONs do Mapper.
 - Nunca rode varredura de credenciais.
 - Sempre backup antes de sobrescrever.

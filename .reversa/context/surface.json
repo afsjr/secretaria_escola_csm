@@ -1,21 +1,24 @@
 {
-  "generated_at": "2026-05-19T17:30:00Z",
+  "generated_at": "2026-09-06T14:57:00Z",
   "project_root": "secretaria_escola_csm",
   "languages": [
-    { "name": "TypeScript", "extensions": [".ts"], "file_count": 58 }
+    { "name": "TypeScript", "extensions": [".ts"], "file_count": 102 }
   ],
   "primary_language": "TypeScript",
   "frameworks": [
     { "name": "Vite", "version": "implícita", "source": "vite.config.ts" },
     { "name": "Vitest", "version": "4.1.4", "source": "package.json" },
     { "name": "Supabase", "version": "2.101.0", "source": "package.json" },
-    { "name": "Zod", "version": "4.3.6", "source": "package.json" }
+    { "name": "Zod", "version": "4.3.6", "source": "package.json" },
+    { "name": "jsPDF", "version": "4.2.1", "source": "package.json" },
+    { "name": "xlsx", "version": "0.18.5", "source": "package.json" }
   ],
   "package_manager": "npm",
   "entry_points": [
     { "path": "src/main.ts", "type": "spa_entry" },
     { "path": "supabase/functions/admin-create-user/index.ts", "type": "edge_function" },
-    { "path": "supabase/functions/admin-reset-password/index.ts", "type": "edge_function" }
+    { "path": "supabase/functions/admin-reset-password/index.ts", "type": "edge_function" },
+    { "path": "supabase/functions/get-logs-agrupados/index.ts", "type": "edge_function" }
   ],
   "config_files": [
     "package.json",
@@ -34,10 +37,13 @@
   "database_hints": [
     { "path": "supabase/schema.sql", "type": "ddl_file" },
     { "path": "supabase/migration.sql", "type": "migrations" },
-    { "path": "supabase/rls_fix.sql", "type": "security_policies" }
+    { "path": "supabase/migrations/20260523153000_tipos_curso.sql", "type": "migrations" },
+    { "path": "supabase/migrations/20260523220000_certificados.sql", "type": "migrations" },
+    { "path": "supabase/rls_fix.sql", "type": "security_policies" },
+    { "path": "supabase/security_hardening_v4.sql", "type": "security_policies" }
   ],
   "test_framework": "Vitest",
-  "test_file_count": 9,
+  "test_file_count": 19,
   "modules": [
     "auth",
     "admin",
@@ -49,7 +55,7 @@
     "financeiro",
     "audit"
   ],
-  "total_files": 75,
+  "total_files": 115,
   "organization_suggestion": {
     "granularity": "module",
     "rationale": "Pastas top-level src/ organizadas por domínio (auth/, lib/, views/, components/). Módulos bem definidos com serviços dedicados.",

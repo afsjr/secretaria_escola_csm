@@ -2,6 +2,7 @@ import { ICONS } from '../../lib/icons'
 import { AcademicService } from '../../lib/academic-service'
 import { toast } from '../../lib/toast'
 import { escapeHTML } from '../../lib/security'
+import { disciplinaTemEstagio } from '../../lib/grades-utils'
 
 interface NotasEstagioTabProps {
   turmas: any[]
@@ -163,7 +164,14 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
       loteDiscSelect.disabled = false
       loteDiscSelect.innerHTML = `
         <option value="">-- Escolha uma disciplina --</option>
-        ${disciplinas.map(d => `<option value="${d.disciplina_base_id}">${escapeHTML(d.nome)} (${escapeHTML(d.modulo || 'Geral')})</option>`).join('')}
+        ${disciplinas.map(d => {
+          const temEstagio = disciplinaTemEstagio(d.nome, d.modulo)
+          const label = temEstagio
+            ? `${escapeHTML(d.nome)} (${escapeHTML(d.modulo || 'Geral')})`
+            : `${escapeHTML(d.nome)} (⚠️ Sem Estágio)`
+          const disabled = !temEstagio ? 'disabled' : ''
+          return `<option value="${d.disciplina_base_id}" ${disabled}>${label}</option>`
+        }).join('')}
       `
     })
 
@@ -308,7 +316,14 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
 
       if (disciplinas.length > 0) {
         indDiscSelect.innerHTML = '<option value="">-- Escolha uma disciplina --</option>' +
-          disciplinas.map(d => `<option value="${d.disciplina_base_id}">${escapeHTML(d.nome)} (${escapeHTML(d.modulo || 'Geral')})</option>`).join('')
+          disciplinas.map(d => {
+            const temEstagio = disciplinaTemEstagio(d.nome, d.modulo)
+            const label = temEstagio
+              ? `${escapeHTML(d.nome)} (${escapeHTML(d.modulo || 'Geral')})`
+              : `${escapeHTML(d.nome)} (⚠️ Sem Estágio)`
+            const disabled = !temEstagio ? 'disabled' : ''
+            return `<option value="${d.disciplina_base_id}" ${disabled}>${label}</option>`
+          }).join('')
         indDiscSelect.disabled = false
       }
     })

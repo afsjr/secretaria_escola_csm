@@ -2,6 +2,7 @@ import { AcademicService } from '../lib/academic-service'
 import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
 import { ICONS } from '../lib/icons'
+import { disciplinaTemEstagio } from '../lib/grades-utils'
 
 export class SecretariaEstagioLoteView {
   private container: HTMLElement
@@ -160,7 +161,14 @@ export class SecretariaEstagioLoteView {
     selectDisc.disabled = false
     selectDisc.innerHTML = `
       <option value="">-- Selecione a Disciplina/Estágio --</option>
-      ${disciplinas.map(d => `<option value="${d.disciplina_base_id}">${escapeHTML(d.nome)} (${escapeHTML(d.modulo || 'Geral')})</option>`).join('')}
+      ${disciplinas.map(d => {
+        const temEstagio = disciplinaTemEstagio(d.nome, d.modulo)
+        const label = temEstagio
+          ? `${escapeHTML(d.nome)} (${escapeHTML(d.modulo || 'Geral')})`
+          : `${escapeHTML(d.nome)} (⚠️ Sem Estágio)`
+        const disabled = !temEstagio ? 'disabled' : ''
+        return `<option value="${d.disciplina_base_id}" ${disabled}>${label}</option>`
+      }).join('')}
     `
   }
 

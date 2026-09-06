@@ -99,7 +99,7 @@ export const PDFService = {
     doc.setFillColor(r, g, b);
     doc.rect(0, 0, pageWidth, 38, "F");
 
-    // Logo (se houver)
+    // Logo (se houver) - deve ser data URL (convertido em getPDFHeader)
     if (inst.logo_url && inst.logo_url.startsWith("data:")) {
       try {
         doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);

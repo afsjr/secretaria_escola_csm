@@ -161,6 +161,23 @@ export const InstituicaoService = {
   async getPDFHeader(): Promise<PDFHeaderData> {
     const { data } = await this.getInstituicao()
     const inst = data as InstituicaoData | null
+    
+    // Converte logo URL para base64 se necessário
+    let logoBase64: string | null = inst?.logo_url || null
+    if (logoBase64 && !logoBase64.startsWith('data:')) {
+      try {
+        const response = await fetch(logoBase64)
+        const blob = await response.blob()
+        logoBase64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.readAsDataURL(blob)
+        })
+      } catch {
+        logoBase64 = null
+      }
+    }
+
     return {
       nome: inst?.nome || 'INSTITUIÇÃO DE ENSINO',
       cnpj: inst?.cnpj || '',
@@ -170,7 +187,7 @@ export const InstituicaoService = {
       cidade_uf: inst?.cidade && inst?.uf ? `${inst.cidade}/${inst.uf}` : '',
       telefone: inst?.telefone || '',
       email: inst?.email || '',
-      logo_url: inst?.logo_url || null,
+      logo_url: logoBase64,
       cor_primaria: inst?.cor_primaria || '#C41E3A',
     }
   },

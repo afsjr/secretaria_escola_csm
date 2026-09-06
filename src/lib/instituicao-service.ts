@@ -114,14 +114,14 @@ export const InstituicaoService = {
    *
    * ══ ESPECIFICAÇÕES DA LOGO ══
    * • Formato ideal: PNG com fundo transparente
-   * • Tamanho máximo: 500KB
+   * • Tamanho máximo: 1MB
    * • Dimensões recomendadas: 400×200px (proporção 2:1)
    * • Tamanho mínimo: 200×100px
    * • Outros formatos aceitos: SVG, JPG (sem transparência)
    * ════════════════════════════
    */
   async uploadLogo(file: File) {
-    const MAX_SIZE_KB = 500
+    const MAX_SIZE_KB = 1024
     const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp']
 
     // Validação local antes do upload

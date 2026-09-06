@@ -160,7 +160,7 @@ export async function ConfiguracoesView(): Promise<HTMLElement> {
             <ul style="font-size: 0.75rem; color: var(--text-muted); line-height: 2; list-style: none; padding: 0; margin: 0;">
               <li>✅ <strong>Formato ideal:</strong> PNG (fundo transparente)</li>
               <li>✅ <strong>Dimensões:</strong> 400 × 200px (proporção 2:1)</li>
-              <li>✅ <strong>Tamanho máx.:</strong> 500KB</li>
+              <li>✅ <strong>Tamanho máx.:</strong> 1MB</li>
               <li>⚠️ <strong>Aceitos também:</strong> JPG, SVG, WebP</li>
             </ul>
           </div>

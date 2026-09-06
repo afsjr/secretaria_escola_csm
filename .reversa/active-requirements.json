@@ -1,17 +1,10 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/005-aluno-notas",
-  "feature-id": "005",
-  "short-name": "aluno-notas",
-  "started-at": "2026-05-23T22:45:00-03:00",
-  "current-stage": "done",
-  "stages-completed": [
-    "requirements",
-    "clarify",
-    "plan",
-    "to-do",
-    "coding",
-    "sync"
-  ],
+  "feature-dir": "_reversa_forward/006-lancamento-notas-estagio",
+  "feature-id": "006",
+  "short-name": "lancamento-notas-estagio",
+  "started-at": "2026-09-06T15:52:30-03:00",
+  "current-stage": "requirements",
+  "stages-completed": [],
   "paused-features": []
 }

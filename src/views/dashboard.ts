@@ -11,6 +11,7 @@ import { ProfileView } from './profile'
 import { DirectoryView } from './directory'
 import { DocumentsView } from './documents'
 import { SecretariaView } from './secretaria'
+import { SecretariaEstagioLoteView } from './secretaria-estagio'
 import { GestaoTurmasView } from './gestao-turmas'
 import { MatrizView } from './matriz'
 import { ProfessorTurmasView } from './professor-turmas'
@@ -54,6 +55,7 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
       '/usuarios': 'Usuários',
       '/matriz': 'Matriz Curricular',
       '/secretaria': 'Painel Secretaria',
+      '/secretaria/estagio': 'Notas de Estágio (Lote)',
       '/turmas': 'Gestão de Turmas',
       '/configuracoes': 'Configurações',
       '/auditoria': 'Auditoria',
@@ -134,6 +136,10 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
           <a href="#/dashboard/secretaria" class="nav-item ${subPath === '/secretaria' ? 'active' : ''}" style="text-decoration: none; color: inherit; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;" title="Painel Secretaria" ${subPath === '/secretaria' ? 'aria-current="page"' : ''}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 7h-9m3 3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             <span class="nav-label">Painel Secretaria</span>
+          </a>
+          <a href="#/dashboard/secretaria/estagio" class="nav-item ${subPath === '/secretaria/estagio' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Estágio por Lote" ${subPath === '/secretaria/estagio' ? 'aria-current="page"' : ''}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span class="nav-label">Estágio por Lote</span>
           </a>
           <a href="#/dashboard/turmas" class="nav-item ${subPath === '/turmas' ? 'active' : ''}" style="text-decoration: none; color: inherit;" title="Gestão de Turmas" ${subPath === '/turmas' ? 'aria-current="page"' : ''}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -278,6 +284,9 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
     contentArea.appendChild(await AuditLogView())
   } else if (subPath === '/financeiro' && (_isFinanceiro || _isAdmin)) {
     contentArea.appendChild(await FinanceiroView())
+  } else if (subPath === '/secretaria/estagio' && (_isAdmin || _isSecretaria || _isCoordenacao)) {
+    const estagioView = new SecretariaEstagioLoteView(contentArea)
+    await estagioView.render()
   } else if (subPath === '/secretaria' && (_isAdmin || _isSecretaria || _isCoordenacao)) {
     contentArea.appendChild(await SecretariaView(profile as { id: string; perfil: string }))
   } else if (subPath === '/turmas' && (_isAdmin || _isSecretaria || _isCoordenacao)) {

@@ -1,5 +1,7 @@
 {
   "version": 1,
-  "allowLegacyEdits": false,
-  "allowedPaths": []
+  "allowLegacyEdits": true,
+  "allowedPaths": [
+    "src/**"
+  ]
 }

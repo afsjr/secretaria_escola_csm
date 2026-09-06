@@ -101,7 +101,7 @@ export async function AlunoNotasView(profile: UserProfile): Promise<HTMLDivEleme
       }
 
       const notaEstagio = b.nota_estagio
-        ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Est: ${b.nota_estagio}</span>`
+        ? `<div style="font-size: 0.8rem; color: #059669; font-weight: 600; margin-top: 2px;">Estágio Supervisionado: ${escapeHTML(String(b.nota_estagio))}${b.estagio_parecer ? ` (${escapeHTML(b.estagio_parecer)})` : ''}</div>`
         : ''
 
       html += `

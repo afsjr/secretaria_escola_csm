@@ -274,7 +274,7 @@ export const AcademicService = {
   },
 
   // Salvar nota de estágio (Fluxo Secretaria)
-  async upsertNotaEstagio(alunoId: string, disciplinaBaseId: string, nota: number) {
+  async upsertNotaEstagio(alunoId: string, disciplinaBaseId: string, nota: number | string, parecer?: string | null) {
     // 1. Verificar se já existe registro
     const { data: existente } = await supabase
       .from("boletim")
@@ -288,6 +288,7 @@ export const AcademicService = {
         .from("boletim")
         .update({ 
           nota_estagio: nota,
+          estagio_parecer: parecer ?? null,
           versao: (existente.versao || 1) + 1
         })
         .eq("id", existente.id)
@@ -300,10 +301,33 @@ export const AcademicService = {
           aluno_id: alunoId, 
           disciplina_base_id: disciplinaBaseId,
           nota_estagio: nota,
+          estagio_parecer: parecer ?? null,
           versao: 1
         }])
         .select();
       return { data, error };
     }
+  },
+
+  // Salvar notas de estágio em lote (Fluxo Secretaria / Coordenação)
+  async upsertNotaEstagioLote(items: { aluno_id: string; disciplina_base_id: string; nota: number | string; estagio_parecer?: string | null }[]) {
+    if (!items || items.length === 0) {
+      return { data: [], error: null };
+    }
+
+    const results = await Promise.all(
+      items.map(item => this.upsertNotaEstagio(item.aluno_id, item.disciplina_base_id, item.nota, item.estagio_parecer))
+    );
+
+    const errors = results.filter(r => r.error);
+    if (errors.length > 0) {
+      return {
+        data: results.map(r => r.data),
+        error: { message: `${errors.length} nota(s) de estágio falharam ao salvar.` }
+      };
+    }
+
+    return { data: results.map(r => r.data), error: null };
   }
 };
+

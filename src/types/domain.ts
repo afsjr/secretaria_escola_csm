@@ -130,13 +130,26 @@ export interface Boletim {
   n2?: number | null
   n3?: number | null
   rec?: number | null
-  nota_estagio?: 'AP' | 'REP' | null
+  nota_estagio?: 'AP' | 'REP' | number | string | null
   estagio_parecer?: string | null
   status?: string | null
   versao?: number
   created_at?: string
   disciplinas_base?: { id: string; nome: string; modulo: string } | null
 }
+
+export interface NotaEstagioLoteItem {
+  aluno_id: string
+  disciplina_base_id: string
+  nota: number | string
+  estagio_parecer?: string | null
+}
+
+export interface NotaEstagioLotePayload {
+  turma_id: string
+  notas: NotaEstagioLoteItem[]
+}
+
 
 // =====================================================
 // FREQUENCIA

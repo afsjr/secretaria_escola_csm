@@ -49,11 +49,11 @@ export async function SecretariaView(profile?: { id: string; perfil: string }): 
 
   // 2. Estrutura Base
   container.innerHTML = `
-    <header class="view-header" style="display: flex; align-items: center; gap: 1.5rem; background: linear-gradient(to right, white, transparent); padding: 1.5rem; border-radius: 16px; margin-bottom: 2.5rem; border-left: 6px solid var(--primary);">
-      <div style="font-size: 3rem; background: var(--secondary); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 20px; box-shadow: var(--shadow-sm);">${ICONS.school}</div>
+    <header class="view-header" style="display: flex; align-items: center; gap: 1.25rem; background: var(--white); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 2rem; border-left: 5px solid var(--primary); box-shadow: var(--shadow-sm);">
+      <div class="icon-box icon-box-xl" style="background: var(--secondary); color: var(--primary); border-radius: var(--radius-lg); font-size: 2rem;">${ICONS.school}</div>
       <div>
-        <h1 class="title" style="margin: 0; font-weight: 800; letter-spacing: -0.02em;">Painel da Secretaria</h1>
-        <p class="subtitle" style="margin: 0.25rem 0 0 0; font-size: 1.1rem; color: var(--text-muted);">Gestão técnica modularizada e monitoramento em tempo real.</p>
+        <h1 class="title" style="margin: 0; font-weight: 800; font-size: 1.6rem; color: var(--text-main);">Painel da Secretaria</h1>
+        <p class="subtitle" style="margin: 0.2rem 0 0 0; font-size: 0.95rem; color: var(--text-muted);">Gestão técnica modularizada e monitoramento em tempo real.</p>
       </div>
     </header>
 
@@ -154,8 +154,10 @@ export async function SecretariaView(profile?: { id: string; perfil: string }): 
   tabsContainer?.addEventListener('scroll', updateScrollArrows, { passive: true })
 
   // Recalcula ao redimensionar a janela
-  const resizeObs = new ResizeObserver(updateScrollArrows)
-  if (tabsContainer) resizeObs.observe(tabsContainer)
+  if (typeof ResizeObserver !== 'undefined' && tabsContainer) {
+    const resizeObs = new ResizeObserver(updateScrollArrows)
+    resizeObs.observe(tabsContainer)
+  }
 
   // Avaliação inicial (após render)
   requestAnimationFrame(updateScrollArrows)

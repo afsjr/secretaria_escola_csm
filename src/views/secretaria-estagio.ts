@@ -1,6 +1,7 @@
 import { AcademicService } from '../lib/academic-service'
 import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
+import { ICONS } from '../lib/icons'
 
 export class SecretariaEstagioLoteView {
   private container: HTMLElement
@@ -16,62 +17,53 @@ export class SecretariaEstagioLoteView {
 
   async render(): Promise<void> {
     this.container.innerHTML = `
-      <div class="space-y-6">
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <span class="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 002-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                  </svg>
-                </span>
-                Lançamento de Estágio Supervisionado em Lote
-              </h2>
-              <p class="text-slate-500 text-sm mt-1">
-                Envio em lote das notas de estágio reportadas pelos preceptores para turmas do Curso Técnico.
-              </p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div>
-              <label class="block text-sm font-semibold text-slate-700 mb-1">Selecione a Turma (Técnico)</label>
-              <select id="select-turma-estagio" class="w-full rounded-md border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm p-2.5 border">
-                <option value="">Carregando turmas técnicas...</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold text-slate-700 mb-1">Disciplina de Estágio</label>
-              <select id="select-disciplina-estagio" class="w-full rounded-md border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm p-2.5 border" disabled>
-                <option value="">Selecione primeiro uma turma</option>
-              </select>
-            </div>
+      <div class="animate-in" style="background: var(--white); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+          <div>
+            <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; color: var(--text-main);">
+              <span style="color: var(--primary);">${ICONS.clipboard}</span>
+              Lançamento de Estágio Supervisionado em Lote
+            </h2>
+            <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
+              Envio em lote das notas de estágio enviadas pelos preceptores para turmas de Curso Técnico.
+            </p>
           </div>
         </div>
 
-        <div id="estagio-tabela-container" class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 hidden">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-slate-800">Alunos e Notas de Estágio</h3>
-            <button id="btn-salvar-estagio-lote" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm transition-colors flex items-center gap-2 shadow-sm">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              Salvar Notas em Lote
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div class="form-group">
+            <label class="label" for="select-turma-estagio">Selecione a Turma (Técnico):</label>
+            <select id="select-turma-estagio" class="input">
+              <option value="">Carregando turmas técnicas...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="select-disciplina-estagio">Disciplina de Estágio:</label>
+            <select id="select-disciplina-estagio" class="input" disabled>
+              <option value="">Selecione primeiro uma turma</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="estagio-tabela-container" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-main);">Alunos e Notas de Estágio</h3>
+            <button id="btn-salvar-estagio-lote" class="btn btn-primary">
+              ${ICONS.save} Salvar Notas em Lote
             </button>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+          <div class="table-responsive">
+            <table class="data-table">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th class="py-3 px-4">Aluno</th>
-                  <th class="py-3 px-4 w-40">Nota de Estágio</th>
-                  <th class="py-3 px-4">Parecer do Preceptor</th>
+                <tr>
+                  <th>Aluno</th>
+                  <th style="width: 180px;">Nota de Estágio</th>
+                  <th>Parecer do Preceptor</th>
                 </tr>
               </thead>
-              <tbody id="tbody-estagio-lote" class="divide-y divide-slate-200 text-sm">
+              <tbody id="tbody-estagio-lote">
                 <!-- Inserido dinamicamente -->
               </tbody>
             </table>
@@ -94,11 +86,10 @@ export class SecretariaEstagioLoteView {
       return
     }
 
-    // Filtrar apenas turmas de curso técnico
     const turmasTecnicas: any[] = []
     for (const t of turmas) {
       const tipo = await AcademicService.getTipoDaTurma(t.id)
-      if (tipo === 'tecnico' || !tipo) { // Permite por padrão se não especificado
+      if (tipo === 'tecnico' || !tipo) {
         turmasTecnicas.push(t)
       }
     }
@@ -129,7 +120,7 @@ export class SecretariaEstagioLoteView {
       if (!this.selectedTurmaId) {
         selectDisc.disabled = true
         selectDisc.innerHTML = '<option value="">Selecione primeiro uma turma</option>'
-        this.container.querySelector('#estagio-tabela-container')?.classList.add('hidden')
+        this.container.querySelector('#estagio-tabela-container')!.style.display = 'none'
         return
       }
 
@@ -139,7 +130,7 @@ export class SecretariaEstagioLoteView {
     selectDisc?.addEventListener('change', async () => {
       this.disciplinaBaseId = selectDisc.value
       if (!this.disciplinaBaseId) {
-        this.container.querySelector('#estagio-tabela-container')?.classList.add('hidden')
+        this.container.querySelector('#estagio-tabela-container')!.style.display = 'none'
         return
       }
 
@@ -194,8 +185,8 @@ export class SecretariaEstagioLoteView {
     if (!tbody || !containerTabela) return
 
     if (this.alunos.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" class="py-4 text-center text-slate-500">Nenhum aluno ativo nesta turma.</td></tr>`
-      containerTabela.classList.remove('hidden')
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-muted);">Nenhum aluno ativo nesta turma.</td></tr>`
+      containerTabela.style.display = 'block'
       return
     }
 
@@ -208,19 +199,20 @@ export class SecretariaEstagioLoteView {
       const parecerValor = notaObj.estagio_parecer ?? ''
 
       return `
-        <tr class="hover:bg-slate-50 transition-colors" data-aluno-id="${alunoId}">
-          <td class="py-3 px-4 font-medium text-slate-800">
-            ${escapeHTML(alunoNome)}
+        <tr data-aluno-id="${alunoId}">
+          <td>
+            <div style="font-weight: 600; color: var(--text-main);">${escapeHTML(alunoNome)}</div>
           </td>
-          <td class="py-3 px-4">
+          <td>
             <input type="text" 
-                   class="input-nota-estagio w-full rounded border-slate-300 p-2 text-sm border focus:ring-emerald-500 focus:border-emerald-500" 
+                   class="input input-nota-estagio" 
+                   style="font-weight: 700; text-align: center;" 
                    placeholder="Ex: 9.5 ou AP" 
                    value="${escapeHTML(String(notaValor))}">
           </td>
-          <td class="py-3 px-4">
+          <td>
             <input type="text" 
-                   class="input-parecer-estagio w-full rounded border-slate-300 p-2 text-sm border focus:ring-emerald-500 focus:border-emerald-500" 
+                   class="input input-parecer-estagio" 
                    placeholder="Observações do preceptor" 
                    value="${escapeHTML(String(parecerValor))}">
           </td>
@@ -228,7 +220,7 @@ export class SecretariaEstagioLoteView {
       `
     }).join('')
 
-    containerTabela.classList.remove('hidden')
+    containerTabela.style.display = 'block'
   }
 
   private async salvarLote(): Promise<void> {
@@ -272,10 +264,7 @@ export class SecretariaEstagioLoteView {
       return
     }
 
-    // Sinalização visual explícita com Toast Flutuante
     toast.success('Notas de estágio registradas com sucesso em lote!')
-
-    // Recarregar dados
     await this.carregarNotasAlunos()
   }
 }

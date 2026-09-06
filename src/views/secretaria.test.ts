@@ -77,7 +77,7 @@ describe('SecretariaView - Integração Estágio', () => {
     document.body.appendChild(view)
 
     // Simular clique na tab de estágio para carregar o componente
-    const tabBtn = view.querySelector('[data-tab="estagio"]') as HTMLButtonElement
+    const tabBtn = view.querySelector('[data-tab="notas"]') as HTMLButtonElement
     tabBtn?.click()
 
     const selectTurma = view.querySelector('#notas-turma-select') as HTMLSelectElement

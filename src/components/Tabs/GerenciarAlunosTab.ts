@@ -79,7 +79,7 @@ export function GerenciarAlunosTab({
           </thead>
           <tbody>
             ${alunos.map(aluno => `
-              <tr>
+              <tr class="aluno-row">
                 <td>
                   <div style="display: flex; align-items: center; gap: 12px;">
                     <div class="avatar-circle">${escapeHTML(aluno.nome_completo.charAt(0).toUpperCase())}</div>
@@ -110,8 +110,8 @@ export function GerenciarAlunosTab({
                 <td style="text-align: right;">
                   <div style="display: flex; gap: 8px; justify-content: flex-end;">
                     <button class="btn btn-sm btn-secondary" onclick="window.location.hash='#/student-details?id=${escapeHTML(aluno.id)}'" title="Ver Ficha">${ICONS.eye}</button>
-                    <button class="btn btn-sm btn-primary" onclick="window.location.hash='#/student-details?edit=true&id=${escapeHTML(aluno.id)}'" title="Editar">${ICONS.edit}</button>
-                    <button class="btn btn-sm btn-accent" onclick="window.location.hash='#/gestao-turmas?matricular=${escapeHTML(aluno.id)}'" title="Matricular">${ICONS.graduation}</button>
+                    <button class="btn btn-sm btn-primary btn-editar-aluno" onclick="window.location.hash='#/student-details?edit=true&id=${escapeHTML(aluno.id)}'" title="Editar">${ICONS.edit}</button>
+                    <button class="btn btn-sm btn-accent btn-vincular-turma" onclick="window.location.hash='#/gestao-turmas?matricular=${escapeHTML(aluno.id)}'" title="Matricular">${ICONS.graduation}</button>
                   </div>
                 </td>
               </tr>

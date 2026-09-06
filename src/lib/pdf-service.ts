@@ -157,16 +157,24 @@ export const PDFService = {
     doc.setFillColor(196, 30, 58); // var(--primary)
     doc.rect(0, 0, pageWidth, 35, "F");
 
+    // Logo (se houver)
+    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
+      try {
+        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
+      } catch {}
+    }
+
+    const textX = inst.logo_url ? marginLeft + 32 : marginLeft;
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("COLÉGIO SANTA MÔNICA", marginLeft, 15);
+    doc.text("COLÉGIO SANTA MÔNICA", textX, 15);
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Limoeiro/PE - CNPJ: 70.077.433/0001-20", marginLeft, 21);
-    doc.text("Rua Principal, 123 - Centro - CEP: 55700-000", marginLeft, 26);
-    doc.text("Tel/WhatsApp: 81 99592 3688 | secretaria@csm.edu.br", marginLeft, 31);
+    doc.text("Limoeiro/PE - CNPJ: 70.077.433/0001-20", textX, 21);
+    doc.text("Rua Principal, 123 - Centro - CEP: 55700-000", textX, 26);
+    doc.text("Tel/WhatsApp: 81 99592 3688 | secretaria@csm.edu.br", textX, 31);
 
     // --- Title ---
     doc.setTextColor(196, 30, 58);
@@ -336,7 +344,8 @@ export const PDFService = {
   // =====================================================
   // DECLARAÇÃO DE MATRÍCULA (Enrollment Declaration)
   // =====================================================
-  generateDeclaracaoPDF(alunoData: AlunoData, turmaInfo: TurmaInfo, options?: { marcaCopia?: boolean }) {
+  async generateDeclaracaoPDF(alunoData: AlunoData, turmaInfo: TurmaInfo, options?: { marcaCopia?: boolean }) {
+    const inst = await getHeader();
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -352,6 +361,13 @@ export const PDFService = {
     // --- Header ---
     doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
+
+    // Logo (se houver)
+    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
+      try {
+        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
+      } catch {}
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
@@ -430,7 +446,8 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
   // DECLARAÇÃO DE VÍNCULO (Employment Declaration)
   // Para Admin/Professor
   // =====================================================
-  generateDeclaracaoVinculoPDF(userData: AlunoData & { perfil?: string }, options?: { marcaCopia?: boolean }) {
+  async generateDeclaracaoVinculoPDF(userData: AlunoData & { perfil?: string }, options?: { marcaCopia?: boolean }) {
+    const inst = await getHeader();
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -446,6 +463,13 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     // --- Header ---
     doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
+
+    // Logo (se houver)
+    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
+      try {
+        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
+      } catch {}
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
@@ -529,12 +553,13 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
   // =====================================================
   // HISTÓRICO ACADÊMICO (Academic Transcript)
   // =====================================================
-  generateHistoricoPDF(
+  async generateHistoricoPDF(
     alunoData: AlunoData,
     notasData: NotaData[],
     turmaInfo: TurmaInfo,
     options?: { marcaCopia?: boolean },
   ) {
+    const inst = await getHeader();
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -550,6 +575,13 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     // --- Header ---
     doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
+
+    // Logo (se houver)
+    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
+      try {
+        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
+      } catch {}
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
@@ -725,7 +757,8 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
   // =====================================================
   // TERMO DE ACORDO FINANCEIRO (Financial Settlement)
   // =====================================================
-  generateTermoAcordoPDF(alunoData: AlunoData, acordoData: AcordoData, options?: { marcaCopia?: boolean }) {
+  async generateTermoAcordoPDF(alunoData: AlunoData, acordoData: AcordoData, options?: { marcaCopia?: boolean }) {
+    const inst = await getHeader();
     const doc = new jsPDF("portrait", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -741,6 +774,13 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     // --- Header ---
     doc.setFillColor(196, 30, 58); // Vermelho Institucional
     doc.rect(0, 0, pageWidth, 40, "F");
+
+    // Logo (se houver)
+    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
+      try {
+        doc.addImage(inst.logo_url, "PNG", marginLeft, 8, 28, 24);
+      } catch {}
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
@@ -890,19 +930,33 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     const marginRight = 20
     const contentWidth = pageWidth - marginLeft - marginRight
 
-    let y = 20
+    // Header vermelho
+    doc.setFillColor(196, 30, 58)
+    doc.rect(0, 0, pageWidth, 35, 'F')
+
+    // Logo (se houver) - busca do cache ou banco
+    const cached = sessionStorage.getItem('instituicao_cache')
+    const inst = cached ? JSON.parse(cached) : null
+    if (inst?.logo_url && inst.logo_url.startsWith('data:')) {
+      try {
+        doc.addImage(inst.logo_url, 'PNG', marginLeft, 5, 28, 24)
+      } catch {}
+    }
+
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text('COLÉGIO SANTA MÔNICA', pageWidth / 2, 15, { align: 'center' })
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Limoeiro/PE - CNPJ: 70.077.433/0001-20', pageWidth / 2, 21, { align: 'center' })
+    doc.text('Tel/WhatsApp: 81 99592 3688', pageWidth / 2, 26, { align: 'center' })
+
+    let y = 45
 
     const addHeader = () => {
-      doc.setFontSize(16)
-      doc.setFont('helvetica', 'bold')
-      doc.text('COLÉGIO SANTA MÔNICA', pageWidth / 2, y, { align: 'center' })
-      y += 8
-
-      doc.setFontSize(12)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Limoeiro - PE', pageWidth / 2, y, { align: 'center' })
-      y += 12
-
+      doc.setTextColor(196, 30, 58)
       doc.setFontSize(14)
       doc.setFont('helvetica', 'bold')
       doc.text('DIÁRIO DE CLASSE', pageWidth / 2, y, { align: 'center' })

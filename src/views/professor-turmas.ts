@@ -462,7 +462,7 @@ export async function ProfessorTurmasView(
           : null;
 
         // Gerar PDF consolidado
-        const doc = PDFService.generateDeclaracaoPDF(
+        const doc = await PDFService.generateDeclaracaoPDF(
           { nome_completo: "Relatório de Notas", email: "" },
           turmaInfo ||
             {

@@ -318,7 +318,7 @@ export async function FinanceiroView(): Promise<HTMLElement> {
         valorFinal: total
       }
 
-      const doc = PDFService.generateTermoAcordoPDF(aluno, acordoData)
+      const doc = await PDFService.generateTermoAcordoPDF(aluno, acordoData)
       PDFService.downloadPDF(doc, `termo_acordo_${aluno.nome_completo.replace(/\s+/g, '_')}.pdf`)
       toast.success('Recibo gerado com sucesso!')
     } catch (err: any) {

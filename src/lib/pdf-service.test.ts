@@ -83,8 +83,8 @@ describe('PDFService - generateDiarioClassePDF', () => {
     vi.clearAllMocks()
   })
 
-  it('deve gerar PDF sem erro com dados válidos', () => {
-    const doc = PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
+  it('deve gerar PDF sem erro com dados válidos', async () => {
+    const doc = await PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
 
     expect(doc).toBeDefined()
     expect(typeof doc.save).toBe('function')
@@ -92,8 +92,8 @@ describe('PDFService - generateDiarioClassePDF', () => {
     expect(typeof doc.text).toBe('function')
   })
 
-  it('deve chamar text com o título DIÁRIO DE CLASSE', () => {
-    const doc = PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
+  it('deve chamar text com o título DIÁRIO DE CLASSE', async () => {
+    const doc = await PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
 
     expect(doc.text).toHaveBeenCalledWith(
       expect.stringContaining('DIÁRIO DE CLASSE'),
@@ -103,8 +103,8 @@ describe('PDFService - generateDiarioClassePDF', () => {
     )
   })
 
-  it('deve chamar text com o nome da turma', () => {
-    const doc = PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
+  it('deve chamar text com o nome da turma', async () => {
+    const doc = await PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
 
     expect(doc.text).toHaveBeenCalledWith(
       expect.stringContaining('Técnico em Enfermagem - 1º Ano'),
@@ -113,8 +113,8 @@ describe('PDFService - generateDiarioClassePDF', () => {
     )
   })
 
-  it('deve chamar text com o nome de cada disciplina', () => {
-    const doc = PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
+  it('deve chamar text com o nome de cada disciplina', async () => {
+    const doc = await PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
 
     const textCalls = doc.text.mock.calls
     const allText = textCalls.map((c: any[]) => String(c[0])).join(' ')
@@ -123,8 +123,8 @@ describe('PDFService - generateDiarioClassePDF', () => {
     expect(allText).toContain('Microbiologia')
   })
 
-  it('deve chamar text com o nome do professor', () => {
-    const doc = PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
+  it('deve chamar text com o nome do professor', async () => {
+    const doc = await PDFService.generateDiarioClassePDF(mockData, mockTurmaInfo) as any
 
     const textCalls = doc.text.mock.calls
     const allText = textCalls.map((c: any[]) => String(c[0])).join(' ')
@@ -133,18 +133,18 @@ describe('PDFService - generateDiarioClassePDF', () => {
     expect(allText).toContain('Maria Santos')
   })
 
-  it('deve lançar erro se lista de disciplinas estiver vazia', () => {
+  it('deve lançar erro se lista de disciplinas estiver vazia', async () => {
     const dataVazia = { ...mockData, disciplinas: [] }
 
-    expect(() => PDFService.generateDiarioClassePDF(dataVazia, mockTurmaInfo)).toThrow(
+    await expect(PDFService.generateDiarioClassePDF(dataVazia, mockTurmaInfo)).rejects.toThrow(
       'Nenhuma disciplina',
     )
   })
 
-  it('deve lançar erro se turma_nome estiver vazio', () => {
+  it('deve lançar erro se turma_nome estiver vazio', async () => {
     const dataInvalida = { ...mockData, turma_nome: '' }
 
-    expect(() => PDFService.generateDiarioClassePDF(dataInvalida, mockTurmaInfo)).toThrow(
+    await expect(PDFService.generateDiarioClassePDF(dataInvalida, mockTurmaInfo)).rejects.toThrow(
       'Nome da turma',
     )
   })

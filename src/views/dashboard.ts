@@ -100,7 +100,9 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
 
     <aside class="sidebar" role="navigation" aria-label="Navegação principal">
       <div class="sidebar-brand" style="border-bottom: 2px solid var(--accent); padding-bottom: 1rem;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+        <img src="/logo.png" alt="Logo CSM" class="sidebar-logo"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+        <svg class="sidebar-logo-fallback" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
         <span>Secretaria CSM</span>
         <button id="sidebar-toggle" title="Recolher sidebar" aria-label="Recolher ou expandir sidebar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>

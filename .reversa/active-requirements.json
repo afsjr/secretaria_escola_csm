@@ -1,10 +1,21 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/006-lancamento-notas-estagio",
-  "feature-id": "006",
-  "short-name": "lancamento-notas-estagio",
-  "started-at": "2026-09-06T15:52:30-03:00",
+  "feature-dir": "_reversa_forward/007-logo-instituicao-docs-nav",
+  "feature-id": "007",
+  "short-name": "logo-instituicao-docs-nav",
+  "started-at": "2026-09-07T20:30:00-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
-  "paused-features": []
+  "paused-features": [
+    {
+      "feature-dir": "_reversa_forward/006-lancamento-notas-estagio",
+      "feature-id": "006",
+      "short-name": "lancamento-notas-estagio",
+      "started-at": "2026-09-06T15:52:30-03:00",
+      "current-stage": "requirements",
+      "stages-completed": [],
+      "paused-at": "2026-09-07T20:30:00-03:00",
+      "paused-from-stage": "requirements"
+    }
+  ]
 }

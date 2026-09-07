@@ -178,6 +178,23 @@ export const InstituicaoService = {
       }
     }
 
+    // Fallback: usa a logo estática do diretório public/ quando não há logo cadastrada
+    if (!logoBase64) {
+      try {
+        const response = await fetch('/logo.png')
+        if (response.ok) {
+          const blob = await response.blob()
+          logoBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onloadend = () => resolve(reader.result as string)
+            reader.readAsDataURL(blob)
+          })
+        }
+      } catch {
+        logoBase64 = null
+      }
+    }
+
     return {
       nome: inst?.nome || 'INSTITUIÇÃO DE ENSINO',
       cnpj: inst?.cnpj || '',

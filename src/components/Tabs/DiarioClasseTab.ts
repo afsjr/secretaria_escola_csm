@@ -163,7 +163,7 @@ export function DiarioClasseTab({ turmas, profile }: DiarioClasseTabProps): HTML
     renderResultado()
   })
 
-  container.querySelector('#btn-gerar-pdf')?.addEventListener('click', () => {
+  container.querySelector('#btn-gerar-pdf')?.addEventListener('click', async () => {
     if (!resultadoData || !resultadoData.disciplinas || resultadoData.disciplinas.length === 0) {
       toast.error('Consulte os dados antes de gerar o PDF.')
       return
@@ -183,7 +183,7 @@ export function DiarioClasseTab({ turmas, profile }: DiarioClasseTabProps): HTML
       curso_nome: '',
     }
 
-    const doc = PDFService.generateDiarioClassePDF(diarioData, {
+    const doc = await PDFService.generateDiarioClassePDF(diarioData, {
       turma_nome: turma?.nome || '',
       periodo: turma?.periodo || '',
       curso_nome: '',

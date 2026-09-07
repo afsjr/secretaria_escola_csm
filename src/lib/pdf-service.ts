@@ -99,15 +99,11 @@ export const PDFService = {
     doc.setFillColor(r, g, b);
     doc.rect(0, 0, pageWidth, 38, "F");
 
-    // Logo (se houver) - deve ser data URL (convertido em getPDFHeader)
-    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
-      try {
-        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 38);
 
     // Texto do cabeçalho
-    const textX = inst.logo_url ? marginLeft + 32 : marginLeft;
+    const textX = inst.logo_url ? marginLeft + logoWidth + 5 : marginLeft;
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(15);
     doc.setFont("helvetica", "bold");
@@ -129,6 +125,24 @@ export const PDFService = {
     doc.text(title, pageWidth / 2, 52, { align: "center" });
 
     return 60; // retorna o Y inicial após o cabeçalho
+  },
+
+  /**
+   * Desenha a logo no cabeçalho preservando a proporção real da imagem.
+   * Retorna a largura da logo desenhada (0 se não houver logo).
+   */
+  _renderLogo(doc: jsPDF, inst: any, marginLeft: number, headerHeight: number) {
+    if (!inst?.logo_url || !inst.logo_url.startsWith("data:")) return 0;
+    try {
+      const logoTargetHeight = headerHeight * 0.55;
+      const imgProps = doc.getImageProperties(inst.logo_url);
+      const logoWidth = (imgProps.width / imgProps.height) * logoTargetHeight;
+      const logoY = (headerHeight - logoTargetHeight) / 2;
+      doc.addImage(inst.logo_url, "PNG", marginLeft, logoY, logoWidth, logoTargetHeight);
+      return logoWidth;
+    } catch {
+      return 0;
+    }
   },
 
   // =====================================================
@@ -157,14 +171,10 @@ export const PDFService = {
     doc.setFillColor(196, 30, 58); // var(--primary)
     doc.rect(0, 0, pageWidth, 35, "F");
 
-    // Logo (se houver)
-    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
-      try {
-        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 35);
 
-    const textX = inst.logo_url ? marginLeft + 32 : marginLeft;
+    const textX = inst.logo_url ? marginLeft + logoWidth + 5 : marginLeft;
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -362,12 +372,8 @@ export const PDFService = {
     doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
 
-    // Logo (se houver)
-    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
-      try {
-        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 35);
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
@@ -464,12 +470,8 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
 
-    // Logo (se houver)
-    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
-      try {
-        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 35);
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
@@ -576,12 +578,8 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     doc.setFillColor(196, 30, 58);
     doc.rect(0, 0, pageWidth, 35, "F");
 
-    // Logo (se houver)
-    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
-      try {
-        doc.addImage(inst.logo_url, "PNG", marginLeft, 5, 28, 24);
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 35);
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
@@ -775,12 +773,8 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     doc.setFillColor(196, 30, 58); // Vermelho Institucional
     doc.rect(0, 0, pageWidth, 40, "F");
 
-    // Logo (se houver)
-    if (inst.logo_url && inst.logo_url.startsWith("data:")) {
-      try {
-        doc.addImage(inst.logo_url, "PNG", marginLeft, 8, 28, 24);
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 40);
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
@@ -915,13 +909,15 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
   // DIÁRIO DE CLASSE
   // =====================================================
 
-  generateDiarioClassePDF(data: any, turmaInfo: any): jsPDF {
+  async generateDiarioClassePDF(data: any, turmaInfo: any): Promise<jsPDF> {
     if (!data.disciplinas || data.disciplinas.length === 0) {
       throw new Error('Nenhuma disciplina para gerar o Diário de Classe.')
     }
     if (!data.turma_nome) {
       throw new Error('Nome da turma é obrigatório.')
     }
+
+    const inst = await getHeader();
 
     const doc = new jsPDF('portrait', 'mm', 'a4')
     const pageWidth = doc.internal.pageSize.getWidth()
@@ -934,14 +930,8 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     doc.setFillColor(196, 30, 58)
     doc.rect(0, 0, pageWidth, 35, 'F')
 
-    // Logo (se houver) - busca do cache ou banco
-    const cached = sessionStorage.getItem('instituicao_cache')
-    const inst = cached ? JSON.parse(cached) : null
-    if (inst?.logo_url && inst.logo_url.startsWith('data:')) {
-      try {
-        doc.addImage(inst.logo_url, 'PNG', marginLeft, 5, 28, 24)
-      } catch {}
-    }
+    // Logo (se houver) com proporção preservada
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 35)
 
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(16)

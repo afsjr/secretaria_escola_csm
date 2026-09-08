@@ -4,8 +4,8 @@
   "feature-id": "007",
   "short-name": "logo-instituicao-docs-nav",
   "started-at": "2026-09-07T20:30:00-03:00",
-  "current-stage": "requirements",
-  "stages-completed": [],
+  "current-stage": "coding",
+  "stages-completed": ["plan", "to-do", "coding"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/006-lancamento-notas-estagio",

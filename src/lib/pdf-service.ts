@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { InstituicaoService } from "./instituicao-service";
+import type { AtaResultadosData } from "../types/domain";
 
 // Cache de sessão para o cabeçalho dos PDFs
 let _cachedHeader: any = null;
@@ -1038,6 +1039,180 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
   },
 
   // =====================================================
+  // ATA DE RESULTADOS FINAIS
+  // =====================================================
+
+  async generateAtaResultadosPDF(payload: AtaResultadosData): Promise<jsPDF> {
+    if (!payload.turma_nome) throw new Error('Nome da turma é obrigatório.')
+    if (!payload.alunos || payload.alunos.length === 0) {
+      throw new Error('Nenhum aluno para gerar a Ata.')
+    }
+
+    const inst = await getHeader()
+    const doc = new jsPDF('landscape', 'mm', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const marginLeft = 10
+    const marginRight = 10
+    const contentWidth = pageWidth - marginLeft - marginRight
+
+    const startY = this._renderHeader(doc, inst, pageWidth, marginLeft, 'ATA DE RESULTADOS FINAIS')
+
+    // --- Identificação da turma ---
+    const hoje = new Date()
+    let y = startY + 6
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(0, 0, 0)
+    doc.text(`Curso: ${payload.curso_nome || 'N/A'}`, marginLeft, y)
+    doc.text(`Turma: ${payload.turma_nome} (${payload.periodo || ''})`, marginLeft, y + 5)
+    doc.text(`Ano Letivo: ${payload.ano_letivo}`, marginLeft + 155, y)
+    if (payload.polo) doc.text(`Polo/Local: ${payload.polo}`, marginLeft + 155, y + 5)
+
+    y += 13
+
+    // --- Texto cartorial de abertura (data por extenso) ---
+    const abertura =
+      `Aos ${this._numeroPorExtenso(hoje.getDate())} dias do mês de ${this._MESES_POR_EXTENSO[hoje.getMonth()]} de ${this._anoPorExtenso(hoje.getFullYear())}, ` +
+      `o(a) Diretor(a) e o(a) Secretário(a) do ${inst.nome || 'Colégio Santa Mônica'} lavram a presente Ata de Resultados Finais do curso ${payload.curso_nome || ''}, ` +
+      `turma ${payload.turma_nome} (${payload.periodo || ''}), referente ao ano letivo de ${payload.ano_letivo}.`;
+
+    const linhasAbertura = doc.splitTextToSize(abertura, contentWidth)
+    doc.text(linhasAbertura, marginLeft, y)
+    y += linhasAbertura.length * 4.5 + 8
+
+    // --- Tabela de resultados (layout empilhado por aluno x componente) ---
+    const head = [['Nº', 'COMPONENTE CURRICULAR', 'C.H. T/P', 'E/S', 'NOTA', 'FALTAS', '% FREQ.', 'SITUAÇÃO']]
+    const body: any[] = []
+
+    payload.alunos.forEach((aluno, idx) => {
+      body.push({
+        colSpan: 8,
+        styles: { fontStyle: 'bold', fontSize: 8, fillColor: [245, 245, 250], textColor: [60, 60, 60] },
+        content:
+          `${idx + 1}. ${aluno.nome_completo}  —  Situação Final: ${aluno.situacao_final}` +
+          (typeof aluno.frequencia_geral === 'number' ? `  |  % Freq. Geral: ${aluno.frequencia_geral}%` : ''),
+      })
+      aluno.componentes.forEach((c) => {
+        body.push([
+          '',
+          c.modulo ? `${c.nome}\n${c.modulo}` : c.nome,
+          String(c.carga_horaria || 0),
+          c.nota_estagio || '—',
+          c.nota_final_texto,
+          String(c.faltas || 0),
+          `${c.percentual_frequencia}%`,
+          c.status || '—',
+        ])
+      })
+    })
+
+    autoTable(doc, {
+      startY: y,
+      head,
+      body,
+      margin: { left: marginLeft, right: marginRight },
+      showHead: 'everyPage',
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.1,
+        overflow: 'linebreak',
+      },
+      headStyles: {
+        fillColor: [196, 30, 58],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 8,
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 12 },
+        1: { cellWidth: 112 },
+        2: { halign: 'center', cellWidth: 28 },
+        3: { halign: 'center', cellWidth: 25 },
+        4: { halign: 'center', cellWidth: 28 },
+        5: { halign: 'center', cellWidth: 20 },
+        6: { halign: 'center', cellWidth: 22 },
+        7: { halign: 'center', cellWidth: 30 },
+      },
+      didParseCell: function (data: any) {
+        if (data.section === 'body' && data.column.index === 7 && !Array.isArray(data.cell.raw)) {
+          const raw = String(data.cell.raw)
+          if (raw === 'Aprovado') {
+            data.cell.styles.textColor = [38, 161, 105]
+            data.cell.styles.fontStyle = 'bold'
+          } else if (raw === 'Reprovado') {
+            data.cell.styles.textColor = [229, 62, 62]
+            data.cell.styles.fontStyle = 'bold'
+          } else if (raw === 'Cursando') {
+            data.cell.styles.textColor = [180, 130, 0]
+            data.cell.styles.fontStyle = 'bold'
+          }
+        }
+      },
+      didDrawPage: () => {
+        const pageNumber = doc.getNumberOfPages()
+        doc.setFontSize(7.5)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(120, 120, 120)
+        doc.text(`Ata de Resultados Finais - ${payload.turma_nome}`, marginLeft, pageHeight - 8)
+        doc.text(`Página ${pageNumber}`, pageWidth - marginRight, pageHeight - 8, { align: 'right' })
+        doc.setDrawColor(220, 220, 220)
+        doc.line(marginLeft, pageHeight - 12, pageWidth - marginRight, pageHeight - 12)
+      },
+    })
+
+    let finalY = (doc as any).lastAutoTable.finalY + 8
+    if (finalY > pageHeight - 45) {
+      doc.addPage()
+      finalY = 20
+    }
+
+    // --- Legenda (siglas) ---
+    doc.setFontSize(7.5)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(90, 90, 90)
+    const legenda =
+      'Legenda: C.H. T/P = carga horária teoria/prática | E/S = estágio supervisionado (AP = aprovado, REP = reprovado) | ' +
+      'NOTA = nota final | % FREQ. = frequência derivada (100 - faltas x 100 / C.H.) | SITUAÇÃO = Aprovado, Reprovado ou Cursando.'
+    const linhasLegenda = doc.splitTextToSize(legenda, contentWidth)
+    doc.text(linhasLegenda, marginLeft, finalY)
+    finalY += linhasLegenda.length * 3.5 + 6
+
+    // --- Local e data ---
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0, 0, 0)
+    doc.text(
+      `Limoeiro/PE, ${this._numeroPorExtenso(hoje.getDate())} de ${this._MESES_POR_EXTENSO[hoje.getMonth()]} de ${this._anoPorExtenso(hoje.getFullYear())}.`,
+      marginLeft,
+      finalY,
+    )
+
+    // --- Assinaturas ---
+    finalY += 22
+    const sigLeftX = pageWidth / 2 - 95
+    const sigRightX = pageWidth / 2 + 95
+    const sigWidth = 70
+    doc.setDrawColor(0)
+    doc.line(sigLeftX, finalY, sigLeftX + sigWidth, finalY)
+    doc.line(sigRightX - sigWidth, finalY, sigRightX, finalY)
+    doc.setFontSize(9)
+    doc.text('Diretor(a)', sigLeftX + sigWidth / 2, finalY + 5, { align: 'center' })
+    doc.text('Secretário(a)', sigRightX - sigWidth / 2, finalY + 5, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.setTextColor(120, 120, 120)
+    const instrodape = inst.nome || 'Colégio Santa Mônica'
+    doc.text(instrodape, sigLeftX + sigWidth / 2, finalY + 10, { align: 'center' })
+    doc.text(instrodape, sigRightX - sigWidth / 2, finalY + 10, { align: 'center' })
+
+    return doc
+  },
+
+  // =====================================================
   // HELPER METHODS
   // =====================================================
 
@@ -1094,6 +1269,58 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
       return (mediaTeoria + recVal) / 2;
     }
     return mediaTeoria;
+  },
+
+  // =====================================================
+  // ATA DE RESULTADOS FINAIS - HELPERS DE DATA POR EXTENSO
+  // =====================================================
+
+  _MESES_POR_EXTENSO: [
+    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+  ],
+
+  _UNIDADES: [
+    '', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove',
+    'dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis',
+    'dezessete', 'dezoito', 'dezenove',
+  ],
+
+  _DEZENAS: [
+    '', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta',
+    'setenta', 'oitenta', 'noventa',
+  ],
+
+  _numeroPorExtenso(n: number): string {
+    const num = Math.max(0, Math.floor(n));
+    if (num < 20) {
+      return num === 0 ? 'zero' : this._UNIDADES[num];
+    }
+    if (num < 100) {
+      const dezena = Math.floor(num / 10);
+      const unidade = num % 10;
+      return unidade > 0
+        ? `${this._DEZENAS[dezena]} e ${this._UNIDADES[unidade]}`
+        : this._DEZENAS[dezena];
+    }
+    if (num < 1100) {
+      const centena = Math.floor(num / 100);
+      const resto = num % 100;
+      const prefixo = centena === 1 ? 'cento' : `${this._UNIDADES[centena]}centos`;
+      return resto > 0 ? `${prefixo} e ${this._numeroPorExtenso(resto)}` : prefixo;
+    }
+    return String(num);
+  },
+
+  _anoPorExtenso(ano: number): string {
+    const s = String(ano);
+    if (s.length !== 4) return String(ano);
+    const milhar = parseInt(s[0], 10);
+    const resto = parseInt(s.slice(1), 10);
+    if (resto === 0) {
+      return `${this._UNIDADES[milhar]} mil`;
+    }
+    return `${this._UNIDADES[milhar]} mil e ${this._numeroPorExtenso(resto)}`;
   },
 
   // =====================================================

@@ -152,6 +152,47 @@ export interface NotaEstagioLotePayload {
 
 
 // =====================================================
+// ATA DE RESULTADOS FINAIS
+// =====================================================
+
+export type AtaStatusAluno = 'ativo' | 'trancado' | 'evadido' | 'concluido'
+export type AtaSituacaoComponente = 'Aprovado' | 'Reprovado' | 'Cursando'
+
+export interface AtaComponenteResultado {
+  disciplina_base_id: string | null
+  nome: string
+  modulo: string | null
+  carga_horaria: number
+  nota_final: number
+  nota_final_texto: string
+  faltas: number
+  percentual_frequencia: number
+  nota_estagio: string | null
+  tem_estagio: boolean
+  status: AtaSituacaoComponente
+}
+
+export interface AtaAlunoResultado {
+  matricula_id: string
+  aluno_id: string
+  nome_completo: string
+  status_aluno: AtaStatusAluno
+  situacao_final: string
+  frequencia_geral: number
+  componentes: AtaComponenteResultado[]
+}
+
+export interface AtaResultadosData {
+  turma_id: string
+  turma_nome: string
+  periodo: string
+  ano_letivo: number
+  curso_nome: string
+  polo?: string | null
+  alunos: AtaAlunoResultado[]
+}
+
+// =====================================================
 // FREQUENCIA
 // =====================================================
 

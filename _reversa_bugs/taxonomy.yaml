@@ -1,0 +1,31 @@
+# Vocabulário controlado de area/module/feature do Reversa Bugs.
+# Semeado a partir de _reversa_sdd/architecture.md (módulos) e _reversa_sdd/domain.md
+# em 2026-09-07. Nova termo: propor via Agent Notes no bug; agentes NUNCA inventam fora do catálogo.
+# Sem extração completa, este arquivo é semente; /reversa pode refinar.
+
+areas:
+  - autenticacao
+  - administrativo
+  - academico
+  - aluno
+  - docente
+  - documentos
+  - financeiro
+  - auditoria
+
+modules:
+  - auth
+  - admin
+  - academic
+  - professor
+  - course
+  - student
+  - documents
+  - financeiro
+  - audit
+
+features:
+  - emissao-documentos-pdf
+  - solicitacoes-documentos
+  - emissao-certificados
+  - notificacoes

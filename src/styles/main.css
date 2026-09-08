@@ -558,6 +558,16 @@ p {
   font-size: 0.95rem;
 }
 
+.sidebar.collapsed .sidebar-brand img.sidebar-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar.collapsed .sidebar-brand .sidebar-logo-fallback {
+  width: 24px;
+  height: 24px;
+}
+
 .sidebar-user {
   margin-top: auto;
   padding: var(--spacing-md);

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AcademicService } from './academic-service'
+import { CourseService } from './course-service'
 
 const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }))
 
@@ -479,5 +480,185 @@ describe('AcademicService - getAulasPorTurmaPeriodo', () => {
 
     expect(result.data).toBeNull()
     expect(result.error?.message).toBe('Erro de conexão')
+  })
+})
+
+describe('AcademicService - getDadosAtaTurma', () => {
+  const catalogo = [
+    { id: 'db1', nome: 'Anatomia e Fisiologia Humana', modulo: 'I Módulo', carga_horaria: 80, ordem: 1 },
+    { id: 'db2', nome: 'Farmacologia', modulo: 'II Módulo', carga_horaria: 40, ordem: 1 },
+  ]
+
+  const matriculas = [
+    { id: 'm1', aluno_id: 'a1', status_aluno: 'ativo', perfis: [{ id: 'a1', nome_completo: 'Aluno Um' }] },
+    { id: 'm2', aluno_id: 'a2', status_aluno: 'ativo', perfis: [{ id: 'a2', nome_completo: 'Aluno Dois' }] },
+  ]
+
+  type BoletimRow = {
+    aluno_id: string
+    disciplina_base_id: string
+    faltas?: number
+    n1?: number
+    n2?: number
+    n3?: number
+    rec?: number
+    nota_estagio?: string | null
+    status?: string
+  }
+
+  const boletins: BoletimRow[] = [
+    { aluno_id: 'a1', disciplina_base_id: 'db1', faltas: 4, n1: 8, n2: 8, n3: 8 },
+    { aluno_id: 'a1', disciplina_base_id: 'db2', faltas: 60, n1: 5, n2: 5, n3: 5 },
+  ]
+
+  function mockFluxo(overrides: { turma?: any; matriculasData?: any[]; boletinsData?: any[] } = {}) {
+    const { turma, matriculasData = matriculas, boletinsData = boletins } = overrides
+    mockFrom.mockReturnValueOnce({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn(() =>
+            Promise.resolve({
+              data: turma ?? { id: 't1', nome: 'Técnico 2026.1', periodo: '2026.1', curso_id: 'c1', cursos: { id: 'c1', nome: 'Técnico em Enfermagem' } },
+              error: null,
+            })
+          ),
+        })),
+      })),
+    })
+    mockFrom.mockReturnValueOnce({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => Promise.resolve({ data: matriculasData, error: null })),
+        })),
+      })),
+    })
+    mockFrom.mockReturnValueOnce({
+      select: vi.fn(() => ({
+        in: vi.fn(() => Promise.resolve({ data: boletinsData, error: null })),
+      })),
+    })
+    vi.spyOn(CourseService, 'getMatrizCurricular').mockResolvedValue({ data: catalogo, error: null })
+    return null
+  }
+
+  it('deve montar payload com situação final derivada por componente', async () => {
+    mockFluxo()
+
+    const { data, error } = await AcademicService.getDadosAtaTurma('t1')
+
+    expect(error).toBeNull()
+    expect(data).toBeTruthy()
+    expect(data!.turma_nome).toBe('Técnico 2026.1')
+    expect(data!.curso_nome).toBe('Técnico em Enfermagem')
+    expect(data!.ano_letivo).toBe(2026)
+    expect(data!.alunos).toHaveLength(2)
+
+    const a1 = data!.alunos.find(a => a.aluno_id === 'a1')!
+    const cb1 = a1.componentes.find(c => c.disciplina_base_id === 'db1')!
+    const cb2 = a1.componentes.find(c => c.disciplina_base_id === 'db2')!
+
+    expect(cb1.nota_final).toBe(8)
+    expect(cb1.status).toBe('Aprovado')
+    expect(cb1.percentual_frequencia).toBe(95)
+
+    expect(cb2.status).toBe('Reprovado')
+    expect(cb2.percentual_frequencia).toBe(0)
+    expect(a1.situacao_final).toBe('Reprovado')
+  })
+
+  it('situação final: todos Aprovado → Aprovado; evadido sem nota → "—"', async () => {
+    mockFluxo({
+      matriculasData: [
+        { id: 'm1', aluno_id: 'a1', status_aluno: 'ativo', perfis: [{ id: 'a1', nome_completo: 'Aluno Um' }] },
+        { id: 'm2', aluno_id: 'a2', status_aluno: 'evadido', perfis: [{ id: 'a2', nome_completo: 'Aluno Dois' }] },
+      ],
+      boletinsData: [
+        { aluno_id: 'a1', disciplina_base_id: 'db1', faltas: 0, n1: 7, n2: 7, n3: 7 },
+        { aluno_id: 'a1', disciplina_base_id: 'db2', faltas: 0, n1: 9, n2: 9, n3: 9 },
+      ],
+    })
+
+    const { data } = await AcademicService.getDadosAtaTurma('t1')
+
+    const a1 = data!.alunos.find(a => a.aluno_id === 'a1')!
+    const a2 = data!.alunos.find(a => a.aluno_id === 'a2')!
+
+    expect(a1.situacao_final).toBe('Aprovado')
+    expect(a2.situacao_final).toBe('—')
+  })
+
+  it('situação final: status não-ativo prevalece (trancado e concluído)', async () => {
+    mockFluxo({
+      matriculasData: [
+        { id: 'm1', aluno_id: 'a1', status_aluno: 'trancado', perfis: [{ id: 'a1', nome_completo: 'Aluno Um' }] },
+        { id: 'm2', aluno_id: 'a2', status_aluno: 'concluido', perfis: [{ id: 'a2', nome_completo: 'Aluno Dois' }] },
+      ],
+      boletinsData: [
+        { aluno_id: 'a1', disciplina_base_id: 'db1', faltas: 0, n1: 7, n2: 7, n3: 7 },
+        { aluno_id: 'a1', disciplina_base_id: 'db2', faltas: 0, n1: 7, n2: 7, n3: 7 },
+        { aluno_id: 'a2', disciplina_base_id: 'db1', faltas: 0, n1: 7, n2: 7, n3: 7 },
+        { aluno_id: 'a2', disciplina_base_id: 'db2', faltas: 0, n1: 7, n2: 7, n3: 7 },
+      ],
+    })
+
+    const { data } = await AcademicService.getDadosAtaTurma('t1')
+
+    const a1 = data!.alunos.find(a => a.aluno_id === 'a1')!
+    const a2 = data!.alunos.find(a => a.aluno_id === 'a2')!
+
+    expect(a1.situacao_final).toBe('Trancado')
+    expect(a2.situacao_final).toBe('Concluído')
+  })
+
+  it('situação final: sem Reprovado e sem todos Aprovado → Cursando', async () => {
+    mockFluxo({
+      matriculasData: [
+        { id: 'm1', aluno_id: 'a1', status_aluno: 'ativo', perfis: [{ id: 'a1', nome_completo: 'Aluno Um' }] },
+      ],
+      boletinsData: [
+        { aluno_id: 'a1', disciplina_base_id: 'db1', faltas: 0, n1: 7, n2: 7, n3: 7 },
+      ],
+    })
+
+    const { data } = await AcademicService.getDadosAtaTurma('t1')
+
+    const a1 = data!.alunos.find(a => a.aluno_id === 'a1')!
+    expect(a1.situacao_final).toBe('Cursando')
+    expect(a1.componentes.find(c => c.disciplina_base_id === 'db2')!.status).toBe('Cursando')
+    expect(a1.componentes.find(c => c.disciplina_base_id === 'db2')!.nota_final_texto).toBe('-')
+  })
+
+  it('frequência: nunca ultrapassa 0% nem 100% quando faltas > carga horária', async () => {
+    mockFluxo({
+      matriculasData: [
+        { id: 'm1', aluno_id: 'a1', status_aluno: 'ativo', perfis: [{ id: 'a1', nome_completo: 'Aluno Um' }] },
+      ],
+      boletinsData: [
+        { aluno_id: 'a1', disciplina_base_id: 'db1', faltas: 200, n1: 6, n2: 6, n3: 6 },
+      ],
+    })
+
+    const { data } = await AcademicService.getDadosAtaTurma('t1')
+
+    const a1 = data!.alunos.find(a => a.aluno_id === 'a1')!
+    const db1 = a1.componentes.find(c => c.disciplina_base_id === 'db1')!
+    expect(db1.percentual_frequencia).toBe(0)
+  })
+
+  it('ano letivo: extrai YYYY do período; fallback para ano corrente sem token', async () => {
+    mockFluxo({ turma: { id: 't2', nome: 'Sem per', periodo: 'Período livre', curso_id: 'c1', cursos: { id: 'c1', nome: 'Curso X' } } })
+
+    const { data } = await AcademicService.getDadosAtaTurma('t2')
+
+    expect(data!.ano_letivo).toBe(new Date().getFullYear())
+  })
+
+  it('erro: propaga quando turma não encontrada ou sem curso', async () => {
+    mockFluxo({ turma: { id: 't3', nome: 'S/C', periodo: '2026.1', curso_id: null, cursos: null } })
+
+    const { data, error } = await AcademicService.getDadosAtaTurma('t3')
+
+    expect(data).toBeNull()
+    expect(error?.message).toContain('sem curso vinculado')
   })
 })

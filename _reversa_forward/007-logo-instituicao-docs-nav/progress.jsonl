@@ -1,0 +1,6 @@
+{"ts":"2026-09-07T18:22:45-03:00","action":"T001","status":"done","files":["public/logo.png"]}
+{"ts":"2026-09-07T18:25:50-03:00","action":"T002","status":"done","files":["src/lib/instituicao-service.test.ts"]}
+{"ts":"2026-09-07T18:25:50-03:00","action":"T003","status":"done","files":["src/lib/pdf-service.test.ts"]}
+{"ts":"2026-09-07T18:26:12-03:00","action":"T004","status":"done","files":["src/styles/main.css"]}
+{"ts":"2026-09-07T18:28:50-03:00","action":"T005","status":"done","files":["src"]}
+{"ts":"2026-09-07T18:29:10-03:00","action":"T006","status":"done","files":["_reversa_forward/007-logo-instituicao-docs-nav/roadmap.md","_reversa_forward/007-logo-instituicao-docs-nav/actions.md"]}

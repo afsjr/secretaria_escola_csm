@@ -18,7 +18,7 @@ Esta feature adiciona o logotipo institucional (`public/logo.png`) em dois ponto
 | `_reversa_sdd/architecture.md#camadas` | Views (`src/views/*.ts`) renderizam a UI, incluindo o dashboard com sidebar | 🟢 |
 | `src/views/dashboard.ts:101-108` | Sidebar atual usa SVG genérico + texto "Secretaria CSM" | 🟢 |
 | `src/lib/pdf-service.ts:86-129` | `_renderHeader()` já suporta renderização de logo via `inst.logo_url` (data URL) | 🟢 |
-| `src/lib/instituicao-service.ts:161-193` | `getPDFHeader()` converte URLs HTTP para base64 mas não tem fallback para `/logo.png` | 🟢 |
+| `src/lib/instituicao-service.ts:161-196` | `getPDFHeader()` converte URLs HTTP para base64 e, quando `logo_url` é null, faz fallback para `/logo.png` (data URL); se o fetch falhar, retorna `logo_url: null` (commit `24b0888`) | 🟢 |
 | `src/views/login.ts:19,49` | Login já usa `<img src="/logo.png">` como referência de implementação | 🟢 |
 
 ## 3. Personas e cenários de uso
@@ -34,7 +34,7 @@ Esta feature adiciona o logotipo institucional (`public/logo.png`) em dois ponto
    - Tipo: nova
    - Justificativa: Garante que todo PDF terá logo mesmo sem configuração manual via Configurações.
 
-2. **RN-02 (Logo na Sidebar):** A barra lateral de navegação do dashboard deve exibir o logotipo institucional (`/logo.png`) no topo, substituindo o ícone SVG genérico atual. 🟢
+2. **RN-02 (Logo na Sidebar):** A barra lateral de navegação do dashboard deve exibir o logotipo institucional (`/logo.png`) no topo, substituindo o ícone SVG genérico atual; na versão colapsada (~60px), exibe a versão 32×32; se a imagem falhar, o SVG de fallback substitui apenas a imagem, mantendo o texto "Secretaria CSM". 🟢
    - Tipo: alterada
    - Origem no legado: `src/views/dashboard.ts:101-108`
 
@@ -42,10 +42,12 @@ Esta feature adiciona o logotipo institucional (`public/logo.png`) em dois ponto
 
 | ID | Requisito | Prioridade | Critério de aceite | Confidência |
 |----|-----------|------------|--------------------|-------------|
-| RF-01 | Adicionar logo ao cabeçalho de todos os PDFs | Must | Todos os 6 tipos de PDF (Boletim, Declaração, Declaração de Vínculo, Histórico, Termo de Acordo, Diário de Classe) exibem a logo `public/logo.png` no cabeçalho quando não há logo cadastrada no banco. | 🟢 |
-| RF-02 | Implementar fallback para logo estática | Must | `getPDFHeader()` retorna `logo_url` como data URL de `/logo.png` quando `inst.logo_url` é null ou vazio. | 🟢 |
-| RF-03 | Exibir logo na sidebar do dashboard | Must | A sidebar exibe a imagem `public/logo.png` com dimensões apropriadas (ex.: 32x32 ou 40x40px) no topo, ao lado do texto "Secretaria CSM". | 🟢 |
-| RF-04 | Manter fallback para SVG quando logo falhar | Should | Se a imagem `/logo.png` não carregar (404 ou erro de rede), o sistema exibe o ícone SVG genérico atual como fallback. | 🟡 |
+| RF-01 | Adicionar logo ao cabeçalho de todos os PDFs | Must | Todos os 7 tipos de PDF (Boletim, Declaração, Declaração de Vínculo, Histórico, Termo de Acordo, Diário de Classe **e Ata de Resultados Finais**) exibem a logo `public/logo.png` no cabeçalho quando não há logo cadastrada no banco. | 🟢 |
+| RF-02 | Implementar fallback para logo estática | Must | `getPDFHeader()` retorna `logo_url` como data URL de `/logo.png` quando `inst.logo_url` é null ou vazio; se o `fetch` do arquivo estático falhar, retorna `logo_url` null (PDF segue sem logo, sem erro) | 🟢 |
+| RF-03 | Exibir logo na sidebar do dashboard | Must | A sidebar exibe a imagem `public/logo.png` com dimensões apropriadas (32×32 a 40×40px) no topo, ao lado do texto "Secretaria CSM", reutilizando o dimensionamento proporcional do `_renderLogo` para os PDFs | 🟢 |
+| RF-04 | Manter fallback para SVG quando logo falhar | Should | Se a imagem `/logo.png` não carregar (404 ou erro de rede), o sistema exibe o ícone SVG genérico **no lugar apenas da imagem**, mantendo o texto "Secretaria CSM" visível | 🟡 |
+| RF-05 | Exibir versão pequena da logo quando a sidebar estiver colapsada | Should | Com a sidebar em modo colapsado (~60px), a logo permanece visível em versão 32×32 no topo | 🟡 |
+| RF-06 | Falha de conversão de `/logo.png` sem quebrar o PDF | Should | Se o `fetch` de `/logo.png` falhar em runtime no `getPDFHeader()`, `logo_url` fica null e o PDF é gerado normalmente sem logo (sem erro exibido ao usuário) | 🟡 |
 
 ## 6. Requisitos Não Funcionais
 
@@ -75,10 +77,26 @@ Cenário: Sidebar do dashboard com logo
   Então a sidebar exibe a imagem logo.png no topo ao lado do texto "Secretaria CSM"
   E o ícone SVG genérico anterior não é mais exibido
 
+Cenário: Sidebar colapsada exibe versão pequena da logo
+  Dado que o usuário está autenticado e no dashboard
+  Quando a barra lateral é colapsada para ~60px
+  Então a logo permanece visível em versão 32×32 no topo
+
 Cenário: Fallback quando logo não carrega
   Dado que o arquivo logo.png não está disponível (erro 404)
   Quando a sidebar é renderizada
   Então o ícone SVG genérico é exibido como fallback
+  E o texto "Secretaria CSM" permanece visível
+
+Cenário: PDF gerado com Ata de Resultados Finais sem logo cadastrada
+  Dado que a instituição não possui logo_url cadastrada no banco de dados
+  Quando o usuário emite a Ata de Resultados Finais (PDF)
+  Então o PDF exibe a imagem logo.png no cabeçalho, ao lado do nome da instituição
+
+Cenário: Falha de conversão da logo estática
+  Dado que o fetch de /logo.png falha em runtime
+  Quando o usuário gera qualquer tipo de documento PDF
+  Então o PDF é gerado normalmente sem logo, sem erro exibido
 ```
 
 ## 8. Prioridade MoSCoW
@@ -89,19 +107,34 @@ Cenário: Fallback quando logo não carrega
 | RF-02 | Must | Garante que a feature funcione sem configuração manual |
 | RF-03 | Must | Complementa a identidade visual na interface do sistema |
 | RF-04 | Should | UX defensiva — evita quebra visual se o arquivo não estiver disponível |
+| RF-05 | Should | Complementa a responsividade da sidebar colapsada |
+| RF-06 | Should | Garante geração de PDF resiliente sem bloquear o documento |
 | RNF de desempenho | Should | Cache existente mitiga impacto; não é bloqueante |
 | RNF de usabilidade | Should | Manter responsividade é importante mas não bloqueante |
 
 ## 9. Esclarecimentos
 
-> Nenhuma sessão de dúvidas registrada ainda. Rode `/reversa-clarify` quando houver `[DÚVIDA]` pendente.
+### Sessão 2026-09-07
+
+- **Q:** Quais PDFs recebem a logo? Os 6 tipos listados no RF-01 ou também a Ata de Resultados Finais (feature 008)?
+  - **R:** Os 6 tipos do RF-01 **+ Ata de Resultados Finais** — total de 7 documentos. Decisão: escopo expandido, adotado por já reutilizar `_renderHeader`/`_renderLogo`.
+- **Q:** Quando a sidebar está colapsada (~60px), como a logo deve se comportar?
+  - **R:** A logo permanece visível em versão pequena **32×32** quando colapsada. Decisão: mantém a identidade visual em todo estado da sidebar.
+- **Q:** Como dimensionar a logo no cabeçalho dos PDFs?
+  - **R:** Reusar o `_renderLogo` como está (proporção real, altura ~55% do header) — consistente com a feature 008 já entregue. Decisão: nenhuma regra nova de dimensionamento.
+- **Q:** Se o `fetch` de `/logo.png` falhar em runtime no `getPDFHeader()`, o que acontece?
+  - **R:** `logo_url` fica null e o PDF segue normalmente **sem logo**, sem erro exibido ao usuário. Decisão: comportamento resiliente (RF-06).
+- **Q:** No fallback RV-03/RF-04, o texto "Secretaria CSM" permanece quando a imagem não carrega?
+  - **R:** Sim — o SVG de fallback substitui **apenas a imagem**; o texto da sidebar permanece visível.
 
 ## 10. Lacunas
 
-> Nenhuma lacuna ou `[DÚVIDA]` pendente.
+> Nenhuma lacuna pendente. Os pontos abertos da consulta foram resolvidos na Sessão 2026-09-07.
 
 ## 11. Histórico de alterações
 
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-09-07 | Versão inicial gerada por `/reversa-requirements` | reversa |
+| 2026-09-07 | Sessão de esclarecimentos `/reversa-clarify`: escopo ampliado para 7 PDFs (inclui Ata), logo 32×32 na sidebar colapsada, reuso de `_renderLogo`, fetch falho → PDF sem logo sem erro, fallback SVG preserva texto | reversa |
+| 2026-09-07 | Correção de contexto pós-verificação `/reversa-plan`: linha sobre `getPDFHeader()` passa a refletir o fallback `/logo.png` já comitted (D-05) | reversa |

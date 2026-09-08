@@ -1,0 +1,7 @@
+{"ts":"2026-09-07T20:30:59Z","action":"T001","status":"done","files":["src/types/domain.ts"]}
+{"ts":"2026-09-07T20:30:59Z","action":"T004","status":"done","files":["src/lib/academic-service.ts"]}
+{"ts":"2026-09-07T20:30:59Z","action":"T005","status":"done","files":["src/lib/pdf-service.ts"]}
+{"ts":"2026-09-07T20:30:59Z","action":"T002","status":"done","files":["src/lib/academic-service.test.ts"]}
+{"ts":"2026-09-07T20:30:59Z","action":"T003","status":"done","files":["src/lib/pdf-service.test.ts"]}
+{"ts":"2026-09-07T20:30:59Z","action":"T006","status":"done","files":["src/views/gestao-turmas.ts"]}
+{"ts":"2026-09-07T20:30:59Z","action":"T007","status":"done","files":["src/views/gestao-turmas.ts"]}

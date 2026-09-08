@@ -7,10 +7,10 @@ import { DocumentsService } from '../../lib/documents-service'
 
 vi.mock('../../lib/pdf-service', () => ({
   PDFService: {
-    generateDeclaracaoPDF: vi.fn(() => ({ save: vi.fn() })),
+    generateDeclaracaoPDF: vi.fn(async () => ({ save: vi.fn() })),
     generateHistoricoPDF: vi.fn(() => ({ save: vi.fn() })),
     generateBoletimPDF: vi.fn(() => ({ save: vi.fn() })),
-    generateDeclaracaoVinculoPDF: vi.fn(() => ({ save: vi.fn() })),
+    generateDeclaracaoVinculoPDF: vi.fn(async () => ({ save: vi.fn() })),
     downloadPDF: vi.fn(),
   },
 }))
@@ -216,7 +216,7 @@ describe('DocumentosTab', () => {
     await vi.waitFor(() => {
       expect(PDFService.generateDeclaracaoPDF).toHaveBeenCalled()
     })
-    expect(PDFService.downloadPDF).toHaveBeenCalled()
+    expect(PDFService.downloadPDF).toHaveBeenCalledWith(expect.objectContaining({ save: expect.any(Function) }), expect.any(String))
     expect(toast.success).toHaveBeenCalledWith('Documento gerado com sucesso!')
   })
 
@@ -277,7 +277,7 @@ describe('DocumentosTab', () => {
     await vi.waitFor(() => {
       expect(PDFService.generateDeclaracaoVinculoPDF).toHaveBeenCalled()
     })
-    expect(PDFService.downloadPDF).toHaveBeenCalled()
+    expect(PDFService.downloadPDF).toHaveBeenCalledWith(expect.objectContaining({ save: expect.any(Function) }), expect.any(String))
     expect(toast.success).toHaveBeenCalledWith('Documento gerado com sucesso!')
   })
 

@@ -3,10 +3,11 @@ import { AcademicService } from '../lib/academic-service'
 import { CourseService } from '../lib/course-service'
 import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
-import { escapeHTML, createOption } from '../lib/security'
+import { escapeHTML, createOption, sanitizeFilename } from '../lib/security'
 import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from '../lib/grades-utils'
 import { skeletonLine, skeletonRowSpan, skeletonTable } from '../components/skeleton'
 import { ICONS } from '../lib/icons'
+import { PDFService } from '../lib/pdf-service'
 
 export async function GestaoTurmasView(profile?: { id: string; perfil: string }): Promise<HTMLElement> {
   const container = document.createElement('div')
@@ -168,9 +169,22 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
           </div>
 
           <!-- Tabela de Alunos na Turma -->
-          <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-            ${ICONS.clipboard}
-            Diário Oficial (Caderneta)
+          <h3 style="margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="display: flex; align-items: center; gap: 0.5rem;">
+              ${ICONS.clipboard}
+              Diário Oficial (Caderneta)
+            </span>
+            ${canManageTurmas ? `
+              <span style="display: flex; align-items: flex-end; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="form-group" style="margin: 0;">
+                  <label for="polo-ata" class="label" style="font-size: 0.75rem;">Polo/Local</label>
+                  <input type="text" id="polo-ata" class="input" placeholder="Ex: Limoeiro/PE" style="width: 170px; padding: 0.4rem 0.6rem; font-size: 0.8rem;">
+                </span>
+                <button type="button" id="btn-ata-resultados" class="btn btn-primary" style="white-space: nowrap; font-size: 0.85rem; padding: 0.5rem 0.9rem; background: var(--primary);">
+                  ${ICONS.file} Emitir Ata de Resultados Finais
+                </button>
+              </span>
+            ` : ''}
           </h3>
           <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -699,6 +713,35 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     btnMatricular.disabled = false
     btnMatricular.innerHTML = `${ICONS.check} Matricular na Turma`
     loadTurmaAlunos(selectedTurmaId)
+  })
+
+  // Emitir Ata de Resultados Finais (PDF) - somente leitura
+  const btnAta = container.querySelector('#btn-ata-resultados') as HTMLButtonElement
+  btnAta?.addEventListener('click', async () => {
+    if (!selectedTurmaId) {
+      toast.error('Selecione uma turma antes de emitir a Ata.')
+      return
+    }
+    const poloInput = container.querySelector('#polo-ata') as HTMLInputElement
+    const polo = poloInput?.value.trim() || null
+    const original = btnAta.innerHTML
+    btnAta.disabled = true
+    btnAta.textContent = 'Gerando Ata...'
+    try {
+      const { data, error } = await AcademicService.getDadosAtaTurma(selectedTurmaId)
+      if (error) { toast.error('Erro ao montar a Ata: ' + error.message); return }
+      if (!data || !data.alunos?.length) { toast.error('Nenhum resultado para emitir a Ata.'); return }
+      data.polo = polo
+      const doc = await PDFService.generateAtaResultadosPDF(data)
+      const filename = sanitizeFilename(`ata_resultados_${data.turma_nome}_${data.ano_letivo}.pdf`)
+      PDFService.downloadPDF(doc, filename)
+      toast.success('Ata de Resultados Finais gerada com sucesso!')
+    } catch (err: any) {
+      toast.error('Erro ao gerar a Ata: ' + (err?.message || String(err)))
+    } finally {
+      btnAta.disabled = false
+      btnAta.innerHTML = original
+    }
   })
 
   // 3. Tabs (com animação fadeInScale via tab-enter)

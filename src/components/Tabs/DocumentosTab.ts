@@ -131,10 +131,10 @@ export function DocumentosTab({ alunos, profile }: DocumentosTabProps): HTMLDivE
       switch (selectTipo.value) {
         case 'Declaração de Matrícula':
           if (!isAluno) {
-            doc = PDFService.generateDeclaracaoVinculoPDF(userData)
+            doc = await PDFService.generateDeclaracaoVinculoPDF(userData)
           } else {
             if (!turmaInfo) throw new Error('Aluno não possui matrícula ativa')
-            doc = PDFService.generateDeclaracaoPDF(userData, turmaInfo)
+            doc = await PDFService.generateDeclaracaoPDF(userData, turmaInfo)
           }
           break
 
@@ -151,7 +151,7 @@ export function DocumentosTab({ alunos, profile }: DocumentosTabProps): HTMLDivE
           break
 
         case 'Declaração de Vínculo':
-          doc = PDFService.generateDeclaracaoVinculoPDF(userData)
+          doc = await PDFService.generateDeclaracaoVinculoPDF(userData)
           break
 
         default:

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grafo de Bugs · emissao-documentos-pdf</title>
+<style>
+  :root{ color-scheme: dark; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#0d1117; color:#c9d1d9; padding:32px; }
+  h1{ font-size:22px; margin:0 0 4px; color:#f0f6fc; }
+  h2{ font-size:15px; margin:28px 0 10px; color:#f0f6fc; border-bottom:1px solid #21262d; padding-bottom:6px; }
+  .meta{ color:#8b949e; font-size:12px; margin-bottom:24px; }
+  .cards{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+  .card{ background:#161b22; border:1px solid #30363d; border-radius:8px; padding:14px 20px; min-width:120px; }
+  .card .num{ font-size:26px; font-weight:700; color:#58a6ff; }
+  .card .lbl{ font-size:12px; color:#8b949e; }
+  .card .num.green{ color:#3fb950; }
+  .card .num.yellow{ color:#d29922; }
+  .card .num.red{ color:#f85149; }
+  svg{ max-width:100%; height:auto; }
+  .node rect{ fill:#161b22; stroke:#d29922; stroke-width:2; rx:8; }
+  .node text{ fill:#e6edf3; font-size:12px; }
+  .node .ttl{ font-size:10px; fill:#8b949e; }
+  table{ border-collapse:collapse; width:100%; font-size:13px; }
+  th,td{ border:1px solid #30363d; padding:8px 10px; text-align:left; vertical-align:top; }
+  th{ background:#161b22; color:#f0f6fc; }
+  tr:nth-child(even) td{ background:#0f141a; }
+  .badge{ display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+  .b-green{ background:rgba(63,185,80,.15); color:#3fb950; }
+  a{ color:#58a6ff; text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+  .legend{ background:#161b22; border:1px solid #30363d; border-left:4px solid #58a6ff; border-radius:6px; padding:12px 16px; font-size:13px; margin-bottom:24px; }
+</style>
+</head>
+<body>
+<h1>Grafo de Bugs · emissao-documentos-pdf</h1>
+<div class="meta">
+  Gerado por /reversa-debugger-graph em 2026-09-08T13:32:32-0300 ·
+  1 bug · 0 inconsistências ·
+  legenda: arestas tracejadas = relação proposed (hipótese)
+</div>
+
+<div class="cards">
+  <div class="card"><div class="num">1</div><div class="lbl">Total</div></div>
+  <div class="card"><div class="num green">1</div><div class="lbl">Resolved · fixed</div></div>
+  <div class="card"><div class="num">0</div><div class="lbl">Abertos / ativos</div></div>
+  <div class="card"><div class="num">0</div><div class="lbl">Adendos de spec gerados</div></div>
+  <div class="card"><div class="num">0</div><div class="lbl">Inconsistências</div></div>
+</div>
+
+<svg width="720" height="220" viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <g class="node">
+    <a href="bugs/BUG-20260907-GBPJ-doc-save-declaracoes/bug.md">
+      <rect x="220" y="60" width="280" height="90" fill="#161b22" stroke="#3fb950" stroke-width="2" rx="8"/>
+      <text x="360" y="85" text-anchor="middle" font-weight="bold" fill="#3fb950">1 · GBPJ</text>
+      <text x="360" y="105" text-anchor="middle" class="ttl">doc.save is not a function</text>
+      <text x="360" y="122" text-anchor="middle" class="ttl">medium · documentos / documents</text>
+      <text x="360" y="139" text-anchor="middle" fill="#3fb950" font-size="11">resolved · fixed</text>
+    </a>
+  </g>
+</svg>
+
+<div class="legend">
+  <strong>Leitura do grafo:</strong> contexto com bug único, já fechado. BUG-20260907-GBPJ (severidade
+  medium, prioridade P1) foi resolvido como <code>fixed</code>: o caller <code>DocumentosTab.ts</code>
+  chamava os geradores <code>async</code> de Declaração sem <code>await</code>, e <code>downloadPDF</code>
+  invocava <code>doc.save</code> sobre uma Promise. Correção aplicada (await + teste de regressão com
+  mocks async), veredito de spec <code>spec-correta</code>. Sem relações entre bugs no contexto.
+</div>
+
+<h2>Bugs abertos / ativos</h2>
+<p>Nenhum.</p>
+
+<h2>Concluídos (travados)</h2>
+<table>
+  <thead><tr><th>#</th><th>ID</th><th>Severidade</th><th>Prioridade</th><th>Título</th><th>Fechado em</th><th>Kind</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><a href="bugs/BUG-20260907-GBPJ-doc-save-declaracoes/bug.md">BUG-20260907-GBPJ</a></td>
+      <td>medium</td>
+      <td>P1</td>
+      <td>Geração de Declaração de Matrícula e Declaração de Vínculo falha com doc.save is not a function</td>
+      <td>2026-09-08</td>
+      <td><span class="badge b-green">fixed</span></td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

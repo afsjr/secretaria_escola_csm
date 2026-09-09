@@ -1,0 +1,99 @@
+--- _reversa_refactor/professor-turmas/transformations/OPP-20260909-A1B2-dead-buttons/before.ts	2026-09-09 17:44:04.000000000 -0300
++++ _reversa_refactor/professor-turmas/transformations/OPP-20260909-A1B2-dead-buttons/after.ts	2026-09-09 17:48:55.000000000 -0300
+@@ -18,7 +18,6 @@
+ import { supabase } from "../lib/supabase";
+ import { toast } from "../lib/toast";
+ import { createBadge, createOption, escapeHTML } from "../lib/security";
+-import { formatDateBR } from "../lib/date-utils";
+ import { arredondarNota, calcularStatusAluno, calcularMediaParcial, calcularNotaFinal } from "../lib/grades-utils";
+ import { UserProfile } from "../types";
+ 
+@@ -149,13 +148,6 @@
+         <h1 style="font-size: 2rem; color: var(--text-main);">Minhas Turmas</h1>
+         <p>Gerencie notas e aulas das suas turmas.</p>
+       </div>
+-      <div style="display: flex; gap: 0.5rem;">
+-        <button id="btn-alertas-geral" class="btn" style="background: #FEF3C7; color: #92400E; font-size: 0.85rem;">
+-          ${ICONS.bell} Alertas
+-        </button>
+-        <button id="btn-export-geral" class="btn btn-primary" style="font-size: 0.85rem;">
+-          ${ICONS.file} Exportar PDF Geral
+-        </button>
+       </div>
+     </header>
+ 
+@@ -713,74 +705,6 @@
+ }
+ 
+ /**
+- * Carrega frequência de alunos de uma turma
+- */
+-async function loadAulasDaDisciplina(
+-  disciplinaId: string,
+-  container: HTMLElement,
+-): Promise<void> {
+-  const aulasList = container.querySelector(
+-    `.aulas-list[data-turma-id]`,
+-  ) as HTMLElement;
+-  if (!aulasList) return;
+-
+-  try {
+-    console.log('Carregando aulas para disciplina:', disciplinaId)
+-    const { data: aulas, error } = await ProfessorService.getAulasDaDisciplina(
+-      disciplinaId,
+-    ) as { data: any[] | null; error: { message: string } | null };
+-
+-    console.log('Aulas encontradas:', { count: aulas?.length, aulas, error })
+-
+-    if (error || !aulas || aulas.length === 0) {
+-      aulasList.innerHTML =
+-        '<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma aula registrada.</p>';
+-      return;
+-    }
+-
+-    aulasList.innerHTML = `
+-      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+-        ${
+-      aulas.map((aula) => `
+-          <div style="padding: 1rem; background: var(--secondary); border-radius: 6px; display: flex; justify-content: space-between; align-items: start;">
+-            <div style="flex: 1;">
+-              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.3rem;">
+-                ${createBadge(formatDateBR(aula.data))}
+-              </div>
+-              <div style="white-space: pre-wrap; font-size: 0.9rem;">${
+-        escapeHTML(aula.conteudo)
+-      }</div>
+-            </div>
+-            <button class="btn btn-delete-aula" data-aula-id="${aula.id}" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: var(--danger); color: white;">X</button>
+-          </div>
+-        `).join("")
+-    }
+-      </div>
+-    `;
+-
+-    // Delete aula handlers
+-    aulasList.querySelectorAll(".btn-delete-aula").forEach((btn) => {
+-      btn.addEventListener("click", async () => {
+-        const aulaId = (btn as HTMLButtonElement).getAttribute("data-aula-id");
+-        if (!confirm("Deseja excluir esta aula?")) return;
+-
+-        const { error } = await ProfessorService.excluirAula(aulaId!);
+-        if (error) {
+-          toast.error("Erro ao excluir: " + error.message);
+-        } else {
+-          toast.success("Aula excluída!");
+-          loadAulasDaDisciplina(disciplinaId, container);
+-        }
+-      });
+-    });
+-  } catch (err: any) {
+-    console.error("Erro ao carregar aulas:", err);
+-    aulasList.innerHTML =
+-      '<p style="color: var(--danger); font-size: 0.9rem;">Erro ao carregar aulas.</p>';
+-  }
+-}
+-
+-/**
+  * Carrega lista de alunos para registro de frequência
+  */
+ async function loadFrequenciaAlunos(

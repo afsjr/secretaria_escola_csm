@@ -1,4 +1,5 @@
 import { ICONS } from '../lib/icons'
+import { addPasswordToggle } from '../lib/password-toggle'
 import { updatePassword } from '../auth/session'
 import { supabase } from '../lib/supabase'
 import { toast } from '../lib/toast'
@@ -34,6 +35,9 @@ export function ForceChangePasswordView(param: ForceChangePasswordParam): HTMLEl
       </form>
     </div>
   `
+
+  addPasswordToggle(container.querySelector('#new-password') as HTMLInputElement)
+  addPasswordToggle(container.querySelector('#confirm-password') as HTMLInputElement)
 
   const form = container.querySelector('#force-change-password-form') as HTMLFormElement
   form.addEventListener('submit', async (e: Event) => {

@@ -10,6 +10,7 @@ import { toast } from '../../lib/toast'
 import { renderTemplate } from '../../lib/dom-utils'
 import { escapeHTML } from '../../lib/security'
 import { validarCPF } from '../../lib/validation'
+import { addPasswordToggle } from '../../lib/password-toggle'
 
 interface Turma {
   id: string
@@ -75,6 +76,8 @@ export function CadastroAlunoTab({ turmas }: CadastroAlunoTabProps): HTMLDivElem
   `
 
   const container = renderTemplate<HTMLDivElement>(html)
+
+  addPasswordToggle(container.querySelector('#aluno-senha') as HTMLInputElement)
 
   const cpfInput = container.querySelector('#aluno-cpf') as HTMLInputElement
   const cpfStatus = container.querySelector('#cpf-status') as HTMLSpanElement

@@ -2107,6 +2107,58 @@ html.dark .auth-brand-side {
   background-color: var(--white);
 }
 
+/* Input Icon Right — Toggle de visibilidade de senha */
+.input-icon-wrapper .input-icon-right {
+  position: absolute;
+  right: 1rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.input-icon-wrapper .input-icon-right:hover {
+  color: var(--text-main);
+}
+
+.input-icon-wrapper .input-icon-right svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Toggle de senha fora de .input-icon-wrapper */
+.form-group .has-toggle {
+  padding-right: 2.5rem;
+}
+
+.form-group .input-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.form-group .input-toggle-btn:hover {
+  color: var(--text-main);
+}
+
+.form-group .input-toggle-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 /* Botão de Envio */
 .btn-submit-premium {
   width: 100%;

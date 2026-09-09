@@ -2,6 +2,7 @@ import { registerUser } from "../auth/signup-handler";
 import { toast } from "../lib/toast";
 import { validateSignup, validarCPF } from "../lib/validation";
 import { checkRateLimit, clearRateLimit } from "../lib/rate-limiter";
+import { addPasswordToggle } from "../lib/password-toggle";
 
 export function SignupView(): HTMLElement {
   const container = document.createElement("div");
@@ -50,6 +51,8 @@ export function SignupView(): HTMLElement {
       </div>
     </div>
   `;
+
+  addPasswordToggle(container.querySelector('#password') as HTMLInputElement);
 
   const cpfInput = container.querySelector("#cpf") as HTMLInputElement;
   const cpfStatus = container.querySelector("#cpf-status") as HTMLSpanElement;

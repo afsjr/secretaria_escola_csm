@@ -9,6 +9,7 @@ import { AdminService } from '../../lib/admin-service'
 import { toast } from '../../lib/toast'
 import { renderTemplate } from '../../lib/dom-utils'
 import { validarCPF } from '../../lib/validation'
+import { addPasswordToggle } from '../../lib/password-toggle'
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 
@@ -54,6 +55,8 @@ export function CadastroProfessorTab(): HTMLDivElement {
   `
 
   const container = renderTemplate<HTMLDivElement>(html)
+
+  addPasswordToggle(container.querySelector('#professor-senha') as HTMLInputElement)
 
   const cpfInput = container.querySelector('#professor-cpf') as HTMLInputElement
   const cpfStatus = container.querySelector('#cpf-status') as HTMLSpanElement

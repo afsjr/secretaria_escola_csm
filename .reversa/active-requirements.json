@@ -1,12 +1,22 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/007-logo-instituicao-docs-nav",
-  "feature-id": "007",
-  "short-name": "logo-instituicao-docs-nav",
-  "started-at": "2026-09-07T20:30:00-03:00",
-  "current-stage": "coding",
-  "stages-completed": ["plan", "to-do", "coding"],
+  "feature-dir": "_reversa_forward/009-visualizar-senha",
+  "feature-id": "009",
+  "short-name": "visualizar-senha",
+  "started-at": "2026-09-09T10:15:00-03:00",
+  "current-stage": "done",
+  "stages-completed": ["requirements", "plan", "to-do", "coding"],
   "paused-features": [
+    {
+      "feature-dir": "_reversa_forward/007-logo-instituicao-docs-nav",
+      "feature-id": "007",
+      "short-name": "logo-instituicao-docs-nav",
+      "started-at": "2026-09-07T20:30:00-03:00",
+      "current-stage": "done",
+      "stages-completed": ["plan", "to-do", "coding"],
+      "paused-at": "2026-09-09T10:15:00-03:00",
+      "paused-from-stage": "done"
+    },
     {
       "feature-dir": "_reversa_forward/006-lancamento-notas-estagio",
       "feature-id": "006",

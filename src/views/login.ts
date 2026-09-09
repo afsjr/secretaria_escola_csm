@@ -3,6 +3,7 @@ import { toast } from "../lib/toast";
 import { validateLogin } from "../lib/validation";
 import { checkRateLimit, clearRateLimit } from "../lib/rate-limiter";
 import { ICONS } from "../lib/icons";
+import { addPasswordToggle } from "../lib/password-toggle";
 
 export function LoginView(): HTMLElement {
   const container = document.createElement("div");
@@ -123,6 +124,8 @@ export function LoginView(): HTMLElement {
       </div>
     </div>
   `;
+
+  addPasswordToggle(container.querySelector('#password') as HTMLInputElement);
 
   const form = container.querySelector("#login-form") as HTMLFormElement;
   form.addEventListener("submit", async (e: Event) => {

@@ -4,6 +4,7 @@
  * Barra lateral de navegação + Área de conteúdo dinâmico
  */
 import { ICONS } from '../lib/icons'
+import { addPasswordToggle } from '../lib/password-toggle'
 import type { Session, UserProfile } from '../types'
 import { logout, getUserProfile, getAllProfiles } from '../auth/session'
 import { DashboardHomeView } from './dashboard-home'
@@ -260,6 +261,9 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
       </div>
     </div>
   `
+
+  addPasswordToggle(container.querySelector('#obrigatoria-nova') as HTMLInputElement)
+  addPasswordToggle(container.querySelector('#obrigatoria-confirma') as HTMLInputElement)
 
   const contentArea = container.querySelector<HTMLDivElement>('#dynamic-content-area')!
   const modalTroca = container.querySelector<HTMLDivElement>('#modal-troca-obrigatoria')!

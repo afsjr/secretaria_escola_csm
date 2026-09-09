@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-08T13:32:32-0300 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-09T00:00:00-0300 a partir de 2 bugs -->
 
 # Matriz de relações — contexto emissao-documentos-pdf
 

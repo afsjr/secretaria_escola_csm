@@ -50,6 +50,18 @@ interface ModulosNotas {
   [modulo: string]: NotaData[];
 }
 
+interface RelatorioAlunoNota {
+  nome: string
+  faltas?: number
+  n1?: number
+  n2?: number
+  n3?: number
+  rec?: number
+  media_parcial?: number
+  media_final?: number
+  status?: string
+}
+
 export const PDFService = {
   // =====================================================
   // HELPERS DE SEGURANÇA
@@ -1208,6 +1220,119 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     const instrodape = inst.nome || 'Colégio Santa Mônica'
     doc.text(instrodape, sigLeftX + sigWidth / 2, finalY + 10, { align: 'center' })
     doc.text(instrodape, sigRightX - sigWidth / 2, finalY + 10, { align: 'center' })
+
+    return doc
+  },
+
+  // =====================================================
+  // RELATÓRIO DE NOTAS DA DISCIPLINA (Professor)
+  // =====================================================
+
+  async generateRelatorioNotasDisciplinaPDF(
+    disciplinaNome: string,
+    turmaInfo: TurmaInfo,
+    alunos: RelatorioAlunoNota[],
+  ): Promise<jsPDF> {
+    if (!disciplinaNome) {
+      throw new Error('Nome da disciplina é obrigatório.')
+    }
+    if (!alunos || alunos.length === 0) {
+      throw new Error('Nenhum aluno para gerar o relatório de notas.')
+    }
+
+    const inst = await getHeader()
+    const doc = new jsPDF('portrait', 'mm', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const marginLeft = 15
+    const marginRight = 15
+
+    // Cabeçalho institucional
+    doc.setFillColor(196, 30, 58)
+    doc.rect(0, 0, pageWidth, 35, 'F')
+    const logoWidth = this._renderLogo(doc, inst, marginLeft, 35)
+    const textX = inst.logo_url ? marginLeft + logoWidth + 5 : marginLeft
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text((inst.nome || 'COLÉGIO SANTA MÔNICA').toUpperCase(), textX, 15)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    if (inst.cnpj) doc.text(`CNPJ: ${inst.cnpj}`, textX, 21)
+    if (inst.endereco) doc.text(inst.endereco, textX, 26)
+    const contato = [inst.telefone, inst.email].filter(Boolean).join(' | ')
+    if (contato) doc.text(contato, textX, 31)
+
+    // Título
+    doc.setTextColor(196, 30, 58)
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('RELATÓRIO DE NOTAS', pageWidth / 2, 48, { align: 'center' })
+
+    // Identificação da disciplina
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(0, 0, 0)
+    doc.text(`Disciplina: ${disciplinaNome}`, marginLeft, 58)
+    doc.text(`Turma: ${turmaInfo?.turma_nome || 'N/A'} - ${turmaInfo?.periodo || ''}`, marginLeft, 64)
+    doc.text(`Curso: ${turmaInfo?.curso_nome || 'N/A'}`, marginLeft, 70)
+    doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, marginLeft, 76)
+
+    // Tabela de notas
+    autoTable(doc, {
+      startY: 84,
+      head: [['Aluno', 'Faltas', 'N1', 'N2', 'N3', 'Média', 'Rec.', 'Final', 'Situação']],
+      body: alunos.map(a => [
+        a.nome,
+        String(a.faltas ?? 0),
+        (a.n1 || 0).toFixed(1),
+        (a.n2 || 0).toFixed(1),
+        (a.n3 || 0).toFixed(1),
+        (a.media_parcial || 0).toFixed(1),
+        (a.rec || 0).toFixed(1),
+        (a.media_final || 0).toFixed(1),
+        a.status || '—',
+      ]),
+      margin: { left: marginLeft, right: marginRight },
+      styles: { fontSize: 8, cellPadding: 2, lineColor: [200, 200, 200], lineWidth: 0.1 },
+      headStyles: {
+        fillColor: [196, 30, 58],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 8,
+      },
+      columnStyles: {
+        0: { cellWidth: 65 },
+        1: { halign: 'center', cellWidth: 14 },
+        2: { halign: 'center', cellWidth: 14 },
+        3: { halign: 'center', cellWidth: 14 },
+        4: { halign: 'center', cellWidth: 14 },
+        5: { halign: 'center', cellWidth: 18 },
+        6: { halign: 'center', cellWidth: 14 },
+        7: { halign: 'center', cellWidth: 18 },
+        8: { halign: 'center', cellWidth: 24 },
+      },
+      didParseCell: function (data: any) {
+        if (data.section === 'body' && data.column.index === 8) {
+          if (data.cell.raw === 'Aprovado') {
+            data.cell.styles.textColor = [38, 161, 105]
+            data.cell.styles.fontStyle = 'bold'
+          } else if (data.cell.raw === 'Reprovado') {
+            data.cell.styles.textColor = [229, 62, 62]
+            data.cell.styles.fontStyle = 'bold'
+          }
+        }
+      },
+    })
+
+    const finalTableY = (doc as any).lastAutoTable.finalY + 8
+    doc.setFontSize(8)
+    doc.setTextColor(100, 100, 100)
+    doc.text(
+      'Média mínima para aprovação: 6.0 | Fórmula: Média Final = (N1+N2+N3)/3; com Rec: (Média + Rec)/2',
+      marginLeft,
+      finalTableY,
+    )
 
     return doc
   },

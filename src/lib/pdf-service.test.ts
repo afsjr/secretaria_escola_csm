@@ -255,6 +255,62 @@ describe('PDFService - generateAtaResultadosPDF', () => {
   })
 })
 
+describe('PDFService - generateRelatorioNotasDisciplinaPDF', () => {
+  const mockTurmaInfo = {
+    turma_nome: 'Técnico em Enfermagem - 1º Ano',
+    periodo: 'Manhã',
+    curso_nome: 'Técnico em Enfermagem',
+  }
+
+  const mockAlunos = [
+    { nome: 'Maria da Silva', faltas: 2, n1: 8, n2: 7, n3: 9, rec: 0, media_parcial: 8, media_final: 8, status: 'Aprovado' },
+    { nome: 'João Pereira', faltas: 5, n1: 4, n2: 5, n3: 6, rec: 5, media_parcial: 5, media_final: 5, status: 'Reprovado' },
+  ]
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('deve gerar PDF sem erro com payload válido', async () => {
+    const doc = await PDFService.generateRelatorioNotasDisciplinaPDF('Psicologia Aplicada', mockTurmaInfo, mockAlunos as any) as any
+
+    expect(doc).toBeDefined()
+    expect(typeof doc.save).toBe('function')
+    expect(typeof doc.text).toBe('function')
+  })
+
+  it('deve renderizar título RELATÓRIO DE NOTAS (não DECLARAÇÃO DE MATRÍCULA)', async () => {
+    const doc = await PDFService.generateRelatorioNotasDisciplinaPDF('Psicologia Aplicada', mockTurmaInfo, mockAlunos as any) as any
+
+    const allText = doc.text.mock.calls.map((c: any[]) => String(c[0])).join(' ')
+    expect(allText).toContain('RELATÓRIO DE NOTAS')
+    expect(allText).not.toContain('DECLARAÇÃO DE MATRÍCULA')
+  })
+
+  it('deve renderizar disciplina, turma e alunos na tabela', async () => {
+    const doc = await PDFService.generateRelatorioNotasDisciplinaPDF('Psicologia Aplicada', mockTurmaInfo, mockAlunos as any) as any
+
+    const allText = doc.text.mock.calls.map((c: any[]) => String(c[0])).join(' ')
+    expect(allText).toContain('Psicologia Aplicada')
+    expect(allText).toContain('Técnico em Enfermagem - 1º Ano')
+
+    const config = (autoTable as any).mock.calls[0][1]
+    const bodyJson = JSON.stringify(config.body)
+    expect(bodyJson).toContain('Maria da Silva')
+    expect(bodyJson).toContain('João Pereira')
+    expect(bodyJson).toContain('Aprovado')
+    expect(bodyJson).toContain('Reprovado')
+  })
+
+  it('deve lançar erro se disciplina sem nome', async () => {
+    await expect(PDFService.generateRelatorioNotasDisciplinaPDF('', mockTurmaInfo, mockAlunos as any)).rejects.toThrow('Nome da disciplina')
+  })
+
+  it('deve lançar erro se não houver alunos', async () => {
+    await expect(PDFService.generateRelatorioNotasDisciplinaPDF('Psicologia Aplicada', mockTurmaInfo, [] as any)).rejects.toThrow('Nenhum aluno')
+  })
+})
+
 describe('PDFService - _renderLogo e cabeçalho com logo', () => {
   function instComLogo() {
     return { nome: 'Colégio Santa Mônica', logo_url: 'data:image/png;base64,AAAA' }

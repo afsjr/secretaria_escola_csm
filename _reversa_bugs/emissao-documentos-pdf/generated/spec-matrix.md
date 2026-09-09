@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-08T13:32:32-0300 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-09T00:00:00-0300 a partir de 2 bugs -->
 
 # Matriz BUG ↔ SPEC — contexto emissao-documentos-pdf
 
@@ -8,4 +8,9 @@
 
 ## Spec-gap
 
-Nenhum bug sem spec (`spec-gap`).
+| Bug | resolution_kind | Título |
+|-----|-----------------|--------|
+| BUG-20260908-F74E | fixed | PDF de notas da disciplina exporta Declaração de Matrícula em vez do relatório |
+
+> `spec-gap`: o comportamento não estava definido em spec existente. Adendo gerado em
+> `_reversa_sdd/addenda/bug-20260908-F74E-v001.md` (RQ-01/02/03).

@@ -1,0 +1,57 @@
+diff --git a/src/views/professor-turmas.ts b/src/views/professor-turmas.ts
+index 29a822c..163ecec 100644
+--- a/src/views/professor-turmas.ts
++++ b/src/views/professor-turmas.ts
+@@ -432,8 +432,10 @@ export async function ProfessorTurmasView(
+           if (mediaParcial < 7) {
+             finalVal = arredondarNota((mediaParcial + recVal) / 2);
+           }
++          const status = calcularStatusAluno(finalVal);
+ 
+           notasData.push({
++            nome,
+             disciplina: disciplinaNome,
+             modulo: "Módulo Atual",
+             faltas: parseFloat(faltas) || 0,
+@@ -441,7 +443,9 @@ export async function ProfessorTurmasView(
+             n2: n2Val,
+             n3: n3Val,
+             rec: recVal,
+-            media: finalVal.toFixed(1),
++            media_parcial: mediaParcial,
++            media: finalVal,
++            status,
+           });
+         });
+ 
+@@ -462,15 +466,27 @@ export async function ProfessorTurmasView(
+           : null;
+ 
+         // Gerar PDF consolidado
+-        const doc = await PDFService.generateDeclaracaoPDF(
+-          { nome_completo: "Relatório de Notas", email: "" },
++        const alunosRelatorio = notasData.map((n: any) => ({
++          nome: n.nome,
++          faltas: n.faltas,
++          n1: n.n1,
++          n2: n.n2,
++          n3: n.n3,
++          rec: n.rec,
++          media_parcial: n.media_parcial,
++          media_final: n.media,
++          status: n.status,
++        }));
++
++        const doc = await PDFService.generateRelatorioNotasDisciplinaPDF(
++          disciplinaNome,
+           turmaInfo ||
+             {
+               turma_nome: disciplinaNome,
+               periodo: "-",
+               curso_nome: "Curso Técnico",
+             },
+-          { marcaCopia: true },
++          alunosRelatorio,
+         );
+ 
+         PDFService.downloadPDF(

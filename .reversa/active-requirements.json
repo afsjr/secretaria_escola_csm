@@ -6,26 +6,5 @@
   "started-at": "2026-09-09T10:15:00-03:00",
   "current-stage": "done",
   "stages-completed": ["requirements", "plan", "to-do", "coding"],
-  "paused-features": [
-    {
-      "feature-dir": "_reversa_forward/007-logo-instituicao-docs-nav",
-      "feature-id": "007",
-      "short-name": "logo-instituicao-docs-nav",
-      "started-at": "2026-09-07T20:30:00-03:00",
-      "current-stage": "done",
-      "stages-completed": ["plan", "to-do", "coding"],
-      "paused-at": "2026-09-09T10:15:00-03:00",
-      "paused-from-stage": "done"
-    },
-    {
-      "feature-dir": "_reversa_forward/006-lancamento-notas-estagio",
-      "feature-id": "006",
-      "short-name": "lancamento-notas-estagio",
-      "started-at": "2026-09-06T15:52:30-03:00",
-      "current-stage": "requirements",
-      "stages-completed": [],
-      "paused-at": "2026-09-07T20:30:00-03:00",
-      "paused-from-stage": "requirements"
-    }
-  ]
+  "paused-features": []
 }

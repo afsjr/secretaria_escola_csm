@@ -363,7 +363,7 @@ export async function ProfessorTurmasView(
       } else {
         toast.success(`${notasArray.length} notas salvas com sucesso!`);
         // Verificar alertas de média baixa
-        verificarAlertasBaixa(tbody, ofertaId, container);
+        verificarAlertasBaixa(tbody, ofertaId);
       }
     });
   });
@@ -419,8 +419,11 @@ export async function ProfessorTurmasView(
           const n3Val = parseFloat(n3) || 0;
           const recVal = parseFloat(rec) || 0;
 
-          const mediaParcial = arredondarNota(calcularMediaParcial(n1Val, n2Val, n3Val));
-          const finalVal = calcularNotaFinal(mediaParcial, recVal);
+          let mediaParcial = arredondarNota((n1Val + n2Val + n3Val) / 3);
+          let finalVal = mediaParcial;
+          if (mediaParcial < 7) {
+            finalVal = arredondarNota((mediaParcial + recVal) / 2);
+          }
           const status = calcularStatusAluno(finalVal);
 
           notasData.push({
@@ -569,7 +572,7 @@ async function loadAlunosDaDisciplina(
 
     // Se há pendentes, adicionar alerta no cabeçalho da disciplina
     if (alunosPendentes.length > 0) {
-      const alertaDiv = container.querySelector(`#alertas-${disciplinaId}`);
+      const alertaDiv = container.querySelector(`#alertas-${(disc as any).disciplina_base_id || disciplinaId}`);
       if (alertaDiv) {
         alertaDiv.innerHTML = `<span style="color:#92400E;background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.75rem;">
           ⚠️ ${alunosPendentes.length} aluno(s) com matrícula tardia (Falta cursar)
@@ -581,12 +584,12 @@ async function loadAlunosDaDisciplina(
     tbody.querySelectorAll("input").forEach((input) => {
       (input as HTMLInputElement).addEventListener(
         "input",
-        () => recalcularMedia(tbody, disciplinaId, container),
+        () => recalcularMedia(tbody, disciplinaId),
       );
     });
 
     // Verificar alertas
-    verificarAlertasBaixa(tbody, disciplinaId, container);
+    verificarAlertasBaixa(tbody, disciplinaId);
   } catch (err: any) {
     console.error("Erro ao carregar alunos:", err);
     tbody.innerHTML =
@@ -597,7 +600,7 @@ async function loadAlunosDaDisciplina(
 /**
  * Recalcula médias quando notas são alteradas
  */
-function recalcularMedia(tbody: HTMLElement, disciplinaId: string, container: HTMLElement = document.body): void {
+function recalcularMedia(tbody: HTMLElement, disciplinaId: string): void {
   tbody.querySelectorAll("tr").forEach((row) => {
     const n1 =
       parseFloat((row.querySelector(".input-n1") as HTMLInputElement)?.value) ||
@@ -658,14 +661,14 @@ function recalcularMedia(tbody: HTMLElement, disciplinaId: string, container: HT
     }
   });
 
-  verificarAlertasBaixa(tbody, disciplinaId, container);
+  verificarAlertasBaixa(tbody, disciplinaId);
 }
 
 /**
  * Verifica e exibe alertas de alunos com média baixa
  */
-function verificarAlertasBaixa(tbody: HTMLElement, disciplinaId: string, container: HTMLElement = document.body): void {
-  const alertasDiv = container.querySelector(`#alertas-${disciplinaId}`) as HTMLElement | null;
+function verificarAlertasBaixa(tbody: HTMLElement, disciplinaId: string): void {
+  const alertasDiv = document.getElementById(`alertas-${disciplinaId}`);
   if (!alertasDiv) return;
 
   const alunosBaixa: AlunoBaixaMedia[] = [];

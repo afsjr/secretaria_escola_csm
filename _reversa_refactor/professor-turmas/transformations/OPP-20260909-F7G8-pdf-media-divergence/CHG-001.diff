@@ -1,0 +1,76 @@
+--- _reversa_refactor/professor-turmas/transformations/OPP-20260909-F7G8-pdf-media-divergence/before.ts	2026-09-09 18:09:25.000000000 -0300
++++ _reversa_refactor/professor-turmas/transformations/OPP-20260909-F7G8-pdf-media-divergence/after.ts	2026-09-09 18:09:25.000000000 -0300
+@@ -363,7 +363,7 @@
+       } else {
+         toast.success(`${notasArray.length} notas salvas com sucesso!`);
+         // Verificar alertas de média baixa
+-        verificarAlertasBaixa(tbody, ofertaId);
++        verificarAlertasBaixa(tbody, ofertaId, container);
+       }
+     });
+   });
+@@ -419,11 +419,8 @@
+           const n3Val = parseFloat(n3) || 0;
+           const recVal = parseFloat(rec) || 0;
+ 
+-          let mediaParcial = arredondarNota((n1Val + n2Val + n3Val) / 3);
+-          let finalVal = mediaParcial;
+-          if (mediaParcial < 7) {
+-            finalVal = arredondarNota((mediaParcial + recVal) / 2);
+-          }
++          const mediaParcial = arredondarNota(calcularMediaParcial(n1Val, n2Val, n3Val));
++          const finalVal = calcularNotaFinal(mediaParcial, recVal);
+           const status = calcularStatusAluno(finalVal);
+ 
+           notasData.push({
+@@ -572,7 +569,7 @@
+ 
+     // Se há pendentes, adicionar alerta no cabeçalho da disciplina
+     if (alunosPendentes.length > 0) {
+-      const alertaDiv = container.querySelector(`#alertas-${(disc as any).disciplina_base_id || disciplinaId}`);
++      const alertaDiv = container.querySelector(`#alertas-${disciplinaId}`);
+       if (alertaDiv) {
+         alertaDiv.innerHTML = `<span style="color:#92400E;background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.75rem;">
+           ⚠️ ${alunosPendentes.length} aluno(s) com matrícula tardia (Falta cursar)
+@@ -584,12 +581,12 @@
+     tbody.querySelectorAll("input").forEach((input) => {
+       (input as HTMLInputElement).addEventListener(
+         "input",
+-        () => recalcularMedia(tbody, disciplinaId),
++        () => recalcularMedia(tbody, disciplinaId, container),
+       );
+     });
+ 
+     // Verificar alertas
+-    verificarAlertasBaixa(tbody, disciplinaId);
++    verificarAlertasBaixa(tbody, disciplinaId, container);
+   } catch (err: any) {
+     console.error("Erro ao carregar alunos:", err);
+     tbody.innerHTML =
+@@ -600,7 +597,7 @@
+ /**
+  * Recalcula médias quando notas são alteradas
+  */
+-function recalcularMedia(tbody: HTMLElement, disciplinaId: string): void {
++function recalcularMedia(tbody: HTMLElement, disciplinaId: string, container: HTMLElement = document.body): void {
+   tbody.querySelectorAll("tr").forEach((row) => {
+     const n1 =
+       parseFloat((row.querySelector(".input-n1") as HTMLInputElement)?.value) ||
+@@ -661,14 +658,14 @@
+     }
+   });
+ 
+-  verificarAlertasBaixa(tbody, disciplinaId);
++  verificarAlertasBaixa(tbody, disciplinaId, container);
+ }
+ 
+ /**
+  * Verifica e exibe alertas de alunos com média baixa
+  */
+-function verificarAlertasBaixa(tbody: HTMLElement, disciplinaId: string): void {
+-  const alertasDiv = document.getElementById(`alertas-${disciplinaId}`);
++function verificarAlertasBaixa(tbody: HTMLElement, disciplinaId: string, container: HTMLElement = document.body): void {
++  const alertasDiv = container.querySelector(`#alertas-${disciplinaId}`) as HTMLElement | null;
+   if (!alertasDiv) return;
+ 
+   const alunosBaixa: AlunoBaixaMedia[] = [];

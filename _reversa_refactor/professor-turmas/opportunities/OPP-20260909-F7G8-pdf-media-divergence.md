@@ -14,10 +14,11 @@ roi:
   impact: Bug real de saída de PDF — aluno com média 6.5 e sem rec sai como Reprovado no relatório (6.5/2=3.25) em vez de Aprovado (6.5)
   cost: low
   est_return: Elimina divergência de cálculo; PDF passa a refletir exatamente o que a UI mostra (calcularNotaFinal + arredondarNota já cobertos por grades.test.ts)
-state: proposed
+state: applied
 traceability:
   soul: ["academic: lançamento de notas"]
   specs: ["professor/requirements.md"]
+  transformation: transformations/OPP-20260909-F7G8-pdf-media-divergence/transformation.md
 ---
 
 ## Observado

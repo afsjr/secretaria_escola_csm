@@ -14,10 +14,11 @@ roi:
   impact: Feedback perdido para o professor — aviso de aluno(s) com matrícula tardia (Falta cursar) nunca é exibido
   cost: low
   est_return: Alerta volta a funcionar; consistência no escopo de query (container em vez de document)
-state: proposed
+state: applied
 traceability:
   soul: ["academic: lançamento de notas"]
   specs: ["professor/requirements.md"]
+  transformation: transformations/OPP-20260909-H8I9-alert-id-mismatch/transformation.md
 ---
 
 ## Observado

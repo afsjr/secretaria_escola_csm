@@ -3,6 +3,7 @@ import { AcademicService } from '../../lib/academic-service'
 import { toast } from '../../lib/toast'
 import { escapeHTML } from '../../lib/security'
 import { disciplinaTemEstagio } from '../../lib/grades-utils'
+import { extrairPerfilPrimeiro } from '../../lib/matricula-utils'
 
 interface NotasEstagioTabProps {
   turmas: any[]
@@ -204,7 +205,7 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
       }
 
       tbody.innerHTML = alunosTurma.map(m => {
-        const perfil = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
+        const perfil = extrairPerfilPrimeiro(m)
         const alunoId = perfil?.id || ''
         const alunoNome = perfil?.nome_completo || 'Aluno'
         const notaObj = notasMap[alunoId] || {}

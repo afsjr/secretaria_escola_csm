@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import { CourseService } from "./course-service";
 import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno, disciplinaTemEstagio } from "./grades-utils";
+import { extrairPerfilPrimeiro } from "./matricula-utils";
 import type { AtaResultadosData, AtaAlunoResultado, AtaComponenteResultado, AtaSituacaoComponente, AtaStatusAluno } from "../types/domain";
 
 interface TurmaData {
@@ -368,7 +369,7 @@ export const AcademicService = {
     }
 
     const alunos = matriculas.map((m: any) => {
-      const perfil = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
+      const perfil = extrairPerfilPrimeiro(m);
       return {
         matricula_id: m.id,
         aluno_id: m.aluno_id,

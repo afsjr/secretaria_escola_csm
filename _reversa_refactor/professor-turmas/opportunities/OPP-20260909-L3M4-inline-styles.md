@@ -14,7 +14,9 @@ roi:
   impact: Consistência visual e capacidade de tema; reduz duplicação (ex. padding:0.5rem repetido em 6 <td>)
   cost: medium
   est_return: Componentes padronizados; dark mode e responsivo funcionam sem retrabalho por view
-state: proposed
+state: applied
+applied_at: 2026-09-09T18:40:00-03:00
+transformation: "transformations/OPP-20260909-L3M4-inline-styles/transformation.md"
 traceability:
   soul: ["auth: controle de acesso"]
   specs: ["professor/requirements.md"]

@@ -4,6 +4,7 @@ import { toast } from '../../lib/toast'
 import { escapeHTML } from '../../lib/security'
 import { ICONS } from '../../lib/icons'
 import { getUserProfile } from '../../auth/session'
+import { extrairPerfilPrimeiro } from '../../lib/matricula-utils'
 
 export function GerenciarCertificadosTab(): HTMLDivElement {
   const container = document.createElement('div')
@@ -83,7 +84,7 @@ export function GerenciarCertificadosTab(): HTMLDivElement {
             <select id="select-aluno-certificado" class="input">
               <option value="">-- Selecione --</option>
               ${(alunosConcluidos || []).map((m: any) => {
-                const p = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
+                const p = extrairPerfilPrimeiro(m)
                 return `<option value="${m.aluno_id}" data-curso-id="${m.turmas?.cursos?.id || ''}" data-curso-nome="${escapeHTML(m.turmas?.cursos?.nome || '')}" data-aluno-nome="${escapeHTML(p?.nome_completo || '')}" data-aluno-cpf="${escapeHTML(p?.cpf || '')}">${escapeHTML(p?.nome_completo)} - ${escapeHTML(m.turmas?.cursos?.nome)}</option>`
               }).join('')}
             </select>

@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { AuditService } from './audit-service'
 import { updateWithLock } from './concurrency-control'
+import { extrairPerfilPrimeiro } from './matricula-utils'
 import type { Boletim } from '../types'
 
 interface AulaData {
@@ -93,7 +94,7 @@ export const ProfessorService = {
 
     // 2. Buscar notas vinculadas ao disciplina_base_id
     const alunosComNotas: AlunoComNotas[] = await Promise.all(matriculas.map(async (m) => {
-      const perfilData = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis as any
+      const perfilData = extrairPerfilPrimeiro(m) as any
       const perfil = perfilData || { id: '', nome_completo: 'N/A' }
       
       const { data: nota } = await supabase

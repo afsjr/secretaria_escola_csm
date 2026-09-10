@@ -14,7 +14,9 @@ roi:
   impact: 15 pontos de duplicação espalhados por 6 arquivos; unificar centraliza a decisão de parsing de perfil
   cost: low
   est_return: Um helper único com testes; futuras mudanças no formato de perfis tocam um só lugar
-state: proposed
+state: applied
+applied_at: 2026-09-09T18:40:00-03:00
+transformation: "transformations/OPP-20260909-J1K2-getperfil-helper/transformation.md"
 traceability:
   soul: ["auth: controle de acesso"]
   specs: ["professor/requirements.md"]

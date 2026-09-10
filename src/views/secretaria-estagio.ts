@@ -3,6 +3,7 @@ import { toast } from '../lib/toast'
 import { escapeHTML } from '../lib/security'
 import { ICONS } from '../lib/icons'
 import { disciplinaTemEstagio } from '../lib/grades-utils'
+import { extrairPerfilPrimeiro } from '../lib/matricula-utils'
 
 export class SecretariaEstagioLoteView {
   private container: HTMLElement
@@ -199,7 +200,7 @@ export class SecretariaEstagioLoteView {
     }
 
     tbody.innerHTML = this.alunos.map(m => {
-      const perfil = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
+      const perfil = extrairPerfilPrimeiro(m)
       const alunoId = perfil?.id || ''
       const alunoNome = perfil?.nome_completo || 'Aluno'
       const notaObj = this.notasMap[alunoId] || {}

@@ -1,0 +1,105 @@
+diff --git a/src/components/Tabs/GerenciarCertificadosTab.ts b/src/components/Tabs/GerenciarCertificadosTab.ts
+index 2431f4b..3a58940 100644
+--- a/src/components/Tabs/GerenciarCertificadosTab.ts
++++ b/src/components/Tabs/GerenciarCertificadosTab.ts
+@@ -4,6 +4,7 @@ import { toast } from '../../lib/toast'
+ import { escapeHTML } from '../../lib/security'
+ import { ICONS } from '../../lib/icons'
+ import { getUserProfile } from '../../auth/session'
++import { extrairPerfilPrimeiro } from '../../lib/matricula-utils'
+ 
+ export function GerenciarCertificadosTab(): HTMLDivElement {
+   const container = document.createElement('div')
+@@ -83,7 +84,7 @@ export function GerenciarCertificadosTab(): HTMLDivElement {
+             <select id="select-aluno-certificado" class="input">
+               <option value="">-- Selecione --</option>
+               ${(alunosConcluidos || []).map((m: any) => {
+-                const p = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
++                const p = extrairPerfilPrimeiro(m)
+                 return `<option value="${m.aluno_id}" data-curso-id="${m.turmas?.cursos?.id || ''}" data-curso-nome="${escapeHTML(m.turmas?.cursos?.nome || '')}" data-aluno-nome="${escapeHTML(p?.nome_completo || '')}" data-aluno-cpf="${escapeHTML(p?.cpf || '')}">${escapeHTML(p?.nome_completo)} - ${escapeHTML(m.turmas?.cursos?.nome)}</option>`
+               }).join('')}
+             </select>
+diff --git a/src/components/Tabs/NotasEstagioTab.ts b/src/components/Tabs/NotasEstagioTab.ts
+index b858687..0f2dca5 100644
+--- a/src/components/Tabs/NotasEstagioTab.ts
++++ b/src/components/Tabs/NotasEstagioTab.ts
+@@ -3,6 +3,7 @@ import { AcademicService } from '../../lib/academic-service'
+ import { toast } from '../../lib/toast'
+ import { escapeHTML } from '../../lib/security'
+ import { disciplinaTemEstagio } from '../../lib/grades-utils'
++import { extrairPerfilPrimeiro } from '../../lib/matricula-utils'
+ 
+ interface NotasEstagioTabProps {
+   turmas: any[]
+@@ -204,7 +205,7 @@ export function NotasEstagioTab({ turmas }: NotasEstagioTabProps): HTMLDivElemen
+       }
+ 
+       tbody.innerHTML = alunosTurma.map(m => {
+-        const perfil = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
++        const perfil = extrairPerfilPrimeiro(m)
+         const alunoId = perfil?.id || ''
+         const alunoNome = perfil?.nome_completo || 'Aluno'
+         const notaObj = notasMap[alunoId] || {}
+diff --git a/src/lib/academic-service.ts b/src/lib/academic-service.ts
+index a71a82b..6f21732 100644
+--- a/src/lib/academic-service.ts
++++ b/src/lib/academic-service.ts
+@@ -1,6 +1,7 @@
+ import { supabase } from "./supabase";
+ import { CourseService } from "./course-service";
+ import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno, disciplinaTemEstagio } from "./grades-utils";
++import { extrairPerfilPrimeiro } from "./matricula-utils";
+ import type { AtaResultadosData, AtaAlunoResultado, AtaComponenteResultado, AtaSituacaoComponente, AtaStatusAluno } from "../types/domain";
+ 
+ interface TurmaData {
+@@ -368,7 +369,7 @@ export const AcademicService = {
+     }
+ 
+     const alunos = matriculas.map((m: any) => {
+-      const perfil = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
++      const perfil = extrairPerfilPrimeiro(m);
+       return {
+         matricula_id: m.id,
+         aluno_id: m.aluno_id,
+diff --git a/src/lib/professor-service.ts b/src/lib/professor-service.ts
+index 8a485e7..7a2e134 100644
+--- a/src/lib/professor-service.ts
++++ b/src/lib/professor-service.ts
+@@ -1,6 +1,7 @@
+ import { supabase } from './supabase'
+ import { AuditService } from './audit-service'
+ import { updateWithLock } from './concurrency-control'
++import { extrairPerfilPrimeiro } from './matricula-utils'
+ import type { Boletim } from '../types'
+ 
+ interface AulaData {
+@@ -93,7 +94,7 @@ export const ProfessorService = {
+ 
+     // 2. Buscar notas vinculadas ao disciplina_base_id
+     const alunosComNotas: AlunoComNotas[] = await Promise.all(matriculas.map(async (m) => {
+-      const perfilData = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis as any
++      const perfilData = extrairPerfilPrimeiro(m) as any
+       const perfil = perfilData || { id: '', nome_completo: 'N/A' }
+       
+       const { data: nota } = await supabase
+diff --git a/src/views/secretaria-estagio.ts b/src/views/secretaria-estagio.ts
+index 53e8ffe..4fd1e7b 100644
+--- a/src/views/secretaria-estagio.ts
++++ b/src/views/secretaria-estagio.ts
+@@ -3,6 +3,7 @@ import { toast } from '../lib/toast'
+ import { escapeHTML } from '../lib/security'
+ import { ICONS } from '../lib/icons'
+ import { disciplinaTemEstagio } from '../lib/grades-utils'
++import { extrairPerfilPrimeiro } from '../lib/matricula-utils'
+ 
+ export class SecretariaEstagioLoteView {
+   private container: HTMLElement
+@@ -199,7 +200,7 @@ export class SecretariaEstagioLoteView {
+     }
+ 
+     tbody.innerHTML = this.alunos.map(m => {
+-      const perfil = Array.isArray(m.perfis) ? m.perfis[0] : m.perfis
++      const perfil = extrairPerfilPrimeiro(m)
+       const alunoId = perfil?.id || ''
+       const alunoNome = perfil?.nome_completo || 'Aluno'
+       const notaObj = this.notasMap[alunoId] || {}

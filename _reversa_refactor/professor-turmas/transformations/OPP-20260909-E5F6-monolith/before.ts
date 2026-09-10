@@ -1,0 +1,863 @@
+/**
+ * Professor Turmas View - Versão Aprimorada
+ *
+ * Permite ao professor:
+ * - Ver todas as suas turmas
+ * - Lançar notas em lote por turma (com cálculo automático de médias)
+ * - Registrar frequência/faltas
+ * - Registrar aulas dadas
+ * - Exportar boletim em PDF
+ * - Alertas de alunos com média baixa
+ */
+
+import { ICONS } from "../lib/icons";
+import { ProfessorService } from "../lib/professor-service";
+import { AcademicService } from "../lib/academic-service";
+import { PDFService } from "../lib/pdf-service";
+import { skeletonRowSpan, skeletonCard } from "../components/skeleton";
+import { supabase } from "../lib/supabase";
+import { toast } from "../lib/toast";
+import { createBadge, createOption, escapeHTML } from "../lib/security";
+import { arredondarNota, calcularStatusAluno, calcularMediaParcial, calcularNotaFinal } from "../lib/grades-utils";
+import { UserProfile } from "../types";
+
+function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number): string {
+  const mediaCalculada = calcularNotaFinal(mediaParcial, notas.rec || 0);
+  const status = calcularStatusAluno(mediaCalculada);
+  const statusColor = status === "Aprovado" ? "var(--success)" : "var(--danger)";
+  const recDisabled = mediaParcial >= 7 ? 'disabled title="Média já suficiente para aprovação direta"' : '';
+
+  return `
+    <tr data-aluno-id="${aluno?.id || ''}" style="border-top: 1px solid var(--secondary);">
+      <td style="padding: 0.5rem;">
+        <div class="aluno-nome" style="font-weight: 500;">${escapeHTML(aluno?.nome_completo || 'Aluno Desconhecido')}</div>
+      </td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-faltas" value="${notas.faltas || 0}" min="0" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-n1" value="${notas.n1 || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-n2" value="${notas.n2 || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-n3" value="${notas.n3 || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;"></td>
+      <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="media-cell" data-media>${mediaParcial > 0 ? mediaParcial.toFixed(1) : "-"}</td>
+      <td style="padding: 0.5rem;"><input type="number" class="input input-rec" value="${notas.rec || 0}" min="0" max="10" step="0.1" style="width: 50px; text-align: center; padding: 0.3rem;" ${recDisabled}></td>
+      <td style="padding: 0.5rem; text-align: center; font-weight: bold; background: #f0f4f8;" class="final-cell" data-final>${mediaCalculada > 0 ? mediaCalculada.toFixed(1) : "-"}</td>
+      <td style="padding: 0.5rem; text-align: center;" class="status-cell" data-status>
+        <span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${escapeHTML(status)}</span>
+      </td>
+    </tr>
+  `;
+}
+
+interface DisciplinaTurma {
+  id: string;
+  nome: string;
+  modulo: string;
+  turma_id?: string;
+  turmas?: {
+    id: string;
+    nome: string;
+    periodo?: string;
+  };
+  cursos?: {
+    nome: string;
+  };
+}
+
+interface TurmaGroup {
+  id?: string;
+  nome: string;
+  periodo: string;
+  curso: string;
+  disciplinas: DisciplinaTurma[];
+}
+
+interface NotaExistente {
+  id?: string;
+  aluno_id: string;
+  disciplina: string;
+  versao?: number;
+  faltas?: number;
+  n1?: number;
+  n2?: number;
+  n3?: number;
+  rec?: number;
+  status?: string | null;
+}
+
+interface AlunoBaixaMedia {
+  nome: string;
+  media: number;
+}
+
+export async function ProfessorTurmasView(
+  profile: UserProfile,
+): Promise<HTMLElement> {
+  const container = document.createElement("div");
+  container.className = "professor-turmas-view animate-in";
+
+  // Buscar disciplinas/ofertas do professor
+  const { data: disciplinas, error: discError } = await ProfessorService
+    .getDisciplinasDoProfessor(profile.id);
+
+  if (discError) {
+    toast.error('Erro ao carregar turmas: ' + discError.message);
+  }
+
+  if (!disciplinas || disciplinas.length === 0) {
+    container.innerHTML = `
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; color: var(--text-main);">Minhas Turmas</h1>
+        <p>Gerencie notas e aulas das suas turmas.</p>
+      </header>
+      <div style="background: white; padding: 3rem; text-align: center; border-radius: var(--radius-lg);">
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Nenhuma turma atribuída ainda.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Entre em contato com a secretaria para ser vinculado a uma turma.</p>
+      </div>
+    `;
+    return container;
+  }
+
+  // Agrupar disciplinas por turma (utilizando a nova estrutura de relacionamento)
+  const turmasMap: Record<string, TurmaGroup> = {};
+  disciplinas.forEach((d: any) => {
+    const turma = d.turmas;
+    const discBase = d.disciplinas_base;
+    if (!turma || !discBase) return;
+
+    if (!turmasMap[turma.id]) {
+      turmasMap[turma.id] = {
+        id: turma.id,
+        nome: turma.nome,
+        periodo: turma.periodo || "-",
+        curso: turma.turmas?.cursos?.nome || turma.cursos?.nome || "Curso Técnico",
+        disciplinas: [],
+      };
+    }
+    
+    turmasMap[turma.id].disciplinas.push({
+      id: d.id, // ID da oferta (turma_disciplina)
+      nome: discBase.nome,
+      modulo: discBase.modulo,
+      disciplina_base_id: discBase.id // Para busca de notas
+    } as any);
+  });
+
+  const turmas = Object.values(turmasMap);
+
+  container.innerHTML = `
+    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="font-size: 2rem; color: var(--text-main);">Minhas Turmas</h1>
+        <p>Gerencie notas e aulas das suas turmas.</p>
+      </div>
+      </div>
+    </header>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      ${
+    turmas.map((turma) => `
+        <details class="turma-card" style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+          <summary style="padding: 1.5rem; cursor: pointer; background: linear-gradient(135deg, var(--primary) 0%, #2a4a7f 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="margin: 0; font-size: 1.2rem;">${
+      escapeHTML(turma.nome)
+    }</h3>
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.3rem;">
+                ${createBadge(turma.periodo)}
+                ${createBadge(turma.curso)}
+                <span class="badge">${turma.disciplinas.length} disciplina(s)</span>
+              </div>
+            </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+
+          <div style="padding: 1.5rem;">
+            <!-- Tabs: Notas | Frequência -->
+            <div class="tabs-container" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+              <button class="tab-btn active" data-tab="notas-${
+      turma.id || "sem-turma"
+    }" style="padding: 0.5rem 1rem; border: none; background: var(--secondary); color: var(--text-main); cursor: pointer; border-radius: 4px 4px 0 0;">${ICONS.chart} Lançar Notas</button>
+              <button class="tab-btn" data-tab="frequencia-${
+      turma.id || "sem-turma"
+    }" style="padding: 0.5rem 1rem; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 4px 4px 0 0;">✓ Frequência</button>
+            </div>
+
+            <!-- Tab: Notas -->
+            <div class="tab-content" id="tab-notas-${
+      turma.id || "sem-turma"
+    }" style="display: block;">
+              ${
+      turma.disciplinas.map((disc) => `
+                <fieldset style="border: 1px solid var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                  <legend style="font-weight: 600; color: var(--primary); padding: 0 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    ${escapeHTML(disc.nome)}
+                    <button class="btn btn-sm btn-export-pdf" data-disciplina-id="${disc.id}" data-disciplina-nome="${
+        escapeHTML(disc.nome)
+      }" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">${ICONS.file} PDF</button>
+                  </legend>
+
+                  <div class="notas-disciplina" data-disciplina-id="${disc.id}" data-disciplina-nome="${
+        escapeHTML(disc.nome)
+      }">
+                    <div style="overflow-x: auto;">
+                      <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                        <thead style="background: var(--secondary); font-size: 0.8rem; text-transform: uppercase;">
+                          <tr>
+                            <th style="padding: 0.75rem; text-align: left;">Aluno</th>
+                            <th style="padding: 0.75rem; text-align: center;">Faltas</th>
+                            <th style="padding: 0.75rem; text-align: center;">N1</th>
+                            <th style="padding: 0.75rem; text-align: center;">N2</th>
+                            <th style="padding: 0.75rem; text-align: center;">N3</th>
+                            <th style="padding: 0.75rem; text-align: center; background: #f0f4f8;">Média</th>
+                            <th style="padding: 0.75rem; text-align: center;">Rec</th>
+                            <th style="padding: 0.75rem; text-align: center; background: #f0f4f8;">Final</th>
+                            <th style="padding: 0.75rem; text-align: center;">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody class="notas-tbody" data-disciplina-id="${disc.id}">
+                          ${skeletonRowSpan(9)}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; margin-top: 1rem; align-items: center;">
+                      <div id="alertas-${disc.id}" style="font-size: 0.85rem;"></div>
+                      <button class="btn btn-primary btn-salvar-notas" 
+                        data-disciplina-id="${disc.id}" 
+                        data-disciplina-base-id="${(disc as any).disciplina_base_id}"
+                        data-disciplina-nome="${escapeHTML(disc.nome)}">${ICONS.save} Salvar Notas</button>
+                    </div>
+                  </div>
+                </fieldset>
+              `).join("")
+    }
+            </div>
+
+            <!-- Tab: Frequência -->
+            <div class="tab-content" id="tab-frequencia-${
+      turma.id || "sem-turma"
+    }" style="display: none;">
+              <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                <h4 style="margin-bottom: 0.5rem;">Registrar Frequência</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Marque os alunos ausentes. Os demais serão considerados presentes.</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                  <div class="form-group">
+                    <label class="label" for="freq-data">Data da Aula</label>
+                    <input type="date" id="freq-data" class="input" value="${
+      new Date().toISOString().split("T")[0]
+    }" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="label" for="freq-disciplina">Disciplina</label>
+                    <select id="freq-disciplina" class="input" required>
+                      <option value="">Selecione</option>
+                      ${
+      turma.disciplinas.map((d) =>
+        `<option value="${d.id}">${escapeHTML(d.nome)}</option>`
+      ).join("")
+    }
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="frequencia-list" data-turma-id="${turma.id || ""}">
+                ${skeletonCard()}
+              </div>
+            </div>
+          </div>
+        </details>
+      `).join("")
+  }
+    </div>
+  `;
+
+  // === Event Handlers ===
+
+  // Tab switching
+  container.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const parent = btn.closest(".turma-card") as HTMLElement;
+
+      parent.querySelectorAll(".tab-btn").forEach((b) => {
+        b.classList.remove("active");
+        (b as HTMLElement).style.background = "transparent";
+        (b as HTMLElement).style.color = "var(--text-muted)";
+      });
+      btn.classList.add("active");
+      (btn as HTMLElement).style.background = "var(--secondary)";
+      (btn as HTMLElement).style.color = "var(--text-main)";
+
+      parent.querySelectorAll(".tab-content").forEach((c) => {
+        const el = c as HTMLElement;
+        el.style.display = "none";
+        el.classList.remove("tab-enter");
+      });
+      const targetTab = (btn as HTMLButtonElement).getAttribute("data-tab");
+      const targetContent = parent.querySelector(`#tab-${targetTab}`) as HTMLElement | null;
+      if (targetContent) {
+        targetContent.style.display = "block";
+        void targetContent.offsetWidth;
+        targetContent.classList.add("tab-enter");
+      }
+    });
+  });
+
+  // Load students for each discipline
+  turmas.forEach((turma) => {
+    turma.disciplinas.forEach((disc) => {
+      loadAlunosDaDisciplina(disc, turma, container);
+    });
+  });
+
+// Save grades buttons
+  container.querySelectorAll(".btn-salvar-notas").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const ofertaId = (btn as HTMLButtonElement).getAttribute("data-disciplina-id")!;
+      const discBaseId = (btn as HTMLButtonElement).getAttribute("data-disciplina-base-id")!;
+      
+      const tbody = container.querySelector(
+        `.notas-tbody[data-disciplina-id="${ofertaId}"]`,
+      ) as HTMLElement;
+      const rows = tbody.querySelectorAll("tr");
+
+      const notasArray: any[] = [];
+      rows.forEach((row) => {
+        const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
+        if (!alunoId) return;
+
+        // Recuperar versão correta do mapa global usando o ID da oferta
+        const notasVersoes = (window as any).__notasVersoes?.[ofertaId] || {};
+        const notaExistente = notasVersoes[alunoId];
+
+        const faltas = (row.querySelector(".input-faltas") as HTMLInputElement)?.value || "0";
+        const n1 = (row.querySelector(".input-n1") as HTMLInputElement)?.value || "0";
+        const n2 = (row.querySelector(".input-n2") as HTMLInputElement)?.value || "0";
+        const n3 = (row.querySelector(".input-n3") as HTMLInputElement)?.value || "0";
+        const rec = (row.querySelector(".input-rec") as HTMLInputElement)?.value || "0";
+
+        notasArray.push({
+          aluno_id: alunoId,
+          faltas: parseFloat(faltas) || 0,
+          n1: parseFloat(n1) || 0,
+          n2: parseFloat(n2) || 0,
+          n3: parseFloat(n3) || 0,
+          rec: parseFloat(rec) || 0,
+          versao: notaExistente?.versao ?? 1,
+        });
+      });
+
+      (btn as HTMLButtonElement).disabled = true;
+      (btn as HTMLButtonElement).textContent = "Salvando...";
+
+      const { error } = await ProfessorService.salvarNotasEmLote(discBaseId, notasArray);
+      (btn as HTMLButtonElement).disabled = false;
+      (btn as HTMLButtonElement).innerHTML = `${ICONS.save} Salvar Notas`;
+
+      if (error) {
+        if (error.code === 'CONFLICT') {
+          toast.error("Conflito de edição: alguns dados foram modificados por outro usuário. Recarregue a página.");
+          setTimeout(() => window.location.reload(), 2000);
+        } else {
+          toast.error("Erro ao salvar notas: " + error.message);
+        }
+      } else {
+        toast.success(`${notasArray.length} notas salvas com sucesso!`);
+        // Verificar alertas de média baixa
+        verificarAlertasBaixa(tbody, ofertaId, container);
+      }
+    });
+  });
+
+  // Load frequency for first discipline of each turma
+  turmas.forEach((turma) => {
+    if (turma.disciplinas.length > 0) {
+      loadFrequenciaAlunos(turma, container, profile.id);
+    }
+  });
+
+  // Export PDF buttons
+  container.querySelectorAll(".btn-export-pdf").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const disciplinaId = (btn as HTMLButtonElement).getAttribute(
+        "data-disciplina-id",
+      )!;
+      const disciplinaNome = (btn as HTMLButtonElement).getAttribute(
+        "data-disciplina-nome",
+      )!;
+      (btn as HTMLButtonElement).disabled = true;
+      (btn as HTMLButtonElement).textContent = "Gerando...";
+
+      try {
+        // Buscar todos os alunos com notas desta disciplina
+        const tbody = container.querySelector(
+          `.notas-tbody[data-disciplina-id="${disciplinaId}"]`,
+        ) as HTMLElement;
+        const rows = tbody.querySelectorAll("tr");
+
+        const notasData: any[] = [];
+        rows.forEach((row) => {
+          const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
+          if (!alunoId) return;
+
+          const nome =
+            (row.querySelector(".aluno-nome") as HTMLElement)?.textContent ||
+            "Aluno";
+          const faltas =
+            (row.querySelector(".input-faltas") as HTMLInputElement)?.value ||
+            "0";
+          const n1 =
+            (row.querySelector(".input-n1") as HTMLInputElement)?.value || "0";
+          const n2 =
+            (row.querySelector(".input-n2") as HTMLInputElement)?.value || "0";
+          const n3 =
+            (row.querySelector(".input-n3") as HTMLInputElement)?.value || "0";
+          const rec =
+            (row.querySelector(".input-rec") as HTMLInputElement)?.value || "0";
+
+          const n1Val = parseFloat(n1) || 0;
+          const n2Val = parseFloat(n2) || 0;
+          const n3Val = parseFloat(n3) || 0;
+          const recVal = parseFloat(rec) || 0;
+
+          const mediaParcial = arredondarNota(calcularMediaParcial(n1Val, n2Val, n3Val));
+          const finalVal = calcularNotaFinal(mediaParcial, recVal);
+          const status = calcularStatusAluno(finalVal);
+
+          notasData.push({
+            nome,
+            disciplina: disciplinaNome,
+            modulo: "Módulo Atual",
+            faltas: parseFloat(faltas) || 0,
+            n1: n1Val,
+            n2: n2Val,
+            n3: n3Val,
+            rec: recVal,
+            media_parcial: mediaParcial,
+            media: finalVal,
+            status,
+          });
+        });
+
+        // Buscar dados da turma
+        const { data: oferta } = await supabase
+          .from("turma_disciplinas")
+          .select("id, turmas(id, nome, periodo, cursos(id, nome))")
+          .eq("id", disciplinaId)
+          .single();
+
+        const turmaInfo = (oferta as any)?.turmas
+          ? {
+            turma_nome: (oferta as any).turmas.nome,
+            periodo: (oferta as any).turmas.periodo,
+            curso_nome: (oferta as any).turmas.cursos?.nome ||
+              "Curso Técnico",
+          }
+          : null;
+
+        // Gerar PDF consolidado
+        const alunosRelatorio = notasData.map((n: any) => ({
+          nome: n.nome,
+          faltas: n.faltas,
+          n1: n.n1,
+          n2: n.n2,
+          n3: n.n3,
+          rec: n.rec,
+          media_parcial: n.media_parcial,
+          media_final: n.media,
+          status: n.status,
+        }));
+
+        const doc = await PDFService.generateRelatorioNotasDisciplinaPDF(
+          disciplinaNome,
+          turmaInfo ||
+            {
+              turma_nome: disciplinaNome,
+              periodo: "-",
+              curso_nome: "Curso Técnico",
+            },
+          alunosRelatorio,
+        );
+
+        PDFService.downloadPDF(
+          doc,
+          `notas_${disciplinaNome.replace(/\s+/g, "_")}.pdf`,
+        );
+        toast.success("PDF exportado com sucesso!");
+      } catch (err: any) {
+        console.error("Erro ao gerar PDF:", err);
+        toast.error("Erro ao gerar PDF");
+      }
+
+      (btn as HTMLButtonElement).disabled = false;
+      (btn as HTMLButtonElement).innerHTML = `${ICONS.file} PDF`;
+    });
+  });
+
+  return container;
+}
+
+/**
+ * Carrega alunos de uma disciplina e popula a tabela de notas
+ */
+async function loadAlunosDaDisciplina(
+  disc: any,
+  turma: TurmaGroup,
+  container: HTMLElement,
+): Promise<void> {
+  const disciplinaId = disc.id; // ID da oferta
+  const disciplinaNome = disc.nome;
+  const tbody = container.querySelector(
+    `.notas-tbody[data-disciplina-id="${disciplinaId}"]`,
+  ) as HTMLElement;
+  if (!tbody) return;
+
+  try {
+    const turmaId = turma.id;
+    if (!turmaId) {
+      tbody.innerHTML =
+        '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Turma não vinculada à disciplina.</td></tr>';
+      return;
+    }
+
+    // Buscar alunos da turma
+    const { data: matriculas, error } = await AcademicService.getAlunosDaTurma(
+      turmaId,
+    ) as { data: any[] | null; error: { message: string } | null };
+
+    if (error || !matriculas || matriculas.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--text-muted);">Nenhum aluno matriculado.</td></tr>';
+      return;
+    }
+
+    // Buscar notas existentes vinculadas ao disciplina_base_id
+    const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
+    const alunoIds = matriculas.map((m: any) => getPerfil(m)?.id).filter(Boolean);
+    const { data: notasExistentes } = await supabase
+      .from("boletim")
+      .select("id, aluno_id, disciplina, versao, faltas, n1, n2, n3, rec, status")
+      .in("aluno_id", alunoIds)
+      .eq("disciplina_base_id", (disc as any).disciplina_base_id) as { data: NotaExistente[] | null };
+
+    const notasMap: Record<string, NotaExistente> = {};
+    notasExistentes?.forEach((n) => {
+      notasMap[n.aluno_id] = n;
+    });
+
+    // Armazenar versões para uso no salvamento
+    (window as any).__notasVersoes = (window as any).__notasVersoes || {};
+    (window as any).__notasVersoes[(disc as any).id] = notasMap;
+
+    // Filtrar alunos pendentes (matrícula tardia)
+    const alunosPendentes = matriculas.filter((m: any) => {
+      const aluno = getPerfil(m);
+      return notasMap[aluno?.id]?.status === 'pendente';
+    });
+
+    tbody.innerHTML = matriculas
+      .filter((m: any) => {
+        if (m.status_aluno !== "ativo") return false;
+        const aluno = getPerfil(m);
+        return notasMap[aluno?.id]?.status !== 'pendente';
+      })
+      .map((m: any) => {
+        const aluno = getPerfil(m);
+        const notas = (notasMap[aluno?.id || ''] || {}) as NotaExistente;
+        const mediaParcial = calcularMediaParcial(notas.n1 || 0, notas.n2 || 0, notas.n3 || 0);
+        return renderLinhaAluno(aluno, notas, mediaParcial);
+      }).join("");
+
+    // Se há pendentes, adicionar alerta no cabeçalho da disciplina
+    if (alunosPendentes.length > 0) {
+      const alertaDiv = container.querySelector(`#alertas-${disciplinaId}`);
+      if (alertaDiv) {
+        alertaDiv.innerHTML = `<span style="color:#92400E;background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.75rem;">
+          ⚠️ ${alunosPendentes.length} aluno(s) com matrícula tardia (Falta cursar)
+        </span>`;
+      }
+    }
+
+    // Add input listeners to recalculate media
+    tbody.querySelectorAll("input").forEach((input) => {
+      (input as HTMLInputElement).addEventListener(
+        "input",
+        () => recalcularMedia(tbody, disciplinaId, container),
+      );
+    });
+
+    // Verificar alertas
+    verificarAlertasBaixa(tbody, disciplinaId, container);
+  } catch (err: any) {
+    console.error("Erro ao carregar alunos:", err);
+    tbody.innerHTML =
+      '<tr><td colspan="9" style="padding: 1rem; text-align: center; color: var(--danger);">Erro ao carregar dados.</td></tr>';
+  }
+}
+
+/**
+ * Recalcula médias quando notas são alteradas
+ */
+function recalcularMedia(tbody: HTMLElement, disciplinaId: string, container: HTMLElement = document.body): void {
+  tbody.querySelectorAll("tr").forEach((row) => {
+    const n1 =
+      parseFloat((row.querySelector(".input-n1") as HTMLInputElement)?.value) ||
+      0;
+    const n2 =
+      parseFloat((row.querySelector(".input-n2") as HTMLInputElement)?.value) ||
+      0;
+    const n3 =
+      parseFloat((row.querySelector(".input-n3") as HTMLInputElement)?.value) ||
+      0;
+    const rec = parseFloat(
+      (row.querySelector(".input-rec") as HTMLInputElement)?.value,
+    ) || 0;
+
+    const nfVal = rec || 0;
+    const mediaParcial = arredondarNota(
+      (parseFloat(n1.toString()) + parseFloat(n2.toString()) +
+        parseFloat(n3.toString())) / 3,
+    );
+    const mediaCalculada = calcularNotaFinal(mediaParcial, nfVal);
+    const status = calcularStatusAluno(mediaCalculada);
+
+    const media = mediaParcial;
+    const finalVal = mediaCalculada;
+    const statusColor = status === "Aprovado"
+      ? "var(--success)"
+      : "var(--danger)";
+
+    const inputRec = row.querySelector(".input-rec") as HTMLInputElement;
+    if (inputRec) {
+      inputRec.disabled = media >= 7;
+      if (media >= 7) {
+        inputRec.title = "Média já suficiente para aprovação direta";
+      } else {
+        inputRec.title = "";
+      }
+    }
+
+    const mediaCell = row.querySelector("[data-media]") as HTMLElement;
+    const finalCell = row.querySelector("[data-final]") as HTMLElement;
+    const statusCell = row.querySelector("[data-status]") as HTMLElement;
+
+    if (mediaCell) {
+      mediaCell.textContent = media > 0 ? media.toFixed(1) : "-";
+      mediaCell.style.color = media >= 7 ? "var(--success)" : "var(--danger)";
+    }
+    if (finalCell) {
+      finalCell.textContent = finalVal > 0 ? finalVal.toFixed(1) : "-";
+      finalCell.style.color = finalVal >= 7
+        ? "var(--success)"
+        : "var(--danger)";
+    }
+    if (statusCell) {
+      statusCell.innerHTML =
+        `<span style="color: ${statusColor}; font-weight: 600; font-size: 0.8rem;">${
+          escapeHTML(status)
+        }</span>`;
+    }
+  });
+
+  verificarAlertasBaixa(tbody, disciplinaId, container);
+}
+
+/**
+ * Verifica e exibe alertas de alunos com média baixa
+ */
+function verificarAlertasBaixa(tbody: HTMLElement, disciplinaId: string, container: HTMLElement = document.body): void {
+  const alertasDiv = container.querySelector(`#alertas-${disciplinaId}`) as HTMLElement | null;
+  if (!alertasDiv) return;
+
+  const alunosBaixa: AlunoBaixaMedia[] = [];
+  tbody.querySelectorAll("tr").forEach((row) => {
+    const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
+    const finalCell = row.querySelector("[data-final]") as HTMLElement;
+    if (!finalCell) return;
+
+    const texto = finalCell.textContent;
+    const final = parseFloat(texto || "");
+    if (!isNaN(final) && final < 7 && final > 0) {
+      const nome =
+        (row.querySelector(".aluno-nome") as HTMLElement)?.textContent ||
+        "Aluno";
+      alunosBaixa.push({ nome, media: final });
+    }
+  });
+
+  if (alunosBaixa.length > 0) {
+    alertasDiv.innerHTML = `
+      <span style="color: #DC2626; font-weight: 600;">⚠️ ${alunosBaixa.length} aluno(s) com média baixa:</span>
+      ${
+      alunosBaixa.map((a) =>
+        `<span style="margin-left: 0.5rem; font-size: 0.8rem;">${
+          escapeHTML(a.nome)
+        } (${a.media.toFixed(1)})</span>`
+      ).join(", ")
+    }
+    `;
+  } else {
+    alertasDiv.innerHTML =
+      '<span style="color: var(--success); font-weight: 600;">✅ Todos os alunos com média adequada</span>';
+  }
+}
+
+/**
+ * Carrega lista de alunos para registro de frequência
+ */
+async function loadFrequenciaAlunos(
+  turma: TurmaGroup,
+  container: HTMLElement,
+  professorId: string,
+): Promise<void> {
+  const freqList = container.querySelector(
+    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
+  ) as HTMLElement;
+  if (!freqList) return;
+
+  try {
+    const getPerfil = (m: any) => Array.isArray(m.perfis) ? m.perfis[0] : m.perfis;
+    const { data: matriculas } = await AcademicService.getAlunosDaTurma(
+      turma.id!,
+    ) as { data: any[] | null };
+
+    if (!matriculas || matriculas.length === 0) {
+      freqList.innerHTML =
+        '<p style="color: var(--text-muted);">Nenhum aluno matriculado.</p>';
+      return;
+    }
+
+    freqList.innerHTML = `
+      <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        ${
+      matriculas.filter((m: any) => m.status_aluno === "ativo").map((
+        m: any,
+      ) => {
+        const perfil = getPerfil(m);
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--secondary);">
+            <span style="font-weight: 500;">${
+        escapeHTML(perfil?.nome_completo || 'Aluno Desconhecido')
+      }</span>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" class="freq-checkbox" data-aluno-id="${perfil?.id || ''}" style="width: 18px; height: 18px;">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Ausente</span>
+            </label>
+          </div>
+        `;
+      }).join("")
+    }
+      </div>
+      <button class="btn btn-primary btn-salvar-frequencia">${ICONS.save} Salvar Frequência</button>
+    `;
+
+    // Save frequência
+    const btnSalvar = freqList.querySelector(
+      ".btn-salvar-frequencia",
+    ) as HTMLButtonElement;
+    btnSalvar.addEventListener("click", async () => {
+      const freqDataInput = document.getElementById(
+        "freq-data",
+      ) as HTMLInputElement;
+      const freqDiscInput = document.getElementById(
+        "freq-disciplina",
+      ) as HTMLSelectElement;
+
+      const dataAula = freqDataInput
+        ? freqDataInput.value
+        : new Date().toISOString().split("T")[0];
+      const disciplinaId = freqDiscInput ? freqDiscInput.value : null;
+
+      const alunosAusentesIds = Array.from(
+        freqList.querySelectorAll(".freq-checkbox:checked"),
+      ).map((cb) => (cb as HTMLInputElement).getAttribute("data-aluno-id")!);
+
+      btnSalvar.disabled = true;
+      btnSalvar.textContent = "Salvando...";
+
+      if (!disciplinaId) {
+        toast.error("Selecione uma disciplina.");
+        btnSalvar.disabled = false;
+        btnSalvar.innerHTML = `${ICONS.save} Salvar Frequência`;
+        return;
+      }
+
+      const { error } = await ProfessorService.salvarFrequencia(
+        turma.id!,
+        disciplinaId,
+        dataAula,
+        professorId,
+        alunosAusentesIds,
+      );
+
+      btnSalvar.disabled = false;
+      btnSalvar.innerHTML = `${ICONS.save} Salvar Frequência`;
+
+      if (error) {
+        toast.error("Erro ao salvar frequência: " + error.message);
+      } else {
+        toast.success("Frequência salva com sucesso!");
+      }
+    });
+
+    // Carregar frequência existente se data+disciplina já selecionados
+    carregarFrequenciaExistente(turma, container);
+
+    // Recarregar ao mudar data ou disciplina
+    const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
+    const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
+
+    if (freqDataInput) {
+      freqDataInput.addEventListener("change", () => carregarFrequenciaExistente(turma, container));
+    }
+    if (freqDiscInput) {
+      freqDiscInput.addEventListener("change", () => carregarFrequenciaExistente(turma, container));
+    }
+  } catch (err: any) {
+    console.error("Erro ao carregar alunos:", err);
+    freqList.innerHTML =
+      '<p style="color: var(--danger);">Erro ao carregar alunos.</p>';
+  }
+}
+
+async function carregarFrequenciaExistente(
+  turma: TurmaGroup,
+  container: HTMLElement,
+): Promise<void> {
+  const freqList = container.querySelector(
+    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
+  ) as HTMLElement;
+  if (!freqList) return;
+
+  const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
+  const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
+
+  const data = freqDataInput?.value;
+  const disciplinaId = freqDiscInput?.value;
+
+  if (!data || !disciplinaId) return;
+
+  const { data: aula } = await supabase
+    .from("aulas")
+    .select("id")
+    .eq("turma_disciplina_id", disciplinaId)
+    .eq("data", data)
+    .maybeSingle();
+
+  if (!aula) return;
+
+  const { data: registros } = await supabase
+    .from("frequencia")
+    .select("aluno_id")
+    .eq("aula_id", aula.id);
+
+  if (!registros || registros.length === 0) return;
+
+  const ausentesIds = new Set(registros.map((r) => r.aluno_id));
+
+  freqList.querySelectorAll(".freq-checkbox").forEach((cb) => {
+    const alunoId = (cb as HTMLInputElement).getAttribute("data-aluno-id");
+    if (alunoId && ausentesIds.has(alunoId)) {
+      (cb as HTMLInputElement).checked = true;
+    }
+  });
+}

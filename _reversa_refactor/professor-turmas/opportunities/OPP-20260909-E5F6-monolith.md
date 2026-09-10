@@ -14,7 +14,9 @@ roi:
   impact: Manutenção mais difícil — qualquer mudança em notas afeta frequência e vice-versa; dificuldade de testar isoladamente
   cost: medium
   est_return: Módulos menores e coesos, mais fáceis de testar e manter
-state: proposed
+state: applied
+applied_at: 2026-09-09T18:40:00-03:00
+transformation: "transformations/OPP-20260909-E5F6-monolith/transformation.md"
 traceability:
   soul: ["academic: lançamento de notas"]
   specs: ["professor/requirements.md"]

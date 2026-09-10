@@ -49,11 +49,14 @@ export function arredondarNota(nota: number | undefined): number {
 }
 
 /**
- * Calcula a média parcial (média das 3 notas)
+ * Calcula a média parcial considerando apenas notas lançadas (valor > 0).
+ * Permite de 1 a 3 notas: disciplinas que lançam menos de 3 avaliações
+ * não têm a média subestimada pela divisão fixa por 3.
  */
 export function calcularMediaParcial(n1: number, n2: number, n3: number): number {
-  if (n1 === 0 && n2 === 0 && n3 === 0) return 0
-  return (n1 + n2 + n3) / 3
+  const notas = [n1, n2, n3].filter(n => n > 0)
+  if (notas.length === 0) return 0
+  return notas.reduce((sum, n) => sum + n, 0) / notas.length
 }
 
 /**

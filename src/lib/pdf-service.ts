@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { InstituicaoService } from "./instituicao-service";
+import { calcularMediaParcial } from "./grades-utils";
 import type { AtaResultadosData } from "../types/domain";
 
 // Cache de sessão para o cabeçalho dos PDFs
@@ -1369,23 +1370,7 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     const n1 = parseFloat(String(nota.n1)) || 0;
     const n2 = parseFloat(String(nota.n2)) || 0;
     const n3 = parseFloat(String(nota.n3)) || 0;
-
-    let sum = 0;
-    let count = 0;
-    if (n1 > 0) {
-      sum += n1;
-      count++;
-    }
-    if (n2 > 0) {
-      sum += n2;
-      count++;
-    }
-    if (n3 > 0) {
-      sum += n3;
-      count++;
-    }
-
-    return count > 0 ? sum / count : 0;
+    return calcularMediaParcial(n1, n2, n3);
   },
 
   _calcularMediaFinal(mediaTeoria: number, rec: number | undefined): number {

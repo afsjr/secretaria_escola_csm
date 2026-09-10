@@ -127,9 +127,9 @@ describe('calcularMediaParcial', () => {
     expect(calcularMediaParcial(7, 8, 9)).toBe(8)
   })
 
-  it('deve calcular média com decimais', () => {
+  it('deve calcular média com decimais (3 notas)', () => {
     const media = calcularMediaParcial(7, 8, 8)
-    expect(media).toBeCloseTo(7.67, 1) // Usar proximidade em vez de igualdade exata
+    expect(media).toBeCloseTo(7.67, 1)
   })
 
   it('deve retornar 0 quando todas notas sao 0', () => {
@@ -138,6 +138,31 @@ describe('calcularMediaParcial', () => {
 
   it('deve calcular corretamente com notas perto de 10', () => {
     expect(calcularMediaParcial(10, 10, 10)).toBe(10)
+  })
+
+  it('deve calcular média com apenas 1 nota lançada', () => {
+    expect(calcularMediaParcial(8, 0, 0)).toBe(8)
+  })
+
+  it('deve calcular média com 2 notas lançadas', () => {
+    expect(calcularMediaParcial(8, 7, 0)).toBe(7.5)
+  })
+
+  it('deve calcular média com 2 notas decimais', () => {
+    const media = calcularMediaParcial(6, 9, 0)
+    expect(media).toBeCloseTo(7.5, 1)
+  })
+
+  it('deve tratar nota zero real igual a nota não lançada', () => {
+    expect(calcularMediaParcial(0, 7, 9)).toBe(8)
+  })
+
+  it('deve calcular média com apenas n2 lançada', () => {
+    expect(calcularMediaParcial(0, 8, 0)).toBe(8)
+  })
+
+  it('deve calcular média com apenas n3 lançada', () => {
+    expect(calcularMediaParcial(0, 0, 8)).toBe(8)
   })
 })
 

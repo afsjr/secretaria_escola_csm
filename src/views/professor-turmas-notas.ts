@@ -114,6 +114,19 @@ export async function loadAlunosDaDisciplina(
       }
     }
 
+    // Alerta se nenhum aluno possui notas lançadas nesta disciplina
+    const temNotasLancadas = notasExistentes?.some(
+      (n) => (n.n1 || 0) > 0 || (n.n2 || 0) > 0 || (n.n3 || 0) > 0
+    );
+    if (!temNotasLancadas && notasExistentes && notasExistentes.length > 0) {
+      const alertaDiv = container.querySelector(`#alertas-${disciplinaId}`);
+      if (alertaDiv) {
+        alertaDiv.innerHTML += `<span class="pt-alerta-sem-notas" style="display:block;margin-top:0.3rem;color:#b45309;font-size:0.85rem;">
+          ⚠️ Nenhuma avaliação registrada para esta disciplina
+        </span>`;
+      }
+    }
+
     // Add input listeners to recalculate media
     tbody.querySelectorAll("input").forEach((input) => {
       (input as HTMLInputElement).addEventListener(
@@ -150,10 +163,7 @@ export function recalcularMedia(tbody: HTMLElement, disciplinaId: string, contai
     ) || 0;
 
     const nfVal = rec || 0;
-    const mediaParcial = arredondarNota(
-      (parseFloat(n1.toString()) + parseFloat(n2.toString()) +
-        parseFloat(n3.toString())) / 3,
-    );
+    const mediaParcial = arredondarNota(calcularMediaParcial(n1, n2, n3));
     const mediaCalculada = calcularNotaFinal(mediaParcial, nfVal);
     const status = calcularStatusAluno(mediaCalculada);
 

@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/010-calculo-medias-notas",
-  "feature-id": "010",
-  "short-name": "calculo-medias-notas",
-  "started-at": "2026-09-10T10:00:00-03:00",
+  "feature-dir": "_reversa_forward/011-vincular-professor-disciplina",
+  "feature-id": "011",
+  "short-name": "vincular-professor-disciplina",
+  "started-at": "2026-09-11T00:00:00-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": []

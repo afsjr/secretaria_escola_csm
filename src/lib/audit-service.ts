@@ -56,6 +56,8 @@ const ACTION_SEVERITY: Record<string, string> = {
   "criar_curso": "media",
   "matricular_aluno": "media",
   "transferir_aluno": "media",
+  "vincular_professor": "media",
+  "desvincular_professor": "media",
   // Baixa severidade
   "login_sucesso": "baixa",
   "solicitar_documento": "baixa",

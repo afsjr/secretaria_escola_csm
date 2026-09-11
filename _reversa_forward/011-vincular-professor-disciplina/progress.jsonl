@@ -1,0 +1,10 @@
+{"ts":"2026-09-11T11:00:00-03:00","action":"T001","status":"done","files":["src/lib/course-service.test.ts"]}
+{"ts":"2026-09-11T11:05:00-03:00","action":"T002","status":"done","files":["src/lib/course-service.ts"]}
+{"ts":"2026-09-11T11:05:00-03:00","action":"T003","status":"done","files":["src/lib/course-service.ts"]}
+{"ts":"2026-09-11T11:05:00-03:00","action":"T004","status":"done","files":["src/lib/course-service.ts"]}
+{"ts":"2026-09-11T11:07:00-03:00","action":"T005","status":"done","files":["src/lib/audit-service.ts"]}
+{"ts":"2026-09-11T11:15:00-03:00","action":"T006","status":"done","files":["src/views/gestao-turmas.ts"]}
+{"ts":"2026-09-11T11:15:00-03:00","action":"T007","status":"done","files":["src/views/gestao-turmas.ts"]}
+{"ts":"2026-09-11T11:15:00-03:00","action":"T008","status":"done","files":["src/views/gestao-turmas.ts"]}
+{"ts":"2026-09-11T11:20:00-03:00","action":"T009","status":"done","files":[]}
+{"ts":"2026-09-11T11:22:00-03:00","action":"T010","status":"done","files":["_reversa_forward/011-vincular-professor-disciplina/legacy-impact.md","_reversa_forward/011-vincular-professor-disciplina/regression-watch.md"]}

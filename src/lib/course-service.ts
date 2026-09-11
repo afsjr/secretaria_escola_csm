@@ -257,6 +257,116 @@ export const CourseService = {
       .eq('id', ofertaId)
       .select()
     return { data, error }
+  },
+
+  // Vincular (ou substituir) o professor responsável por uma disciplina da turma
+  async vincularProfessorDisciplina(turmaId: string, disciplinaBaseId: string, professorId: string) {
+    const { data: existente } = await supabase
+      .from('turma_disciplinas')
+      .select('id, professor_id')
+      .eq('turma_id', turmaId)
+      .eq('disciplina_base_id', disciplinaBaseId)
+      .maybeSingle()
+
+    let data: any = null
+    let error: { message: string } | null = null
+
+    if (existente?.id) {
+      const result = await supabase
+        .from('turma_disciplinas')
+        .update({ professor_id: professorId })
+        .eq('id', existente.id)
+        .select()
+        .single()
+      data = result.data
+      error = result.error
+    } else {
+      const result = await supabase
+        .from('turma_disciplinas')
+        .insert([{
+          turma_id: turmaId,
+          disciplina_base_id: disciplinaBaseId,
+          professor_id: professorId
+        }])
+        .select()
+        .single()
+      data = result.data
+      error = result.error
+    }
+
+    if (!error && data) {
+      AuditService.log({
+        acao: 'vincular_professor',
+        tabela_afetada: 'turma_disciplinas',
+        registro_id: data.id,
+        descricao: `Professor vinculado à disciplina (turma ${turmaId})`,
+        dados_antigos: existente ? { professor_id: existente.professor_id ?? null } : null,
+        dados_novos: { turma_id: turmaId, disciplina_base_id: disciplinaBaseId, professor_id: professorId }
+      })
+    }
+
+    return { data, error }
+  },
+
+  // Desvincular o professor de uma disciplina da turma, preservando a oferta
+  async desvincularProfessorDisciplina(turmaId: string, disciplinaBaseId: string) {
+    const { data: existente } = await supabase
+      .from('turma_disciplinas')
+      .select('id, professor_id')
+      .eq('turma_id', turmaId)
+      .eq('disciplina_base_id', disciplinaBaseId)
+      .maybeSingle()
+
+    if (!existente?.id) {
+      return { data: null, error: { message: 'Oferta não encontrada para esta turma e disciplina.' } }
+    }
+
+    const { data, error } = await supabase
+      .from('turma_disciplinas')
+      .update({ professor_id: null })
+      .eq('id', existente.id)
+      .select()
+      .single()
+
+    if (!error && data) {
+      AuditService.log({
+        acao: 'desvincular_professor',
+        tabela_afetada: 'turma_disciplinas',
+        registro_id: existente.id,
+        descricao: `Professor desvinculado da disciplina (turma ${turmaId})`,
+        dados_antigos: { professor_id: existente.professor_id ?? null },
+        dados_novos: { professor_id: null }
+      })
+    }
+
+    return { data, error }
+  },
+
+  // Verifica se a oferta já possui histórico acadêmico (aulas ou notas)
+  async ofertaPossuiHistorico(ofertaId: string, turmaId: string, disciplinaBaseId: string) {
+    const { count: aulasCount } = await supabase
+      .from('aulas')
+      .select('*', { count: 'exact', head: true })
+      .eq('turma_disciplina_id', ofertaId)
+
+    if ((aulasCount || 0) > 0) return { data: true, error: null }
+
+    const { data: matriculas } = await supabase
+      .from('matriculas')
+      .select('aluno_id')
+      .eq('turma_id', turmaId)
+      .eq('status_aluno', 'ativo')
+
+    const alunoIds = (matriculas || []).map((m: any) => m.aluno_id).filter(Boolean)
+    if (!alunoIds.length) return { data: false, error: null }
+
+    const { count: notasCount } = await supabase
+      .from('boletim')
+      .select('*', { count: 'exact', head: true })
+      .eq('disciplina_base_id', disciplinaBaseId)
+      .in('aluno_id', alunoIds)
+
+    return { data: (notasCount || 0) > 0, error: null }
   }
 }
 

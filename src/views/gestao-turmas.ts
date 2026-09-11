@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { AcademicService } from '../lib/academic-service'
 import { CourseService } from '../lib/course-service'
+import { ProfessorService } from '../lib/professor-service'
 import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption, sanitizeFilename } from '../lib/security'
@@ -206,7 +207,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
         <!-- Seção: Grade Curricular (Ofertas) -->
         <div id="tab-content-grade" style="display: none;">
           <h3 style="margin-bottom: 1rem; color: var(--text-main);">Grade da Turma</h3>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Disciplinas do curso ofertadas nesta turma. A associação de professor é feita no Painel Secretaria &rarr; Gerenciar Professores.</p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Disciplinas do curso ofertadas nesta turma. Vincule ou desvincule o professor responsável diretamente nesta grade.</p>
 
           <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -215,10 +216,11 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
                   <th style="padding: 1rem;">Módulo</th>
                   <th style="padding: 1rem;">Disciplina</th>
                   <th style="padding: 1rem;">Professor</th>
+                  <th style="padding: 1rem; text-align: right;">Ações</th>
                 </tr>
               </thead>
               <tbody id="tabela-grade-turma">
-                <tr><td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver a grade.</td></tr>
+                <tr><td colspan="4" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver a grade.</td></tr>
               </tbody>
             </table>
           </div>
@@ -400,6 +402,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   let selectedTurmaId: string | null = null
   let selectedCursoId: string | null = null
   let selectedCursoTipo: string | null = null
+  let professoresCache: Array<{ id: string; nome_completo: string }> | null = null
 
   async function loadTurmaAlunos(turmaId: string) {
     tabelaAlunos.innerHTML = skeletonRowSpan(4)
@@ -423,10 +426,10 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   }
 
   async function loadTurmaGrade(turmaId: string) {
-    tabelaGrade.innerHTML = skeletonRowSpan(3)
+    tabelaGrade.innerHTML = skeletonRowSpan(4)
 
     if (!selectedCursoId) {
-      tabelaGrade.innerHTML = '<tr><td colspan="3" style="padding:2rem; text-align:center; color:var(--text-muted);">Turma sem curso vinculado. Não é possível listar as disciplinas.</td></tr>'
+      tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--text-muted);">Turma sem curso vinculado. Não é possível listar as disciplinas.</td></tr>'
       return
     }
 
@@ -439,45 +442,154 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       .order('nome')
 
     if (errCatalogo) {
-      tabelaGrade.innerHTML = `<tr><td colspan="3" style="padding:2rem; text-align:center; color:var(--danger);">Erro ao carregar catálogo: ${escapeHTML(errCatalogo.message)}</td></tr>`
+      tabelaGrade.innerHTML = `<tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--danger);">Erro ao carregar catálogo: ${escapeHTML(errCatalogo.message)}</td></tr>`
       return
     }
 
     if (!catalogo?.length) {
-      tabelaGrade.innerHTML = '<tr><td colspan="3" style="padding:2rem; text-align:center; color:var(--text-muted);">Nenhuma disciplina cadastrada no catálogo deste curso.</td></tr>'
+      tabelaGrade.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--text-muted);">Nenhuma disciplina cadastrada no catálogo deste curso.</td></tr>'
       return
     }
 
     // Buscar ofertas já criadas para esta turma (com professor)
     const { data: ofertas } = await supabase
       .from('turma_disciplinas')
-      .select('disciplina_base_id, professor_id, perfis(id, nome_completo)')
+      .select('id, disciplina_base_id, professor_id, perfis(id, nome_completo)')
       .eq('turma_id', turmaId)
 
-    const ofertasMap: Record<string, { professor_id: string; professor_nome: string }> = {}
+    const ofertasMap: Record<string, { id: string; professor_id: string; professor_nome: string }> = {}
     if (ofertas) {
       for (const o of ofertas) {
         const rawPerfis = o.perfis as any
         const prof = Array.isArray(rawPerfis) ? rawPerfis[0] : rawPerfis
         ofertasMap[o.disciplina_base_id] = {
+          id: o.id,
           professor_id: o.professor_id || '',
           professor_nome: o.professor_id && prof?.nome_completo ? prof.nome_completo : ''
         }
       }
     }
 
+    if (canManageTurmas && !professoresCache) {
+      const { data: professores } = await ProfessorService.getProfessores()
+      professoresCache = (professores || []).map((p: any) => ({ id: p.id, nome_completo: p.nome_completo }))
+    }
+
     tabelaGrade.innerHTML = catalogo.map(disc => {
       const oferta = ofertasMap[disc.id]
-      const professorNome = oferta?.professor_nome || '<span style="color:var(--text-muted);">Sem professor</span>'
+      const professorId = oferta?.professor_id || ''
+      const professorNome = oferta?.professor_nome || ''
+
+      let professorCell: string
+      let acoesCell = ''
+
+      if (canManageTurmas) {
+        const options = [
+          '<option value="">Sem professor</option>',
+          ...(professoresCache || []).map(p =>
+            `<option value="${escapeHTML(p.id)}" ${p.id === professorId ? 'selected' : ''}>${escapeHTML(p.nome_completo)}</option>`
+          )
+        ].join('')
+        professorCell = `<select class="input professor-select" data-turma-id="${escapeHTML(turmaId)}" data-disc-id="${escapeHTML(disc.id)}" data-oferta-id="${oferta?.id || ''}" data-prof-atual="${professorId}" data-prof-nome="${escapeHTML(professorNome)}" style="width:100%;min-width:180px;padding:0.4rem 0.6rem;font-size:0.85rem;">${options}</select>`
+        if (professorId) {
+          acoesCell = `<button type="button" class="btn btn-desvincular-prof" data-turma-id="${escapeHTML(turmaId)}" data-disc-id="${escapeHTML(disc.id)}" data-oferta-id="${oferta?.id || ''}" data-prof-nome="${escapeHTML(professorNome)}" style="background:transparent;border:1px solid var(--danger);color:var(--danger);padding:0.3rem 0.6rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">Desvincular</button>`
+        }
+      } else {
+        professorCell = professorNome ? escapeHTML(professorNome) : '<span style="color:var(--text-muted);">Sem professor</span>'
+      }
+
       return `
         <tr style="border-top:1px solid var(--border);">
           <td style="padding:1rem;">${escapeHTML(disc.modulo || 'N/A')}</td>
           <td style="padding:1rem;"><b>${escapeHTML(disc.nome)}</b></td>
-          <td style="padding:1rem;">${professorNome}</td>
+          <td style="padding:1rem;">${professorCell}</td>
+          <td style="padding:1rem;text-align:right;">${acoesCell}</td>
         </tr>
       `
     }).join('')
   }
+
+  async function desvincularProfessorDaGrade(turmaId: string, discId: string, ofertaId: string, profNome: string): Promise<boolean> {
+    let aviso = profNome
+      ? `Desvincular ${profNome} desta disciplina?`
+      : 'Desvincular o professor desta disciplina?'
+    if (ofertaId) {
+      const { data: possuiHistorico } = await CourseService.ofertaPossuiHistorico(ofertaId, turmaId, discId)
+      if (possuiHistorico) {
+        aviso = `Desvincular ${profNome || 'o professor'}? Notas e aulas já lançadas serão preservadas.`
+      }
+    }
+    if (!confirm(aviso)) return false
+
+    const { error } = await CourseService.desvincularProfessorDisciplina(turmaId, discId)
+    if (error) {
+      toast.error('Erro ao desvincular: ' + error.message)
+      return false
+    }
+    toast.success('Professor desvinculado com sucesso!')
+    if (selectedTurmaId) await loadTurmaGrade(selectedTurmaId)
+    return true
+  }
+
+  // Vincular/substituir professor ao trocar o seletor da grade
+  tabelaGrade.addEventListener('change', async (e) => {
+    const select = (e.target as HTMLElement).closest('.professor-select') as HTMLSelectElement | null
+    if (!select) return
+    const turmaId = select.getAttribute('data-turma-id') || ''
+    const discId = select.getAttribute('data-disc-id') || ''
+    const profAtual = select.getAttribute('data-prof-atual') || ''
+    const novoProf = select.value
+    if (!turmaId || !discId || novoProf === profAtual) return
+
+    // Selecionou "Sem professor" → desvincular
+    if (!novoProf) {
+      select.disabled = true
+      const ok = await desvincularProfessorDaGrade(
+        turmaId, discId,
+        select.getAttribute('data-oferta-id') || '',
+        select.getAttribute('data-prof-nome') || ''
+      )
+      if (!ok) { select.value = profAtual; select.disabled = false }
+      return
+    }
+
+    // Substituição de responsável exige confirmação
+    if (profAtual) {
+      const nomeAtual = select.querySelector(`option[value="${profAtual}"]`)?.textContent || 'professor atual'
+      const nomeNovo = select.querySelector(`option[value="${novoProf}"]`)?.textContent || 'novo professor'
+      if (!confirm(`A disciplina já está sob responsabilidade de ${nomeAtual}. Substituir por ${nomeNovo}?`)) {
+        select.value = profAtual
+        return
+      }
+    }
+
+    select.disabled = true
+    const { error } = await CourseService.vincularProfessorDisciplina(turmaId, discId, novoProf)
+    if (error) {
+      toast.error('Erro ao vincular: ' + error.message)
+      select.disabled = false
+      return
+    }
+    toast.success('Professor vinculado com sucesso!')
+    if (selectedTurmaId) await loadTurmaGrade(selectedTurmaId)
+  })
+
+  // Desvincular professor pelo botão de ação
+  tabelaGrade.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest('.btn-desvincular-prof') as HTMLButtonElement | null
+    if (!btn) return
+    const turmaId = btn.getAttribute('data-turma-id') || ''
+    const discId = btn.getAttribute('data-disc-id') || ''
+    if (!turmaId || !discId) return
+
+    btn.disabled = true
+    const ok = await desvincularProfessorDaGrade(
+      turmaId, discId,
+      btn.getAttribute('data-oferta-id') || '',
+      btn.getAttribute('data-prof-nome') || ''
+    )
+    if (!ok) btn.disabled = false
+  })
 
   // Delegar evento de remover aluno
   tabelaAlunos.addEventListener('click', async (e) => {

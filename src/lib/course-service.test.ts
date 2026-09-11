@@ -251,6 +251,168 @@ describe('CourseService - Ofertas (turma_disciplinas)', () => {
     expect(result.error).toBeNull()
     expect(mockFrom).toHaveBeenCalledWith('turma_disciplinas')
   })
+
+  it('vincularProfessorDisciplina: deve criar oferta quando não existe e logar auditoria', async () => {
+    const created = { id: 'oferta-1', turma_id: 'turma-1', disciplina_base_id: 'db-1', professor_id: 'prof-1' }
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: created, error: null })),
+          })),
+        })),
+      })
+
+    const result = await CourseService.vincularProfessorDisciplina('turma-1', 'db-1', 'prof-1')
+
+    expect(result.error).toBeNull()
+    expect(result.data).toEqual(created)
+    expect(mockAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({ acao: 'vincular_professor', tabela_afetada: 'turma_disciplinas' })
+    )
+  })
+
+  it('vincularProfessorDisciplina: deve atualizar professor quando oferta já existe', async () => {
+    const updated = { id: 'oferta-1', turma_id: 'turma-1', disciplina_base_id: 'db-1', professor_id: 'prof-2' }
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn(() => Promise.resolve({ data: { id: 'oferta-1', professor_id: 'prof-1' }, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            select: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ data: updated, error: null })),
+            })),
+          })),
+        })),
+      })
+
+    const result = await CourseService.vincularProfessorDisciplina('turma-1', 'db-1', 'prof-2')
+
+    expect(result.data?.professor_id).toBe('prof-2')
+  })
+
+  it('desvincularProfessorDisciplina: deve zerar professor_id preservando a oferta', async () => {
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn(() => Promise.resolve({ data: { id: 'oferta-1', professor_id: 'prof-1' }, error: null })),
+            })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            select: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ data: { id: 'oferta-1', professor_id: null }, error: null })),
+            })),
+          })),
+        })),
+      })
+
+    const result = await CourseService.desvincularProfessorDisciplina('turma-1', 'db-1')
+
+    expect(result.error).toBeNull()
+    expect(result.data?.professor_id).toBeNull()
+    expect(mockAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({ acao: 'desvincular_professor' })
+    )
+  })
+
+  it('desvincularProfessorDisciplina: deve retornar erro quando a oferta não existe', async () => {
+    mockFrom.mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+          })),
+        })),
+      })),
+    })
+
+    const result = await CourseService.desvincularProfessorDisciplina('turma-1', 'db-x')
+
+    expect(result.data).toBeNull()
+    expect(result.error).toBeTruthy()
+  })
+
+  it('ofertaPossuiHistorico: deve retornar true quando houver aulas', async () => {
+    mockFrom.mockReturnValueOnce({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => Promise.resolve({ count: 2, error: null })),
+      })),
+    })
+
+    const result = await CourseService.ofertaPossuiHistorico('oferta-1', 'turma-1', 'db-1')
+
+    expect(result.data).toBe(true)
+  })
+
+  it('ofertaPossuiHistorico: deve retornar true quando houver notas dos alunos da turma', async () => {
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => Promise.resolve({ count: 0, error: null })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => Promise.resolve({ data: [{ aluno_id: 'a1' }], error: null })),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            in: vi.fn(() => Promise.resolve({ count: 1, error: null })),
+          })),
+        })),
+      })
+
+    const result = await CourseService.ofertaPossuiHistorico('oferta-1', 'turma-1', 'db-1')
+
+    expect(result.data).toBe(true)
+  })
+
+  it('ofertaPossuiHistorico: deve retornar false sem aulas e sem notas', async () => {
+    mockFrom
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => Promise.resolve({ count: 0, error: null })),
+        })),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          })),
+        })),
+      })
+
+    const result = await CourseService.ofertaPossuiHistorico('oferta-1', 'turma-1', 'db-1')
+
+    expect(result.data).toBe(false)
+  })
 })
 
 describe('CourseService - getOfertasDaTurma', () => {

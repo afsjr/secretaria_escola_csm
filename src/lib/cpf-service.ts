@@ -76,6 +76,8 @@ export const CpfService = {
     const { data, error } = await supabase
       .from('perfis')
       .select('id, nome_completo, email, perfil, cpf, created_at')
+      .or('status.is.null,status.neq.inativo')
+      .not('cadastro_desativado', 'is', true)
       .order('nome_completo', { ascending: true })
 
     if (error) return { data: null, error }

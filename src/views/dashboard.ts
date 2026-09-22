@@ -42,6 +42,20 @@ export async function DashboardView(session: Session, subPath: string = '/'): Pr
   }
   console.log('[DashboardView] Profile data received:', profile)
 
+  // Bloqueia acesso de contas desativadas (duplicatas mescladas).
+  if (profile && ((profile as any).status === 'inativo' || (profile as any).cadastro_desativado === true)) {
+    await logout()
+    window.location.hash = '#/'
+    const blocked = document.createElement('div')
+    blocked.className = 'animate-in'
+    blocked.innerHTML = `
+      <div style="max-width:520px;margin:4rem auto;text-align:center;">
+        <h2 style="color:var(--danger);">Conta desativada</h2>
+        <p style="color:var(--text-muted);">Esta conta foi desativada (possível duplicidade de cadastro). Procure a secretaria para regularizar seu acesso.</p>
+      </div>`
+    return blocked
+  }
+
   const userName = profile?.nome_completo || 'Usuário'
   const userRole = profile?.perfil || 'aluno'
   console.log('[DashboardView] Determined Role:', userRole)

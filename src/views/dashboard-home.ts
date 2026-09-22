@@ -69,7 +69,7 @@ export async function DashboardHomeView(profile: UserProfile, _session: Session)
 
   if (role === 'master_admin' || role === 'admin') {
     const [{ count: totalMembros }, { data: turmas }, { data: docs }] = await Promise.all([
-      supabase.from('perfis').select('id', { count: 'exact', head: true }),
+      supabase.from('perfis').select('id', { count: 'exact', head: true }).or('status.is.null,status.neq.inativo').not('cadastro_desativado', 'is', true),
       AcademicService.getTurmas(),
       DocumentsService.getAllOpenRequests(),
     ])
@@ -260,7 +260,7 @@ export async function DashboardHomeView(profile: UserProfile, _session: Session)
 
   else if (role === 'financeiro') {
     const [{ count: totalMembros }] = await Promise.all([
-      supabase.from('perfis').select('id', { count: 'exact', head: true }),
+      supabase.from('perfis').select('id', { count: 'exact', head: true }).or('status.is.null,status.neq.inativo').not('cadastro_desativado', 'is', true),
     ])
 
     cards = [

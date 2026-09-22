@@ -13,6 +13,21 @@ export async function login(email: string, password: string) {
   });
 
   if (!error && data?.session) {
+    // Conta desativada (duplicata mesclada) não pode acessar.
+    const { data: perfil } = await supabase
+      .from("perfis")
+      .select("status, cadastro_desativado")
+      .eq("id", data.session.user.id)
+      .maybeSingle();
+
+    if (perfil && ((perfil as any).status === "inativo" || (perfil as any).cadastro_desativado === true)) {
+      await supabase.auth.signOut();
+      return {
+        data: { session: null, user: null },
+        error: { message: "Conta desativada. Procure a secretaria para regularizar seu acesso." },
+      };
+    }
+
     startSessionTimeout();
   }
 
@@ -120,6 +135,8 @@ export async function getAllProfiles() {
   const { data, error } = await supabase
     .from("perfis")
     .select("*")
+    .or("status.is.null,status.neq.inativo")
+    .not("cadastro_desativado", "is", true)
     .order("nome_completo", { ascending: true });
   return { data, error };
 }

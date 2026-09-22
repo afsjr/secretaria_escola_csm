@@ -279,6 +279,8 @@ export const AdminService = {
       .from('perfis')
       .select('*')
       .eq('perfil', 'aluno')
+      .or('status.is.null,status.neq.inativo')
+      .not('cadastro_desativado', 'is', true)
       .order('nome_completo', { ascending: true })
 
     return { data, error }

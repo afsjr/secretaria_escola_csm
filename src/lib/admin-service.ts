@@ -216,10 +216,10 @@ export const AdminService = {
   async getTipoDaTurma(turmaId: string): Promise<string | null> {
     const { data } = await supabase
       .from('turmas')
-      .select('cursos(tipo)')
+      .select('cursos(tipo_curso)')
       .eq('id', turmaId)
       .single()
-    return (data as any)?.cursos?.tipo ?? null
+    return (data as any)?.cursos?.tipo_curso ?? null
   },
 
   async matricularAluno(alunoId: string, turmaId: string) {
@@ -252,6 +252,10 @@ export const AdminService = {
       ])
       .select()
       .single()
+
+    if (error && (error as any).code === '23505') {
+      return { error: { message: 'Aluno já matriculado nesta turma.' } }
+    }
 
     // Registrar no log de auditoria
     if (!error) {

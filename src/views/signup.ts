@@ -3,6 +3,7 @@ import { toast } from "../lib/toast";
 import { validateSignup, validarCPF } from "../lib/validation";
 import { checkRateLimit, clearRateLimit } from "../lib/rate-limiter";
 import { addPasswordToggle } from "../lib/password-toggle";
+import { CpfService } from "../lib/cpf-service";
 
 export function SignupView(): HTMLElement {
   const container = document.createElement("div");
@@ -133,6 +134,20 @@ export function SignupView(): HTMLElement {
       toast.error("CPF inválido. Verifique o número e tente novamente.");
       cpfInput.focus();
       return;
+    }
+
+    // Impede duplicidade de cadastro pelo CPF.
+    if (cpfClean.length === 11) {
+      const { data: cpfExistente, error: erroCpf } = await CpfService.cpfJaExiste(cpfClean);
+      if (erroCpf) {
+        toast.error("Não foi possível verificar o CPF. Tente novamente.");
+        return;
+      }
+      if (cpfExistente) {
+        toast.warning("CPF já cadastrado. Se você já é aluno, recupere seu acesso ou procure a secretaria.");
+        cpfInput.focus();
+        return;
+      }
     }
 
     const validation = validateSignup({

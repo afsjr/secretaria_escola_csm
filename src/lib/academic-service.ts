@@ -107,6 +107,10 @@ export const AcademicService = {
       .select()
       .single();
 
+    if (error && (error as any).code === "23505") {
+      return { error: { message: "Aluno já matriculado nesta turma." } };
+    }
+
     return { data, error };
   },
 
@@ -115,11 +119,20 @@ export const AcademicService = {
       .from("matriculas")
       .select(`
         id, status_aluno,
-        perfis(id, nome_completo)
+        perfis(id, nome_completo, bloqueio_financeiro, status, cadastro_desativado)
       `)
       .eq("turma_id", turma_id)
       .order("perfis(nome_completo)", { ascending: true });
     return { data, error } as any;
+  },
+
+  async desativarPerfil(aluno_id: string) {
+    const { data, error } = await supabase
+      .from("perfis")
+      .update({ status: "inativo", cadastro_desativado: true })
+      .eq("id", aluno_id)
+      .select();
+    return { data, error };
   },
 
   async atualizarStatusAdministrativo(aluno_id: string, matricula_id: string, status: string, bloqueio: boolean) {

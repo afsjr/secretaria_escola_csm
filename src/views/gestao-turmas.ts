@@ -412,13 +412,15 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
     tabelaAlunos.innerHTML = matriculas.map(m => {
       const perfil = (m.perfis as any)[0] || m.perfis
+      const inativo = perfil?.status === 'inativo' || perfil?.cadastro_desativado === true
       return `
         <tr>
-          <td style="padding:1rem;"><b>${escapeHTML(perfil?.nome_completo)}</b><br><small>${escapeHTML(perfil?.email)}</small></td>
+          <td style="padding:1rem;"><b>${escapeHTML(perfil?.nome_completo)}</b>${inativo ? ' <span style="font-size:0.7rem;color:#b45309;border:1px solid #b45309;border-radius:4px;padding:0 4px;">inativo</span>' : ''}<br><small>${escapeHTML(perfil?.email)}</small></td>
           <td style="padding:1rem;">${escapeHTML(m.status_aluno)}</td>
           <td style="padding:1rem;">${perfil?.bloqueio_financeiro ? '🔴 BLOQUEADO' : '🟢 OK'}</td>
-          <td style="padding:1rem; text-align:right;">
+          <td style="padding:1rem; text-align:right; white-space:nowrap;">
             <button class="btn btn-remover" data-id="${m.id}" style="padding:0.3rem 0.6rem; background:transparent; color:red; border:1px solid red;">Remover</button>
+            <button class="btn btn-desativar" data-aluno-id="${escapeHTML(perfil?.id)}" data-nome="${escapeHTML(perfil?.nome_completo)}" ${inativo ? 'disabled' : ''} title="Desativar cadastro (para contas duplicadas)" style="padding:0.3rem 0.6rem; background:transparent; color:#b45309; border:1px solid #b45309; margin-left:4px; opacity:${inativo ? 0.5 : 1};">Desativar</button>
           </td>
         </tr>
       `
@@ -591,18 +593,35 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     if (!ok) btn.disabled = false
   })
 
-  // Delegar evento de remover aluno
+  // Delegar evento de remover aluno / desativar cadastro
   tabelaAlunos.addEventListener('click', async (e) => {
-    const btn = (e.target as HTMLElement).closest('.btn-remover') as HTMLButtonElement
-    if (!btn) return
-    const id = btn.getAttribute('data-id')
-    if (!confirm('Deseja realmente remover este aluno da turma?')) return
+    const target = e.target as HTMLElement
+    const btnRemover = target.closest('.btn-remover') as HTMLButtonElement | null
+    const btnDesativar = target.closest('.btn-desativar') as HTMLButtonElement | null
 
-    const { error } = await AcademicService.excluirMatricula(id!)
-    if (error) toast.error('Erro ao remover: ' + error.message)
-    else {
-      toast.success('Matrícula removida!')
-      if (selectedTurmaId) loadTurmaAlunos(selectedTurmaId)
+    if (btnRemover) {
+      const id = btnRemover.getAttribute('data-id')
+      if (!confirm('Remover este aluno apenas desta turma? O cadastro e o histórico são mantidos.')) return
+      const { error } = await AcademicService.excluirMatricula(id!)
+      if (error) toast.error('Erro ao remover: ' + error.message)
+      else {
+        toast.success('Matrícula removida!')
+        if (selectedTurmaId) loadTurmaAlunos(selectedTurmaId)
+      }
+      return
+    }
+
+    if (btnDesativar) {
+      const alunoId = btnDesativar.getAttribute('data-aluno-id')
+      const nome = btnDesativar.getAttribute('data-nome') || 'este cadastro'
+      if (!alunoId) return
+      if (!confirm(`Desativar o cadastro de "${nome}"?\n\nA conta não poderá mais fazer login. Use apenas para cadastros duplicados. O histórico é preservado.`)) return
+      const { error } = await AcademicService.desativarPerfil(alunoId)
+      if (error) toast.error('Erro ao desativar: ' + error.message)
+      else {
+        toast.success('Cadastro desativado!')
+        if (selectedTurmaId) loadTurmaAlunos(selectedTurmaId)
+      }
     }
   })
 

@@ -22,12 +22,37 @@ export interface InconsistenciasCPF {
 
 export const CpfService = {
   /**
-   * Verifica se o CPF informado já existe em outro perfil.
-   * A comparação é feita apenas pelos dígitos, tolerando dados legados formatados.
+   * Verifica se o CPF informado já existe em outro perfil ativo.
+   * Usa a RPC `cpf_ja_existe` (funciona também no autocadastro sob RLS);
+   * se a RPC não existir, cai no fallback de leitura direta da tabela.
    */
   async cpfJaExiste(cpf: string, ignorarId?: string): Promise<{ data: boolean; error: { message: string } | null }> {
     const alvo = normalizarCPF(cpf)
     if (!alvo) return { data: false, error: null }
+
+    let rpcData: unknown = null
+    let rpcError: { message: string } | null = null
+    if (typeof (supabase as any).rpc === 'function') {
+      try {
+        const res = await supabase.rpc('cpf_ja_existe', { p_cpf: alvo })
+        rpcData = res.data
+        rpcError = res.error
+      } catch {
+        rpcError = { message: 'rpc indisponível' }
+      }
+    } else {
+      rpcError = { message: 'rpc indisponível' }
+    }
+
+    if (!rpcError && typeof rpcData === 'boolean') {
+      if (!rpcData) return { data: false, error: null }
+      if (ignorarId) {
+        const { data } = await supabase.from('perfis').select('id, cpf').not('cpf', 'is', null)
+        const outros = (data || []).some((p: any) => p.id !== ignorarId && normalizarCPF(p.cpf) === alvo)
+        return { data: outros, error: null }
+      }
+      return { data: true, error: null }
+    }
 
     const { data, error } = await supabase
       .from('perfis')

@@ -49,14 +49,30 @@ async function req(method, path, body) {
     headers: { ...headers, Prefer: 'return=minimal' },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`${method} ${path} -> ${res.status} ${await res.text()}`);
+  if (!res.ok) {
+    const text = await res.text();
+    const err = new Error(`${method} ${path} -> ${res.status} ${text}`);
+    err.status = res.status;
+    err.body = text;
+    throw err;
+  }
 }
 
-const getAll = async (p) => {
-  const res = await fetch(`${URL}/rest/v1/${p}`, { headers });
-  if (!res.ok) throw new Error(`${p} -> ${res.status} ${await res.text()}`);
-  return res.json();
-};
+// Lê TODAS as linhas, paginando (o PostgREST limita a 1000 por requisição).
+async function getAll(path) {
+  const out = [];
+  const page = 1000;
+  const base = path.includes('?') ? path : `${path}?select=*`;
+  const withOrder = /[?&]order=/.test(base) ? base : `${base}&order=id`;
+  for (let offset = 0; ; offset += page) {
+    const res = await fetch(`${URL}/rest/v1/${withOrder}&limit=${page}&offset=${offset}`, { headers });
+    if (!res.ok) throw new Error(`${path} -> ${res.status} ${await res.text()}`);
+    const rows = await res.json();
+    out.push(...rows);
+    if (rows.length < page) break;
+  }
+  return out;
+}
 
 const normCpf = (s) => String(s || '').replace(/\D/g, '');
 const normName = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z ]/g, '').replace(/\s+/g, ' ').trim();
@@ -147,10 +163,16 @@ async function main() {
       (c.disciplina_base_id && r.disciplina_base_id && c.disciplina_base_id === r.disciplina_base_id) ||
       normDisc(c.disciplina) === normDisc(r.disciplina));
 
+    try {
     for (const D of Ds) {
       // --- boletim ---
       for (const r of (bByAluno[D.p.id] || [])) {
-        const c = findC(r);
+        let c = findC(r);
+        if (!c && APPLY) {
+          // Garantia extra contra linha da canônica não vista (paginação/corrida).
+          const ex = await getAll(`boletim?select=*&aluno_id=eq.${C.p.id}&disciplina=eq.${encodeURIComponent(r.disciplina)}`);
+          if (ex[0]) { c = ex[0]; cBoletim.push(c); }
+        }
         if (!c) {
           entry.boletim.push({ acao: 'reatribuir', de: D.p.email, para: C.p.email, disciplina: r.disciplina, id: r.id });
           if (APPLY) await req('PATCH', `boletim?id=eq.${r.id}`, { aluno_id: C.p.id });
@@ -226,6 +248,7 @@ async function main() {
         } catch (e) { errors.push(`audit_log ${D.p.email}: ${e.message}`); }
       }
     }
+    } catch (e) { errors.push(`grupo ${cpf}: ${e.message}`); }
 
     plan.push(entry);
   }

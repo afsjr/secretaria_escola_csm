@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { CpfService } from '../lib/cpf-service'
 
 interface RegisterUserInput {
   email: string
@@ -15,6 +16,17 @@ interface RegisterUserInput {
  * 3. Se falhar na criação do perfil, faz rollback deletando o usuário criado.
  */
 export async function registerUser({ email, password, nomeCompleto, cpf, telefone }: RegisterUserInput) {
+  // Guarda de duplicidade: não cria conta com CPF já ativo no sistema.
+  if (cpf) {
+    const { data: cpfExistente, error: cpfError } = await CpfService.cpfJaExiste(cpf)
+    if (cpfError) {
+      return { error: { message: 'Não foi possível verificar o CPF. Tente novamente.' } }
+    }
+    if (cpfExistente) {
+      return { error: { message: 'CPF já cadastrado no sistema. Procure a secretaria.' } }
+    }
+  }
+
   // Step 1: Signup in Supabase Auth
   const { data, error: authError } = await supabase.auth.signUp({
     email,

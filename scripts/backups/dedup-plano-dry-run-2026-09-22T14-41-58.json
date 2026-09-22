@@ -1,0 +1,4497 @@
+{
+  "modo": "dry-run",
+  "gerado_em": "2026-09-22T14:41:58.398Z",
+  "plan": [
+    {
+      "cpf": "12006905406",
+      "cpf_formatado": "120.069.054-06",
+      "canonica": {
+        "id": "5173d469-80e2-42d1-9ea7-65d4f3ad2920",
+        "nome": "ANDREA DA SILVA MELO",
+        "email": "andreasilva@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "8c94523d-4944-4075-8919-ee710a6fd7b1",
+          "nome": "ANDREIA DA SILVA MELO",
+          "email": "andreiamelo@gmail.com"
+        },
+        {
+          "id": "f8e399e3-58f0-4c18-a174-3d5aa140aa1a",
+          "nome": "ANDREA DA SILVA MELO",
+          "email": "andrea2melosilva@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            8.5,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7.5,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            9.9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            9,
+            9,
+            9,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "andreiamelo@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            6,
+            7.5,
+            0
+          ],
+          "descartado": [
+            10,
+            6,
+            7.2,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            6,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            8.5,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "6db25db4-09aa-47a4-bf8e-1fe92cff259c"
+        }
+      ],
+      "frequencia": [],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "andreiamelo@gmail.com",
+          "para": "andreasilva@gmail.com",
+          "id": "efe68041-c836-44cd-ab31-db18c714f696"
+        }
+      ]
+    },
+    {
+      "cpf": "12208900499",
+      "cpf_formatado": "122.089.004-99",
+      "canonica": {
+        "id": "4f2996e0-1a69-4300-8b88-fcf223a663af",
+        "nome": "ANDREZA HYARA SOARES DE MOURA",
+        "email": "andrezahyara@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "b87d8f6e-dd1b-4f8d-925d-c16be13db444",
+          "nome": "ANDREZA HUARA SOARES DE MOURA",
+          "email": "andrezahuara@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "reatribuir",
+          "de": "andrezahuara@gmail.com",
+          "para": "andrezahyara@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "72506b73-f7cb-4b86-ab3b-ec14d7e3ceb5"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "andrezahuara@gmail.com",
+          "para": "andrezahyara@gmail.com",
+          "id": "d0e30585-a0d9-477e-b5f2-271752a165c4"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "andrezahuara@gmail.com",
+          "para": "andrezahyara@gmail.com",
+          "id": "40adac28-dd18-4471-8682-4b7d138682a0"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "andrezahuara@gmail.com",
+          "para": "andrezahyara@gmail.com",
+          "id": "b2d6d6bf-f30c-4988-8839-c3fe6662106a"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "andrezahuara@gmail.com",
+          "para": "andrezahyara@gmail.com",
+          "id": "c88b5bb0-867e-46fc-964e-12cbc04fafd2"
+        }
+      ],
+      "matriculas": [],
+      "outros": []
+    },
+    {
+      "cpf": "17988743422",
+      "cpf_formatado": "179.887.434-22",
+      "canonica": {
+        "id": "e0fc8b98-3a3c-44b2-baa3-7d3b9ffd0d7c",
+        "nome": "Crislayne Vitoria do Nascimento Araujo",
+        "email": "crislaynevitoria1234@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "de7097b0-ae68-44f1-bb5a-963e0b93a2f2",
+          "nome": "Crislayne Vitoria do Nascimento Araujo",
+          "email": "crislaynevitoria@gmail.com"
+        }
+      ],
+      "boletim": [],
+      "frequencia": [],
+      "matriculas": [
+        {
+          "acao": "apagar",
+          "de": "crislaynevitoria@gmail.com",
+          "turma": "Enfermagem - Noite - 2026/2027",
+          "status": "ativo"
+        }
+      ],
+      "outros": []
+    },
+    {
+      "cpf": "14304861476",
+      "cpf_formatado": "143.048.614-76",
+      "canonica": {
+        "id": "a27d2b95-b934-47f8-a7ea-c886a1f69c5d",
+        "nome": "ELIONAI LARISSA SANTANA DE FREITAS",
+        "email": "elionaylarissa1@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "7a6d4111-0903-4d74-9e92-8c990786808b",
+          "nome": "ELIOENAI LARISSA SANTANA FREITAS",
+          "email": "elioenailarissa1@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_vazia",
+          "de": "elioenailarissa1@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "elioenailarissa1@gmail.com",
+          "disciplina": "Matemática Instrumental"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "3fb60619-6771-48b9-838a-7faaf6d56fdd"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            6.5,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            6.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "elioenailarissa1@gmail.com",
+          "disciplina": "Nutrição e Dietética"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "4118f8a4-325c-4f53-a308-b3e5985bbef8"
+        },
+        {
+          "acao": "completar_nota",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "completado": [
+            10,
+            6,
+            9.5,
+            0
+          ],
+          "anterior": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "id": "bb8c9c14-e593-4e91-8e12-c4f3c9318e9c"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "id": "a047d42d-014b-42e4-ac90-088ffdbe0867"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "id": "8369c886-b64f-4fa4-be02-0f24d1605fe0"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "id": "3aae33a2-305f-4b7a-9243-d17d90c02b64"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "elioenailarissa1@gmail.com",
+          "para": "elionaylarissa1@gmail.com",
+          "id": "bf1fc3b7-3950-4a80-a11d-c614d0a7957e"
+        }
+      ],
+      "matriculas": [],
+      "outros": []
+    },
+    {
+      "cpf": "11998187470",
+      "cpf_formatado": "119.981.874-70",
+      "canonica": {
+        "id": "d36a7d20-6c7e-4291-9e5e-135fe44cdd1d",
+        "nome": "ERICA FERNANDA SANTANA DA SILVA NERIS",
+        "email": "erikafernanda8792@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "5c25ce7f-10c4-44f5-b0f4-50e98c0eb1ef",
+          "nome": "ERICA FERNANDA SANTANA  DA SILVA NERIS",
+          "email": "ericafernabda@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            9,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            8,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "ericafernabda@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            7,
+            6.9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            9,
+            9,
+            0
+          ],
+          "descartado": [
+            9.8,
+            9,
+            9.4,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            9.5,
+            6.5,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            8.5,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "a797e3a9-841e-4111-96e9-f72e64d92a18"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "id": "a421c4dc-389a-4750-a641-a164a7f69ea0"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "ericafernabda@gmail.com",
+          "para": "erikafernanda8792@gmail.com",
+          "id": "49bc8e33-9bcd-4a0c-a958-93ab72060200"
+        }
+      ]
+    },
+    {
+      "cpf": "17540388404",
+      "cpf_formatado": "175.403.884-04",
+      "canonica": {
+        "id": "cddb36ff-d7b3-4ebf-90c0-bca62d239208",
+        "nome": "GISELA PAES LOPES DE SOUZA",
+        "email": "gisela@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "5e03daf6-a4e4-49a5-958e-edc28242f3cd",
+          "nome": "GISELA PAES LOPES DE SOUZA",
+          "email": "giselasouza@gmail.com"
+        },
+        {
+          "id": "e73ceb52-9e1a-46a2-93ad-8b8ec26e9213",
+          "nome": "GISELA PAES LOPES DE SOUZA",
+          "email": "giselapaes@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "giselasouza@gmail.com",
+          "para": "gisela@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            6,
+            8.5,
+            0
+          ],
+          "descartado": [
+            10,
+            9.3,
+            6,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "giselasouza@gmail.com",
+          "para": "gisela@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            8.5,
+            8.5,
+            0,
+            0
+          ],
+          "descartado": [
+            8.5,
+            8.5,
+            0,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "giselasouza@gmail.com",
+          "para": "gisela@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            9,
+            9.5,
+            9.5,
+            0
+          ],
+          "descartado": [
+            9,
+            9.5,
+            2.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "giselasouza@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "giselasouza@gmail.com",
+          "para": "gisela@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            9,
+            9,
+            10,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            10,
+            0
+          ]
+        }
+      ],
+      "frequencia": [],
+      "matriculas": [
+        {
+          "acao": "apagar",
+          "de": "giselasouza@gmail.com",
+          "turma": "Enfermagem - Noite - 2026/2027",
+          "status": "ativo"
+        }
+      ],
+      "outros": []
+    },
+    {
+      "cpf": "06859520450",
+      "cpf_formatado": "068.595.204-50",
+      "canonica": {
+        "id": "76de3cfc-37be-4a3a-ac02-13b33b456880",
+        "nome": "GISLAINE CRISTINA DA SILVA",
+        "email": "gigi@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "e3260c49-185e-4e45-94db-04983a5a8868",
+          "nome": "GISLAINE CRISTINA DA SILVA",
+          "email": "gislaine@gmail.com"
+        }
+      ],
+      "boletim": [],
+      "frequencia": [],
+      "matriculas": [],
+      "outros": []
+    },
+    {
+      "cpf": "13795344450",
+      "cpf_formatado": "137.953.444-50",
+      "canonica": {
+        "id": "9cc747a6-da5f-4f45-83a5-8a371f2a4d38",
+        "nome": "GRACIELY MARIA DE SOUZA",
+        "email": "gracielymaria1@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "b0c45368-dfac-4bed-bff8-d591e6e8d289",
+          "nome": "GRACIELY MARIA DE SOUZA",
+          "email": "graciely@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            8.5,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            9.7,
+            8,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            7,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "15552579-fc79-4ee3-b689-697fe286c785"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            5.8,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            6,
+            7,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            8,
+            6.5,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            8.6,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "391de588-0cbb-4ae9-b15f-99c48b7576c0"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            6,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            6,
+            9,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "id": "2db8764c-9433-4174-90d6-00b6c0aac0fa"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "id": "9caa06d6-edab-4efa-b561-9b81817c0385"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "graciely@gmail.com",
+          "para": "gracielymaria1@gmail.com",
+          "id": "b90712f3-bb6a-411f-8354-56c1f30f828c"
+        }
+      ]
+    },
+    {
+      "cpf": "10783943423",
+      "cpf_formatado": "107.839.434-23",
+      "canonica": {
+        "id": "78bf8bb0-25d7-4417-8cde-ebb0f78e1be5",
+        "nome": "IVANEIDE SOARES ANDRE",
+        "email": "ivaneidesoares@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "88a985d4-69d9-4136-915b-2c6972362960",
+          "nome": "IVANEIDE SOARES ANDRE",
+          "email": "ivaneide@gmail.com"
+        }
+      ],
+      "boletim": [],
+      "frequencia": [],
+      "matriculas": [],
+      "outros": []
+    },
+    {
+      "cpf": "39800968822",
+      "cpf_formatado": "398.009.688-22",
+      "canonica": {
+        "id": "22c99bc2-0d63-45f2-a70e-d61be87d5015",
+        "nome": "JANEICLEIDE SANTOS DA SILVA",
+        "email": "janicleide@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "7250af75-864c-4490-a3b9-5d95abb86dff",
+          "nome": "JANICLEIDE SANTOS DA SILVA",
+          "email": "janicleidesantos1@gmail.com"
+        },
+        {
+          "id": "dd849677-b614-4430-8666-7e8a1104ad38",
+          "nome": "JANICLEIDE SANTOS DA SILVA",
+          "email": "janicleidesantos@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_vazia",
+          "de": "janicleidesantos1@gmail.com",
+          "disciplina": "Português Instrumental"
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "janicleidesantos1@gmail.com",
+          "disciplina": "Matemática Instrumental"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "janicleidesantos1@gmail.com",
+          "para": "janicleide@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10.01,
+            10,
+            6,
+            0
+          ],
+          "descartado": [
+            10,
+            9.8,
+            6,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "janicleidesantos1@gmail.com",
+          "para": "janicleide@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "9caa76dc-e86a-4c6c-b0d1-80f88c7afca8"
+        }
+      ],
+      "frequencia": [],
+      "matriculas": [
+        {
+          "acao": "apagar",
+          "de": "janicleidesantos1@gmail.com",
+          "turma": "Enfermagem - Noite - 2026/2027",
+          "status": "ativo"
+        }
+      ],
+      "outros": []
+    },
+    {
+      "cpf": "11766341438",
+      "cpf_formatado": "117.663.414-38",
+      "canonica": {
+        "id": "be9fcf08-17e4-49e1-b28f-30cff90ac941",
+        "nome": "JOICE CLEIDE DE ALMEIDA FRANCISCO",
+        "email": "angelaalmeidas682@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "dc4c9442-43b5-463c-8b0c-624ee0923764",
+          "nome": "JOICE CLEIDE DE ALMEIDA FRANCISCO",
+          "email": "JOICECLEIDE@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            8.5,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7.5,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            8.8,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            9,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "5c2a2baf-6a5f-4632-ab70-763eb8755a49"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            10,
+            9.4,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            9.5,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "f41c7975-d95f-4a1c-b8f4-1b0e2ce60f34"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "id": "992ab561-95e8-4aec-9da2-161c86e26185"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "JOICECLEIDE@gmail.com",
+          "para": "angelaalmeidas682@gmail.com",
+          "id": "c0508210-6b8b-4b2b-ba1d-31d7cdd1f784"
+        }
+      ]
+    },
+    {
+      "cpf": "12901773419",
+      "cpf_formatado": "129.017.734-19",
+      "canonica": {
+        "id": "2665e15e-3120-4887-ba3a-cd9d9d604dae",
+        "nome": "JULIANA VITORIA CUSTÓDIO DE FARIAS",
+        "email": "julfarias2024@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "cc5f3d9b-6f48-44d6-b96d-e39f4e442600",
+          "nome": "JULIANA VITORIA CUSTODIO DE FARIAS",
+          "email": "julianavitoria1@gmail.com"
+        },
+        {
+          "id": "00d966e0-ed7f-417d-93a8-de7f40f1f912",
+          "nome": "JULIANA VITORIA CUSTODIO DE FARIAS",
+          "email": "jufarias2024@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "completar_nota",
+          "de": "julianavitoria1@gmail.com",
+          "para": "julfarias2024@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "completado": [
+            9.9,
+            7,
+            9.5,
+            0
+          ],
+          "anterior": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "julianavitoria1@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "julianavitoria1@gmail.com",
+          "para": "julfarias2024@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            10,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            9,
+            0
+          ]
+        }
+      ],
+      "frequencia": [],
+      "matriculas": [
+        {
+          "acao": "apagar",
+          "de": "julianavitoria1@gmail.com",
+          "turma": "Enfermagem - Noite - 2026/2027",
+          "status": "ativo"
+        }
+      ],
+      "outros": []
+    },
+    {
+      "cpf": "11539195406",
+      "cpf_formatado": "115.391.954-06",
+      "canonica": {
+        "id": "5adcbe8f-7a39-40ce-85dc-0e82e3b6a3d8",
+        "nome": "LARA BEATRIZ FERREIRA DA SILVA",
+        "email": "larabeatriz0208@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "982a4f51-3c1b-48f4-82e1-21a289e191dd",
+          "nome": "LARA BEATRIZ FERREIRA DA SILVA",
+          "email": "larabeatriz@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            8,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "larabeatriz@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7.5,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            9,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "8dfe779c-fd06-4cd5-8916-9e111000e761"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            10,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "id": "82d00216-69b5-4cec-8053-23e43021e95a"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "id": "ef8be3ec-4311-42dc-8eca-f50c04bc4166"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "larabeatriz@gmail.com",
+          "para": "larabeatriz0208@gmail.com",
+          "id": "1bd113cf-2eb2-44e8-b8f1-7836cdb330cb"
+        }
+      ]
+    },
+    {
+      "cpf": "14791281470",
+      "cpf_formatado": "147.912.814-70",
+      "canonica": {
+        "id": "ab134a54-7d2d-474e-82f1-31c5f984f4b2",
+        "nome": "LARISSA DE MORAIS FELIX",
+        "email": "larissa.morais@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "70171a99-4b56-4d91-9b1d-b3ef609bb935",
+          "nome": "LARISSA DE MORAIS FELIX",
+          "email": "larissamorais@gmail.com"
+        },
+        {
+          "id": "2ba01723-c9f0-4998-8efb-bb9bb3b90088",
+          "nome": "LARISSA DE MORAIS FELIX",
+          "email": "larissa.morais1824@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            7.5,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            7.5,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "e9c34d7c-a1b5-487a-ab08-0c10e51a34a4"
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "larissamorais@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            9.2,
+            8,
+            8.5,
+            0
+          ],
+          "descartado": [
+            9.5,
+            8,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            9,
+            9,
+            8,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "dc40e5f6-05c8-45fe-b995-046628f2d3f4"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            5.5,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            7,
+            8.5,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "id": "b4fe1811-3fdb-449b-8b02-ff9e8a69f7a2"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "id": "c83f33a7-a2d8-4846-bff0-0ce1626fc051"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "id": "9101a513-43f6-4bbe-90b9-f89410bb866c"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "id": "2e7bc6be-35da-4099-b828-79e97a644b89"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "id": "e0cc81e1-1019-43e7-bfbb-260f270a540a"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "larissamorais@gmail.com",
+          "para": "larissa.morais@gmail.com",
+          "id": "913207b2-7903-4154-95c2-281b8b128a91"
+        }
+      ]
+    },
+    {
+      "cpf": "17831979433",
+      "cpf_formatado": "178.319.794-33",
+      "canonica": {
+        "id": "7faff5e2-dd76-469a-a9ef-d9764c2f180b",
+        "nome": "MARIA  CLARA MOURA DA SILVA",
+        "email": "mariaclaramoura@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "e316c6ab-3656-48c8-a76c-2f211ec725de",
+          "nome": "MARIA CLARA MOURA  DA SILVA",
+          "email": "mariasilva66@gmail.com"
+        },
+        {
+          "id": "15262316-108b-4eec-9516-b643f2abe236",
+          "nome": "MARIA CLARA MOURA DA SILVA",
+          "email": "mariaclara@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_vazia",
+          "de": "mariasilva66@gmail.com",
+          "disciplina": "Nutrição e Dietética"
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "mariasilva66@gmail.com",
+          "disciplina": "Português Instrumental"
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "mariasilva66@gmail.com",
+          "disciplina": "Matemática Instrumental"
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "mariasilva66@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariasilva66@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "15cf0ca9-6ced-41de-95ca-f5126467ddff"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            9.5,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            9.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            8,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "mariaclara@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            8,
+            5,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            10,
+            9.5,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            9.9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "0447b532-8fa2-4577-913a-df9c143aa5f7"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "id": "d9b8f92d-c71f-4b32-840a-13b350b4647d"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "24f1e5a7-a244-4222-98f1-19d28b2a92dc"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "dbb71b00-8b5f-4194-833f-9b12a0feb542"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "41b3d8ff-4435-4eb3-bb09-888a6f55d121"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "c421407e-36e3-43cf-abcf-116544ff373b"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "12a9aab9-c3e8-406c-94f2-91608fa39210"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "c95a5229-5960-4087-8ae7-4077cd624d18"
+        }
+      ],
+      "matriculas": [
+        {
+          "acao": "apagar",
+          "de": "mariasilva66@gmail.com",
+          "turma": "Enfermagem - Noite - 2026/2027",
+          "status": "ativo"
+        }
+      ],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "mariaclara@gmail.com",
+          "para": "mariaclaramoura@gmail.com",
+          "id": "a063dc49-595d-4658-8633-cc5af171c16e"
+        }
+      ]
+    },
+    {
+      "cpf": "17335810493",
+      "cpf_formatado": "173.358.104-93",
+      "canonica": {
+        "id": "b0740742-91d6-4510-9a84-64b14171230b",
+        "nome": "MARIA BEATRIZ DA COSTA SANTOS",
+        "email": "mariabeatriz@gamil.com"
+      },
+      "desativar": [
+        {
+          "id": "327dfc10-b519-4bcd-9ed8-87dd43cd4983",
+          "nome": "MARIA BEATRIZ DA COSTA SANTOS",
+          "email": "mariabeatriz111108@icloud.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            6,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            5.9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Ética Profissional",
+          "id": "d59194fb-28c6-4b0b-b49e-da12c88bd90a"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            8.3,
+            8,
+            0
+          ],
+          "descartado": [
+            10,
+            8.5,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            9.8,
+            8,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            10,
+            9.5,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "b09a1a5d-6c8d-4c0c-8c23-d00bc6f4ab5a"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            8,
+            8.5,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            8,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "id": "bf29dc56-9f69-428b-9e51-88b2d4dd634d"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "id": "cc28f8b2-745d-4aa8-8813-e7cb868009d5"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "id": "03825b6b-0416-401d-afe6-de4b620044cb"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariabeatriz111108@icloud.com",
+          "para": "mariabeatriz@gamil.com",
+          "id": "1cde840a-0b63-48b6-a5d1-5cbac33cd04c"
+        }
+      ],
+      "matriculas": [],
+      "outros": []
+    },
+    {
+      "cpf": "07325524439",
+      "cpf_formatado": "073.255.244-39",
+      "canonica": {
+        "id": "48728575-1b6e-4920-856d-875db118865d",
+        "nome": "MARIA DE FATIMA DA SILVA",
+        "email": "amitesilva162@mail.com"
+      },
+      "desativar": [
+        {
+          "id": "1833a27f-b223-4860-988d-f2a6e2d972cc",
+          "nome": "MARIA DE FATIMA DA SILVA",
+          "email": "mariadefatima@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            10,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            6.5,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            6.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            8.8,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            7,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            8.6,
+            7.5,
+            10,
+            0
+          ],
+          "descartado": [
+            9,
+            7.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            9,
+            8.5,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            8.5,
+            8.5,
+            0
+          ],
+          "descartado": [
+            10,
+            8.5,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "f8c0a1f1-7405-4b5e-ab0e-dcc139d91746"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "id": "f52e4398-1b7a-4e10-bf3e-035f1989e56d"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "id": "a67e39df-5d7f-4bb1-8b98-eff0da5c850f"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "mariadefatima@gmail.com",
+          "para": "amitesilva162@mail.com",
+          "id": "744d9f6f-1525-4885-8741-6100f362b86c"
+        }
+      ]
+    },
+    {
+      "cpf": "11884404464",
+      "cpf_formatado": "118.844.044-64",
+      "canonica": {
+        "id": "898bcec0-797f-4705-9bc0-8d424fe5e661",
+        "nome": "MARIA EDUARDA DA SILVA",
+        "email": "mariaeduarda1@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "4497f08f-7398-47ac-8364-7d805e5a2160",
+          "nome": "MARIA EDUARDA DA SILVA",
+          "email": "meduarda@gmail.com"
+        },
+        {
+          "id": "88cd601d-ab86-4f2f-a222-7b1dfd103ef8",
+          "nome": "MARIA EDUARDA DA SILVA",
+          "email": "maria19eduarda@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            7.5,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            7.3,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "abebff4c-c134-4ec6-8c2d-db632812e7f7"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            8.8,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            6.8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7.5,
+            8,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            8.5,
+            6.5,
+            0
+          ],
+          "descartado": [
+            10,
+            8.5,
+            6.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            6.5,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "c05c0233-3a01-483e-98f5-fec5808b54a7"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "id": "962d4d45-67ce-4197-8713-edf27f218c32"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "id": "74333654-d3dc-4aef-92ea-ec4650995e77"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "id": "f3b6fd13-0859-49d5-bede-28597b2ee516"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "meduarda@gmail.com",
+          "para": "mariaeduarda1@gmail.com",
+          "id": "8524bdb0-f8ac-464c-b22b-e7d3c5476ae8"
+        }
+      ]
+    },
+    {
+      "cpf": "15199311409",
+      "cpf_formatado": "151.993.114-09",
+      "canonica": {
+        "id": "096d06b2-485d-4a42-822d-caaf29ac3e1c",
+        "nome": "MARIA VITORIA FELIX DE ALMEIDA",
+        "email": "mariavitoria0612@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "b2898402-abe8-407e-a872-291278db4630",
+          "nome": "MARIA VITORIA FELIX DE ALMEIDA",
+          "email": "mariavitoria@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            8.5,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "mariavitoria@gmail.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7.5,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            8,
+            10,
+            5,
+            0
+          ],
+          "descartado": [
+            8,
+            10,
+            5.3,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            9,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            5,
+            8.5,
+            0
+          ],
+          "descartado": [
+            10,
+            7,
+            8.5,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "b0b1597f-eaf3-475b-ad15-d8abc9062c93"
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "id": "3338a3e7-75cd-44af-8e84-388f1f5b46f2"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "id": "e38dfabe-3f94-45bb-9ee5-e280bc2b7fd1"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "id": "ebd6f3bc-ee64-4d8c-abf7-3984d3491652"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "id": "b2f9b7be-8abc-46d6-b596-be69ea7b9606"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "id": "6379a60f-1a8a-421e-b484-5fab0f2f12e2"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "mariavitoria@gmail.com",
+          "para": "mariavitoria0612@gmail.com",
+          "id": "749a4933-4eb8-4c63-9bc2-609750d423ec"
+        }
+      ]
+    },
+    {
+      "cpf": "11420436490",
+      "cpf_formatado": "114.204.364-90",
+      "canonica": {
+        "id": "45fda388-87ba-4edb-bc51-fde4dc168935",
+        "nome": "MARINA EMANUELLY NEGROMONTE DE OLIVEIRA",
+        "email": "marinaemanuelly@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "0d5d1342-c90e-4f37-adcf-ddbdb1bb98ed",
+          "nome": "MARINA EMANUELLY NEGROMONTE DE OLIVEIRA",
+          "email": "emanuellynegromonte@gamil.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            10,
+            6.5,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            6.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_vazia",
+          "de": "emanuellynegromonte@gamil.com",
+          "disciplina": "Psicologia Aplicada"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            9,
+            9.5,
+            0
+          ],
+          "descartado": [
+            10,
+            9,
+            9.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            10,
+            7.5,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            7.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            10,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "fe91a194-27fd-4198-922f-a4dadeb0e9a3"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            8,
+            9.5,
+            9.3,
+            0
+          ],
+          "descartado": [
+            8,
+            9.5,
+            9.5,
+            0
+          ]
+        }
+      ],
+      "frequencia": [],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "emanuellynegromonte@gamil.com",
+          "para": "marinaemanuelly@gmail.com",
+          "id": "60564622-9335-4044-9eaa-91c117c49968"
+        }
+      ]
+    },
+    {
+      "cpf": "11955420467",
+      "cpf_formatado": "119.554.204-67",
+      "canonica": {
+        "id": "9c827ed5-b62c-4aad-8aaf-8227fae3b29a",
+        "nome": "PALOMA ROCHELIS DA SILVA ARAÚJO",
+        "email": "paloma@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "1a07df47-5608-4a17-9a42-50443b283e95",
+          "nome": "PALOMA ROCHELIS DA SILVA ARAÚJO",
+          "email": "palomarochelis@gmail.com"
+        },
+        {
+          "id": "a35a21f8-a5cc-468e-b6f5-8a715d24ace7",
+          "nome": "PALOMA ROCHELIS DA SILVA ARAUJO",
+          "email": "palomarocheli930@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            5,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            10,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            7,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            9.7,
+            8,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            6.5,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            6.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Ética Profissional",
+          "mantido": [
+            10,
+            10,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "id": "b59f6da9-425f-4afb-9ab5-db1f1c42091f"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "74314f4a-b2c3-4d43-8c2a-3d52bec5a7d3"
+        }
+      ],
+      "frequencia": [],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "palomarochelis@gmail.com",
+          "para": "paloma@gmail.com",
+          "id": "10c16335-9e71-4404-89f6-1e374e899a37"
+        }
+      ]
+    },
+    {
+      "cpf": "10621800465",
+      "cpf_formatado": "106.218.004-65",
+      "canonica": {
+        "id": "8b08307c-2f4b-4661-a447-e17fad694b8c",
+        "nome": "PATRICIA MARIA DA SILVA BARBOSA",
+        "email": "patriciamaria@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "ff6e564c-248e-482b-ada8-d0db6e68712c",
+          "nome": "PATRICIA MARIA DA SILVA BARBOSA",
+          "email": "patricia@gmail.com"
+        },
+        {
+          "id": "dd521b7e-c52a-42ce-9ddf-97d6b7d6de05",
+          "nome": "PATRICIA MARIA DA SILVA BARBOSA",
+          "email": "patriciabarbosa.epiladora@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            9.5,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            9.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            8.5,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            8.5,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            10,
+            8,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            7.3,
+            7,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            7,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "4a0b52c2-90e9-472f-9b7d-e7243e20254b"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "6d851590-59cd-413f-a637-8abc29145139"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            10,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            9.5,
+            10,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "3d75c50e-0b09-4cac-bc45-e56343172cdc"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "87a620db-57f1-4e1a-b235-6effc8c40390"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "00ac8052-ca4c-4ce6-b0d7-752b3687e037"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "edd0742b-bbc2-4b12-9ce6-4388fdefb082"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "e0e79a21-fce5-44a3-93ef-226fd8770276"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "69de4660-a490-404c-9acc-bbf890798fa3"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "d0121fb9-8124-4c64-b2dc-761eceed9aa0"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "947c5f47-ccba-4646-a8ed-f3d30944f85d"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "patricia@gmail.com",
+          "para": "patriciamaria@gmail.com",
+          "id": "953885d0-b660-4911-963f-e487e86d2281"
+        }
+      ]
+    },
+    {
+      "cpf": "07340388281",
+      "cpf_formatado": "073.403.882-81",
+      "canonica": {
+        "id": "fa7981b0-65bc-4ca2-aaa2-cdb6520545ee",
+        "nome": "RAYSSA LIMA DE SOUSA",
+        "email": "raissalima1@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "d1dd8dad-9c43-4609-843c-61f6f96a90d1",
+          "nome": "RAYSSA LIMA DE SOUZA",
+          "email": "rayssa@gmail.com"
+        },
+        {
+          "id": "8836708b-d0d1-4343-b14e-1ae2e943d739",
+          "nome": "RAYSSA LIMA DE SOUSA",
+          "email": "rayssasousa20@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            9,
+            8,
+            0
+          ],
+          "descartado": [
+            9,
+            9,
+            8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            10,
+            8,
+            0
+          ],
+          "descartado": [
+            10,
+            10,
+            9.8,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            7.8,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            8.9,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            10,
+            7.5,
+            9,
+            0
+          ],
+          "descartado": [
+            10,
+            7.5,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "e5088424-117a-44b4-8b45-58a5df2923b8"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "38126e99-67ab-4bd0-8f55-4a3c58f9342c"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            10,
+            7,
+            8.5,
+            0
+          ],
+          "descartado": [
+            10,
+            7,
+            8.5,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "id": "d2570772-1a16-4948-bc67-74f5c2137429"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "rayssa@gmail.com",
+          "para": "raissalima1@gmail.com",
+          "id": "7d9380a7-e6a0-41d4-9f01-172c8e563ffe"
+        }
+      ]
+    },
+    {
+      "cpf": "08814313466",
+      "cpf_formatado": "088.143.134-66",
+      "canonica": {
+        "id": "4617b033-12aa-46ff-bc00-e5c86284af44",
+        "nome": "RUTE MELO DOS SANTOS",
+        "email": "rutemelo@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "930237d5-8b5a-4ff3-a857-e314d6d6a818",
+          "nome": "RUTE MELO DOS SANTOS",
+          "email": "rute@gmail.com"
+        }
+      ],
+      "boletim": [
+        {
+          "acao": "descartar_duplicada",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Português Instrumental",
+          "mantido": [
+            9,
+            8.5,
+            9,
+            0
+          ],
+          "descartado": [
+            9,
+            8.5,
+            9,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Matemática Instrumental",
+          "mantido": [
+            10,
+            5,
+            7.5,
+            0
+          ],
+          "descartado": [
+            10,
+            5,
+            7.5,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Psicologia Aplicada",
+          "mantido": [
+            10,
+            6.3,
+            10,
+            0
+          ],
+          "descartado": [
+            10,
+            6.5,
+            10,
+            0
+          ]
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Nutrição e Dietética",
+          "mantido": [
+            9.7,
+            8,
+            9.5,
+            0
+          ],
+          "descartado": [
+            10,
+            8,
+            9.5,
+            0
+          ]
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Ética Profissional",
+          "id": "28124020-d84f-4b73-90c7-a07cbdba19ff"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Introdução à Enfermagem",
+          "id": "c1f0b180-c58a-4d23-8908-2a5f176f9228"
+        },
+        {
+          "acao": "descartar_duplicada",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "disciplina": "Microbiologia e Parasitologia",
+          "mantido": [
+            9.5,
+            4,
+            6,
+            0
+          ],
+          "descartado": [
+            10,
+            6.5,
+            6.5,
+            0
+          ]
+        }
+      ],
+      "frequencia": [
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "id": "745b87bc-b14a-40b3-9427-d683eb6a16e7"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "id": "d71981c4-1531-44cb-93d1-74160bfe859c"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "id": "26504af7-c88c-4ecd-b1ea-7e7bfc29e805"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "id": "b559d2c3-570b-4ddf-b8e7-e38329a6fa13"
+        },
+        {
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "id": "32cc15d5-0a5b-4adf-91ec-e2cc979fde66"
+        }
+      ],
+      "matriculas": [],
+      "outros": [
+        {
+          "tabela": "perfis_enderecos",
+          "acao": "reatribuir",
+          "de": "rute@gmail.com",
+          "para": "rutemelo@gmail.com",
+          "id": "a20aecde-c6be-4f9d-8498-1febcf27950e"
+        }
+      ]
+    },
+    {
+      "cpf": "14343025470",
+      "cpf_formatado": "143.430.254-70",
+      "canonica": {
+        "id": "0592e813-9f04-46d1-a873-e5523b5153f8",
+        "nome": "STEPHANE CAMILLA GOMES DA SILVA",
+        "email": "stephane@gmail.com"
+      },
+      "desativar": [
+        {
+          "id": "5dada603-4e0f-43e3-929c-50a2c7e54d01",
+          "nome": "STEPHANE CAMILA GOMES DA SILVA",
+          "email": "stephanecamila@gmail.com"
+        }
+      ],
+      "boletim": [],
+      "frequencia": [],
+      "matriculas": [],
+      "outros": []
+    }
+  ],
+  "discarded": [
+    {
+      "cpf": "12006905406",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "andreasilva@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        8.5,
+        0
+      ],
+      "descartado_email": "andreiamelo@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "12006905406",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "andreasilva@gmail.com",
+      "mantido": [
+        10,
+        7.5,
+        10,
+        0
+      ],
+      "descartado_email": "andreiamelo@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        9.9,
+        0
+      ]
+    },
+    {
+      "cpf": "12006905406",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "andreasilva@gmail.com",
+      "mantido": [
+        9,
+        9,
+        9,
+        0
+      ],
+      "descartado_email": "andreiamelo@gmail.com",
+      "descartado": [
+        9,
+        9,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "12006905406",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "andreasilva@gmail.com",
+      "mantido": [
+        10,
+        6,
+        7.5,
+        0
+      ],
+      "descartado_email": "andreiamelo@gmail.com",
+      "descartado": [
+        10,
+        6,
+        7.2,
+        0
+      ]
+    },
+    {
+      "cpf": "12006905406",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "andreasilva@gmail.com",
+      "mantido": [
+        10,
+        6,
+        10,
+        0
+      ],
+      "descartado_email": "andreiamelo@gmail.com",
+      "descartado": [
+        10,
+        8.5,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "14304861476",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "elionaylarissa1@gmail.com",
+      "mantido": [
+        9,
+        9,
+        6.5,
+        0
+      ],
+      "descartado_email": "elioenailarissa1@gmail.com",
+      "descartado": [
+        9,
+        9,
+        6.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11998187470",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "erikafernanda8792@gmail.com",
+      "mantido": [
+        10,
+        9,
+        9,
+        0
+      ],
+      "descartado_email": "ericafernabda@gmail.com",
+      "descartado": [
+        10,
+        9,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "11998187470",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "erikafernanda8792@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        8,
+        0
+      ],
+      "descartado_email": "ericafernabda@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "11998187470",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "erikafernanda8792@gmail.com",
+      "mantido": [
+        10,
+        7,
+        7,
+        0
+      ],
+      "descartado_email": "ericafernabda@gmail.com",
+      "descartado": [
+        10,
+        7,
+        6.9,
+        0
+      ]
+    },
+    {
+      "cpf": "11998187470",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "erikafernanda8792@gmail.com",
+      "mantido": [
+        10,
+        9,
+        9,
+        0
+      ],
+      "descartado_email": "ericafernabda@gmail.com",
+      "descartado": [
+        9.8,
+        9,
+        9.4,
+        0
+      ]
+    },
+    {
+      "cpf": "11998187470",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "erikafernanda8792@gmail.com",
+      "mantido": [
+        9.5,
+        6.5,
+        9,
+        0
+      ],
+      "descartado_email": "ericafernabda@gmail.com",
+      "descartado": [
+        10,
+        8.5,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "17540388404",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "gisela@gmail.com",
+      "mantido": [
+        10,
+        6,
+        8.5,
+        0
+      ],
+      "descartado_email": "giselasouza@gmail.com",
+      "descartado": [
+        10,
+        9.3,
+        6,
+        0
+      ]
+    },
+    {
+      "cpf": "17540388404",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "gisela@gmail.com",
+      "mantido": [
+        8.5,
+        8.5,
+        0,
+        0
+      ],
+      "descartado_email": "giselasouza@gmail.com",
+      "descartado": [
+        8.5,
+        8.5,
+        0,
+        0
+      ]
+    },
+    {
+      "cpf": "17540388404",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "gisela@gmail.com",
+      "mantido": [
+        9,
+        9.5,
+        9.5,
+        0
+      ],
+      "descartado_email": "giselasouza@gmail.com",
+      "descartado": [
+        9,
+        9.5,
+        2.5,
+        0
+      ]
+    },
+    {
+      "cpf": "17540388404",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "gisela@gmail.com",
+      "mantido": [
+        9,
+        9,
+        10,
+        0
+      ],
+      "descartado_email": "giselasouza@gmail.com",
+      "descartado": [
+        9,
+        9,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "13795344450",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "gracielymaria1@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        8.5,
+        0
+      ],
+      "descartado_email": "graciely@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "13795344450",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "gracielymaria1@gmail.com",
+      "mantido": [
+        9.7,
+        8,
+        7,
+        0
+      ],
+      "descartado_email": "graciely@gmail.com",
+      "descartado": [
+        10,
+        8,
+        7,
+        0
+      ]
+    },
+    {
+      "cpf": "13795344450",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "gracielymaria1@gmail.com",
+      "mantido": [
+        10,
+        5.8,
+        7,
+        0
+      ],
+      "descartado_email": "graciely@gmail.com",
+      "descartado": [
+        10,
+        6,
+        7,
+        0
+      ]
+    },
+    {
+      "cpf": "13795344450",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "gracielymaria1@gmail.com",
+      "mantido": [
+        10,
+        8,
+        6.5,
+        0
+      ],
+      "descartado_email": "graciely@gmail.com",
+      "descartado": [
+        10,
+        8,
+        8.6,
+        0
+      ]
+    },
+    {
+      "cpf": "13795344450",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "gracielymaria1@gmail.com",
+      "mantido": [
+        10,
+        6,
+        9,
+        0
+      ],
+      "descartado_email": "graciely@gmail.com",
+      "descartado": [
+        10,
+        6,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "39800968822",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "janicleide@gmail.com",
+      "mantido": [
+        10.01,
+        10,
+        6,
+        0
+      ],
+      "descartado_email": "janicleidesantos1@gmail.com",
+      "descartado": [
+        10,
+        9.8,
+        6,
+        0
+      ]
+    },
+    {
+      "cpf": "11766341438",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "angelaalmeidas682@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        8.5,
+        0
+      ],
+      "descartado_email": "JOICECLEIDE@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11766341438",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "angelaalmeidas682@gmail.com",
+      "mantido": [
+        10,
+        7.5,
+        10,
+        0
+      ],
+      "descartado_email": "JOICECLEIDE@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11766341438",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "angelaalmeidas682@gmail.com",
+      "mantido": [
+        10,
+        8.8,
+        10,
+        0
+      ],
+      "descartado_email": "JOICECLEIDE@gmail.com",
+      "descartado": [
+        10,
+        9,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11766341438",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "angelaalmeidas682@gmail.com",
+      "mantido": [
+        10,
+        9,
+        10,
+        0
+      ],
+      "descartado_email": "JOICECLEIDE@gmail.com",
+      "descartado": [
+        10,
+        9,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11766341438",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "angelaalmeidas682@gmail.com",
+      "mantido": [
+        10,
+        10,
+        9.4,
+        0
+      ],
+      "descartado_email": "JOICECLEIDE@gmail.com",
+      "descartado": [
+        10,
+        10,
+        9.5,
+        0
+      ]
+    },
+    {
+      "cpf": "12901773419",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "julfarias2024@gmail.com",
+      "mantido": [
+        10,
+        10,
+        9,
+        0
+      ],
+      "descartado_email": "julianavitoria1@gmail.com",
+      "descartado": [
+        10,
+        10,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "11539195406",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "larabeatriz0208@gmail.com",
+      "mantido": [
+        9,
+        9,
+        8,
+        0
+      ],
+      "descartado_email": "larabeatriz@gmail.com",
+      "descartado": [
+        9,
+        9,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "11539195406",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "larabeatriz0208@gmail.com",
+      "mantido": [
+        10,
+        7.5,
+        10,
+        0
+      ],
+      "descartado_email": "larabeatriz@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11539195406",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "larabeatriz0208@gmail.com",
+      "mantido": [
+        10,
+        9,
+        9,
+        0
+      ],
+      "descartado_email": "larabeatriz@gmail.com",
+      "descartado": [
+        10,
+        9,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "11539195406",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "larabeatriz0208@gmail.com",
+      "mantido": [
+        10,
+        10,
+        10,
+        0
+      ],
+      "descartado_email": "larabeatriz@gmail.com",
+      "descartado": [
+        10,
+        10,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "14791281470",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "larissa.morais@gmail.com",
+      "mantido": [
+        9,
+        9,
+        7.5,
+        0
+      ],
+      "descartado_email": "larissamorais@gmail.com",
+      "descartado": [
+        9,
+        9,
+        7.5,
+        0
+      ]
+    },
+    {
+      "cpf": "14791281470",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "larissa.morais@gmail.com",
+      "mantido": [
+        9.2,
+        8,
+        8.5,
+        0
+      ],
+      "descartado_email": "larissamorais@gmail.com",
+      "descartado": [
+        9.5,
+        8,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "14791281470",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "larissa.morais@gmail.com",
+      "mantido": [
+        9,
+        9,
+        8,
+        0
+      ],
+      "descartado_email": "larissamorais@gmail.com",
+      "descartado": [
+        9,
+        9,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "14791281470",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "larissa.morais@gmail.com",
+      "mantido": [
+        10,
+        5.5,
+        9,
+        0
+      ],
+      "descartado_email": "larissamorais@gmail.com",
+      "descartado": [
+        10,
+        7,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "17831979433",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "mariaclaramoura@gmail.com",
+      "mantido": [
+        9,
+        9,
+        9.5,
+        0
+      ],
+      "descartado_email": "mariaclara@gmail.com",
+      "descartado": [
+        9,
+        9,
+        9.5,
+        0
+      ]
+    },
+    {
+      "cpf": "17831979433",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "mariaclaramoura@gmail.com",
+      "mantido": [
+        10,
+        8,
+        10,
+        0
+      ],
+      "descartado_email": "mariaclara@gmail.com",
+      "descartado": [
+        10,
+        8,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "17831979433",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "mariaclaramoura@gmail.com",
+      "mantido": [
+        10,
+        8,
+        5,
+        0
+      ],
+      "descartado_email": "mariaclara@gmail.com",
+      "descartado": [
+        10,
+        8,
+        5,
+        0
+      ]
+    },
+    {
+      "cpf": "17831979433",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "mariaclaramoura@gmail.com",
+      "mantido": [
+        10,
+        10,
+        9.5,
+        0
+      ],
+      "descartado_email": "mariaclara@gmail.com",
+      "descartado": [
+        10,
+        10,
+        9.9,
+        0
+      ]
+    },
+    {
+      "cpf": "17335810493",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "mariabeatriz@gamil.com",
+      "mantido": [
+        9,
+        9,
+        6,
+        0
+      ],
+      "descartado_email": "mariabeatriz111108@icloud.com",
+      "descartado": [
+        9,
+        9,
+        5.9,
+        0
+      ]
+    },
+    {
+      "cpf": "17335810493",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "mariabeatriz@gamil.com",
+      "mantido": [
+        10,
+        8.3,
+        8,
+        0
+      ],
+      "descartado_email": "mariabeatriz111108@icloud.com",
+      "descartado": [
+        10,
+        8.5,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "17335810493",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "mariabeatriz@gamil.com",
+      "mantido": [
+        9.8,
+        8,
+        10,
+        0
+      ],
+      "descartado_email": "mariabeatriz111108@icloud.com",
+      "descartado": [
+        10,
+        8,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "17335810493",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "mariabeatriz@gamil.com",
+      "mantido": [
+        10,
+        10,
+        9.5,
+        0
+      ],
+      "descartado_email": "mariabeatriz111108@icloud.com",
+      "descartado": [
+        10,
+        10,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "17335810493",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "mariabeatriz@gamil.com",
+      "mantido": [
+        10,
+        8,
+        8.5,
+        0
+      ],
+      "descartado_email": "mariabeatriz111108@icloud.com",
+      "descartado": [
+        10,
+        8,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "07325524439",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "amitesilva162@mail.com",
+      "mantido": [
+        10,
+        10,
+        9,
+        0
+      ],
+      "descartado_email": "mariadefatima@gmail.com",
+      "descartado": [
+        10,
+        10,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "07325524439",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "amitesilva162@mail.com",
+      "mantido": [
+        9,
+        9,
+        6.5,
+        0
+      ],
+      "descartado_email": "mariadefatima@gmail.com",
+      "descartado": [
+        9,
+        9,
+        6.5,
+        0
+      ]
+    },
+    {
+      "cpf": "07325524439",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "amitesilva162@mail.com",
+      "mantido": [
+        10,
+        8.8,
+        7,
+        0
+      ],
+      "descartado_email": "mariadefatima@gmail.com",
+      "descartado": [
+        10,
+        9,
+        7,
+        0
+      ]
+    },
+    {
+      "cpf": "07325524439",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "amitesilva162@mail.com",
+      "mantido": [
+        8.6,
+        7.5,
+        10,
+        0
+      ],
+      "descartado_email": "mariadefatima@gmail.com",
+      "descartado": [
+        9,
+        7.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "07325524439",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "amitesilva162@mail.com",
+      "mantido": [
+        10,
+        9,
+        8.5,
+        0
+      ],
+      "descartado_email": "mariadefatima@gmail.com",
+      "descartado": [
+        10,
+        9,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "07325524439",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "amitesilva162@mail.com",
+      "mantido": [
+        10,
+        8.5,
+        8.5,
+        0
+      ],
+      "descartado_email": "mariadefatima@gmail.com",
+      "descartado": [
+        10,
+        8.5,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11884404464",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "mariaeduarda1@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        7.5,
+        0
+      ],
+      "descartado_email": "meduarda@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        7.3,
+        0
+      ]
+    },
+    {
+      "cpf": "11884404464",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "mariaeduarda1@gmail.com",
+      "mantido": [
+        10,
+        8.8,
+        7,
+        0
+      ],
+      "descartado_email": "meduarda@gmail.com",
+      "descartado": [
+        10,
+        9,
+        6.8,
+        0
+      ]
+    },
+    {
+      "cpf": "11884404464",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "mariaeduarda1@gmail.com",
+      "mantido": [
+        10,
+        7.5,
+        8,
+        0
+      ],
+      "descartado_email": "meduarda@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "11884404464",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "mariaeduarda1@gmail.com",
+      "mantido": [
+        10,
+        8.5,
+        6.5,
+        0
+      ],
+      "descartado_email": "meduarda@gmail.com",
+      "descartado": [
+        10,
+        8.5,
+        6.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11884404464",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "mariaeduarda1@gmail.com",
+      "mantido": [
+        10,
+        6.5,
+        9,
+        0
+      ],
+      "descartado_email": "meduarda@gmail.com",
+      "descartado": [
+        10,
+        8,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "15199311409",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "mariavitoria0612@gmail.com",
+      "mantido": [
+        9,
+        9,
+        8.5,
+        0
+      ],
+      "descartado_email": "mariavitoria@gmail.com",
+      "descartado": [
+        9,
+        9,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "15199311409",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "mariavitoria0612@gmail.com",
+      "mantido": [
+        10,
+        7.5,
+        10,
+        0
+      ],
+      "descartado_email": "mariavitoria@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "15199311409",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "mariavitoria0612@gmail.com",
+      "mantido": [
+        8,
+        10,
+        5,
+        0
+      ],
+      "descartado_email": "mariavitoria@gmail.com",
+      "descartado": [
+        8,
+        10,
+        5.3,
+        0
+      ]
+    },
+    {
+      "cpf": "15199311409",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "mariavitoria0612@gmail.com",
+      "mantido": [
+        10,
+        9,
+        9,
+        0
+      ],
+      "descartado_email": "mariavitoria@gmail.com",
+      "descartado": [
+        10,
+        9,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "15199311409",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "mariavitoria0612@gmail.com",
+      "mantido": [
+        10,
+        5,
+        8.5,
+        0
+      ],
+      "descartado_email": "mariavitoria@gmail.com",
+      "descartado": [
+        10,
+        7,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11420436490",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "marinaemanuelly@gmail.com",
+      "mantido": [
+        10,
+        6.5,
+        10,
+        0
+      ],
+      "descartado_email": "emanuellynegromonte@gamil.com",
+      "descartado": [
+        10,
+        6.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11420436490",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "marinaemanuelly@gmail.com",
+      "mantido": [
+        10,
+        9,
+        9.5,
+        0
+      ],
+      "descartado_email": "emanuellynegromonte@gamil.com",
+      "descartado": [
+        10,
+        9,
+        9.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11420436490",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "marinaemanuelly@gmail.com",
+      "mantido": [
+        10,
+        10,
+        7.5,
+        0
+      ],
+      "descartado_email": "emanuellynegromonte@gamil.com",
+      "descartado": [
+        10,
+        10,
+        7.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11420436490",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "marinaemanuelly@gmail.com",
+      "mantido": [
+        10,
+        10,
+        10,
+        0
+      ],
+      "descartado_email": "emanuellynegromonte@gamil.com",
+      "descartado": [
+        10,
+        10,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11420436490",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "marinaemanuelly@gmail.com",
+      "mantido": [
+        8,
+        9.5,
+        9.3,
+        0
+      ],
+      "descartado_email": "emanuellynegromonte@gamil.com",
+      "descartado": [
+        8,
+        9.5,
+        9.5,
+        0
+      ]
+    },
+    {
+      "cpf": "11955420467",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "paloma@gmail.com",
+      "mantido": [
+        9,
+        9,
+        5,
+        0
+      ],
+      "descartado_email": "palomarochelis@gmail.com",
+      "descartado": [
+        9,
+        9,
+        5,
+        0
+      ]
+    },
+    {
+      "cpf": "11955420467",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "paloma@gmail.com",
+      "mantido": [
+        10,
+        10,
+        7,
+        0
+      ],
+      "descartado_email": "palomarochelis@gmail.com",
+      "descartado": [
+        10,
+        10,
+        7,
+        0
+      ]
+    },
+    {
+      "cpf": "11955420467",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "paloma@gmail.com",
+      "mantido": [
+        9.7,
+        8,
+        9,
+        0
+      ],
+      "descartado_email": "palomarochelis@gmail.com",
+      "descartado": [
+        10,
+        8,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "11955420467",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "paloma@gmail.com",
+      "mantido": [
+        10,
+        6.5,
+        10,
+        0
+      ],
+      "descartado_email": "palomarochelis@gmail.com",
+      "descartado": [
+        10,
+        6.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "11955420467",
+      "disciplina": "Ética Profissional",
+      "mantido_email": "paloma@gmail.com",
+      "mantido": [
+        10,
+        10,
+        10,
+        0
+      ],
+      "descartado_email": "palomarochelis@gmail.com",
+      "descartado": [
+        10,
+        10,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "10621800465",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "patriciamaria@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        9.5,
+        0
+      ],
+      "descartado_email": "patricia@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        9.5,
+        0
+      ]
+    },
+    {
+      "cpf": "10621800465",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "patriciamaria@gmail.com",
+      "mantido": [
+        10,
+        8.5,
+        9,
+        0
+      ],
+      "descartado_email": "patricia@gmail.com",
+      "descartado": [
+        10,
+        8.5,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "10621800465",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "patriciamaria@gmail.com",
+      "mantido": [
+        10,
+        10,
+        8,
+        0
+      ],
+      "descartado_email": "patricia@gmail.com",
+      "descartado": [
+        10,
+        10,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "10621800465",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "patriciamaria@gmail.com",
+      "mantido": [
+        10,
+        7.3,
+        7,
+        0
+      ],
+      "descartado_email": "patricia@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        7,
+        0
+      ]
+    },
+    {
+      "cpf": "10621800465",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "patriciamaria@gmail.com",
+      "mantido": [
+        10,
+        10,
+        9,
+        0
+      ],
+      "descartado_email": "patricia@gmail.com",
+      "descartado": [
+        10,
+        9.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "07340388281",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "raissalima1@gmail.com",
+      "mantido": [
+        9,
+        9,
+        8,
+        0
+      ],
+      "descartado_email": "rayssa@gmail.com",
+      "descartado": [
+        9,
+        9,
+        8,
+        0
+      ]
+    },
+    {
+      "cpf": "07340388281",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "raissalima1@gmail.com",
+      "mantido": [
+        10,
+        10,
+        8,
+        0
+      ],
+      "descartado_email": "rayssa@gmail.com",
+      "descartado": [
+        10,
+        10,
+        9.8,
+        0
+      ]
+    },
+    {
+      "cpf": "07340388281",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "raissalima1@gmail.com",
+      "mantido": [
+        10,
+        7.8,
+        9,
+        0
+      ],
+      "descartado_email": "rayssa@gmail.com",
+      "descartado": [
+        10,
+        8.9,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "07340388281",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "raissalima1@gmail.com",
+      "mantido": [
+        10,
+        7.5,
+        9,
+        0
+      ],
+      "descartado_email": "rayssa@gmail.com",
+      "descartado": [
+        10,
+        7.5,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "07340388281",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "raissalima1@gmail.com",
+      "mantido": [
+        10,
+        7,
+        8.5,
+        0
+      ],
+      "descartado_email": "rayssa@gmail.com",
+      "descartado": [
+        10,
+        7,
+        8.5,
+        0
+      ]
+    },
+    {
+      "cpf": "08814313466",
+      "disciplina": "Português Instrumental",
+      "mantido_email": "rutemelo@gmail.com",
+      "mantido": [
+        9,
+        8.5,
+        9,
+        0
+      ],
+      "descartado_email": "rute@gmail.com",
+      "descartado": [
+        9,
+        8.5,
+        9,
+        0
+      ]
+    },
+    {
+      "cpf": "08814313466",
+      "disciplina": "Matemática Instrumental",
+      "mantido_email": "rutemelo@gmail.com",
+      "mantido": [
+        10,
+        5,
+        7.5,
+        0
+      ],
+      "descartado_email": "rute@gmail.com",
+      "descartado": [
+        10,
+        5,
+        7.5,
+        0
+      ]
+    },
+    {
+      "cpf": "08814313466",
+      "disciplina": "Psicologia Aplicada",
+      "mantido_email": "rutemelo@gmail.com",
+      "mantido": [
+        10,
+        6.3,
+        10,
+        0
+      ],
+      "descartado_email": "rute@gmail.com",
+      "descartado": [
+        10,
+        6.5,
+        10,
+        0
+      ]
+    },
+    {
+      "cpf": "08814313466",
+      "disciplina": "Nutrição e Dietética",
+      "mantido_email": "rutemelo@gmail.com",
+      "mantido": [
+        9.7,
+        8,
+        9.5,
+        0
+      ],
+      "descartado_email": "rute@gmail.com",
+      "descartado": [
+        10,
+        8,
+        9.5,
+        0
+      ]
+    },
+    {
+      "cpf": "08814313466",
+      "disciplina": "Microbiologia e Parasitologia",
+      "mantido_email": "rutemelo@gmail.com",
+      "mantido": [
+        9.5,
+        4,
+        6,
+        0
+      ],
+      "descartado_email": "rute@gmail.com",
+      "descartado": [
+        10,
+        6.5,
+        6.5,
+        0
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "cpf": "15376528421",
+      "motivo": "nomes divergentes (sim 0.33)",
+      "contas": [
+        "eduardaoliveira310707@gmail.com",
+        "mariaeduarda@gmail.com",
+        "eduardaoliveira@gmail.com"
+      ]
+    },
+    {
+      "cpf": "10890817405",
+      "motivo": "nomes divergentes (sim 0.00)",
+      "contas": [
+        "gessicapaloma@gmail.com",
+        "iaramyllena@gmail.com"
+      ]
+    }
+  ],
+  "errors": []
+}

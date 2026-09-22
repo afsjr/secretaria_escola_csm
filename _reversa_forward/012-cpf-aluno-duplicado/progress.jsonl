@@ -1,0 +1,10 @@
+{"ts":"2026-09-11T12:15:00-03:00","action":"T001","status":"done","files":["src/lib/cpf-service.test.ts"]}
+{"ts":"2026-09-11T12:16:00-03:00","action":"T002","status":"done","files":["src/lib/validation.ts"]}
+{"ts":"2026-09-11T12:17:00-03:00","action":"T003","status":"done","files":["src/lib/cpf-service.ts"]}
+{"ts":"2026-09-11T12:17:00-03:00","action":"T004","status":"done","files":["src/lib/cpf-service.ts"]}
+{"ts":"2026-09-11T12:19:00-03:00","action":"T005","status":"done","files":["src/components/Tabs/CadastroAlunoTab.ts"]}
+{"ts":"2026-09-11T12:19:00-03:00","action":"T006","status":"done","files":["src/components/Tabs/CadastroProfessorTab.ts"]}
+{"ts":"2026-09-11T12:20:00-03:00","action":"T007","status":"done","files":["src/components/Tabs/GerenciarAlunosTab.ts"]}
+{"ts":"2026-09-11T12:20:00-03:00","action":"T008","status":"done","files":["src/components/Tabs/GerenciarAlunosTab.ts"]}
+{"ts":"2026-09-11T12:21:00-03:00","action":"T009","status":"done","files":[]}
+{"ts":"2026-09-11T12:22:00-03:00","action":"T010","status":"done","files":["_reversa_forward/012-cpf-aluno-duplicado/legacy-impact.md","_reversa_forward/012-cpf-aluno-duplicado/regression-watch.md"]}

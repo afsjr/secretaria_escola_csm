@@ -1,5 +1,8 @@
 import { ICONS } from '../../lib/icons'
 import { escapeHTML } from '../../lib/security'
+import { CpfService, type InconsistenciasCPF } from '../../lib/cpf-service'
+import { ExcelService } from '../../lib/excel-service'
+import { toast } from '../../lib/toast'
 
 interface Aluno {
   id: string
@@ -54,6 +57,19 @@ export function GerenciarAlunosTab({
         <div class="stat-label">Bloqueios</div>
         <div class="stat-value" style="color: var(--danger);">${escapeHTML(String(bloqueadosFinanc))}</div>
       </div>
+    </div>
+  `
+
+  const renderPainelCPF = () => `
+    <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h3 style="margin: 0;">Inconsistências de CPF</h3>
+          <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.85rem;">Perfis sem CPF e CPFs duplicados. Nenhum registro é alterado.</p>
+        </div>
+        <button class="btn btn-primary" id="btn-verificar-cpf">Verificar inconsistências de CPF</button>
+      </div>
+      <div id="painel-cpf-conteudo" style="margin-top: 1.5rem; display: none;"></div>
     </div>
   `
 
@@ -124,12 +140,92 @@ export function GerenciarAlunosTab({
 
   container.innerHTML = `
     ${renderStats()}
+    ${renderPainelCPF()}
     ${renderTable()}
   `
+
+  let lastInconsistencias: InconsistenciasCPF | null = null
+
+  function renderLinhaPerfil(p: any): string {
+    return `<tr>
+      <td style="padding:0.5rem;">${escapeHTML(p.nome_completo || '---')}</td>
+      <td style="padding:0.5rem;">${escapeHTML(p.email || '---')}</td>
+      <td style="padding:0.5rem;">${escapeHTML(p.perfil || '---')}</td>
+      <td style="padding:0.5rem;">${escapeHTML(p.cpf || '---')}</td>
+    </tr>`
+  }
+
+  function exportarInconsistencias(): void {
+    if (!lastInconsistencias) return
+    const columns = [
+      { header: 'Nome Completo', key: 'nome_completo' },
+      { header: 'E-mail', key: 'email' },
+      { header: 'Perfil', key: 'perfil' },
+      { header: 'CPF', key: 'cpf' },
+    ]
+    const duplicadosPlanos = lastInconsistencias.duplicados.flatMap(d =>
+      d.perfis.map(p => ({ ...p, cpf: p.cpf || d.cpf }))
+    )
+    try {
+      ExcelService.exportMultipleSheets([
+        { name: 'Sem CPF', data: lastInconsistencias.semCpf as any[], columns },
+        { name: 'Duplicados', data: duplicadosPlanos, columns },
+      ], `inconsistencias_cpf_${new Date().toISOString().slice(0, 10)}`)
+      toast.success('Planilha exportada com sucesso!')
+    } catch (err: any) {
+      toast.error('Erro ao exportar: ' + (err?.message || String(err)))
+    }
+  }
+
+  async function carregarInconsistencias(): Promise<void> {
+    const alvo = container.querySelector('#painel-cpf-conteudo') as HTMLElement | null
+    if (!alvo) return
+    alvo.style.display = 'block'
+    alvo.innerHTML = '<p style="color:var(--text-muted);">Carregando...</p>'
+
+    const { data, error } = await CpfService.listarInconsistenciasCPF()
+    if (error || !data) {
+      alvo.innerHTML = `<p style="color:var(--danger);">Erro ao carregar: ${escapeHTML(error?.message || 'desconhecido')}</p>`
+      return
+    }
+    lastInconsistencias = data
+
+    const totalDuplicados = data.duplicados.reduce((acc, d) => acc + d.perfis.length, 0)
+    const tabelaSemCpf = data.semCpf.length
+      ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>CPF</th></tr></thead><tbody>${data.semCpf.map(renderLinhaPerfil).join('')}</tbody></table></div>`
+      : '<p style="color:var(--text-muted);font-size:0.85rem;">Nenhum perfil sem CPF.</p>'
+
+    const tabelaDuplicados = data.duplicados.length
+      ? data.duplicados.map(d => `
+          <div style="margin-bottom:1rem;">
+            <div style="font-weight:600;margin-bottom:0.25rem;">CPF: ${escapeHTML(d.cpf)} — ${d.perfis.length} registros</div>
+            <div class="table-responsive"><table class="data-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>CPF</th></tr></thead><tbody>${d.perfis.map(renderLinhaPerfil).join('')}</tbody></table></div>
+          </div>
+        `).join('')
+      : '<p style="color:var(--text-muted);font-size:0.85rem;">Nenhum CPF duplicado.</p>'
+
+    alvo.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+        <button class="btn btn-secondary" id="btn-exportar-cpf">Exportar Excel</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem;">
+        <div class="stat-card"><div class="stat-label">Sem CPF</div><div class="stat-value">${escapeHTML(String(data.semCpf.length))}</div></div>
+        <div class="stat-card"><div class="stat-label">CPFs duplicados</div><div class="stat-value" style="color:var(--danger);">${escapeHTML(String(data.duplicados.length))}</div></div>
+        <div class="stat-card"><div class="stat-label">Perfis em duplicidade</div><div class="stat-value" style="color:var(--danger);">${escapeHTML(String(totalDuplicados))}</div></div>
+      </div>
+      <h4 style="margin:1rem 0 0.5rem;">Perfis sem CPF (${escapeHTML(String(data.semCpf.length))})</h4>
+      ${tabelaSemCpf}
+      <h4 style="margin:1.5rem 0 0.5rem;">CPFs duplicados (${escapeHTML(String(data.duplicados.length))})</h4>
+      ${tabelaDuplicados}
+    `
+
+    alvo.querySelector('#btn-exportar-cpf')?.addEventListener('click', exportarInconsistencias)
+  }
 
   // Event Listeners
   setTimeout(() => {
     container.querySelector('#btn-refresh-alunos')?.addEventListener('click', () => onRefresh?.())
+    container.querySelector('#btn-verificar-cpf')?.addEventListener('click', carregarInconsistencias)
     
     // Busca (Simples para demonstração)
     container.querySelector('#busca-aluno')?.addEventListener('input', (e) => {

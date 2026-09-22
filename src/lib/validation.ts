@@ -172,6 +172,14 @@ export function validarCPF(cpf: string | undefined): boolean {
 }
 
 /**
+ * Normalizar CPF para apenas os dígitos
+ */
+export function normalizarCPF(cpf: string | undefined | null): string {
+  if (!cpf) return "";
+  return String(cpf).replace(/\D/g, "");
+}
+
+/**
  * Validar telefone brasileiro
  */
 export function validarTelefone(telefone: string | undefined): boolean {

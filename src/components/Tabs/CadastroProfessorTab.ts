@@ -8,7 +8,8 @@
 import { AdminService } from '../../lib/admin-service'
 import { toast } from '../../lib/toast'
 import { renderTemplate } from '../../lib/dom-utils'
-import { validarCPF } from '../../lib/validation'
+import { validarCPF, normalizarCPF } from '../../lib/validation'
+import { CpfService } from '../../lib/cpf-service'
 import { addPasswordToggle } from '../../lib/password-toggle'
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
@@ -31,9 +32,9 @@ export function CadastroProfessorTab(): HTMLDivElement {
         </div>
 
         <div class="form-group">
-          <label class="label" for="professor-cpf">CPF</label>
+          <label class="label" for="professor-cpf">CPF *</label>
           <div style="position: relative;">
-            <input type="text" id="professor-cpf" name="professor_cpf" class="input" placeholder="000.000.000-00" style="padding-right: 2.5rem;">
+            <input type="text" id="professor-cpf" name="professor_cpf" class="input" placeholder="000.000.000-00" required style="padding-right: 2.5rem;">
             <span id="cpf-status" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; display: none;"></span>
           </div>
           <small id="cpf-feedback" style="color: var(--text-muted); display: none;"></small>
@@ -126,7 +127,7 @@ export function CadastroProfessorTab(): HTMLDivElement {
     const telefone = (container.querySelector('#professor-telefone') as HTMLInputElement).value.trim()
     const senha = (container.querySelector('#professor-senha') as HTMLInputElement).value
 
-    if (!nomeCompleto || !email || !senha) {
+    if (!nomeCompleto || !email || !senha || !cpf) {
       toast.error('Preencha os campos obrigatórios.')
       return
     }
@@ -136,8 +137,20 @@ export function CadastroProfessorTab(): HTMLDivElement {
       return
     }
 
-    if (cpf.length > 0 && cpf.replace(/\D/g, '').length === 11 && !validarCPF(cpf)) {
+    const cpfDigitos = normalizarCPF(cpf)
+    if (cpfDigitos.length !== 11 || !validarCPF(cpfDigitos)) {
       toast.error('CPF inválido. Verifique o número e tente novamente.')
+      cpfInput.focus()
+      return
+    }
+
+    const { data: cpfExistente, error: erroConsultaCpf } = await CpfService.cpfJaExiste(cpfDigitos)
+    if (erroConsultaCpf) {
+      toast.error('Não foi possível verificar o CPF: ' + erroConsultaCpf.message)
+      return
+    }
+    if (cpfExistente) {
+      toast.warning('CPF já cadastrado no sistema. Verifique o número e tente novamente.')
       cpfInput.focus()
       return
     }

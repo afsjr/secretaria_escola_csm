@@ -1,8 +1,8 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/011-vincular-professor-disciplina",
-  "feature-id": "011",
-  "short-name": "vincular-professor-disciplina",
+  "feature-dir": "_reversa_forward/012-cpf-aluno-duplicado",
+  "feature-id": "012",
+  "short-name": "cpf-aluno-duplicado",
   "started-at": "2026-09-11T00:00:00-03:00",
   "current-stage": "requirements",
   "stages-completed": [],

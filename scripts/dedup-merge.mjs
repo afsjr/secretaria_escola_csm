@@ -13,7 +13,7 @@
  * Grupos com nomes divergentes (identidade a confirmar) são ignorados.
  * Operação idempotente e re-executável.
  */
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -21,6 +21,27 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const outDir = join(__dirname, 'backups');
 const APPLY = process.argv.includes('--apply');
+const DECISOES_FILE = join(__dirname, 'dedup-decisoes.md');
+
+// Lê o arquivo de decisões da secretaria (scripts/dedup-decisoes.md).
+// Formato: seções "## CPF <numero>" com linhas "chave: valor".
+function loadDecisoes() {
+  if (!existsSync(DECISOES_FILE)) return {};
+  const out = {};
+  let cur = null;
+  for (const line of readFileSync(DECISOES_FILE, 'utf-8').split('\n')) {
+    const h = line.match(/^##\s+CPF\s+([\d.\-]+)/i);
+    if (h) {
+      cur = h[1].replace(/\D/g, '');
+      out[cur] = { acao: 'nenhuma', manter: '', corrigir_cpf_email: '', corrigir_cpf_valor: '', observacao: '' };
+      continue;
+    }
+    if (!cur) continue;
+    const m = line.match(/^([a-z_]+):\s*(.*)$/i);
+    if (m) out[cur][m[1].toLowerCase()] = m[2].trim();
+  }
+  return out;
+}
 
 function loadEnv(file) {
   const out = {};
@@ -122,16 +143,44 @@ async function main() {
   const discarded = [];
   const skipped = [];
   const errors = [];
+  const decisoes = loadDecisoes();
 
   for (const [cpf, arr] of groups) {
-    // Identidade a confirmar: nomes muito divergentes.
+    const dec = decisoes[cpf];
+
+    if (dec && dec.acao === 'nenhuma') {
+      skipped.push({ cpf, motivo: 'decisão da secretaria: nenhuma ação', contas: arr.map((p) => p.email) });
+      continue;
+    }
+
+    if (dec && dec.acao === 'corrigir_cpf') {
+      const alvo = arr.find((p) => p.email.toLowerCase() === (dec.corrigir_cpf_email || '').toLowerCase());
+      const novo = dec.corrigir_cpf_valor;
+      if (!alvo || !novo) {
+        errors.push(`CPF ${cpf}: decisão corrigir_cpf inválida (informe corrigir_cpf_email e corrigir_cpf_valor).`);
+        continue;
+      }
+      plan.push({
+        cpf,
+        cpf_formatado: alvo.cpf,
+        correcao_cpf: { email: alvo.email, de: alvo.cpf, para: novo, id: alvo.id, observacao: dec.observacao || '' },
+        canonica: null,
+        desativar: [], boletim: [], frequencia: [], matriculas: [], outros: [],
+      });
+      if (APPLY) await req('PATCH', `perfis?id=eq.${alvo.id}`, { cpf: novo });
+      continue;
+    }
+
+    const forceMesclar = dec && dec.acao === 'mesclar';
+
+    // Identidade a confirmar: nomes muito divergentes (ignorado se a secretaria decidiu mesclar).
     let minSim = 1;
     for (let i = 0; i < arr.length; i++)
       for (let j = i + 1; j < arr.length; j++)
         minSim = Math.min(minSim, nameSimilarity(arr[i].nome_completo, arr[j].nome_completo));
-    if (minSim < 0.5) { skipped.push({ cpf, motivo: `nomes divergentes (sim ${minSim.toFixed(2)})`, contas: arr.map((p) => p.email) }); continue; }
+    if (minSim < 0.5 && !forceMesclar) { skipped.push({ cpf, motivo: `nomes divergentes (sim ${minSim.toFixed(2)})`, contas: arr.map((p) => p.email) }); continue; }
 
-    const scored = arr.map((p) => {
+    let scored = arr.map((p) => {
       const m = mByAluno[p.id] || [];
       const b = bByAluno[p.id] || [];
       const f = fByAluno[p.id] || [];
@@ -142,14 +191,44 @@ async function main() {
       return { p, m, b, f, ativo, temData, notas, score };
     }).sort((a, b) => b.score - a.score);
 
+    // Correção de CPF de conta que é OUTRA pessoa (sai do grupo antes da mesclagem).
+    const correcoes = [];
+    if (dec && dec.corrigir_cpf_email && dec.corrigir_cpf_valor) {
+      const alvo = scored.find((s) => s.p.email.toLowerCase() === dec.corrigir_cpf_email.toLowerCase());
+      if (alvo) {
+        correcoes.push({ email: alvo.p.email, de: alvo.p.cpf, para: dec.corrigir_cpf_valor, id: alvo.p.id, observacao: dec.observacao || '' });
+        if (APPLY) await req('PATCH', `perfis?id=eq.${alvo.p.id}`, { cpf: dec.corrigir_cpf_valor });
+        scored = scored.filter((s) => s !== alvo);
+      } else {
+        errors.push(`CPF ${cpf}: conta a corrigir não encontrada (${dec.corrigir_cpf_email}).`);
+      }
+    }
+
+    if (forceMesclar && dec.manter) {
+      const idx = scored.findIndex((s) => s.p.email.toLowerCase() === dec.manter.toLowerCase());
+      if (idx < 0) { errors.push(`CPF ${cpf}: conta a manter não encontrada (${dec.manter}).`); continue; }
+      const [escolhida] = scored.splice(idx, 1);
+      scored.unshift(escolhida);
+    }
+
+    if (scored.length < 2) {
+      // Só houve correção de CPF (sem contas remanescentes para mesclar).
+      plan.push({
+        cpf, cpf_formatado: correcoes[0]?.de || cpf, correcoes, canonica: null,
+        desativar: [], boletim: [], frequencia: [], matriculas: [], outros: [],
+      });
+      continue;
+    }
+
     const C = scored[0];
     const Ds = scored.slice(1);
-    if (!C.ativo) { skipped.push({ cpf, motivo: 'nenhuma conta com matrícula ativa', contas: arr.map((p) => p.email) }); continue; }
+    if (!C.ativo && !forceMesclar) { skipped.push({ cpf, motivo: 'nenhuma conta com matrícula ativa', contas: arr.map((p) => p.email) }); continue; }
 
     const entry = {
       cpf,
       cpf_formatado: C.p.cpf,
       canonica: { id: C.p.id, nome: C.p.nome_completo, email: C.p.email },
+      correcoes,
       desativar: [],
       boletim: [],
       frequencia: [],
@@ -273,7 +352,23 @@ async function main() {
     L.push('');
   }
   for (const e of plan) {
+    if (e.correcao_cpf) {
+      L.push(`## CPF ${e.cpf_formatado} — corrigir CPF`);
+      L.push(`- Conta: ${e.correcao_cpf.email} | de ${e.correcao_cpf.de} para ${e.correcao_cpf.para}${e.correcao_cpf.observacao ? ` | obs: ${e.correcao_cpf.observacao}` : ''}`);
+      L.push('');
+      continue;
+    }
+    const corr = (e.correcoes && e.correcoes.length)
+      ? e.correcoes.map((c) => `${c.email}: ${c.de} -> ${c.para}`).join('; ')
+      : null;
+    if (!e.canonica) {
+      L.push(`## CPF ${e.cpf_formatado} — correção de CPF`);
+      if (corr) L.push(`- ${corr}`);
+      L.push('');
+      continue;
+    }
     L.push(`## CPF ${e.cpf_formatado} — manter ${e.canonica.email}`);
+    if (corr) L.push(`- Correção de CPF (outra pessoa): ${corr}`);
     L.push(`- Desativar: ${e.desativar.map((d) => d.email).join(', ')}`);
     const bRe = e.boletim.filter((x) => x.acao === 'reatribuir').length;
     const bCo = e.boletim.filter((x) => x.acao === 'completar_nota').length;

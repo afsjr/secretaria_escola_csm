@@ -165,7 +165,10 @@ async function main() {
     L.push('| CPF | Conta mantida (canônica) | Contas desativadas |');
     L.push('|---|---|---|');
     for (const e of resolved.plan) {
-      L.push(`| ${e.cpf_formatado || e.cpf} | ${e.canonica.email} | ${e.desativar.map((d) => d.email).join(', ') || '—'} |`);
+      const mantida = e.canonica
+        ? e.canonica.email
+        : (e.correcao_cpf || (e.correcoes && e.correcoes.length)) ? '— (correção de CPF)' : '—';
+      L.push(`| ${e.cpf_formatado || e.cpf} | ${mantida} | ${e.desativar.map((d) => d.email).join(', ') || '—'} |`);
     }
     L.push('');
     L.push(`> Notas divergentes descartadas (mantida a da conta matriculada): **${resolved.discarded.length}**.`);

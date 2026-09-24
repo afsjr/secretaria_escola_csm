@@ -435,5 +435,27 @@ export const AdminService = {
     } catch (err: any) {
       return { error: { message: 'Erro ao resetar senha: ' + err.message } }
     }
+  },
+
+  /**
+   * Reseta a senha de TODAS as contas da mesma pessoa (grupo de ids).
+   * Falha de um id NÃO corta os demais: agrega em erros e segue.
+   * Deduplica ids antes do loop; retorno idempotente.
+   */
+  async resetUserPasswords(userIds: string[], userName: string) {
+    const ids = Array.from(new Set(userIds))
+    const resetados: string[] = []
+    const erros: { id: string; message: string }[] = []
+
+    for (const id of ids) {
+      const { error } = await this.resetUserPassword(id, userName)
+      if (error) {
+        erros.push({ id, message: error.message })
+      } else {
+        resetados.push(id)
+      }
+    }
+
+    return { ok: erros.length === 0, resetados, erros }
   }
 }

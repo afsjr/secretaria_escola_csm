@@ -4,6 +4,7 @@ import { AdminService } from "../lib/admin-service";
 import { toast } from "../lib/toast";
 import { isMasterAdmin } from "../lib/authz";
 import { ICONS } from "../lib/icons";
+import { agruparPorPessoa, type PersonGroup } from "../lib/person-groups";
 import type { UserProfile, UserRole } from "../types";
 
 // Ordem de apresentação: Alunos → Professores → Secretaria → Admin → Master Admin
@@ -34,16 +35,17 @@ const PROFILE_COLORS: Record<string, string> = {
   master_admin: "#DC2626",
 };
 
-function renderProfileCard(
-  p: UserProfile,
+function renderPersonCard(
+  group: PersonGroup,
   viewerRole: string | undefined,
 ): string {
-  const nome = escapeHTML(p.nome_completo);
-  const targetPerfil = p.perfil;
+  const nome = escapeHTML(group.nomeExibido);
+  const targetPerfil = group.perfil;
   const isTargetMaster = targetPerfil === "master_admin";
   const isTargetAdmin = targetPerfil === "admin" || isTargetMaster;
   const viewerIsMaster = isMasterAdmin(viewerRole as UserRole);
   const accentColor = PROFILE_COLORS[targetPerfil] || "#6B7280";
+  const multi = group.ids.length > 1;
 
   // master_admin só pode ser resetado por ele próprio (nunca exibe botão)
   // admin pode ser resetado por master_admin
@@ -60,10 +62,24 @@ function renderProfileCard(
 
   const badgeLabel = isTargetMaster
     ? "[MASTER]"
-    : (targetPerfil === "admin" ? "[ADM]" : "");
+    : (isTargetAdmin ? "[ADM]" : "");
   const badgeColor = isTargetMaster
     ? "var(--danger, #DC2626)"
     : "var(--primary)";
+
+  const subLinha = multi
+    ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+        ${group.ids.length} contas${
+        group.emails.length
+          ? ` · e-mails: ${escapeHTML(group.emails.join(", "))}`
+          : ""
+      }${
+        group.cpfConflitante
+          ? ` <span style="color: var(--danger, #DC2626); font-weight: 600;">${ICONS.warning} revisar · CPFs divergentes</span>`
+          : ""
+      }
+      </div>`
+    : "";
 
   return `
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1.2rem; background: white; border-left: 4px solid ${accentColor}; gap: 1rem; transition: all 0.15s ease;"
@@ -78,12 +94,13 @@ function renderProfileCard(
       : ""
   }
         </div>
+        ${subLinha}
       </div>
       <div>
         ${
     !canReset
       ? `<span style="font-size: 0.7rem; color: var(--text-muted); font-style: italic;">${restrictedLabel}</span>`
-      : `<button class="btn-reset-password" data-id="${p.id}" data-nome="${nome}" style="background: var(--secondary); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); transition: all 0.15s ease;">
+      : `<button class="btn-reset-password" data-ids='${JSON.stringify(group.ids)}' data-nome="${nome}" style="background: var(--secondary); color: var(--text-main); font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); transition: all 0.15s ease;">
             ${ICONS.refresh} Resetar Senha
           </button>`
   }
@@ -102,11 +119,11 @@ function renderProfileSection(
 
   const label = PROFILE_LABELS[perfilType] || perfilType;
   const accentColor = PROFILE_COLORS[perfilType] || "#6B7280";
-  const cards = filtered
-    .sort((a, b) =>
-      (a.nome_completo || "").localeCompare(b.nome_completo || "")
-    )
-    .map((p) => renderProfileCard(p, viewerRole))
+  const grupos = agruparPorPessoa(filtered).sort((a, b) =>
+    (a.nomeExibido || "").localeCompare(b.nomeExibido || "")
+  );
+  const cards = grupos
+    .map((g) => renderPersonCard(g, viewerRole))
     .join("");
 
   return `
@@ -114,7 +131,7 @@ function renderProfileSection(
       <header style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${accentColor}20;">
         <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0;">${label}</h2>
         <span style="background: ${accentColor}15; color: ${accentColor}; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 12px;">
-          ${filtered.length}
+          ${grupos.length}
         </span>
       </header>
       <div style="background: white; border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
@@ -147,7 +164,7 @@ export async function DirectoryView(): Promise<HTMLElement> {
       .join("");
   }
 
-  const totalUsers = profiles?.length || 0;
+  const totalUsers = agruparPorPessoa(profiles || []).length;
 
   container.innerHTML = `
     <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
@@ -168,30 +185,47 @@ export async function DirectoryView(): Promise<HTMLElement> {
   // Lógica de Reset
   container.querySelectorAll(".btn-reset-password").forEach((btn) => {
     (btn as HTMLButtonElement).onclick = async () => {
-      const { id, nome } = (btn as any).dataset;
+      let ids: string[];
+      try {
+        ids = JSON.parse((btn as any).dataset.ids || "[]");
+      } catch {
+        ids = [];
+      }
+      const nome = (btn as any).dataset.nome;
+
+      if (ids.length === 0) {
+        toast.error("Nenhuma conta vinculada para resetar.");
+        return;
+      }
 
       if (
         confirm(
-          `Deseja resetar a senha de ${nome} para csm1983#?\n\nO usuário será obrigado a trocar a senha no próximo acesso.`,
+          `Deseja resetar a senha de ${nome} para csm1983#?\n\nO reset vale para TODAS as ${ids.length} contas vinculadas.\nO usuário será obrigado a trocar a senha no próximo acesso.`,
         )
       ) {
         (btn as HTMLButtonElement).disabled = true;
         (btn as HTMLButtonElement).innerHTML = `${ICONS.clock} Processando...`;
 
-        const { error } = await AdminService.resetUserPassword(id, nome);
+        const result = await AdminService.resetUserPasswords(ids, nome);
 
-        console.log('Resultado reset senha:', { error, id, nome });
+        console.log('Resultado reset senhas:', { result });
 
-        if (error) {
-          toast.error("Erro ao resetar: " + error.message);
-          (btn as HTMLButtonElement).disabled = false;
-          (btn as HTMLButtonElement).innerHTML = `${ICONS.refresh} Resetar Senha`;
-        } else {
-          toast.success(`Senha de ${nome} resetada com sucesso!`);
+        const total = ids.length;
+        const resetados = result.resetados.length;
+
+        if (result.ok) {
+          toast.success(`Senha de ${resetados} de ${total} contas de ${nome} resetada!`);
           (btn as HTMLButtonElement).innerHTML = `${ICONS.check} Resetada`;
           (btn as HTMLButtonElement).style.background = "var(--success)";
           (btn as HTMLButtonElement).style.color = "white";
           (btn as HTMLButtonElement).style.pointerEvents = "none";
+        } else {
+          const falhas = result.erros.map((e) => e.id).join(", ");
+          toast.error(
+            `Erro ao resetar: ${resetados} de ${total} contas resetadas. Falhas: ${falhas}`,
+          );
+          (btn as HTMLButtonElement).disabled = false;
+          (btn as HTMLButtonElement).innerHTML = `${ICONS.refresh} Resetar Senha`;
         }
       }
     };

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Correção · BUG-20260924-6LSJ · página de usuários</title>
+<style>
+  :root{ color-scheme: dark; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#0d1117; color:#c9d1d9; padding:32px; line-height:1.5; }
+  h1{ font-size:22px; margin:0 0 4px; color:#f0f6fc; }
+  h2{ font-size:15px; margin:28px 0 10px; color:#f0f6fc; border-bottom:1px solid #21262d; padding-bottom:6px; }
+  h3{ font-size:13px; margin:18px 0 6px; color:#f0f6fc; }
+  .meta{ color:#8b949e; font-size:12px; margin-bottom:24px; }
+  .cards{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+  .card{ background:#161b22; border:1px solid #30363d; border-radius:8px; padding:14px 20px; min-width:120px; }
+  .card .num{ font-size:22px; font-weight:700; color:#58a6ff; }
+  .card .lbl{ font-size:12px; color:#8b949e; }
+  .card .num.yellow{ color:#d29922; }
+  .card .num.red{ color:#f85149; }
+  .legend{ background:#161b22; border:1px solid #30363d; border-left:4px solid #58a6ff; border-radius:6px; padding:12px 16px; font-size:13px; margin-bottom:24px; }
+  .warn{ background:#161b22; border:1px solid #30363d; border-left:4px solid #d29922; border-radius:6px; padding:12px 16px; font-size:13px; margin-bottom:24px; }
+  table{ border-collapse:collapse; width:100%; font-size:13px; margin-bottom:8px; }
+  th,td{ border:1px solid #30363d; padding:8px 10px; text-align:left; vertical-align:top; }
+  th{ background:#161b22; color:#f0f6fc; }
+  tr:nth-child(even) td{ background:#0f141a; }
+  .badge{ display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+  .b-green{ background:rgba(63,185,80,.15); color:#3fb950; }
+  .b-yellow{ background:rgba(210,153,34,.15); color:#d29922; }
+  .b-red{ background:rgba(248,81,73,.15); color:#f85149; }
+  .b-blue{ background:rgba(88,166,255,.15); color:#58a6ff; }
+  a{ color:#58a6ff; text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+  code{ background:#0f141a; border:1px solid #30363d; border-radius:4px; padding:1px 5px; font-size:12px; color:#e6edf3; }
+  ul{ margin:6px 0 6px 18px; padding:0; }
+  li{ margin:3px 0; }
+  .node rect{ fill:#161b22; }
+  .node text{ fill:#e6edf3; font-size:12px; }
+  .node .ttl{ font-size:10px; fill:#8b949e; }
+</style>
+</head>
+<body>
+
+<h1>Plano de Correção · BUG-20260924-6LSJ</h1>
+<div class="meta">
+  display_number 3 · contexto <strong>pagina-de-usuarios</strong> · 2026-09-24 ·
+  severidade <span class="badge b-yellow">medium</span> · prioridade <span class="badge b-red">P1</span> ·
+  strategy: <span class="badge b-blue">debate multiagente (repair) vencedora D1 + enxertos</span>
+</div>
+
+<div class="cards">
+  <div class="card"><div class="num">3</div><div class="lbl">Arquivos de código tocados</div></div>
+  <div class="card"><div class="num">12</div><div class="lbl">Testes previstos</div></div>
+  <div class="card"><div class="num yellow">baixa</div><div class="lbl">change_risk</div></div>
+  <div class="card"><div class="num">0</div><div class="lbl">Escritas em banco</div></div>
+</div>
+
+<div class="warn">
+  <strong>Modo expresso encerrado:</strong> a investigação revelou impacto em dados ambíguo
+  (dedup por CPF com falsos positivos entre pessoas distintas), o que eleva o risco para
+  médio na camada de dados. Segue-se o ciclo completo a partir da estratégia — por isso este
+  plan.html existe. A correção de <em>código</em> permanece de risco baixo.
+</div>
+
+<h2>1. Resumo do defeito e causa raiz</h2>
+<p>
+  A tela "Usuários do Sistema" renderiza <strong>uma linha por linha de <code>perfis</code></strong> e
+  soma o <code>Total</code> pelo tamanho do array. Contas ativas duplicadas para a mesma pessoa
+  (CAMILLY 2x, MARIA BEATRIZ 3x) viram cards repetidos e inflam a contagem (você viu
+  <code>Total: 154</code>).
+</p>
+<table>
+  <tr><th>Camada</th><th>Local</th><th>Estado</th></tr>
+  <tr><td>Origem (nascimento)</td><td><code>src/auth/signup-handler.ts:18-28</code> — guarda anti-duplicidade só roda se <code>if (cpf)</code></td><td><span class="badge b-blue">supported</span></td></tr>
+  <tr><td>Aparecimento</td><td><code>src/auth/session.ts:134-142</code> (sem distinct/grupo) ← <code>src/views/directory.ts:100-150</code> (render 1:1 + Total bruto)</td><td><span class="badge b-blue">supported</span></td></tr>
+  <tr><td>Por que a dedup de 22/09 não pegou</td><td><code>scripts/dedup-pendencias.mjs:82</code> / <code>dedup-merge.mjs:139</code> agrupam só por CPF e <code>if (!c) continue</code> pula CPF <code>NULL</code></td><td><span class="badge b-blue">supported</span></td></tr>
+</table>
+
+<h2>2. Estratégia escolhida</h2>
+<div class="legend">
+  <strong>Debate multiagente</strong> (modo <code>repair</code>, N=3, R=2, juiz isolado):
+  o juiz declarou <strong>D1 vencedora</strong> e enxertou elementos de D2/D3. Tudo em
+  <code>debate/resposta-final.md</code>. Núcleo convergido nos 3 solvers:
+  <em>correção 100% de exibição, reversível, zero escrita em banco, CPF fora da chave de
+  identidade, reparo de dados como item separado com decisão humana.</em>
+</div>
+<p>
+  Por que: elimina a causa visível e o caso CAMILLY-CPF-NULL, não toca matrícula/FK nenhuma,
+  é reversível apagando um módulo puro + revertendo dois trechos, e não apaga conta alguma
+  sem decisão humana (Agent Note preservado por construção).
+</p>
+
+<h2>3. Correction Change Set proposto</h2>
+<table>
+  <tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr>
+  <tr>
+    <td>CHG-001</td><td><span class="badge b-blue">test</span></td>
+    <td><code>src/lib/person-groups.test.ts</code> (novo)</td>
+    <td>Teste de reprodução + regressão da regra de identidade (CAMILLY 2→1, MARIA BEATRIZ 3→1, Gessica×Iara 2 grupos, normalização, Total = Σ grupos).</td>
+  </tr>
+  <tr>
+    <td>CHG-002</td><td><span class="badge b-blue">test</span></td>
+    <td><code>src/lib/admin-service.pessoa.test.ts</code> (novo)</td>
+    <td>Reset multi-contas: 2 chamadas, continua-agregando, dedupe <code>['a','a','b']→2</code>, erro total, privilégio por grupo.</td>
+  </tr>
+  <tr>
+    <td>CHG-003</td><td><span class="badge b-green">code</span></td>
+    <td><code>src/lib/person-groups.ts</code> (novo)</td>
+    <td>Módulo puro: <code>normalizarNomeIdentidade</code> + <code>agruparPorPessoa(profiles): PersonGroup[]</code>; chave <code>perfil|nomeNormalizado</code> → fallback <code>perfil|email</code> → <code>id</code>; CPF nunca funde, só gera <code>c​​pfConflitante</code>.</td>
+  </tr>
+  <tr>
+    <td>CHG-004</td><td><span class="badge b-green">code</span></td>
+    <td><code>src/views/directory.ts</code></td>
+    <td>Renderiza 1 card por grupo, badges/Total = Σ grupos, sub-linha "N contas · e-mails", selo "⚠ revisar · CPFs divergentes", botão com <code>data-ids</code>, privilégio avaliado por grupo.</td>
+  </tr>
+  <tr>
+    <td>CHG-005</td><td><span class="badge b-green">code</span></td>
+    <td><code>src/lib/admin-service.ts</code></td>
+    <td>Novo <code>resetUserPasswords(userIds, nome)</code>: dedup de ids, loop sequencial reusando <code>resetUserPassword</code> (assinatura intocada), <strong>continua em erro</strong> agregando <code>{ok, resetados, erros}</code>.</td>
+  </tr>
+  <tr>
+    <td>CHG-006</td><td><span class="badge b-yellow">specification</span></td>
+    <td><code>_reversa_sdd/addenda/bug-20260924-6LSJ-v001.md</code> (novo)</td>
+    <td>Fecha o <code>spec-gap</code>: especifica a listagem (uma linha por pessoa, Total = pessoas, reset-all, selo de CPF, inventário read-only) e registra o termo de taxonomia <code>listagem-usuarios</code>.</td>
+  </tr>
+  <tr>
+    <td>—</td><td><span class="badge b-blue">read-only</span></td>
+    <td><code>evidence/inventario-vivo-20260924.md</code></td>
+    <td>Inventário do banco vivo (você tem acesso): <code>CpfService.listarInconsistenciasCPF</code> + SQL read-only, agrupado pelo mesmo <code>agruparPorPessoa</code>. <strong>Fora do commit</strong>, zero escrita, alimenta reparo futuro caso a caso.</td>
+  </tr>
+</table>
+
+<h3>NÃO será tocado</h3>
+<ul>
+  <li><code>src/auth/session.ts</code> — <code>getAllProfiles</code> continua cru (a view precisa dos ids).</li>
+  <li><code>src/auth/signup-handler.ts</code> — prevenção de nascimento de duplicatas = item separado.</li>
+  <li>Banco, schema, FKs, migrações, Edge Functions — <strong>nenhuma escrita</strong>.</li>
+  <li>Campo de consulta de pessoas inativas (requisito novo do usuário) = item separado, fora deste bug.</li>
+</ul>
+
+<h2>4. Testes planejados</h2>
+<table>
+  <tr><th>Arquivo</th><th>Prova</th></tr>
+  <tr><td><code>person-groups.test.ts</code> (1-7)</td><td><strong>Reprodução:</strong> CAMILLY 2 contas → 1 grupo; MARIA BEATRIZ 3 contas → 1 grupo com <code>c​​pfConflitante</code>; <strong>Regressão:</strong> Gessica×Iara e ANDREIA×ANDREA continuam 2 grupos; normalização; Total = Σ grupos.</td></tr>
+  <tr><td><code>admin-service.pessoa.test.ts</code> (8-12)</td><td><strong>Reprodução:</strong> reset reseta TODAS as contas (decisão do usuário); <strong>Regressão:</strong> continua-agregando em erro parcial, dedupe de ids, retorno idempotente, privilégio por grupo.</td></tr>
+</table>
+<p>
+  Vermelho → verde: aplico primeiro só os testes (Gate 1) e mostro falhando; depois o código
+  (Gate 2) e mostro passando. Regressão total: <code>npm run test</code> + <code>npm run type-check</code>.
+</p>
+
+<h2>5. Riscos (change_risk: baixa) e o que fica de fora</h2>
+<ul>
+  <li><strong>Homônimos de grafia idêntica</strong> colapsam (residual inevitável; CPF comprovadamente não discrimina). Mitigação: e-mails visíveis + selo de CPF + inventário como gate humano.</li>
+  <li><strong>Falso-negativo</strong> (ANDREIA/ANDREA com typo): segue 2 linhas, igual hoje — seguro, vai ao inventário.</li>
+  <li><strong>Total cai</strong> (154 → pessoas únicas): correção esperada, documentada no adendo.</li>
+  <li><strong>Reset parcial</strong>: continua-agregando + toast honesto "X de N" + retry idempotente (<code>csm1983#</code>).</li>
+  <li><strong>Reversibilidade:</strong> apagar <code>person-groups.ts</code> + reverter ~45 linhas de <code>directory.ts</code> + remover wrapper → estado anterior exato.</li>
+  <li>Ficam <strong>fora</strong>: reparo de dados/fusão de contas, prevenção no signup, campo de inativos. Itens separados com decisão humana.</li>
+</ul>
+
+<h2>6. Mini-grafo do bug</h2>
+<svg width="720" height="240" viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg">
+  <g class="node">
+    <a href="bug.md">
+      <rect x="200" y="40" width="320" height="120" fill="#161b22" stroke="#d29922" stroke-width="2" rx="8"/>
+      <text x="360" y="66" text-anchor="middle" font-weight="bold" fill="#d29922">3 · BUG-20260924-6LSJ</text>
+      <text x="360" y="86" text-anchor="middle" class="ttl">Página de usuários exibe a mesma pessoa mais de uma vez</text>
+      <text x="360" y="104" text-anchor="middle" class="ttl">medium · administrativo / admin</text>
+      <text x="360" y="124" text-anchor="middle" fill="#d29922" font-size="11">active · diagnosing</text>
+      <text x="360" y="142" text-anchor="middle" class="ttl">spec-gap · sem relações</text>
+    </a>
+  </g>
+</svg>
+
+<h2>7. Matriz de relações</h2>
+<p>Nenhuma relação registrada (bug único no contexto; correlação horizontal pulada pela rota expressa).</p>
+<table>
+  <tr><th>Origem</th><th>Tipo</th><th>Destino</th><th>Estado</th></tr>
+  <tr><td colspan="4"><em>Sem arestas.</em></td></tr>
+</table>
+
+<h2>8. Ordem sugerida de correção</h2>
+<p>Somente este bug está aberto no contexto — nenhum encadeamento é necessário.</p>
+
+<div class="legend">
+  <strong>Como aprovar:</strong> abra este arquivo no navegador e digite <code>CONTINUAR</code>
+  para seguir aos Gates 1+2 (testes + correção, numa única aprovação, com prova vermelho → verde).
+  Mudanças no plano: peça que eu regenere antes de seguir.
+</div>
+
+</body>
+</html>

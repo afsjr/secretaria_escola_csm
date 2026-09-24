@@ -1,0 +1,39 @@
+# Exceções do scan-sensitive (dados comprovadamente FICTÍCIOS / placeholders).
+# Uma expressão regular por linha; casa contra o trecho detectado (e contra o
+# caminho do arquivo, na regra de caminho). NÃO adicione dados reais aqui.
+# Formato de CPF de teste da Receita / placeholders de UI:
+^000\.000\.000-\d{2}$
+^00000000000$
+^111\.111\.111-11$
+^11111111111$
+^111\.444\.777-35$
+^11144477735$
+^11144477734$
+^11144477736$
+^123\.456\.789-09$
+^12345678909$
+^529\.982\.247-25$
+^52998224725$
+^390\.533\.447-05$
+^168\.995\.350-09$
+^999\.999\.999-99$
+^99999999999$
+# Domínios/placeholder de exemplo:
+@(exemplo\.(test|com)|example\.(com|org)|teste\.com|test\.com|email\.com|empresa\.com|seudominio\.com|dominio\.com|escola\.edu\.br|santa-monica\.com|localhost)$
+^a@e\.com$
+^a1@e\.com$
+^a2@e\.com$
+^seu\.nome@empresa\.com$
+# Dumps criptografados e artefatos já mascarados:
+\.enc$
+<e-mail-mascarado>
+<id-mascarado>
+\*\*\*\.\*\*\*\.\*\*\*-\*\*
+# Contato institucional público impresso nos PDFs (dado da instituição, não pessoal):
+@csm\.edu\.br$
+# Senha padrão de reset do próprio sistema (decisão de produto, ver hardenização separada):
+csm1983#
+# Placeholder de credencial em arquivo de exemplo:
+SUA_SENHA_AQUI
+# Senhas fictícias de teste (fixtures):
+senha123

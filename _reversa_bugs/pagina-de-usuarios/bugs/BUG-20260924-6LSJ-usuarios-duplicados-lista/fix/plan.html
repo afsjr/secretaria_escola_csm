@@ -66,7 +66,7 @@
 <p>
   A tela "Usuários do Sistema" renderiza <strong>uma linha por linha de <code>perfis</code></strong> e
   soma o <code>Total</code> pelo tamanho do array. Contas ativas duplicadas para a mesma pessoa
-  (CAMILLY 2x, MARIA BEATRIZ 3x) viram cards repetidos e inflam a contagem (você viu
+  (PESSOA 12 2x, PESSOA 5 BEATRIZ 3x) viram cards repetidos e inflam a contagem (você viu
   <code>Total: 154</code>).
 </p>
 <table>
@@ -85,7 +85,7 @@
   identidade, reparo de dados como item separado com decisão humana.</em>
 </div>
 <p>
-  Por que: elimina a causa visível e o caso CAMILLY-CPF-NULL, não toca matrícula/FK nenhuma,
+  Por que: elimina a causa visível e o caso PESSOA 12-CPF-NULL, não toca matrícula/FK nenhuma,
   é reversível apagando um módulo puro + revertendo dois trechos, e não apaga conta alguma
   sem decisão humana (Agent Note preservado por construção).
 </p>
@@ -96,7 +96,7 @@
   <tr>
     <td>CHG-001</td><td><span class="badge b-blue">test</span></td>
     <td><code>src/lib/person-groups.test.ts</code> (novo)</td>
-    <td>Teste de reprodução + regressão da regra de identidade (CAMILLY 2→1, MARIA BEATRIZ 3→1, Gessica×Iara 2 grupos, normalização, Total = Σ grupos).</td>
+    <td>Teste de reprodução + regressão da regra de identidade (PESSOA 12 2→1, PESSOA 5 BEATRIZ 3→1, PESSOA 8×PESSOA 7 2 grupos, normalização, Total = Σ grupos).</td>
   </tr>
   <tr>
     <td>CHG-002</td><td><span class="badge b-blue">test</span></td>
@@ -141,7 +141,7 @@
 <h2>4. Testes planejados</h2>
 <table>
   <tr><th>Arquivo</th><th>Prova</th></tr>
-  <tr><td><code>person-groups.test.ts</code> (1-7)</td><td><strong>Reprodução:</strong> CAMILLY 2 contas → 1 grupo; MARIA BEATRIZ 3 contas → 1 grupo com <code>c​​pfConflitante</code>; <strong>Regressão:</strong> Gessica×Iara e ANDREIA×ANDREA continuam 2 grupos; normalização; Total = Σ grupos.</td></tr>
+  <tr><td><code>person-groups.test.ts</code> (1-7)</td><td><strong>Reprodução:</strong> PESSOA 12 2 contas → 1 grupo; PESSOA 5 BEATRIZ 3 contas → 1 grupo com <code>c​​pfConflitante</code>; <strong>Regressão:</strong> PESSOA 8×PESSOA 7 e PESSOA 13×PESSOA 14 continuam 2 grupos; normalização; Total = Σ grupos.</td></tr>
   <tr><td><code>admin-service.pessoa.test.ts</code> (8-12)</td><td><strong>Reprodução:</strong> reset reseta TODAS as contas (decisão do usuário); <strong>Regressão:</strong> continua-agregando em erro parcial, dedupe de ids, retorno idempotente, privilégio por grupo.</td></tr>
 </table>
 <p>
@@ -152,7 +152,7 @@
 <h2>5. Riscos (change_risk: baixa) e o que fica de fora</h2>
 <ul>
   <li><strong>Homônimos de grafia idêntica</strong> colapsam (residual inevitável; CPF comprovadamente não discrimina). Mitigação: e-mails visíveis + selo de CPF + inventário como gate humano.</li>
-  <li><strong>Falso-negativo</strong> (ANDREIA/ANDREA com typo): segue 2 linhas, igual hoje — seguro, vai ao inventário.</li>
+  <li><strong>Falso-negativo</strong> (PESSOA 13/PESSOA 14 com typo): segue 2 linhas, igual hoje — seguro, vai ao inventário.</li>
   <li><strong>Total cai</strong> (154 → pessoas únicas): correção esperada, documentada no adendo.</li>
   <li><strong>Reset parcial</strong>: continua-agregando + toast honesto "X de N" + retry idempotente (<code>csm1983#</code>).</li>
   <li><strong>Reversibilidade:</strong> apagar <code>person-groups.ts</code> + reverter ~45 linhas de <code>directory.ts</code> + remover wrapper → estado anterior exato.</li>

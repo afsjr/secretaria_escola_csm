@@ -20,7 +20,7 @@ reset multi-contas, e reparo de dados desacoplado (item separado de produto).**
 
 O defeito é de aparição, não de dados: a tela renderiza 1:1 as linhas de `perfis`.
 A causa é `getAllProfiles()` cru + `DirectoryView` sem deduplicação. Como CPF não é
-identidade segura (falsos positivos Gessica×Iara via CPF `108.908.174-05`) e o usuário
+identidade segura (falsos positivos PESSOA 8×PESSOA 7 via CPF `***.***.***-**`) e o usuário
 proibiu apagar contas sem decisão humana, **a identidade de pessoa não é decidível na
 camada de exibição**. Então a correção faz o melhor colapso possível sem esconder ninguém
 silenciosamente, marca o que é ambíguo, e empurra a consolidação real para um fluxo de
@@ -35,15 +35,15 @@ exportando `agruparPessoas(perfis: UserProfile[]): PessoaDiretorio[]`, com
 1. **Camada A — mesmo CPF normalizado (não-nulo):** agrupa por `normalizarCPF`. Dentro
    desses buckets, **sub-agrupa por nome normalizado** (UPPERCASE, sem acentos, espaços
    colapsados): se o mesmo CPF aparece com nomes distintos, são pessoas diferentes
-   (evidência Gessica×Iara) → vira mais de uma pessoa no bucket. Nunca funde nomes
+   (evidência PESSOA 8×PESSOA 7) → vira mais de uma pessoa no bucket. Nunca funde nomes
    diferentes silenciosamente.
-2. **Camada B — CPF `NULL`:** agrupa por nome normalizado (caso CAMILLY 10/09 +
+2. **Camada B — CPF `NULL`:** agrupa por nome normalizado (caso PESSOA 12 10/09 +
    qualquer outra conta sem CPF com o mesmo nome).
-3. **Ponte A↔B (caso CAMILLY):** um grupo B (cpf-nulo) com nome normalizado idêntico ao
+3. **Ponte A↔B (caso PESSOA 12):** um grupo B (cpf-nulo) com nome normalizado idêntico ao
    nome de um grupo A unipes soa-oal é **fundido** nele → 1 card, flag `mesmo-cpf`.
-4. **Casal crítico — mesmo nome, CPFs não-nulos DIFERENTES (3ª conta MARIA BEATRIZ,
-   CPF `110.032.444-59`):** aqui eu divirjo da leitura mais purista da opção 1. Manter 2
-   cards contraria a decisão explícita do usuário ("uma pessoa por linha" — MARIA BEATRIZ
+4. **Casal crítico — mesmo nome, CPFs não-nulos DIFERENTES (3ª conta PESSOA 5 BEATRIZ,
+   CPF `***.***.***-**`):** aqui eu divirjo da leitura mais purista da opção 1. Manter 2
+   cards contraria a decisão explícita do usuário ("uma pessoa por linha" — PESSOA 5 BEATRIZ
    está no print dele). Colapse em **1 card com flag `nome-igual-cpf-divergente`** e aviso
    visual "N contas · CPFs divergentes". O risco de ocultar duas pessoas distintas com nome
    idêntico exato é baixíssimo nas listas da escola e fica **evidente**, não silencioso: a
@@ -68,7 +68,7 @@ exportando `agruparPessoas(perfis: UserProfile[]): PessoaDiretorio[]`, com
 ### Reparo de dados (desacoplado, fora do bug)
 
 Inventário no banco vivo (o usuário tem acesso): rodar `CpfService.listarInconsistenciasCPF`
-+ extensão por nome/CPF-NULL para listar os grupos residuais (CAMILLY, MARIA BEATRIZ).
++ extensão por nome/CPF-NULL para listar os grupos residuais (PESSOA 12, PESSOA 5 BEATRIZ).
 Fusão/deativação só por caso, com dry-run, backup e aprovação humana — item de produto
 separado (mesma linha do campo de inativos). A tela passa a funcionar corretamente **antes**
 do reparo, satisfazendo a rubrica "reversibilidade (código defensivo separado de reparo de
@@ -79,21 +79,21 @@ dados)".
 Confirmo a hipótese do bug.md (fora da disputa):
 
 1. `src/auth/signup-handler.ts:18` `if (cpf)` — guarda anti-duplicidade só com CPF; sem CPF,
-   o autocadastro cria conta livremente (origem da 2ª conta da CAMILLY, 10/09).
+   o autocadastro cria conta livremente (origem da 2ª conta da PESSOA 12, 10/09).
 2. Linhas duplicadas ativas persistem em `perfis`; índice `uniq_perfis_cpf_ativo` só desde
    22/09, e SÓ cobre CPF não-nulo.
 3. `src/auth/session.ts:134-142` — `getAllProfiles()` devolve linhas cruas, sem distinct/grupo.
 4. `src/views/directory.ts:100,150` — agrupa por `perfil`, ordena por nome, renderiza 1:1,
    `Total = profiles.length`. É aqui que a duplicata vira DEFEITO visível.
 5. A dedup de 22/09 (`dedup-merge.mjs:139`) agrupa só por CPF e pula CPF `NULL`
-   (`if (!c) continue;`) — por isso CAMILLY e a conta de CPF divergente restaram.
+   (`if (!c) continue;`) — por isso PESSOA 12 e a conta de CPF divergente restaram.
 
 ## Teste
 
 - **NOVO** `src/lib/person-grouping.test.ts` (igual estilo de `cpf-service.test.ts`, puro):
-  - CAMILLY (CPF `159.598.884-08` + CPF `NULL`, mesmo nome) → 1 pessoa.
-  - Gessica × Iara (CPF `108.908.174-05`, nomes distintos) → **2 pessoas preservadas**.
-  - ANDREIA/ANDREA (`120.069.054-06`, nomes quase iguais ×2) → decide por nome normalizado;
+  - PESSOA 12 (CPF `***.***.***-**` + CPF `NULL`, mesmo nome) → 1 pessoa.
+  - PESSOA 8 × PESSOA 7 (CPF `***.***.***-**`, nomes distintos) → **2 pessoas preservadas**.
+  - PESSOA 13/PESSOA 14 (`***.***.***-**`, nomes quase iguais ×2) → decide por nome normalizado;
     assert do comportamento de sub-agrupamento.
   - Mesmo nome + mesmo CPF → 1 pessoa.
   - Mesmo nome + CPFs válidos divergentes → 1 pessoa com flag `nome-igual-cpf-divergente`,
@@ -133,8 +133,8 @@ fusão aprovação-humana e campo de inativos declarados FORA do bug.
 ## Evidências
 
 - `evidence/reproduction.md`: 25 grupos duplicados por nome; 27 colisões de CPF com falsos
-  positivos Gessica×Iara e ANDREIA/ANDREA — base da "Camada A sub-agrupada por nome".
-- `evidence/contas-duplicadas-camilly.md`: CAMILLY (CPF `159.598.884-08` 14/04 + CPF `NULL`
+  positivos PESSOA 8×PESSOA 7 e PESSOA 13/PESSOA 14 — base da "Camada A sub-agrupada por nome".
+- `evidence/contas-duplicadas-PESSOA 12.md`: PESSOA 12 (CPF `***.***.***-**` 14/04 + CPF `NULL`
   10/09 com matrícula ativa) — base da "Ponte A↔B".
 - `bug.md §Suspected Area`: `signup-handler.ts:18`, `directory.ts:100,150`,
   `session.ts:134-142`, `dedup-merge.mjs:139` (`if (!c) continue`) — causa raiz fechada.

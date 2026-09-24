@@ -107,7 +107,7 @@ ORDER BY nome_completo, created_at;
 Roteado pelo MESMO `agruparPorPessoa` (script `scripts/inventario-pessoas.mjs`, read-only) →
 `evidence/inventario-vivo-20260924.md` (ids, e-mails, CPFs, matrículas ativas, selo de CPF
 divergente, homônimos suspeitos). Complementar: `CpfService.listarInconsistenciasCPF()` situa
-`semCpf` e duplicados por CPF, mas **não** emparelha CAMILLY-por-nome — o SQL por nome é o primário.
+`semCpf` e duplicados por CPF, mas **não** emparelha PESSOA 12-por-nome — o SQL por nome é o primário.
 Não bloqueia o hotfix (é defensivo); fecha a AC e a rastreabilidade humano.
 
 ### Arquivos a tocar (inalterado desde a rodada 1)
@@ -129,7 +129,7 @@ Reversibilidade: remover `person-groups.ts` + script de inventário, reverter `d
 ## Causa raiz proposta
 
 Confirmada sem mudança (não é a disputa): (1) nascença — `signup-handler.ts:18` `if (cpf)` só
-dispara a guarda com CPF informado; autocadastro sem CPF (2ª CAMILLY, 10/09) cria livremente;
+dispara a guarda com CPF informado; autocadastro sem CPF (2ª PESSOA 12, 10/09) cria livremente;
 (2) persistência sem unique de identidade (índice `uniq_perfis_cpf_ativo` só desde 22/09 e só
 cobre CPF não-nulo); (3) `session.ts:134-142` devolve linhas cruas; (4) `directory.ts:100-150`
 renderiza/conta 1:1 (`Total = profiles.length`); (5) dedup de 22/09 (`dedup-merge.mjs:139`
@@ -139,12 +139,12 @@ renderiza/conta 1:1 (`Total = profiles.length`); (5) dedup de 22/09 (`dedup-merg
 ## Teste
 
 `src/lib/person-groups.test.ts` (puro, vitest):
-1. CAMILLY (CPF `159.598.884-08` + CPF NULL, mesmo nome, mesmo perfil) → 1 grupo, `ids.length=2`,
+1. PESSOA 12 (CPF `***.***.***-**` + CPF NULL, mesmo nome, mesmo perfil) → 1 grupo, `ids.length=2`,
    `cpfConflitante=false` (requisito b; caso que a dedup de 22/09 não cobriu).
-2. MARIA BEATRIZ (mesmo nome, CPFs não-nulos distintos) → 1 grupo, `cpfConflitante=true`, `ids` = 3.
-3. Gessica × Iara (CPF `108.908.174-05` igual, nomes distintos) → **2 grupos** (CPF nunca funde —
+2. PESSOA 5 BEATRIZ (mesmo nome, CPFs não-nulos distintos) → 1 grupo, `cpfConflitante=true`, `ids` = 3.
+3. PESSOA 8 × PESSOA 7 (CPF `***.***.***-**` igual, nomes distintos) → **2 grupos** (CPF nunca funde —
    restrição c; regressão estrutural do espírito 22/09).
-4. ANDREIA × ANDREA×2 (CPF `120.069.054-06` igual, nome com 1 letra de diferença) → **2 grupos**
+4. PESSOA 13 × PESSOA 14×2 (CPF `***.***.***-**` igual, nome com 1 letra de diferença) → **2 grupos**
    (falso-negativo seguro preservado; vai ao inventário).
 5. Normalização: acento/caixa/espaço duplo → 1 grupo; nome vazio → fallback email; dois vazios sem
    email → cada um com sua chave id (não colapsam).
@@ -161,7 +161,7 @@ renderiza/conta 1:1 (`Total = profiles.length`); (5) dedup de 22/09 (`dedup-merg
 12. Grupo com `master_admin`/`admin` → botão oculto (helper de privilégio por grupo; grupo
     homogêneo de perfil).
 
-Verificação: `npm run test` + `npm run type-check` + manual (CAMILLY 1x com "2 contas"; Total
+Verificação: `npm run test` + `npm run type-check` + manual (PESSOA 12 1x com "2 contas"; Total
 cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 
 ## Impacto sobre a spec
@@ -169,7 +169,7 @@ cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 `spec-gap` confirmado (`_reversa_sdd/admin/requirements.md` não define a listagem; RF-05 só
 "Listar alunos"). **Adendo em `_reversa_sdd/addenda/`**:
 1. Uma linha por pessoa por seção; chave = perfil + nome normalizado; **CPF não é chave de fusão**
-   (falsos positivos Gessica×Iara documentados), só divisor/qualificador via `cpfConflitante`.
+   (falsos positivos PESSOA 8×PESSOA 7 documentados), só divisor/qualificador via `cpfConflitante`.
 2. Total/badges contam pessoas (Σ grupos), não linhas de `perfis`.
 3. Card N>1 exibe "N contas · e-mails" + selo "CPFs divergentes" quando `cpfConflitante`.
 4. Reset na linha única reseta TODAS as contas do grupo; erro de um id não interrompe os demais
@@ -185,7 +185,7 @@ RF-01..RF-08 intocados. AC1/AC2/AC4/AC5 atendidos por este change set.
 - **Homônimos reais de grafia idêntica** colapsam (risco residual, aceito): mitigado por "N contas
   · e-mails" + selo `cpfConflitante` + inventário como gate humano. Ineliminável com os dados
   disponíveis (CPF comprovadamente não é identidade segura).
-- **Falso-negativo** (ANDREIA/ANDREA): segue 2x, igual ao hoje; seguro; vai ao inventário.
+- **Falso-negativo** (PESSOA 13/PESSOA 14): segue 2x, igual ao hoje; seguro; vai ao inventário.
 - **Reset parcial:** CONTINUAR + agregar + toast honesto; retry pelos ids falhos é idempotente
   (senha conhecida). N×~1 chamada por id é trivial (grupos ≤3).
 - **Regressão do `Total` (154 → pessoas):** esperada; comunicar como correção no adendo.
@@ -198,10 +198,10 @@ RF-01..RF-08 intocados. AC1/AC2/AC4/AC5 atendidos por este change set.
 - `bug.md` (AC, Agent Notes: não apagar contas sem decisão humana; "sem ambiguidade de alvo";
   decisão do usuário de resetar TODAS as contas).
 - `debate/problema.md` (rubrica; restrições a–e; dados 191/25/27; Total 154 = pós-dedup 22/09).
-- `evidence/reproduction.md` (25 grupos por nome; 27 colisões de CPF; falsos positivos Gessica×Iara
-  e ANDREIA×ANDREA; necessidade de consulta ao banco vivo).
-- `evidence/contas-duplicadas-camilly.md` (2 contas ativas 14/04 c/ CPF e 10/09 sem CPF, matrícula
-  ativa "Enfermagem - Noite - 2026/2027"; MARIA BEATRIZ estrutura idêntica).
+- `evidence/reproduction.md` (25 grupos por nome; 27 colisões de CPF; falsos positivos PESSOA 8×PESSOA 7
+  e PESSOA 13×PESSOA 14; necessidade de consulta ao banco vivo).
+- `evidence/contas-duplicadas-PESSOA 12.md` (2 contas ativas 14/04 c/ CPF e 10/09 sem CPF, matrícula
+  ativa "Enfermagem - Noite - 2026/2027"; PESSOA 5 BEATRIZ estrutura idêntica).
 - `src/views/directory.ts:100-117,150,169-198` (render 1:1, badge, Total bruto, handler reset por
   id único — alvo do fix).
 - `src/lib/admin-service.ts:343-438` (`resetUserPassword` + `AuditService.log`, reutilizados;

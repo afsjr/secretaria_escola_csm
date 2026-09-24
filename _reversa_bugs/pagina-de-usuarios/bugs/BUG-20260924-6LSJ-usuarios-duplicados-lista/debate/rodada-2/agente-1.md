@@ -95,7 +95,7 @@ proposto. Justificativa:
 
 **Decisão:** incluído na **execução/validação do bug**, mas **não no change set/commit**.
 Racional: a evidência que temos é de backup **PRÉ-dedup**; o banco vivo é a única fonte da
-contagem real (CAMILLY e MARIA BEATRIZ mudaram de 191→154 e podem ter divergido de novo), e
+contagem real (PESSOA 12 e PESSOA 5 BEATRIZ mudaram de 191→154 e podem ter divergido de novo), e
 o bug exige alimentar decisão humana de reparo caso a caso. Um passo de leitura pura tem
 custo ~zero e valor de fechamento da causa raiz.
 
@@ -146,7 +146,7 @@ nascença em `signup-handler.ts:18` (`if (cpf)`); persistência sem unique por i
 (`uniq_perfis_cpf_ativo` só cobre CPF não-nulo e só desde 22/09); aparição em
 `session.ts:134-142` (linhas cruas) + `directory.ts:100,117,150,169` (render 1:1, badge e
 `Total = profiles.length`, reset por id único); dedup de 22/09 (`dedup-merge.mjs:139`
-`if (!c) continue`) pulou CPF NULL/divergente → CAMILLY e MARIA BEATRIZ-3a restam em
+`if (!c) continue`) pulou CPF NULL/divergente → PESSOA 12 e PESSOA 5 BEATRIZ-3a restam em
 produção. O fix alvo é a camada de aparição; prevenção em `signup-handler` e reparo de dados
 são itens separados.
 
@@ -154,13 +154,13 @@ são itens separados.
 
 **`src/lib/person-groups.test.ts`** (puro, vitest):
 
-1. CAMILLY (mesmo nome; CPF + CPF NULL, perfil aluno) → 1 grupo, `ids.length=2`,
+1. PESSOA 12 (mesmo nome; CPF + CPF NULL, perfil aluno) → 1 grupo, `ids.length=2`,
    `cpfConflitante=false`, `nomeExibido` não-vazio (requisito b; caso da dedup de 22/09).
-2. MARIA BEATRIZ (mesmo nome, CPFs não-nulos distintos) → 1 grupo, `cpfConflitante=true`
+2. PESSOA 5 BEATRIZ (mesmo nome, CPFs não-nulos distintos) → 1 grupo, `cpfConflitante=true`
    (requisito a + sinal para inventário).
-3. Gessica × Iara (CPF igual, nomes distintos) → **2 grupos** (prova estrutural: CPF nunca
+3. PESSOA 8 × PESSOA 7 (CPF igual, nomes distintos) → **2 grupos** (prova estrutural: CPF nunca
    funde — regressão anti-22/09).
-4. ANDREIA × ANDREA (CPF igual, nome com 1 letra de diferença) → 2 grupos (falso-negativo
+4. PESSOA 13 × PESSOA 14 (CPF igual, nome com 1 letra de diferença) → 2 grupos (falso-negativo
    seguro preservado; vai ao inventário).
 5. Normalização: acento/caixa/espaço duplo → 1 grupo; **nome vazio → email; nome vazio e
    email vazio → id (2 vazios-sem-email NUNCA colapsam)**; `nomeExibido` coerente.
@@ -178,7 +178,7 @@ são itens separados.
     com viewer não-master → nenhum botão (helper de view testado).
 
 Regressão: `npm run test` + `npm run type-check`; validação manual no banco vivo via
-inventário (CAMILLY 1x com badge "2 contas"; Total cai; reset de grupo de 2 → login das duas
+inventário (PESSOA 12 1x com badge "2 contas"; Total cai; reset de grupo de 2 → login das duas
 contas com `csm1983#`).
 
 ## Impacto sobre a spec
@@ -206,10 +206,10 @@ contas com `csm1983#`).
 ## Riscos e efeitos colaterais
 
 - **Falso colapso de homônimos** (pessoas distintas, mesma grafia exata): residual inevitável
-  — CPF comprovadamente não discrimina (Gessica×Iara, ANDREIA/ANDREA). Mitigado por e-mails
+  — CPF comprovadamente não discrimina (PESSOA 8×PESSOA 7, PESSOA 13/PESSOA 14). Mitigado por e-mails
   visíveis + selo `cpfConflitante` + inventário como gate de reparo humano. Ninguém fica
   oculto sem pista.
-- **Falso negativo** (typo de nome ANDREIA/ANDREA): continua 2 linhas, como hoje — seguro;
+- **Falso negativo** (typo de nome PESSOA 13/PESSOA 14): continua 2 linhas, como hoje — seguro;
   vai ao inventário. Preferível a ocultar gente.
 - **Reset parcial:** CONTINUAR + agregado + toast honesto `X de N`; sem estado misturado
   invisível e sem FK/matrícula afetadas (mesma Edge por id).
@@ -224,7 +224,7 @@ contas com `csm1983#`).
 - `debate/problema.md` (rubrica; restrições a–e; dados 191/25/27; decisão do usuário).
 - `evidence/reproduction.md` (25 grupos por nome; 27 colisões de CPF com falsos positivos;
   Total 154 = pós-dedup).
-- `evidence/contas-duplicadas-camilly.md` (2 contas, CPF NULL 10/09, matrícula ativa; por
+- `evidence/contas-duplicadas-PESSOA 12.md` (2 contas, CPF NULL 10/09, matrícula ativa; por
   que a dedup de 22/09 falhou).
 - `src/views/directory.ts:51-59,100-150,169-198` (canReset; render 1:1; badge/Total; handler
   reset por id único — alvo exato do fix), `src/auth/session.ts:134-142`,
@@ -242,7 +242,7 @@ mais forte disponível: nome do módulo por convergência de 2/3 solvers e coer�
 taxonomia; fallback exato de resto com segurança contra fusão de desconhecidos; loop de
 reset uniformizado em CONTINUAR com única parada prévia por privilégio; inventário vivo
 incluído como leitura pura fora do change set. O mecanismo reparte corretamente todos os
-casos evidenciados (CAMILLY, MARIA BEATRIZ, Gessica×Iara, ANDREIA/ANDREA), sem banco, sem
+casos evidenciados (PESSOA 12, PESSOA 5 BEATRIZ, PESSOA 8×PESSOA 7, PESSOA 13/PESSOA 14), sem banco, sem
 CPF na chave, sem FK e reversível por diff. Residual estrutural: homônimo de grafia idêntica
 — mitigado por sinal visível + inventário humano, nunca eliminável com estes dados.
 
@@ -261,7 +261,7 @@ agora é inconfundível neste agente.
    por ser o nome já majoritário (eu + agente-3).
 2. **Selo `possiveis-homonimos` como flag binária com load de "decidir depois":** a distinção
    `contas-duplicadas` × `possiveis-homonimos` me parece mais granularidade do que a tela
-   precisa: o que diferencia o caso MARIA BEATRIZ do resto é precisamente `cpfs distintos > 1`
+   precisa: o que diferencia o caso PESSOA 5 BEATRIZ do resto é precisamente `cpfs distintos > 1`
    — que é o meu `cpfConflitante` calculado com um `Set`. Dois enums/bandeiras por grupo
    adicionam casos de teste sem comprar decisão nova. Não é defeito, é simplicidade.
 3. **Observação correta e endossada:** "nome como chave com sub-agrupamento por CPF =

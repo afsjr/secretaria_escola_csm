@@ -31,13 +31,13 @@ fallback: nome vazio -> email trim+lower; ainda vazio -> id (nunca colapsa vazio
 Prova de que a chave simples basta: agrupar **primeiro por CPF e depois sub-agrupar por
 nome** (a "Camada A" do agente-2) produz **exatamente os mesmos grupos** que agrupar
 direto por nome — se CPF e nome casam, 1 grupo nos dois esquemas; se CPF casa e nome difere
-(Gessica x Iara), split por nome nos dois; se CPF difere e nome casa (MARIA BEATRIZ-3a),
+(PESSOA 8 x PESSOA 7), split por nome nos dois; se CPF difere e nome casa (PESSOA 5 BEATRIZ-3a),
 colapso por nome nos dois. A camada de CPF e **comportamentalmente um no-op de
 agrupamento**: so acrescenta flags. Em vez de manter 3 camadas + ponte para obter labels,
 adopto os **labels uteis do agente-2/agente-3 calculados de forma trivial sobre o grupo ja
 formado** (sinais abaixo). Isso mantem **imunidade estrutural** ao bug da dedup de 22/09:
 o codigo de exibicao nunca le CPF para decidir fusao, entao nao existe caminho (esquecer o
-sub-agrupamento, inverter ordem das camadas) que reintroduza fusao Gessica x Iara — risco
+sub-agrupamento, inverter ordem das camadas) que reintroduza fusao PESSOA 8 x PESSOA 7 — risco
 que qualquer implementacao em camadas carrega como armadilha latente.
 
 ### Sinais no card (incorporados das propostas dos pares)
@@ -48,7 +48,7 @@ Grupo N>1 exibe:
   fica oculto sem pista — mitiga colisao de homonimos e evita reset "cego");
 - selo **"CPFs divergentes"** quando o grupo tem 2+ CPFs nao-nulos distintos (forma
   simplificada e mais ampla das flags do agente-2 / `cpf_conflitante` do agente-3 — pega
-  MARIA BEATRIZ-3a **e** qualquer colisao futura, sem enum fechado);
+  PESSOA 5 BEATRIZ-3a **e** qualquer colisao futura, sem enum fechado);
 - **sort usa o nome exibido do grupo** (detalhe do agente-3 — evita regressao de
   ordenacao).
 
@@ -91,7 +91,7 @@ Confirmada, sem mudanca (nao e a disputa): nascenza em `signup-handler.ts:18-28`
 (`if (cpf)`), persistencia sem unique de identidade (indice de 22/09 cobre so CPF
 nao-nulo), apariicao em `session.ts:134-142` (`getAllProfiles` cru) + `directory.ts:100-150`
 (render 1:1, `Total = profiles.length`); a dedup de 22/09 (`dedup-merge.mjs:139`,
-`if (!c) continue`) ignora CPF `NULL`, deixando CAMILLY e MARIA BEATRIZ-3a em producao
+`if (!c) continue`) ignora CPF `NULL`, deixando PESSOA 12 e PESSOA 5 BEATRIZ-3a em producao
 (Total 154 = 191-37). O fix alvo e a **apariicao**; prevencao (signup) fica como item
 separado.
 
@@ -100,18 +100,18 @@ separado.
 **`src/lib/person-groups.test.ts`** (puro, vitest):
 
 1. Mesmo nome + mesmo CPF -> 1 grupo, 2 ids (regressao principal).
-2. CAMILLY (mesmo nome; 1 conta CPF `159.598.884-08`, 1 conta CPF `NULL`, perfil aluno)
+2. PESSOA 12 (mesmo nome; 1 conta CPF `***.***.***-**`, 1 conta CPF `NULL`, perfil aluno)
    -> 1 grupo, `cpfDivergente = false` (requisito b; caso que a dedup de 22/09 nao cobriu).
-3. MARIA BEATRIZ: mesmo nome, CPFs nao-nulos distintos -> **1 grupo**,
+3. PESSOA 5 BEATRIZ: mesmo nome, CPFs nao-nulos distintos -> **1 grupo**,
    `cpfDivergente = true` (requisito a + sinal para inventario).
-4. Gessica x Iara, CPF `108.908.174-05` igual, nomes distintos -> **2 grupos** (prova
+4. PESSOA 8 x PESSOA 7, CPF `***.***.***-**` igual, nomes distintos -> **2 grupos** (prova
    estrutural de que CPF nao funde — restricao c; regressao do espirito 22/09).
-5. ANDREIA x ANDREA, CPF igual, nome com 1 letra de diferenca -> **2 grupos**
+5. PESSOA 13 x PESSOA 14, CPF igual, nome com 1 letra de diferenca -> **2 grupos**
    (falso-negativo seguro preservado; vai ao inventario).
 6. Normalizacao: acento/caixa/espaco duplo -> 1 grupo; nome vazio -> email; 2 nomes vazios
    sem email nao colapsam.
 7. Escopo: mesmo nome em `aluno` x `professor` -> 2 grupos (chave inclui perfil).
-8. Contagem: 2 linhas da CAMILLY -> total de pessoas = 1 (bloqueia regressao do `Total`).
+8. Contagem: 2 linhas da PESSOA 12 -> total de pessoas = 1 (bloqueia regressao do `Total`).
 
 **`src/lib/admin-service.pessoa.test.ts`** (mock `./supabase`, `./audit-service`):
 
@@ -126,7 +126,7 @@ separado.
 13. Priviligio por grupo: grupo contendo `master_admin` -> view nao emite botao (funcao de
     decisao de privilegio extraida pura, se possivel).
 
-Verificacao: `npm run test` + `npm run type-check` + manual (CAMILLY 1x com badge
+Verificacao: `npm run test` + `npm run type-check` + manual (PESSOA 12 1x com badge
 "2 contas"; Total cai; reset de grupo de 2 -> login das duas contas com `csm1983#`).
 
 ## Impacto sobre a spec
@@ -153,7 +153,7 @@ Verificacao: `npm run test` + `npm run type-check` + manual (CAMILLY 1x com badg
 - **Falso positivo (homonimos distintos, mesmo nome exato):** aceito, mitigado por badge +
   e-mails visiveis + selo quando CPF diverge + inventario como gate de reparo. Nao
   eliminavel com os dados existentes (CPF comprovadamente nao serve).
-- **Falso negativo (ANDREIA/ANDREA, typo):** continua 2x — seguro, igual ao hoje; vai ao
+- **Falso negativo (PESSOA 13/PESSOA 14, typo):** continua 2x — seguro, igual ao hoje; vai ao
   inventario. Preferivel a ocultar gente.
 - **Reset parcial:** CONTINUAR + agregacao + toast honesto `X de N` (nunca "sucesso" se
   houve falha); re-run idempotente. Nenhuma FK/matricula tocada (escrita de senha via edge
@@ -172,7 +172,7 @@ Verificacao: `npm run test` + `npm run type-check` + manual (CAMILLY 1x com badg
 - `debate/problema.md` (rubrica; restricoes a-e; decisao do usuario; dados 191/25/27).
 - `evidence/reproduction.md` (25 grupos por nome = mesma pessoa; 27 colisoes de CPF com
   falsos positivos; Total 154 = pos-dedup).
-- `evidence/contas-duplicadas-camilly.md` (2 contas, CPF `NULL`, matricula ativa; motivo
+- `evidence/contas-duplicadas-PESSOA 12.md` (2 contas, CPF `NULL`, matricula ativa; motivo
   da dedup de 22/09 falhar).
 - `src/views/directory.ts:100-150`, `src/auth/session.ts:134-142`,
   `src/auth/signup-handler.ts:18-28`, `src/lib/admin-service.ts:343-439`,
@@ -200,7 +200,7 @@ eliminavel).
 
 - Modulo puro separado da view (igual ao meu), exibicao-only, reversibilidade declarada,
   wrapper de reset multi-id em `admin-service` (mesma conclusao que eu);
-- Correta recusa de CPF como fusao silenciosa (Gessica x Iara) e coragem de tratar o casal
+- Correta recusa de CPF como fusao silenciosa (PESSOA 8 x PESSOA 7) e coragem de tratar o casal
   "mesmo nome + CPFs divergentes" como colapso com sinal — mesma conclusao que a minha;
 - Reparo desacoplado com inventario + fusao sob aprovacao humana: alinhado a rubrica.
 
@@ -215,7 +215,7 @@ eliminavel).
    implementacao (esquecer o sub-agrupamento por nome, fundir bucket A antes de olhar nome,
    ponte mal especificada) reintroduz *exatamente* a fusao por CPF que ja fracassou em
    producao. Minha chave e imune por construcao; a dele depende de cuidado procedural em
-   toda camada. Nao e risco teorico: foi o bug que deixou CAMILLY fora do plano.
+   toda camada. Nao e risco teorico: foi o bug que deixou PESSOA 12 fora do plano.
 3. **Especificacao ambigua da ponte/regra 4.** "Grupo B fundido em grupo A unipes" (texto
    corrompido: `unipes soa-oal`) nao define o que acontece com 2+ grupos A de mesmo nome,
    nem B duplicado sem A. O item 4 chega como remendo fora da numeracao das camadas. Dois
@@ -235,8 +235,8 @@ adozo os sinais.
 
 **Bom:**
 
-- Mesma chave de identidade que a minha, chega as mesmas conclusoes sobre CAMILLY, MARIA
-  BEATRIZ e Gessica x Iara; **menor mudanca coerente** bem argumentada;
+- Mesma chave de identidade que a minha, chega as mesmas conclusoes sobre PESSOA 12, PESSOA 5
+  BEATRIZ e PESSOA 8 x PESSOA 7; **menor mudanca coerente** bem argumentada;
 - Detalhe valioso do **sort por nome do grupo** (peguei);
 - **E-mails distintos visiveis** no card (peguei — melhora minha, que so propunha ids);
 - **Inventario vivo concreto** com caminho de arquivo (peguei — a minha mencao era difusa);
@@ -283,7 +283,7 @@ agente-3).** Justificativa:
    completo `{ resetados: [ids], erros: [{id, message}] }`: o admin sabe **quem** mudou e
    **quem** nao mudou. PARAR produz "id 1 falhou; 2..N em estado desconhecido (nem
    tentados)" — o toast tem de mentir ou expor semantica de "abortado", e a secretaria nao
-   sabe se a CAMILLY loga com a senha nova.
+   sabe se a PESSOA 12 loga com a senha nova.
 3. **Seguranca da rotacao de credencial.** O proposito do reset e trocar a senha. Senhas
    **misturadas** dentro do mesmo grupo de "uma pessoa" sao pior do que uma troca
    parcialmente comunicada: alguem com a senha antiga de 1 de N contas segue valido sem que

@@ -34,9 +34,9 @@ key(p) = `${p.perfil}|${normalizarNome(p.nome_completo)}`
 Cada grupo carrega metadado calculado em uma passada: `{ key, perfil, nomeExibido, ids,
 emails, cpfsNaoNulos, cpfConflitante }`, com
 `cpfConflitante = (distinct de normalizarCPF(cpf) não-nulos no grupo) > 1` — **sinal** para a
-secretaria e para o inventário humano (caso MARIA BEATRIZ), jamais uma segunda regra de
-fusão. CAMILLY (CPF NULL na 2ª conta) colapsa porque tem a **mesma chave de nome**; a 3ª
-conta da MARIA BEATRIZ (CPF divergente) idem, com o selo `⚠ revisar · CPFs divergentes`.
+secretaria e para o inventário humano (caso PESSOA 5 BEATRIZ), jamais uma segunda regra de
+fusão. PESSOA 12 (CPF NULL na 2ª conta) colapsa porque tem a **mesma chave de nome**; a 3ª
+conta da PESSOA 5 BEATRIZ (CPF divergente) idem, com o selo `⚠ revisar · CPFs divergentes`.
 
 Arquivos a tocar — idêntico à rodada 0:
 1. **NOVO `src/lib/person-groups.ts`** (puro, sem DOM/Supabase): `normalizarNomeIdentidade`,
@@ -64,12 +64,12 @@ prevenção futura separada.
 ## Teste
 
 Novo `src/lib/person-groups.test.ts` (puro, padrão `cpf-service.test.ts`):
-1. CAMILLY (1ª com CPF `159.598.884-08`, 2ª CPF `NULL`, mesmo nome, mesmo `perfil`) → 1 grupo,
+1. PESSOA 12 (1ª com CPF `***.***.***-**`, 2ª CPF `NULL`, mesmo nome, mesmo `perfil`) → 1 grupo,
    `ids.length = 2` (reprodução + requisito b).
-2. MARIA BEATRIZ (mesmo nome, CPFs distintos não-nulos) → 1 grupo, `cpfConflitante = true`.
-3. Gessica × Iara (CPF `108.908.174-05` igual, nomes **diferentes**) → 2 grupos (CPF nunca
+2. PESSOA 5 BEATRIZ (mesmo nome, CPFs distintos não-nulos) → 1 grupo, `cpfConflitante = true`.
+3. PESSOA 8 × PESSOA 7 (CPF `***.***.***-**` igual, nomes **diferentes**) → 2 grupos (CPF nunca
    funde — restrição c).
-4. ANDREIA × ANDREA (`120.069.054-06` igual, nomes quase iguais) → 2 grupos (falso-negativo
+4. PESSOA 13 × PESSOA 14 (`***.***.***-**` igual, nomes quase iguais) → 2 grupos (falso-negativo
    seguro preservado; NÃO regride para o jeito da dedup 22/09).
 5. Mesmo nome em `perfil` diferente (aluno × professor) → 2 grupos (chave inclui perfil).
 6. Nome com acento/caixa/espaço duplo → 1 grupo; nome vazio → fallback email, depois id;
@@ -113,7 +113,7 @@ RF-01..RF-08.
 
 ## Evidências
 
-- `evidence/contas-duplicadas-camilly.md`, `evidence/reproduction.md`, `problema.md` (rubrica,
+- `evidence/contas-duplicadas-PESSOA 12.md`, `evidence/reproduction.md`, `problema.md` (rubrica,
   restrições b/c/d/e), `bug.md` (AC, agent notes).
 - `src/views/directory.ts:100-117,150,169-198` (render 1:1, badge, `Total`, handler do reset
   por `id` único — alvo do fix).
@@ -126,7 +126,7 @@ RF-01..RF-08.
 ## Confiança
 
 **alta** — mecanismo: chave única por perfil+nome repartiu os grupos corretamente para todos os
-casos confirmados (CAMILLY, Gessica×Iara, ANDREIA×ANDREA, MARIA BEATRIZ; equivalência de
+casos confirmados (PESSOA 12, PESSOA 8×PESSOA 7, PESSOA 13×PESSOA 14, PESSOA 5 BEATRIZ; equivalência de
 partição demonstrada na crítica ao agente-2), sem banco, sem CPF na chave, sem FK; reset
 contínuo e agregado cumpre "reseta TODAS as contas" mesmo com falha parcial. Residual: homônimo
 de grafia idêntica, mitigado por sinal visível + inventário humano, nunca eliminável com os
@@ -138,7 +138,7 @@ dados disponíveis (média-alta no overall).
 forte contra a classe de bug de 22/09), escopo por perfil (mantém o privilégio do card trivial),
 reset agregado, exibição-only reversível. Objeções: (1) joga o CPF **fora até como metadado** —
 perde o sinal `cpfConflitante` que eu e o agente-2 propomos e que **diferenciaria na tela** o
-caso MARIA BEATRIZ (nome igual, CPF divergente) de um homônimo comum; é um incremento de ~2
+caso PESSOA 5 BEATRIZ (nome igual, CPF divergente) de um homônimo comum; é um incremento de ~2
 linhas no helper e de baixo custo. (2) A regra de privilégio "por grupo se qualquer membro é
 master/admin" está um pouco mais complicada do que o necessário: como a chave inclui `perfil`,
 todo grupo é homogêneo de perfil, então a regra atual do card vale por grupo sem a cláusula "se
@@ -148,8 +148,8 @@ base; adoto a flag.
 **agente-2.** A pergunta que a tarefa faz — CPF primário em camadas é *mais robusto* que chave
 por nome? — a resposta, com a evidência em mãos, é **não**: é igualmente robusto e
 significativamente mais caro. No conjunto confirmado, a máquina de camadas do agente-2
-**produz exatamente as mesmas partições** que `perfil|nomeNormalizado`: CAMILLY (1), Gessica×Iara
-(2), ANDREIA×ANDREA (2), MARIA BEATRIZ (1) — para **todos** os cenários enumerados, os grupos
+**produz exatamente as mesmas partições** que `perfil|nomeNormalizado`: PESSOA 12 (1), PESSOA 8×PESSOA 7
+(2), PESSOA 13×PESSOA 14 (2), PESSOA 5 BEATRIZ (1) — para **todos** os cenários enumerados, os grupos
 saem idênticos e a única diferença de saída é o metadado de flag, que eu já calculava como
 `cpfConflitante` na rodada 0 com um teste de "2+ CPFs não-nulos distintos" — sem camada.
 Ou seja, o custo algorítmico extra (Camada A + sub-agrupamento + Camada B + ponte A↔B + flag
@@ -157,7 +157,7 @@ Ou seja, o custo algorítmico extra (Camada A + sub-agrupamento + Camada B + pon
 compra **nenhum** delta de partição nos dados confirmados. Pior, ele **re-eleva CPF a
 participante de primeira linha da chave** (Camada A = CPF, ponte A↔B = CPF+nome): qualquer
 manutenção futura que "simplifique" a Camada A para "fundir por CPF" reintroduz o
-Gessica×Iara — o exato foot-gun que a dedup de 22/09 documentou. Na chave por nome puro esse
+PESSOA 8×PESSOA 7 — o exato foot-gun que a dedup de 22/09 documentou. Na chave por nome puro esse
 regresso é estruturalmente impossível: CPF nunca é chave. Há também uma assimetria interna:
 Camada A decreta "nomes diferentes (mesmo CPF) ⇒ pessoas diferentes", enquanto o casal crítico
 decreta "CPFs diferentes (mesmo nome) ⇒ mesma pessoa, com flag" — dois palpites sobre os mesmos
@@ -166,8 +166,8 @@ palpites, mas como **sinal renderizado** e não como segunda regra classificador
 ambigüidade real: `agruparPessoas` não declara escopo por `perfil` (o contrato é `(perfis) →`
 sem `perfil` na chave), mas a seção de riscos assume "uma vez por seção igual a hoje" e o reset
 multi-perfil fica nebuloso; e o flag `mesmo-cpf` na ponte é semanticamente enganoso (o grupo
-CAMILLY contém um CPF `NULL`). **Adoto do agente-2:** a taxonomia de flags (conceitualmente),
-o reset que continua agregando, e o reconhecimento de que MARIA BEATRIZ é decisão de produto
+PESSOA 12 contém um CPF `NULL`). **Adoto do agente-2:** a taxonomia de flags (conceitualmente),
+o reset que continua agregando, e o reconhecimento de que PESSOA 5 BEATRIZ é decisão de produto
 sob `spec-gap` — tudo isso com a mecânica de um único passe por nome, sem camadas.
 
 ## Decisão do reset loop (parar × continuar)

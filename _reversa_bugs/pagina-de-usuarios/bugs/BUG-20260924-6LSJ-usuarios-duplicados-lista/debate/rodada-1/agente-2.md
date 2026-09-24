@@ -22,11 +22,11 @@ finished_at: 2026-09-24T16:40:00-03:00
 > **A chave de fusão é o nome normalizado (escopo: seção de perfil). O CPF não funde — o CPF só SPLITA e só AVISA.**
 
 Papéis exatos do CPF na regra revisada:
-1. **SPLIT protetor (herdado da minha Camada A, agora implementado por construção):** nunca há fusão entre linhas cujos nomes normalizados diferem, ainda que o CPF seja idêntico (Gessica×Iara continuam 2 linhas — o defeito da dedup de 22/09 não reproduz).
-2. **QUALIFICADOR de ambiguidade:** grupo de nome único com **2+ CPFs não-nulos distintos** recebe bandeira `possiveis-homonimos` (selo visual não-bloqueante + entrada garantida no inventário humano); grupo com CPF repetido ou "1 CPF + 1 NULL" recebe bandeira `contas-duplicadas` (colapso confiável, ex.: CAMILLY, MARIA BEATRIZ).
+1. **SPLIT protetor (herdado da minha Camada A, agora implementado por construção):** nunca há fusão entre linhas cujos nomes normalizados diferem, ainda que o CPF seja idêntico (PESSOA 8×PESSOA 7 continuam 2 linhas — o defeito da dedup de 22/09 não reproduz).
+2. **QUALIFICADOR de ambiguidade:** grupo de nome único com **2+ CPFs não-nulos distintos** recebe bandeira `possiveis-homonimos` (selo visual não-bloqueante + entrada garantida no inventário humano); grupo com CPF repetido ou "1 CPF + 1 NULL" recebe bandeira `contas-duplicadas` (colapso confiável, ex.: PESSOA 12, PESSOA 5 BEATRIZ).
 3. **NUNCA é chave primária, nunca funde dois nomes distintos silenciosamente.**
 
-Isso é uma **convergência substantiva com agente-1 e agente-3** (nome normalizado + escopo por seção), mantendo da minha rodada 0 o sub-agrupamento como *garantia testada* (teste dedicado Gessica×Iara) e a semântica do selo de CPF divergente.
+Isso é uma **convergência substantiva com agente-1 e agente-3** (nome normalizado + escopo por seção), mantendo da minha rodada 0 o sub-agrupamento como *garantia testada* (teste dedicado PESSOA 8×PESSOA 7) e a semântica do selo de CPF divergente.
 
 ### Regra final de agrupamento (módulo puro novo `src/lib/person-grouping.ts`)
 
@@ -38,7 +38,7 @@ grupo = contas com mesma chave, MESMA seção de perfil
 ```
 
 - `flag == 'contas-duplicadas'` quando N>1 e (CPFs iguais, ou 1 CPF + 1 NULL, ou CPF NULL repetido) — colapso, selo "N contas · IDs/emails distintos" (nada fica oculto).
-- `flag == 'possiveis-homonimos'` quando N>1 e há 2+ CPFs não-nulos **distintos** — colapso mantido (decisão do usuário: MARIA BEATRIZ é UMA linha), mas selo de revisão + entrada no inventário. Este é o único caso em que a linha única pode, de fato, conter duas pessoas distintas com CPF correto; o selo é a costura para decisão humana.
+- `flag == 'possiveis-homonimos'` quando N>1 e há 2+ CPFs não-nulos **distintos** — colapso mantido (decisão do usuário: PESSOA 5 BEATRIZ é UMA linha), mas selo de revisão + entrada no inventário. Este é o único caso em que a linha única pode, de fato, conter duas pessoas distintas com CPF correto; o selo é a costura para decisão humana.
 - Sub-linha com os e-mails dos membros e a contagem de contas em TODA linha com N>1 (exigência de não ocultar informação).
 - `Total` e badges contam **pessoas** (soma de grupos por seção), não linhas de `perfis`.
 
@@ -56,15 +56,15 @@ Rodar `CpfService.listarInconsistenciasCPF()` + SQL de leitura agrupado pela MES
 
 ## Causa raiz proposta
 
-Mantida, sem alteração (não é a disputa): (1) nascença — `src/auth/signup-handler.ts:18-28` só dispara a guarda `if (cpf)`; autocadastro sem CPF cria livremente (origem da 2ª conta da CAMILLY); (2) `uniq_perfis_cpf_ativo` só desde 22/09 e só cobre CPF não-nulo; (3) `src/auth/session.ts:134-142` devolve linhas cruas; (4) `src/views/directory.ts:100,150` renderiza/conta 1:1 (`Total = profiles.length`); (5) dedup de 22/09 (`dedup-merge.mjs:139` `if (!c) continue`) agrupou só por CPF e deixou de fora quem tinha CPF NULL ou divergente. A causa raiz **alvo do fix** é especificamente a camada 4 (aparição); ninguém propôs divergência nisso.
+Mantida, sem alteração (não é a disputa): (1) nascença — `src/auth/signup-handler.ts:18-28` só dispara a guarda `if (cpf)`; autocadastro sem CPF cria livremente (origem da 2ª conta da PESSOA 12); (2) `uniq_perfis_cpf_ativo` só desde 22/09 e só cobre CPF não-nulo; (3) `src/auth/session.ts:134-142` devolve linhas cruas; (4) `src/views/directory.ts:100,150` renderiza/conta 1:1 (`Total = profiles.length`); (5) dedup de 22/09 (`dedup-merge.mjs:139` `if (!c) continue`) agrupou só por CPF e deixou de fora quem tinha CPF NULL ou divergente. A causa raiz **alvo do fix** é especificamente a camada 4 (aparição); ninguém propôs divergência nisso.
 
 ## Teste
 
 - NOVO `src/lib/person-grouping.test.ts` (puro, padrão `cpf-service.test.ts`):
-  1. CAMILLY (CPF + CPF NULL, mesmo nome, mesma seção) → 1 pessoa, flag `contas-duplicadas`.
-  2. MARIA BEATRIZ (mesmo nome, CPFs válidos distintos) → 1 pessoa, flag `possiveis-homonimos`, `cpfConflitante=true`, todos os ids em `contas`.
-  3. **Regressão anti-22/09:** Gessica × Iara (mesmo CPF, nomes distintos) → **2 pessoas** (prova de que CPF jamais funde nomes distintos).
-  4. ANDREIA × ANDREA×2 (mesmo CPF, nome com diferença mínima) → 2 grupos (falso-negativo seguro preservado).
+  1. PESSOA 12 (CPF + CPF NULL, mesmo nome, mesma seção) → 1 pessoa, flag `contas-duplicadas`.
+  2. PESSOA 5 BEATRIZ (mesmo nome, CPFs válidos distintos) → 1 pessoa, flag `possiveis-homonimos`, `cpfConflitante=true`, todos os ids em `contas`.
+  3. **Regressão anti-22/09:** PESSOA 8 × PESSOA 7 (mesmo CPF, nomes distintos) → **2 pessoas** (prova de que CPF jamais funde nomes distintos).
+  4. PESSOA 13 × PESSOA 14×2 (mesmo CPF, nome com diferença mínima) → 2 grupos (falso-negativo seguro preservado).
   5. Normalização (acento/caixa/espaço duplo) → 1 grupo; nome vazio → fallback email/depois id; dois vazios sem email não colapsam.
   6. Mesmo nome em seções diferentes (aluno × professor) → 2 grupos (chave inclui seção).
   7. Total = Σ grupos ≠ `profiles.length` na presença de duplicata.
@@ -80,7 +80,7 @@ Mantida, sem alteração (não é a disputa): (1) nascença — `src/auth/signup
 
 ## Riscos e efeitos colaterais
 
-- **Falso-colapso de homônimos reais** (2 pessoas distintas, mesmo nome exato, CPFs distintos e corretos): risco real e residual — a decisão do usuário (MARIA BEATRIZ = 1 linha) força o colapso. Mitigação: selo `possiveis-homonimos` obrigatório + e-mails visíveis + inventário. Nenhuma estratégia resolve localmente: é impossível distinguir "mesma pessoa com CPF digitado errado" de "homônimos com CPF correto" sem outra fonte de verdade.
+- **Falso-colapso de homônimos reais** (2 pessoas distintas, mesmo nome exato, CPFs distintos e corretos): risco real e residual — a decisão do usuário (PESSOA 5 BEATRIZ = 1 linha) força o colapso. Mitigação: selo `possiveis-homonimos` obrigatório + e-mails visíveis + inventário. Nenhuma estratégia resolve localmente: é impossível distinguir "mesma pessoa com CPF digitado errado" de "homônimos com CPF correto" sem outra fonte de verdade.
 - **CPF primário rejeitado em prol de nome-chave:** elimina a classe de erro da dedup de 22/09 por construção, não por disciplina.
 - **Reset multi-contas:** resetar todas as contas é decisão do usuário; risco de "reset parcial" com CONTINUE é coberto pela agregação (relatório lista resetados × falhos). Sem risco de FK/matrícula: nada é escrito em `perfis`/matrículas; mesmo caminho RPC de reset por id.
 - **Total cai (154 → pessoas únicas do banco vivo):** esperado e desejado; comunicar como correção (adendo).
@@ -92,8 +92,8 @@ Mantida, sem alteração (não é a disputa): (1) nascença — `src/auth/signup
 
 - `bug.md` (AC, Agent Notes: não apagar contas sem decisão humana; "Resetar Senha... sem ambiguidade de alvo"; decisão do usuário de resetar TODAS as contas).
 - `debate/problema.md` (rubrica, opções 1-4, restrições b/c/d/e).
-- `evidence/reproduction.md` (25 grupos por nome; 27 colisões de CPF com falsos positivos Gessica×Iara/ANDREIA-ANDREA).
-- `evidence/contas-duplicadas-camilly.md` (CAMILLY CPF NULL 10/09 com matrícula ativa; MARIA BEATRIZ 2x).
+- `evidence/reproduction.md` (25 grupos por nome; 27 colisões de CPF com falsos positivos PESSOA 8×PESSOA 7/PESSOA 13-PESSOA 14).
+- `evidence/contas-duplicadas-PESSOA 12.md` (PESSOA 12 CPF NULL 10/09 com matrícula ativa; PESSOA 5 BEATRIZ 2x).
 - `src/views/directory.ts:100-150`, `src/auth/session.ts:134-142`, `src/auth/signup-handler.ts:18-28`, `src/lib/admin-service.ts:343-439` (`resetUserPassword`), `src/lib/cpf-service.ts` (`listarInconsistenciasCPF` p/ inventário), `src/lib/cpf-service.test.ts` (padrão de mock).
 - Snapshot das rodadas 0: `rodada-0/agente-1.md`, `rodada-0/agente-3.md`.
 
@@ -107,7 +107,7 @@ Mantida, sem alteração (não é a disputa): (1) nascença — `src/auth/signup
 
 **Agente-3.** Melhor em engenharia de *apresentação* da ambiguidade: selo `cpf_conflitante`/`⚠ revisar` não-bloqueante, sub-linha com e-mails, `cpf_conflitante` sinalizando CPFs distintos dentro do grupo, chave `${perfil}|nome` (equivalente à minha seção), incorporação do inventário vivo read-only como etapa paralela (excelente: fecha a exibição e alimenta o reparo humano no mesmo movimento). Ponto de discordância: o **reset no primeiro erro**. Parar no 1º erro frustra a decisão do usuário ("resetar TODAS as contas"): se a falha ocorre no 1º id, os demais NUNCA são resetados e a pessoa segue com senha antiga em parte das contas — defeito remanescente e silencioso, com recuperação manual pior (perder posição, tirar um a um). Como os resets são independentes por id, sem estado transacional compartilhado e em quantidade pequena (2-5 contas/grupo), o custo de continuar é desprezível e o relatório agregado dá alvo de retry exato.
 
-**Sobre o ponto central da disputa** (CPF como camada primária — a pergunta que fiz à rodada): a resposta rigorosa à crítica dos dois é — *o meu sub-agrupamento por nome dentro do bucket de CPF anula sim o defeito específico de 22/09* (Gessica×Iara nunca colapsam, teste 3 o prova), **mas** o rótulo "CPF primário" era um convite ao erro de implementação, e a verdade dos dados é que nome normalizado já produz a mesma partição com metade do código. Portanto aceito a crítica de simplicidade integralmente e reframeio a estratégia: **nome é a chave, CPF é divisor + qualificador de ambiguidade**. O único acréscimo que defenderei até o fim é o selo de CPF divergente como costura para decisão humana — e nisso o agente-3 já veio ao meu encontro.
+**Sobre o ponto central da disputa** (CPF como camada primária — a pergunta que fiz à rodada): a resposta rigorosa à crítica dos dois é — *o meu sub-agrupamento por nome dentro do bucket de CPF anula sim o defeito específico de 22/09* (PESSOA 8×PESSOA 7 nunca colapsam, teste 3 o prova), **mas** o rótulo "CPF primário" era um convite ao erro de implementação, e a verdade dos dados é que nome normalizado já produz a mesma partição com metade do código. Portanto aceito a crítica de simplicidade integralmente e reframeio a estratégia: **nome é a chave, CPF é divisor + qualificador de ambiguidade**. O único acréscimo que defenderei até o fim é o selo de CPF divergente como costura para decisão humana — e nisso o agente-3 já veio ao meu encontro.
 
 ## Decisão sobre o loop de reset: PARAR no 1º erro ou CONTINUAR agregando?
 

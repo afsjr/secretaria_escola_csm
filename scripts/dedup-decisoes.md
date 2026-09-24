@@ -21,29 +21,29 @@ Não altere as linhas `## CPF ...` (são as chaves dos grupos).
 
 ---
 
-## CPF 153.765.284-21
+## CPF ***.***.***-**
 # Contas deste grupo:
-#   - eduardaoliveira310707@gmail.com  -> EDUARDA DE OLIVEIRA PEREIRA      (OUTRA pessoa; CPF correto 148.045.104-51)
-#   - mariaeduarda@gmail.com           -> MARIA EDUARDA OLIVEIRA PEDROZO   (matriculada)
-#   - eduardaoliveira@gmail.com        -> MARIA EDUARDA OLIVEIRA PEDROZO   (sem matrícula; tem notas/frequência)
-# Decisão: o CPF 153.765.284-21 é da MARIA EDUARDA; corrigir o CPF da Eduarda Pereira e
-# mesclar as duas contas da Maria Eduarda, mantendo a matriculada.
+#   - <e-mail-mascarado>  -> PESSOA 1      (OUTRA pessoa; CPF correto ***.***.***-**)
+#   - <e-mail-mascarado>           -> PESSOA 2   (matriculada)
+#   - <e-mail-mascarado>        -> PESSOA 2   (sem matrícula; tem notas/frequência)
+# Decisão: o CPF ***.***.***-** é da PESSOA 5 PESSOA 6; corrigir o CPF da PESSOA 6 Pereira e
+# mesclar as duas contas da PESSOA 5 PESSOA 6, mantendo a matriculada.
 # RESOLVIDO em 2026-09-22.
 acao: nenhuma
-manter: mariaeduarda@gmail.com
+manter: <e-mail-mascarado>
 corrigir_cpf_email: 
 corrigir_cpf_valor: 
-observacao: RESOLVIDO - Maria Eduarda mantida (mariaeduarda@gmail.com); eduardaoliveira@gmail.com desativada; Eduarda Pereira corrigida para 148.045.104-51.
+observacao: RESOLVIDO - PESSOA 5 PESSOA 6 mantida (<e-mail-mascarado>); <e-mail-mascarado> desativada; PESSOA 6 Pereira corrigida para ***.***.***-**.
 
 ---
 
-## CPF 108.908.174-05
+## CPF ***.***.***-**
 # Contas deste grupo:
-#   - gessicapaloma@gmail.com  -> Gessica Paloma Januario da Silva  (matriculada, 14 notas) — CPF 108.908.174-05 é dela
-#   - iaramyllena@gmail.com    -> Iara Myllena de Melo Lima         (sem matrícula) — CPF correto 144.434.544-38
+#   - <e-mail-mascarado>  -> PESSOA 3  (matriculada, 14 notas) — CPF ***.***.***-** é dela
+#   - <e-mail-mascarado>    -> PESSOA 4         (sem matrícula) — CPF correto ***.***.***-**
 # RESOLVIDO em 2026-09-22.
 acao: nenhuma
 manter: 
 corrigir_cpf_email: 
 corrigir_cpf_valor: 
-observacao: RESOLVIDO - Iara corrigida para 144.434.544-38; 108.908.174-05 permanece com Gessica Paloma.
+observacao: RESOLVIDO - PESSOA 7 corrigida para ***.***.***-**; ***.***.***-** permanece com PESSOA 8 PESSOA 9.

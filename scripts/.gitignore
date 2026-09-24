@@ -1,0 +1,19 @@
+# Nunca versionar artefatos gerados com dados pessoais (PII) ou credenciais.
+# Dumps, relatórios de dedup e exports contêm nomes, CPFs, e-mails e vínculos reais.
+# Guarde localmente (ou criptografado, ex.: *.enc) — nunca no git.
+
+backups/*.sql
+backups/*.json
+backups/*.md
+backups/*.pdf
+backups/*.csv
+backups/*.tsv
+backups/*.xlsx
+backups/*.log
+
+.env.backup
+*.env.backup
+
+# Relatórios de decisão gerados a partir do banco (podem carregar PII)
+*-decisoes.md
+*.decisoes.md

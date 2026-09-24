@@ -125,7 +125,7 @@ GROUP BY p.perfil, normalize_nome(p.nome_completo)
 HAVING COUNT(*) > 1
 ORDER BY p.perfil, chave_nome;
 
-# complemento: classes de colisão de CPF (Gessica×Iara, ANDREIA×ANDREA)
+# complemento: classes de colisão de CPF (PESSOA 8×PESSOA 7, PESSOA 13×PESSOA 14)
 SELECT cpf, array_agg(DISTINCT nome_completo) AS nomes, count(*) AS n
 FROM public.perfis
 WHERE cpf IS NOT NULL AND cpf <> ''
@@ -157,29 +157,29 @@ flag, homônimos suspeitos) — alimenta a decisão humana de reparo futuro, **f
 Confirmada, unânime, fora da disputa — e agora com a divisão explícita que este bug exige:
 
 - **Nascença (prevenção, item separado):** `signup-handler.ts:18-28` — guarda `if (cpf)`; sem CPF
-  o cadastro cria conta livremente (origem da 2ª conta CAMILLY, 10/09). Não é alvo deste fix.
+  o cadastro cria conta livremente (origem da 2ª conta PESSOA 12, 10/09). Não é alvo deste fix.
 - **Persistência:** `perfis` sem unique por identidade; `uniq_perfis_cpf_ativo` só desde 22/09 e
   só cobre CPF não-nulo.
 - **Aparição (alvo do fix):** `session.ts:134-142` devolve cru + `directory.ts:100-150` renderiza
   1:1 e conta `Total = profiles.length`. É aqui que a duplicata vira DEFEITO.
 - **Por que restou:** `dedup-merge.mjs:139` (`if (!c) continue`) agrupou só por CPF e pulou CPF
-  `NULL` (CAMILLY) e CPF divergente (3ª MARIA BEATRIZ) — Total 154 = 191 − 37.
+  `NULL` (PESSOA 12) e CPF divergente (3ª PESSOA 5 BEATRIZ) — Total 154 = 191 − 37.
 
 ## Teste
 
 **`src/lib/person-groups.test.ts`** (puro, padrão `cpf-service.test.ts`):
-1. CAMILLY (CPF `159.598.884-08` + CPF `NULL`, mesmo nome, mesmo perfil) → **1 grupo, 2 ids**,
+1. PESSOA 12 (CPF `***.***.***-**` + CPF `NULL`, mesmo nome, mesmo perfil) → **1 grupo, 2 ids**,
    `cpfConflitante=false` (requisito b; caso que a dedup de 22/09 não cobriu).
-2. MARIA BEATRIZ (mesmo nome, CPFs não-nulos distintos) → **1 grupo, `cpfConflitante=true`**
+2. PESSOA 5 BEATRIZ (mesmo nome, CPFs não-nulos distintos) → **1 grupo, `cpfConflitante=true`**
    (requisito a + sinal; decisão do usuário: 1 linha).
-3. **Regressão anti-22/09:** Gessica × Iara (CPF `108.908.174-05` igual, nomes distintos) →
+3. **Regressão anti-22/09:** PESSOA 8 × PESSOA 7 (CPF `***.***.***-**` igual, nomes distintos) →
    **2 grupos** (CPF jamais funde nomes distintos — restrição c).
-4. ANDREIA × ANDREA ×2 (`120.069.054-06` igual, nome com 1 letra de diferença) → **2 grupos**
+4. PESSOA 13 × PESSOA 14 ×2 (`***.***.***-**` igual, nome com 1 letra de diferença) → **2 grupos**
    (falso-negativo seguro preservado; vai ao inventário).
 5. Normalização: acento/caixa/espaço duplo → 1 grupo; **nome vazio → fallback email**, depois id;
    dois vazios sem email **não** colapsam.
 6. Escopo: mesmo nome em `aluno` × `professor` → 2 grupos (perfil na chave).
-7. **Total/`badge`:** 2 linhas CAMILLY → total de pessoas 1 (bloqueia regressão do Total).
+7. **Total/`badge`:** 2 linhas PESSOA 12 → total de pessoas 1 (bloqueia regressão do Total).
 
 **`src/lib/admin-service.pessoa.test.ts`** (mock `./supabase`, `./audit-service`):
 8. `resetUserPasswords(['a','b'], nome)` → 2 chamadas de `resetUserPassword`, 2 auditorias
@@ -191,7 +191,7 @@ Confirmada, unânime, fora da disputa — e agora com a divisão explícita que 
 12. Grupo com `master_admin`/`admin` → removePrivilegiado: botão não é emitido (helper de
     privilégio por grupo — decisão de renderização, testável).
 
-Regressão: `npm run test` + `npm run type-check` + manual (CAMILLY 1x com badge "2 contas · …";
+Regressão: `npm run test` + `npm run type-check` + manual (PESSOA 12 1x com badge "2 contas · …";
 Total cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 
 ## Impacto sobre a spec
@@ -200,7 +200,7 @@ Total cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
   de reset por id continua válida — o wrapper chama a mesma função por conta).
 - **Adendo em `_reversa_sdd/addenda/`** com decisões fechadas:
   1. Listagem "uma linha por pessoa por seção"; chave = `perfil | nome normalizado`; **CPF não é
-     chave de fusão** (falsos positivos Gessica×Iara/ANDREIA-ANDREA documentados como justificativa).
+     chave de fusão** (falsos positivos PESSOA 8×PESSOA 7/PESSOA 13-PESSOA 14 documentados como justificativa).
   2. `Total:`/badges contam **pessoas únicas**; sort por nome do grupo.
   3. Card N>1 → "N contas · e-mails"; selo "⚠ revisar · CPFs divergentes" quando houver.
   4. Reset na linha única reseta **todas** as contas; falha parcial **não interrompe**; toast
@@ -214,10 +214,10 @@ Total cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 ## Riscos e efeitos colaterais
 
 - **Falso-colapso de homônimos reais** (grafia idêntica, CPFs distintos corretos): residual,
-  aceito por decisão do usuário (MARIA BEATRIZ = 1 linha); mitigado por "N contas · e-mails" +
+  aceito por decisão do usuário (PESSOA 5 BEATRIZ = 1 linha); mitigado por "N contas · e-mails" +
   selo de CPF divergente + inventário vivo como gate. Não eliminável: distinguir "CPF digitado
   errado da mesma pessoa" de "homônimos com CPF certo" exige fonte de verdade que não existe.
-- **Falso-negativo (ANDREIA/ANDREA):** fica 2x — igual a hoje, seguro; vai ao inventário.
+- **Falso-negativo (PESSOA 13/PESSOA 14):** fica 2x — igual a hoje, seguro; vai ao inventário.
 - **Reset parcial:** CONTINUAR + agregação + toast honesto `X de N` com falhos explícitos;
   re-run idempotente (grava senha conhecida). Zero FK/matrícula tocada (mesmo caminho RPC).
 - **Grupo com admin/master perde o botão** — recusa conservadora; alternativa (reset seletivo
@@ -234,7 +234,7 @@ Total cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 - `debate/problema.md` (rubrica; restrições a–e; decisão do usuário; 191/25/27; Total 154 pós-dedup).
 - `evidence/reproduction.md` (25 grupos por nome; 27 colisões de CPF com falsos positivos;
   casos residuais = CPF NULL/divergente).
-- `evidence/contas-duplicadas-camilly.md` (2 contas, CPF `NULL` 10/09, matrícula ativa; por que a
+- `evidence/contas-duplicadas-PESSOA 12.md` (2 contas, CPF `NULL` 10/09, matrícula ativa; por que a
   dedup de 22/09 falhou).
 - Código lido nesta rodada: `src/views/directory.ts:95-201` (render 1:1, badge `filtered.length`,
   `Total = profiles.length`, handler reset por `id` único via `data-id` — alvo exato do fix),
@@ -251,7 +251,7 @@ Total cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 parada única prévia por privilégio, inventário read-only dentro do bug) produziu a MESMA partição
 nos três debates, eliminou a foot-gun do CPF-primeiro por construção, é 100% testável e revertível
 sem tocar em dado ou schema. Residual: homônimos de grafia idêntica (mitigado, não eliminável) e a
-escolha de produto "MARIA BEATRIZ = 1 linha" (selo + inventário como costura).
+escolha de produto "PESSOA 5 BEATRIZ = 1 linha" (selo + inventário como costura).
 
 ## Crítica às demais propostas
 
@@ -269,7 +269,7 @@ reset multi-contas CONTINUAR-agregando; inventário concerto (ele absorveu do ag
    membros.
 2. **Ele aceitou o selo de CPF divergente apenas como "forma simplificada" e manteve o foco em
    "CPF rejeitado por completo".** Não é só cosmético: é o discriminador que torna o
-   falso-colapso **auditável na tela** (MARIA BEATRIZ visível como "revisar" vs CAMILLY como
+   falso-colapso **auditável na tela** (PESSOA 5 BEATRIZ visível como "revisar" vs PESSOA 12 como
    "duplicata confiável"). Sem ele, o operador não distingue as duas classes do resíduo. Custo:
    1 linha (`new Set(cpfsNaoNulos).size > 1`).
 3. Nada mais: nas demais esta 100% alinhado. Crítica de fundo: a crítica dele à minha r0 era

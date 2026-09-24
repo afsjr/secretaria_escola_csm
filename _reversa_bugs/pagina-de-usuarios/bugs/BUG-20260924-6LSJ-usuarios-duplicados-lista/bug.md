@@ -46,7 +46,7 @@ traceability:
       perfis (directory.ts:100-150) sem deduplicação, então duas contas ativas da mesma pessoa
       viram dois cards e somam 2 no Total. A dedup de 22/09 (dedup-pendencias.mjs:82,
       dedup-merge.mjs:139) agrupa só por CPF e pula quem não tem CPF, deixando casos como a
-      CAMILLY (CPF NULL) e a 3ª conta da MARIA BEATRIZ (CPF divergente) fora do plano."
+      PESSOA 12 (CPF NULL) e a 3ª conta da PESSOA 5 BEATRIZ (CPF divergente) fora do plano."
     causal_path:
       - "Autocadastro/admin sem CPF não dispara cpf_ja_existe (signup-handler.ts:18 if(cpf))"
       - "Linhas duplicadas ativas persistem em perfis (sem unique por nome/identidade)"
@@ -54,9 +54,9 @@ traceability:
       - "directory.ts agrupa/ordena por perfil e nome mas não deduplica; Total = profiles.length"
     evidence:
       - ref: evidence/reproduction.md
-        observation: "191 perfis no backup; 25 grupos duplicados por nome; CPF-falso-positivos entre pessoas distintas (Gessica×Iara) provam que dedup por CPF sozinho não é identidade segura"
-      - ref: evidence/contas-duplicadas-camilly.md
-        observation: "CAMILLY com 2 linhas ativas (14/04 c/ CPF; 10/09 sem CPF, matrícula ativa)"
+        observation: "191 perfis no backup; 25 grupos duplicados por nome; CPF-falso-positivos entre pessoas distintas (PESSOA 8×PESSOA 7) provam que dedup por CPF sozinho não é identidade segura"
+      - ref: evidence/contas-duplicadas-PESSOA 12.md
+        observation: "PESSOA 12 com 2 linhas ativas (14/04 c/ CPF; 10/09 sem CPF, matrícula ativa)"
       - ref: evidence/inventario-vivo-20260924.md
         observation: "Snapshot: 191 perfis -> 158 pessoas únicas; 25 grupos duplicados; 8 colisões de CPF entre pessoas distintas"
       - ref: src/views/directory.ts:100-150
@@ -79,7 +79,7 @@ change_set:
   - id: CHG-001
     kind: test
     artifact: src/lib/person-groups.test.ts
-    purpose: "Reprodução + regressão da identidade (CAMILLY 2->1, MARIA BEATRIZ 3->1, Gessica/Iara e ANDREIA/ANDREA seguem 2 grupos por nome/perfil)"
+    purpose: "Reprodução + regressão da identidade (PESSOA 12 2->1, PESSOA 5 BEATRIZ 3->1, PESSOA 8/PESSOA 7 e PESSOA 13/PESSOA 14 seguem 2 grupos por nome/perfil)"
     diff: fix/plan.html
   - id: CHG-002
     kind: test
@@ -121,8 +121,8 @@ A tela "Usuários do Sistema" (`src/views/directory.ts`) lista direto o retorno 
 que lê a tabela `perfis` sem deduplicação. Contas ativas duplicadas para a mesma pessoa (mesmo
 nome/CPF, IDs diferentes) aparecem como duas linhas distintas e contam duas vezes no `Total:`.
 
-Casos confirmados no print do usuário: **CAMILLY VITORIA DA SILVA ALBUQUERQUE** (2x) e
-**MARIA BEATRIZ DA COSTA SANTOS** (2x).
+Casos confirmados no print do usuário: **PESSOA 10** (2x) e
+**PESSOA 11** (2x).
 
 ## Expected Behavior
 
@@ -161,12 +161,12 @@ para o fix.
 1. Autenticar com perfil admin/master_admin/secretaria.
 2. Abrir a página "Usuários do Sistema".
 3. Percorrer a seção "Alunos".
-4. Observar: `CAMILLY VITORIA DA SILVA ALBUQUERQUE` aparece 2x e `MARIA BEATRIZ DA COSTA SANTOS`
+4. Observar: `PESSOA 10` aparece 2x e `PESSOA 11`
    aparece 2x; o `Total:` soma ambas.
 
 ## Evidence
 
-- `evidence/contas-duplicadas-camilly.md` — linhas das duas contas ativas da CAMILLY nos backups.
+- `evidence/contas-duplicadas-PESSOA 12.md` — linhas das duas contas ativas da PESSOA 12 nos backups.
 - Relato bruto com o print: `../intake/relato-20260924-1107.md`.
 
 ## Suspected Area
@@ -181,7 +181,7 @@ Causa raiz **não confirmada** (hipótese do registrador):
 - Aparecimento: `src/views/directory.ts:100,150` exibe e conta linhas brutas.
 - Por que a dedup de 22/09 não pegou: `scripts/dedup-pendencias.mjs:82` e
   `scripts/dedup-merge.mjs:139` agrupam **só por CPF** e ignoram quem não tem CPF
-  (`if (!c) continue;`), então a conta da CAMILLY com CPF `NULL` ficou de fora.
+  (`if (!c) continue;`), então a conta da PESSOA 12 com CPF `NULL` ficou de fora.
 
 ## Acceptance Criteria
 
@@ -212,7 +212,7 @@ reversível, **zero escrita em banco**, CPF fora da chave de identidade.
 
 - Novo módulo puro `src/lib/person-groups.ts`: `agruparPorPessoa` com chave
   `perfil | nomeNormalizado` (fallback `perfil | email` → `perfil | id`; vazios nunca colapsam).
-  CPF nunca funde pessoas (Gessica×Iara e ANDREIA×ANDREA seguem 2 linhas); grupo com 2+ CPFs
+  CPF nunca funde pessoas (PESSOA 8×PESSOA 7 e PESSOA 13×PESSOA 14 seguem 2 linhas); grupo com 2+ CPFs
   não-nulos distintos marca `cpfConflitante` (selo "⚠ revisar · CPFs divergentes").
 - `src/views/directory.ts`: 1 card por pessoa; badges da seção e `Total:` = pessoas únicas;
   sub-linha "N contas · e-mails"; botão "Resetar Senha" com `data-ids` (JSON) e privilégio por
@@ -231,7 +231,7 @@ reversível, **zero escrita em banco**, CPF fora da chave de identidade.
 
 **Pendências para closure (decisão humana / manual):**
 1. Commit dos arquivos (não commitei nada).
-2. Verificação manual no banco vivo (de um IP liberado): CAMILLY 1x com "2 contas"; `Total: 158`;
+2. Verificação manual no banco vivo (de um IP liberado): PESSOA 12 1x com "2 contas"; `Total: 158`;
    reset de grupo de 2 → login das duas contas com `csm1983#`.
 3. Itens separados (não são este bug): prevenção em `signup-handler.ts`, reparo de dados (fusão/
    desativação com decisão humana via inventário), e o campo de consulta de pessoas inativas.
@@ -247,7 +247,7 @@ reversível, **zero escrita em banco**, CPF fora da chave de identidade.
 - **Pergunta em aberto para o fix:** o "campo para consulta de pessoas inativos" citado pelo
   usuário é um requisito novo, não é defeito. Tratar como item separado (adendo/feature), fora
   deste bug, salvo decisão humana em contrário.
-- **Não apagar contas duplicadas sem decisão humana**: a segunda conta da CAMILLY tem matrícula
+- **Não apagar contas duplicadas sem decisão humana**: a segunda conta da PESSOA 12 tem matrícula
   ativa ("Enfermagem - Noite - 2026/2027"). Cuidado com `cadastro_desativado` e com vínculos de
   matrícula; dedup por CPF não cobre contas com CPF `NULL`.
 - Atenção ao efeito no `Resetar Senha`: decidir qual conta é a canônica antes de consolidar.

@@ -33,12 +33,12 @@ idêntica; D3 acumula as duas únicas deficiências substantivas: o `break` por 
 
 ## Vencedora (D1 — por critério da rubrica)
 
-### 1. Elimina a causa raiz confirmada e o caso CAMILLY-CPF-NULL
+### 1. Elimina a causa raiz confirmada e o caso PESSOA 12-CPF-NULL
 
 Todas as três eliminam. D1 é a que o faz de forma mais verificável: a chave `perfil|nome` colapsa a
-CAMILLY (idem grafia, CPF `NULL`) e a MARIA BEATRIZ (grafia idem, CPFs divergentes) em um único
+PESSOA 12 (idem grafia, CPF `NULL`) e a PESSOA 5 BEATRIZ (grafia idem, CPFs divergentes) em um único
 grupo com `ids` completos; e os testes 1–7 da proposta bloqueiam explicitamente os dois casos e as
-anti-regressões (Gessica×Iara e ANDREIA×ANDREA seguem como 2 grupos, provando que CPF nunca funde).
+anti-regressões (PESSOA 8×PESSOA 7 e PESSOA 13×PESSOA 14 seguem como 2 grupos, provando que CPF nunca funde).
 `Total = Σ grupos` corrige a contagem de linhas brutas em `directory.ts:117,150`. O fallback
 `email → id` para nome vazio fecha o caso extremo sem fundir desconhecidos.
 
@@ -157,7 +157,7 @@ ORDER BY nome_completo;
 ```
 
 Resultado agrupado **em memória pelo mesmo `agruparPorPessoa`** da tela; complementar
-`CpfService.listarInconsistenciasCPF()` (classes de colisão Gessica×Iara / ANDREIA×ANDREA); gravado
+`CpfService.listarInconsistenciasCPF()` (classes de colisão PESSOA 8×PESSOA 7 / PESSOA 13×PESSOA 14); gravado
 em `evidence/inventario-vivo-YYYYMMDD.md` (ids, e-mails, CPFs, matrículas ativas, `cpfConflitante`,
 homônimos suspeitos). Reparo/fusão/desativação = itens separados com decisão humana.
 
@@ -171,11 +171,11 @@ itens separados; termo de taxonomia `listagem-usuarios`. AC1, AC2, AC4, AC5 aten
 ## Plano de testes consolidado
 
 **`src/lib/person-groups.test.ts`** (puro, vitest):
-1. CAMILLY (CPF `159.598.884-08` + CPF NULL, mesmo nome/perfil) → 1 grupo, `ids.length=2`,
+1. PESSOA 12 (CPF `***.***.***-**` + CPF NULL, mesmo nome/perfil) → 1 grupo, `ids.length=2`,
    `cpfConflitante=false` (caso da dedup de 22/09).
-2. MARIA BEATRIZ (mesmo nome, CPFs não-nulos distintos) → 1 grupo, `cpfConflitante=true`, `ids=3`.
-3. Gessica × Iara (CPF igual, nomes distintos) → **2 grupos** (CPF nunca funde).
-4. ANDREIA × ANDREA (CPF igual, 1 letra de diferença) → **2 grupos** (falso-negativo seguro).
+2. PESSOA 5 BEATRIZ (mesmo nome, CPFs não-nulos distintos) → 1 grupo, `cpfConflitante=true`, `ids=3`.
+3. PESSOA 8 × PESSOA 7 (CPF igual, nomes distintos) → **2 grupos** (CPF nunca funde).
+4. PESSOA 13 × PESSOA 14 (CPF igual, 1 letra de diferença) → **2 grupos** (falso-negativo seguro).
 5. Normalização: acento/caixa/espaço duplo → 1 grupo; nome vazio → email; nome+email vazios → id
    (vazios nunca colapsam); `nomeExibido` todo-vazio → `"(sem nome)"`.
 6. Mesmo nome em `aluno` × `professor` → 2 grupos.
@@ -191,14 +191,14 @@ itens separados; termo de taxonomia `listagem-usuarios`. AC1, AC2, AC4, AC5 aten
 12. Privilégio por grupo: grupo com `master_admin` → nenhum botão; grupo `admin` com viewer
     não-master → nenhum botão.
 
-Regressão: `npm run test` + `npm run type-check`; manual no banco vivo (CAMILLY 1x com badge
+Regressão: `npm run test` + `npm run type-check`; manual no banco vivo (PESSOA 12 1x com badge
 "2 contas"; Total cai; reset de grupo de 2 → login das duas contas com `csm1983#`).
 
 ## Riscos e mitigações finais
 
 - **Homônimos reais de grafia idêntica** colapsam (residual inevitável — CPF comprovadamente não
   discrimina). Mitigado: e-mails visíveis + selo `cpfConflitante` + inventário como gate humano.
-- **Falso-negativo** (ANDREIA/ANDREA): segue 2 linhas, como hoje; seguro; vai ao inventário.
+- **Falso-negativo** (PESSOA 13/PESSOA 14): segue 2 linhas, como hoje; seguro; vai ao inventário.
 - **Reset parcial:** continua-agregando + toast honesto `X de N` + retry idempotente; zero
   FK/matrícula tocada (mesma RPC por id).
 - **Total cai (154 → pessoas únicas):** correção esperada, comunicada no adendo.
@@ -211,8 +211,8 @@ Regressão: `npm run test` + `npm run type-check`; manual no banco vivo (CAMILLY
 ## Confiança da adjudicação
 
 **alta.** As três propostas são de terceiros solvers independentes na mesma rodada final, com
-partição idêntica em todos os cenários discriminantes (CAMILLY, MARIA BEATRIZ, Gessica×Iara,
-ANDREIA/ANDREA) e com as decisões de unificação registradas em cada uma. As divergências reais foram
+partição idêntica em todos os cenários discriminantes (PESSOA 12, PESSOA 5 BEATRIZ, PESSOA 8×PESSOA 7,
+PESSOA 13/PESSOA 14) e com as decisões de unificação registradas em cada uma. As divergências reais foram
 resolvidas a partir de evidência que confirmei por leitura direta: o contrato de erro do
 `admin-service` (`admin-service.ts:84-105,386`) não expõe classe de status, o que derruba a cláusula
 de `break` do D3 por inviabilidade técnica sem quebrar "assinatura intocada"; e o filtro real de

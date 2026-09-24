@@ -35,14 +35,14 @@ key(p) = normalizarNome(p.nome_completo)  // NFD + remove acentos + lowercase('p
 ```
 
 - **CPF NÃO é usado para fundir grupos.** Por quê: CPF compartilhado entre pessoas distintas
-  (evidência: `108.908.174-05` em Gessica × Iara; `120.069.054-06` em ANDREIA × ANDREA×2) prova que
+  (evidência: `***.***.***-**` em PESSOA 8 × PESSOA 7; `***.***.***-**` em PESSOA 13 × PESSOA 14×2) prova que
   CPF como chave de fusão esconde pessoas reais — viola a restrição (c). Grupos de CPF duplicado
   *da mesma pessoa* já são capturados porque a mesma pessoa tem o mesmo nome.
 - **Nome normalizado resolve os dois casos reais que a dedup de 22/09 não cobriu:**
-  - CAMILLY (CPF `NULL` na 2ª conta): mesmo nome → colapsa (requisito b). ✓
-  - 3ª conta da MARIA BEATRIZ (CPF divergente `110.032.444-59`): mesmo nome → colapsa. ✓
-- **Custo conhecido (aceito):** pessoas que digitaram o nome diferente entre contas (ANDREIA ×
-  ANDREA) NÃO colapsam na tela — falso-negativo **seguro** (não esconde ninguém; comportamento igual
+  - PESSOA 12 (CPF `NULL` na 2ª conta): mesmo nome → colapsa (requisito b). ✓
+  - 3ª conta da PESSOA 5 BEATRIZ (CPF divergente `***.***.***-**`): mesmo nome → colapsa. ✓
+- **Custo conhecido (aceito):** pessoas que digitaram o nome diferente entre contas (PESSOA 13 ×
+  PESSOA 14) NÃO colapsam na tela — falso-negativo **seguro** (não esconde ninguém; comportamento igual
   ao atual para esses casos). Esse grupo vai para o inventário de reparo humano como item separado.
 - **Risco residual (aceito e mitigado):** duas pessoas distintas com o **mesmo nome exato** colapsam
   em uma linha. Mitigação: o card exibe badge "**N contas**" (não é fusão silenciosa), os ids ficam
@@ -55,7 +55,7 @@ pode aparecer nas duas seções — esconder isso seria outra mudança de produt
 ### O que o Total passa a contar
 
 `Total = Σ de grupos únicos por seção` (pessoas, não linhas). Secção badge = nº de grupos daquela
-seção. Ex.: 2 linhas da CAMILLY → 1 pessoa.
+seção. Ex.: 2 linhas da PESSOA 12 → 1 pessoa.
 
 ### Comportamento do Resetar Senha
 
@@ -94,22 +94,22 @@ Confirma a causa raiz já registrada (não é a disputa): nascença em `signup-h
 (`if (cpf)` só dispara a guarda com CPF) + ausência de unique por identidade até 22/09; aparecimento
 em `session.ts:134-142` (sem distinct/grupo) e `directory.ts:100,150` (render 1:1 + `Total` bruto).
 A dedup de 22/09 (`dedup-pendencias.mjs:82`, `dedup-merge.mjs:139`) agrupou só por CPF e ignorou
-CPF `NULL`, deixando CAMILLY e MARIA BEATRIZ-3ª fora. Nada a alterar na hipótese.
+CPF `NULL`, deixando PESSOA 12 e PESSOA 5 BEATRIZ-3ª fora. Nada a alterar na hipótese.
 
 ## Teste
 
 **`src/lib/person-groups.test.ts`** (puro, sem jsdom):
 1. Duas contas mesmo nome + mesmo CPF → **1 grupo**, `ids = [ambos]` (regressão principal).
-2. CAMILLY (nome igual; 1ª conta CPF, 2ª conta CPF `NULL`) → **1 grupo** (prova do caso
+2. PESSOA 12 (nome igual; 1ª conta CPF, 2ª conta CPF `NULL`) → **1 grupo** (prova do caso
    CPF-NULL, requisito b).
-3. Gessica × Iara (CPF `108.908.174-05` igual, nomes **diferentes**) → **2 grupos** (prova de que
+3. PESSOA 8 × PESSOA 7 (CPF `***.***.***-**` igual, nomes **diferentes**) → **2 grupos** (prova de que
    CPF não funde pessoas distintas — restrição c).
-4. ANDREIA × ANDREA (CPF `120.069.054-06` igual, nome com diferença mínima) → **2 grupos**
+4. PESSOA 13 × PESSOA 14 (CPF `***.***.***-**` igual, nome com diferença mínima) → **2 grupos**
    (falso-negativo preservado, não oculta ninguém).
-5. Nomes com acento/caixa/espaços extra normalizam igual (`"Maria  BEATRIZ"` = `"MARIA beatriz"`) →
+5. Nomes com acento/caixa/espaços extra normalizam igual (`"PESSOA 5  BEATRIZ"` = `"PESSOA 5 beatriz"`) →
    1 grupo (prova da chave).
 6. Nome vazio → fallback email, depois id; dois nomes vazios sem email **não** colapsam.
-7. Contagem: 2 linhas da CAMILLY → total de pessoas = 1 (não 2) — bloqueia regressão do `Total`.
+7. Contagem: 2 linhas da PESSOA 12 → total de pessoas = 1 (não 2) — bloqueia regressão do `Total`.
 
 **`src/lib/admin-service.pessoa.test.ts`** (mock de `./supabase`/`./audit-service`, função edge
 mockada):
@@ -156,9 +156,9 @@ coberta pelos testes puros; usar se o time quiser cobertura de `innerHTML`.
 
 - `bug.md` (labels, AC, agent notes: não apagar contas; reset reseta todas).
 - `debate/problema.md` (rubrica, opções, restrições b/c/d/e).
-- `evidence/reproduction.md` (191 perfis, 25 grupos por nome, falsos positivos Gessica×Iara,
-  ANDREIA×ANDREA).
-- `evidence/contas-duplicadas-camilly.md` (2 contas CAMILLY, CPF NULL, matrícula ativa).
+- `evidence/reproduction.md` (191 perfis, 25 grupos por nome, falsos positivos PESSOA 8×PESSOA 7,
+  PESSOA 13×PESSOA 14).
+- `evidence/contas-duplicadas-PESSOA 12.md` (2 contas PESSOA 12, CPF NULL, matrícula ativa).
 - `src/views/directory.ts:100-150` (render 1:1, `Total = profiles.length`).
 - `src/auth/session.ts:134-142` (`getAllProfiles` cru).
 - `src/auth/signup-handler.ts:18-28` (`if (cpf)` guarda só com CPF).
@@ -171,7 +171,7 @@ coberta pelos testes puros; usar se o time quiser cobertura de `innerHTML`.
 ## Confiança
 
 **Alta.** A regra de identidade resolve com dados confirmados os dois casos reais não cobertos pela
-dedup de 22/09 (CAMILLY-CPF-NULL e MARIA BEATRIZ-CPF-divergente), respeita a decisão do usuário
+dedup de 22/09 (PESSOA 12-CPF-NULL e PESSOA 5 BEATRIZ-CPF-divergente), respeita a decisão do usuário
 (reset em todas as contas), não toca banco (reversível), reutiliza o reset existente e é testável
 de forma pura. Residual de confiança apenas no falso-positivo de nomes idênticos, mitigado mas não
 eliminável com os dados disponíveis.

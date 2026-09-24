@@ -19,7 +19,7 @@ Divergências centrais: papel do CPF na chave; comportamento do loop de reset; a
 1. Módulo puro único: `src/lib/person-groups.ts` — `normalizarNomeIdentidade` + `agruparPorPessoa(profiles): PersonGroup[]`.
 2. Chave: `perfil | nomeNormalizado` → fallback `perfil | email` → `id`; vazios nunca colapsam entre si.
 3. `Total`/badges contam pessoas únicas (Σ grupos), não `profiles.length`.
-4. CPF NUNCA funde grupos (Gessica×Iara permanecem 2 linhas); vira só o selo `cpfConflitante` quando o grupo tem 2+ CPFs não-nulos distintos.
+4. CPF NUNCA funde grupos (PESSOA 8×PESSOA 7 permanecem 2 linhas); vira só o selo `cpfConflitante` quando o grupo tem 2+ CPFs não-nulos distintos.
 5. Reset: `AdminService.resetUserPasswords(userIds, nome)` continua em erro agregando `{ resetados, erros }`, dedup de ids; só a classe de privilégio do grupo impede o botão.
 6. Inventário vivo: parte da execução do bug, SOMENTE leitura, gravado em `evidence/inventario-vivo-YYYYMMDD.md` via `CpfService.listarInconsistenciasCPF` + SQL read-only com a mesma chave; reparo de dados fica fora.
 7. Adendo de spec obrigatório (spec-gap).

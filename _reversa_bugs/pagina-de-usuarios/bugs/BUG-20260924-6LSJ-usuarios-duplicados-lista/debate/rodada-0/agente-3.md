@@ -15,13 +15,13 @@ finished_at: 2026-09-24T15:22:00Z
 
 **Correção só de exibição (Opção 1) com agrupamento por nome normalizado DENTRO da seção de perfil, reset-all no botão e inventário vivo como etapa paralela somente-leitura. Zero mutação de dados neste fix.**
 
-Racional de simplicidade: o defeito está na renderização (`directory.ts` conta e desenha linhas brutas). Toda a evidência confirmada de duplicidade compartilha `nome_completo` idêntico (CAMILLY 2x, MARIA BEATRIZ 2x) dentro da mesma seção; os falsos positivos de CPF (Gessica × Iara) têm **nomes diferentes**, justamente o caso em que CPF não é identidade. Portanto agrupar por `perfil + nome normalizado` resolve os casos reais **sem** fundir pessoas com CPF colidido e nome distinto — que é o risco que a dedup por CPF de 22/09 demonstrou ser perigoso.
+Racional de simplicidade: o defeito está na renderização (`directory.ts` conta e desenha linhas brutas). Toda a evidência confirmada de duplicidade compartilha `nome_completo` idêntico (PESSOA 12 2x, PESSOA 5 BEATRIZ 2x) dentro da mesma seção; os falsos positivos de CPF (PESSOA 8 × PESSOA 7) têm **nomes diferentes**, justamente o caso em que CPF não é identidade. Portanto agrupar por `perfil + nome normalizado` resolve os casos reais **sem** fundir pessoas com CPF colidido e nome distinto — que é o risco que a dedup por CPF de 22/09 demonstrou ser perigoso.
 
 Passos de implementação (menor mudança coerente):
 
 1. **Novo módulo puro** `src/lib/directory-grouping.ts` (funções puras, sem Supabase):
    - `normalizePersonName(nome)`: `trim` → `normalize('NFD')` remove acentos → lowercase → colapsa espaços (mesmo padrão de `search-palette.ts:62`).
-   - `groupProfilesByPerson(profiles: UserProfile[]): PersonGroup[]` — agrupa por chave `${perfil}|${nomeNormalizado}`; cada grupo carra `{ key, perfil, nome_exibido, ids: string[], emails: string[], cpfs: string[], cpf_conflitante: boolean }` (`cpf_conflitante = true` quando o grupo tem 2+ CPFs não-nulos distintos — sinal para o inventário humano, NÃO impede o agrupamento, cf. MARIA BEATRIZ com CPF divergente).
+   - `groupProfilesByPerson(profiles: UserProfile[]): PersonGroup[]` — agrupa por chave `${perfil}|${nomeNormalizado}`; cada grupo carra `{ key, perfil, nome_exibido, ids: string[], emails: string[], cpfs: string[], cpf_conflitante: boolean }` (`cpf_conflitante = true` quando o grupo tem 2+ CPFs não-nulos distintos — sinal para o inventário humano, NÃO impede o agrupamento, cf. PESSOA 5 BEATRIZ com CPF divergente).
    - Grupo de 1 conta permanece grupo de 1 (nenhuma mudança visual).
 2. **`src/views/directory.ts`** (único arquivo de UI alterado):
    - `DirectoryView` chama `groupProfilesByPerson(profiles)` uma vez; `renderProfileSection` itera grupos (não linhas); badge da seção = `grupos.length`; `totalUsers = gruposSomados` (Total = pessoas).
@@ -32,7 +32,7 @@ Passos de implementação (menor mudança coerente):
    - Esse inventário **alimenta decisões humanas caso a caso** para reparo de dados futuro (desativação da conta duplicada etc.). Nenhuma escrita acontece neste bug; reparo de dados é item separado com aprovação humana, como decidiu o usuário.
 4. **Reversibilidade**: apagar `directory-grouping.ts` e reverter as ~40 linhas de `directory.ts` restaura o comportamento 1:1 exato. Nenhum dado, FK, RPC ou migração é tocado. O inventário é um arquivo markdown, inofensivo.
 
-Por que não corrigir os dados primeiro: a 2ª conta da CAMILLY tem matrícula ativa; apagar/desativar sem caso-a-caso viola restrição explícita. E mesmo com dados limpos, a tela continuaria frágil (autocadastro sem CPF ainda cria duplicado — `signup-handler.ts:20` `if (cpf)`), então a correção de exibição é a única que elimina o sintoma de forma permanente e independente do reparo.
+Por que não corrigir os dados primeiro: a 2ª conta da PESSOA 12 tem matrícula ativa; apagar/desativar sem caso-a-caso viola restrição explícita. E mesmo com dados limpos, a tela continuaria frágil (autocadastro sem CPF ainda cria duplicado — `signup-handler.ts:20` `if (cpf)`), então a correção de exibição é a única que elimina o sintoma de forma permanente e independente do reparo.
 
 ## Causa raiz proposta
 
@@ -44,15 +44,15 @@ Framework: **vitest** (já configurado em `package.json`; seguir o padrão de mo
 
 Novo arquivo `src/lib/directory-grouping.test.ts`:
 
-1. **Reprodução do caso CAMILLY**: duas linhas mesmo `nome_completo`, uma com CPF `159.598.884-08` e outra `cpf: null`, mesmo `perfil: 'aluno'` → `groupProfilesByPerson` retorna 1 grupo com `ids` de comprimento 2. (Teste de reprodução do bug: hoje `profiles.length` daria 2.)
-2. **MARIA BEATRIZ / CPF divergente**: mesmo nome, dois CPFs distintos não-nulos → 1 grupo, `cpf_conflitante === true`.
-3. **Não funde colisão de CPF entre pessoas distintas**: "Gessica Paloma Januario da silva" e "Iara Myllena de Melo Lima" com CPF `108.908.174-05` → 2 grupos distintos.
+1. **Reprodução do caso PESSOA 12**: duas linhas mesmo `nome_completo`, uma com CPF `***.***.***-**` e outra `cpf: null`, mesmo `perfil: 'aluno'` → `groupProfilesByPerson` retorna 1 grupo com `ids` de comprimento 2. (Teste de reprodução do bug: hoje `profiles.length` daria 2.)
+2. **PESSOA 5 BEATRIZ / CPF divergente**: mesmo nome, dois CPFs distintos não-nulos → 1 grupo, `cpf_conflitante === true`.
+3. **Não funde colisão de CPF entre pessoas distintas**: "PESSOA 3" e "PESSOA 4" com CPF `***.***.***-**` → 2 grupos distintos.
 4. **Mesmo nome em seções diferentes** (aluno × professor) → 2 grupos (chave inclui `perfil`).
-5. **Normalização**: acento/caixa/espaço duplo ("MARIA BEATRIZ DA COSTA  SANTOS" vs "maria beatriz da costa santos") → 1 grupo.
+5. **Normalização**: acento/caixa/espaço duplo ("PESSOA 5 BEATRIZ DA COSTA  SANTOS" vs "PESSOA 11") → 1 grupo.
 6. **Total**: soma de `grupos.length` por seção = pessoas únicas ≠ `profiles.length` quando há duplicata.
 7. **Reset-all (unitário do handler ou do wrapper)**: grupo com 2 ids dispara `resetUserPassword` 2× com os ids corretos; falha no 1º interrompe e reporta erro agregado.
 
-Verificação manual (ambiente dev): abrir "Usuários do Sistema", conferir CAMILLY 1x com selo "2 contas", Total menor que o número de cards antigos, e resetar senha de um grupo de 2 conferindo login das duas contas com `csm1983#`.
+Verificação manual (ambiente dev): abrir "Usuários do Sistema", conferir PESSOA 12 1x com selo "2 contas", Total menor que o número de cards antigos, e resetar senha de um grupo de 2 conferindo login das duas contas com `csm1983#`.
 
 Comandos: `npm run test` e `npm run type-check`.
 
@@ -73,7 +73,7 @@ Comandos: `npm run test` e `npm run type-check`.
 
 ## Evidências
 
-- `evidence/contas-duplicadas-camilly.md` — CAMILLY: 2 linhas ativas, mesma grafia, uma com CPF e outra `NULL` (caso que a regra nome-normalizado colapsa e a dedup por CPF nunca pegou).
+- `evidence/contas-duplicadas-PESSOA 12.md` — PESSOA 12: 2 linhas ativas, mesma grafia, uma com CPF e outra `NULL` (caso que a regra nome-normalizado colapsa e a dedup por CPF nunca pegou).
 - `evidence/reproduction.md` — 191 perfis, 25 grupos duplicados por nome (todos "mesma pessoa"); 27 colisões de CPF **entre nomes diferentes** (prova de que CPF não pode ser a chave e de que nome é a chave disponível nos casos reais); tela Total 154 = estado vivo pós-dedup-por-CPF.
 - `src/views/directory.ts:100-117,150` — renderização 1:1 e `totalUsers = profiles.length` (alvo do fix).
 - `src/auth/session.ts:134-142` — `getAllProfiles()` sem agrupamento (mantida; corrigir aqui afetaria outros consumidores — por isso a correção fica na camada de apresentação).
@@ -85,7 +85,7 @@ Comandos: `npm run test` e `npm run type-check`.
 
 ## Confiança (baixa|média|alta)
 
-**alta** — na eficácia do fix para os casos confirmados (CAMILLY, MARIA BEATRIZ: mesmo nome, mesma seção; agrupamento é determinístico e testável sem banco). **média** — na ausência de falso agrupamento de homônimos distintos, mitigada por exibição de contas/e-mails e inventário vivo; por isso a confiança declarada no overall é **média-alta (voto: média)**, com o inventário vivo como gate de qualquer reparo posterior.
+**alta** — na eficácia do fix para os casos confirmados (PESSOA 12, PESSOA 5 BEATRIZ: mesmo nome, mesma seção; agrupamento é determinístico e testável sem banco). **média** — na ausência de falso agrupamento de homônimos distintos, mitigada por exibição de contas/e-mails e inventário vivo; por isso a confiança declarada no overall é **média-alta (voto: média)**, com o inventário vivo como gate de qualquer reparo posterior.
 
 ## Crítica às demais propostas
 

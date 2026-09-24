@@ -31,9 +31,9 @@ Restrições obrigatórias (Agent Notes e decisão do usuário):
 
 - Decisão do usuário: na linha única, **Resetar Senha deve resetar TODAS as contas da pessoa**.
 - Usuário tem acesso ao banco vivo (pode gerar inventário/consultar duplicatas atuais).
-- **Não apagar contas sem decisão humana**: existem duplicatas com matrícula ativa (ex.: 2ª conta da CAMILLY tem matrícula "Enfermagem - Noite - 2026/2027"). CPF não é identidade segura: backup mostra CPF compartilhado entre pessoas com nomes DIFERENTES (ex.: CPF `108.908.174-05` em "Gessica Paloma Januario da silva" e "Iara Myllena de Melo Lima"; CPF `120.069.054-06` em "ANDREIA DA SILVA MELO" e "ANDREA DA SILVA MELO" x2).
+- **Não apagar contas sem decisão humana**: existem duplicatas com matrícula ativa (ex.: 2ª conta da PESSOA 12 tem matrícula "Enfermagem - Noite - 2026/2027"). CPF não é identidade segura: backup mostra CPF compartilhado entre pessoas com nomes DIFERENTES (ex.: CPF `***.***.***-**` em "PESSOA 3" e "PESSOA 4"; CPF `***.***.***-**` em "PESSOA 15" e "PESSOA 16" x2).
 - Fato de dados do backup pré-dedup (191 perfis ativos): 25 grupos duplicados por nome (2-3 linhas); 27 grupos de CPF em colisão com falsos positivos entre pessoas distintas.
-- A tela atual (Total 154 = 191 - 37) indica que em produção restam os casos que a dedup por CPF não cobre: CPF `NULL` (CAMILLY) e CPF divergente (3ª conta MARIA BEATRIZ, CPF `110.032.444-59`).
+- A tela atual (Total 154 = 191 - 37) indica que em produção restam os casos que a dedup por CPF não cobre: CPF `NULL` (PESSOA 12) e CPF divergente (3ª conta PESSOA 5 BEATRIZ, CPF `***.***.***-**`).
 - Label `spec-gap`: nenhuma spec define a listagem "Usuários do Sistema".
 - Requisito complementar do usuário (NÃO é o defeito): campo para consultar pessoas inativas (concluintes) — fora do escopo do bug.
 
@@ -57,7 +57,7 @@ adendo?) e os riscos/regressões.
 
 ## Rubrica congelada (modo repair)
 
-- Elimina a causa raiz confirmada (exibição 1:1 sem identificar pessoa) e o caso CAMILLY-CPF-NULL;
+- Elimina a causa raiz confirmada (exibição 1:1 sem identificar pessoa) e o caso PESSOA 12-CPF-NULL;
 - Menor mudança coerente (nada de refatoração ampla);
 - Menor risco de regressão (change_risk), considerando FKs de matrícula e o Resetar Senha;
 - Reversibilidade (código defensivo separado de reparo de dados);

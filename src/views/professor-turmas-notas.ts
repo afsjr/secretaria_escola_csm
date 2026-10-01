@@ -9,16 +9,19 @@ import { extrairPerfilPrimeiro } from "../lib/matricula-utils";
 import type { NotaExistente, TurmaGroup } from "./professor-turmas-types";
 import { verificarAlertasBaixa } from "./professor-turmas-alertas";
 
-export function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number): string {
+export function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number, pendente = false): string {
   const mediaCalculada = calcularNotaFinal(mediaParcial, notas.rec || 0);
   const status = calcularStatusAluno(mediaCalculada);
   const statusClass = status === "Aprovado" ? "pt-status-ok" : "pt-status-fail";
   const recDisabled = mediaParcial >= 7 ? 'disabled title="Média já suficiente para aprovação direta"' : '';
+  const badgeTardia = pendente
+    ? ' <span class="pt-badge-tardia" title="Matrícula tardia: matriculado após o fim da disciplina" style="font-size:0.7rem;color:#b45309;border:1px solid #b45309;border-radius:4px;padding:0 4px;white-space:nowrap;">matrícula tardia</span>'
+    : '';
 
   return `
     <tr data-aluno-id="${aluno?.id || ''}" class="pt-row">
       <td class="pt-td">
-        <div class="aluno-nome pt-aluno-nome">${escapeHTML(aluno?.nome_completo || 'Aluno Desconhecido')}</div>
+        <div class="aluno-nome pt-aluno-nome">${escapeHTML(aluno?.nome_completo || 'Aluno Desconhecido')}${badgeTardia}</div>
       </td>
       <td class="pt-td"><input type="number" class="input input-faltas pt-num-input" value="${notas.faltas || 0}" min="0"></td>
       <td class="pt-td"><input type="number" class="input input-n1 pt-num-input" value="${notas.n1 || 0}" min="0" max="10" step="0.1"></td>
@@ -92,16 +95,13 @@ export async function loadAlunosDaDisciplina(
     });
 
     tbody.innerHTML = matriculas
-      .filter((m: any) => {
-        if (m.status_aluno !== "ativo") return false;
-        const aluno = extrairPerfilPrimeiro(m);
-        return notasMap[aluno?.id]?.status !== 'pendente';
-      })
+      .filter((m: any) => m.status_aluno === "ativo")
       .map((m: any) => {
         const aluno = extrairPerfilPrimeiro(m);
         const notas = (notasMap[aluno?.id || ''] || {}) as NotaExistente;
         const mediaParcial = calcularMediaParcial(notas.n1 || 0, notas.n2 || 0, notas.n3 || 0);
-        return renderLinhaAluno(aluno, notas, mediaParcial);
+        const pendente = notas.status === 'pendente';
+        return renderLinhaAluno(aluno, notas, mediaParcial, pendente);
       }).join("");
 
     // Se há pendentes, adicionar alerta no cabeçalho da disciplina

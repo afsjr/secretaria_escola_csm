@@ -25,6 +25,10 @@ fora. Vínculo por seção da spec efetiva (original + adendos vigentes).
 
 - `BUG-20260924-6LSJ` (active/awaiting-human, P1): Página de usuários exibe a mesma pessoa mais de uma vez (contas duplicadas na lista) — `_reversa_bugs/pagina-de-usuarios/bugs/BUG-20260924-6LSJ-usuarios-duplicados-lista/bug.md`
 
+## `_reversa_sdd/addenda/bug-20261001-MALE-v001.md` (RB17)
+
+- `BUG-20261001-MALE` (resolved/fixed, P1): Alunos com matrícula tardia somem do lançamento de notas e do PDF do professor — `_reversa_bugs/professor-turmas/bugs/BUG-20261001-MALE-matricula-tardia-some-do-lancamento/bug.md`
+
 ## Spec-gap
 
 - `BUG-20260908-F74E` (resolved/fixed, P1): PDF de notas da disciplina exporta Declaração de Matrícula em vez do relatório — adendo `_reversa_sdd/addenda/bug-20260908-F74E-v001.md` — `_reversa_bugs/emissao-documentos-pdf/bugs/BUG-20260908-F74E-pdf-notas-disciplina-declaracao/bug.md`

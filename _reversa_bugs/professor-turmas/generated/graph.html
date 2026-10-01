@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grafo de Bugs · professor-turmas</title>
+<style>
+  :root{ color-scheme: dark; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#0d1117; color:#c9d1d9; padding:32px; }
+  h1{ font-size:22px; margin:0 0 4px; color:#f0f6fc; }
+  h2{ font-size:15px; margin:28px 0 10px; color:#f0f6fc; border-bottom:1px solid #21262d; padding-bottom:6px; }
+  .meta{ color:#8b949e; font-size:12px; margin-bottom:24px; }
+  .cards{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+  .card{ background:#161b22; border:1px solid #30363d; border-radius:8px; padding:14px 20px; min-width:120px; }
+  .card .num{ font-size:26px; font-weight:700; color:#58a6ff; }
+  .card .lbl{ font-size:12px; color:#8b949e; }
+  .card .num.green{ color:#3fb950; }
+  svg{ max-width:100%; height:auto; }
+  .node rect{ fill:#161b22; stroke:#d29922; stroke-width:2; rx:8; }
+  .node text{ fill:#e6edf3; font-size:12px; }
+  .node .ttl{ font-size:10px; fill:#8b949e; }
+  table{ border-collapse:collapse; width:100%; font-size:13px; }
+  th,td{ border:1px solid #30363d; padding:8px 10px; text-align:left; vertical-align:top; }
+  th{ background:#161b22; color:#f0f6fc; }
+  tr:nth-child(even) td{ background:#0f141a; }
+  .badge{ display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+  .b-green{ background:rgba(63,185,80,.15); color:#3fb950; }
+  a{ color:#58a6ff; text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+  .legend{ background:#161b22; border:1px solid #30363d; border-left:4px solid #58a6ff; border-radius:6px; padding:12px 16px; font-size:13px; margin-bottom:24px; }
+</style>
+</head>
+<body>
+<h1>Grafo de Bugs · professor-turmas</h1>
+<div class="meta">
+  Gerado por /reversa-debugger-graph em 2026-10-01T13:15:00-0300 ·
+  1 bug · 0 inconsistências ·
+  legenda: arestas tracejadas = relação proposed (hipótese)
+</div>
+
+<div class="cards">
+  <div class="card"><div class="num">1</div><div class="lbl">Total</div></div>
+  <div class="card"><div class="num green">1</div><div class="lbl">Resolved · fixed</div></div>
+  <div class="card"><div class="num">0</div><div class="lbl">Abertos / ativos</div></div>
+  <div class="card"><div class="num">1</div><div class="lbl">Adendos de spec gerados</div></div>
+  <div class="card"><div class="num">0</div><div class="lbl">Inconsistências</div></div>
+</div>
+
+<svg width="740" height="220" viewBox="0 0 740 220" xmlns="http://www.w3.org/2000/svg">
+  <g class="node">
+    <a href="bugs/BUG-20261001-MALE-matricula-tardia-some-do-lancamento/bug.md">
+      <rect x="220" y="55" width="300" height="105" fill="#161b22" stroke="#f85149" stroke-width="2" rx="8"/>
+      <text x="370" y="82" text-anchor="middle" font-weight="bold" fill="#3fb950">6 · MALE</text>
+      <text x="370" y="102" text-anchor="middle" class="ttl">Matrícula tardia some do lançamento/PDF</text>
+      <text x="370" y="119" text-anchor="middle" class="ttl">high · docente / professor</text>
+      <text x="370" y="142" text-anchor="middle" fill="#3fb950" font-size="11">resolved · fixed</text>
+    </a>
+  </g>
+</svg>
+
+<div class="legend">
+  <strong>Leitura do grafo:</strong> contexto com um bug, já fechado. Alunos com
+  <code>boletim.status='pendente'</code> (matrícula tardia) eram escondidos da tabela de lançamento
+  e, por consequência, do PDF do professor. Correção: passam a ser listados com selo, mantendo o
+  aviso agregado; regressão coberta por teste.
+</div>
+
+<h2>Bugs abertos / ativos</h2>
+<p>Nenhum.</p>
+
+<h2>Concluídos (travados)</h2>
+<table>
+  <thead><tr><th>#</th><th>ID</th><th>Severidade</th><th>Prioridade</th><th>Título</th><th>Fechado em</th><th>Kind</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>6</td>
+      <td><a href="bugs/BUG-20261001-MALE-matricula-tardia-some-do-lancamento/bug.md">BUG-20261001-MALE</a></td>
+      <td>high</td>
+      <td>P1</td>
+      <td>Alunos com matrícula tardia somem do lançamento de notas e do PDF do professor</td>
+      <td>2026-10-01</td>
+      <td><span class="badge b-green">fixed</span></td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

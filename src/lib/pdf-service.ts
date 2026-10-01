@@ -1100,13 +1100,13 @@ culado(a) no curso ${cursoNome}, turma ${turmaNome} (${periodo}), nesta institui
     const body: any[] = []
 
     payload.alunos.forEach((aluno, idx) => {
-      body.push({
+      body.push([{
         colSpan: 8,
         styles: { fontStyle: 'bold', fontSize: 8, fillColor: [245, 245, 250], textColor: [60, 60, 60] },
         content:
           `${idx + 1}. ${aluno.nome_completo}  —  Situação Final: ${aluno.situacao_final}` +
           (typeof aluno.frequencia_geral === 'number' ? `  |  % Freq. Geral: ${aluno.frequencia_geral}%` : ''),
-      })
+      }])
       aluno.componentes.forEach((c) => {
         body.push([
           '',

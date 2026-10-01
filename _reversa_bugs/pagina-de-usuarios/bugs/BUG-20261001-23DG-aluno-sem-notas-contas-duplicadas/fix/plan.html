@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de correção · BUG-20261001-23DG</title>
+<style>
+  :root{ color-scheme: dark; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#0d1117; color:#c9d1d9; padding:32px; line-height:1.5; }
+  h1{ font-size:22px; margin:0 0 4px; color:#f0f6fc; }
+  h2{ font-size:15px; margin:26px 0 10px; color:#f0f6fc; border-bottom:1px solid #21262d; padding-bottom:6px; }
+  .meta{ color:#8b949e; font-size:12px; margin-bottom:20px; }
+  table{ border-collapse:collapse; width:100%; font-size:13px; }
+  th,td{ border:1px solid #30363d; padding:8px 10px; text-align:left; vertical-align:top; }
+  th{ background:#161b22; color:#f0f6fc; }
+  code{ background:#161b22; padding:1px 5px; border-radius:4px; }
+  .box{ background:#161b22; border:1px solid #30363d; border-left:4px solid #f85149; border-radius:6px; padding:12px 16px; margin-bottom:16px; }
+  .box.ok{ border-left-color:#3fb950; }
+  a{ color:#58a6ff; text-decoration:none; }
+</style>
+</head>
+<body>
+<h1>Plano de correção · BUG-20261001-23DG (display 5)</h1>
+<div class="meta">
+  Contexto <code>pagina-de-usuarios</code> · 2026-10-01 · severidade <strong>high</strong> · prioridade <strong>P1</strong>
+</div>
+
+<div class="box">
+  <strong>Defeito.</strong> Aluno não vê as próprias notas porque contas ativas duplicadas da mesma
+  pessoa dividem o histórico (matrícula em uma conta, boletim em outra). O dedup por CPF não
+  cobre contas sem CPF.
+</div>
+
+<h2>Causa raiz</h2>
+<p>Estado confirmado: <code>getBoletim(profile.id)</code> lê o boletim do login; se as notas estão
+em outra conta ativa da mesma pessoa, a aba "Minhas Notas" aparece vazia. As contas duplicadas
+sem CPF ficam fora do plano do <code>scripts/dedup-merge.mjs</code>.</p>
+
+<h2>Estratégia</h2>
+<p><strong>Reparo de dados</strong> com decisão humana (a canônica é a conta com mais informação),
+via script explícito <code>scripts/dedup-contas-ativas.mjs</code> (dry-run por padrão), com
+backup e verificação. Nada é decidido por nome.</p>
+
+<h2>Change set</h2>
+<table>
+  <thead><tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr></thead>
+  <tbody>
+    <tr><td>CHG-001</td><td>data-repair</td><td><code>scripts/dedup-contas-ativas.mjs</code></td><td>Consolidação explícita (dry-run/--apply)</td></tr>
+    <tr><td>CHG-002</td><td>data-repair</td><td>perfis/boletim/matriculas</td><td>Consolidar PESSOA C; desativar duplicada</td></tr>
+    <tr><td>CHG-003</td><td>specification</td><td><code>_reversa_sdd/addenda/bug-20261001-23DG-v001.md</code></td><td>RB16: consolidação de contas duplicadas ativas</td></tr>
+  </tbody>
+</table>
+
+<h2>Decisões humanas</h2>
+<ul>
+  <li>PESSOA C: manter <code>conta-C1 (mascarada)</code> (mais informação); mesclar a outra.</li>
+  <li>PESSOA M: <strong>não mesclar</strong> (CPFs divergentes → pessoas distintas).</li>
+</ul>
+
+<h2>Risco</h2>
+<p><strong>Médio</strong> (reparo em produção). Mitigado por: dry-run, backup verificado
+(<code>backup-dedup-2026-10-01T12-15-15.json/.sql</code>), script idempotente, audit log e
+verificação pós-execução.</p>
+
+<h2>Verificação (pós)</h2>
+<div class="box ok">
+  <code>conta-C1 (mascarada)</code>: ativo, 1 matrícula, 7 boletins.<br>
+  <code>conta-C2 (mascarada)</code>: inativo, 0 matrículas, 0 boletins.
+</div>
+
+<h2>Grafo</h2>
+<p>Bug destacado: BUG-20261001-23DG · relação <code>related-to</code> <code>proposed</code> com
+<a href="../../BUG-20260924-6LSJ-usuarios-duplicados-lista/bug.md">BUG-20260924-6LSJ</a> (mesma
+lacuna de identidade).</p>
+</body>
+</html>

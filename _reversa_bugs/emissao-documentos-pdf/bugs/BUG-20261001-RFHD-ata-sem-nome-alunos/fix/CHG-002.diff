@@ -1,0 +1,23 @@
+diff --git a/src/lib/pdf-service.test.ts b/src/lib/pdf-service.test.ts
+index 962463e..a13565b 100644
+--- a/src/lib/pdf-service.test.ts
++++ b/src/lib/pdf-service.test.ts
+@@ -242,6 +242,18 @@ describe('PDFService - generateAtaResultadosPDF', () => {
+     expect(typeof config.didDrawPage).toBe('function')
+   })
+ 
++  it('deve montar a linha de cada aluno como array de células com colSpan (BUG-20261001-RFHD)', async () => {
++    await PDFService.generateAtaResultadosPDF(mockPayload as any)
++
++    const config = (autoTable as any).mock.calls[0][1]
++    const linhaAluno = config.body.find(
++      (r: any) => Array.isArray(r) && r.some((c: any) => String(c?.content || '').includes('Maria da Silva')),
++    )
++
++    expect(linhaAluno).toBeTruthy()
++    expect(linhaAluno[0].colSpan).toBe(8)
++  })
++
+   it('deve lançar erro se turma_nome estiver vazio', async () => {
+     const invalido = { ...mockPayload, turma_nome: '' }
+ 

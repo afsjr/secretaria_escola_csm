@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-09T00:00:00-0300 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-01T09:00:00-0300 a partir de 3 bugs -->
 
 # Grafo de bugs — contexto emissao-documentos-pdf
 
@@ -8,13 +8,18 @@
 graph LR
     B1["BUG-20260907-GBPJ<br/>resolved · fixed"]
     B2["BUG-20260908-F74E<br/>resolved · fixed"]
+    B4["BUG-20261001-RFHD<br/>resolved · fixed"]
 ```
 
 Nenhuma aresta entre bugs: não há relações `supported`/`confirmed` declaradas.
 
 ## Clusters
 
-- 2 bugs resolvidos no contexto `emissao-documentos-pdf`, sem encadeamento estrutural.
+- 3 bugs resolvidos no contexto `emissao-documentos-pdf`, todos no `pdf-service.ts`
+  (geradores de documento). Sem encadeamento estrutural declarado; o cluster é de
+  componente (o mesmo arquivo concentra geração de PDFs), não de causa.
+- BUG-20261001-RFHD é o de maior severidade (high): documento oficial (Ata) sem
+  identificação dos alunos.
 
 ## Impact score (heurística de triagem)
 

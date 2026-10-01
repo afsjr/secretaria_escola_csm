@@ -67,7 +67,7 @@
   ".agents/skills/reversa-inspector/references/parity-coverage-matrix.md": "43a50c1ca47eba4dd6e77c01368c5860cb35264476a14d65b6fa380190724fdb",
   ".agents/skills/reversa-inspector/references/templates/parity_specs.md": "15bba090febf4b2a877c7b86d4648897b9957df67b5ef59b164574da8cc8d930",
   ".agents/skills/reversa-inspector/references/templates/parity_test.feature": "334c434471e662a234c94c64795f3ea6f77954ff6612552dc210b7ab9fa2be7f",
-  ".agents/skills/reversa-forward/SKILL.md": "e1165d3b5e2bd9814f8761f0ec404856a175defe463222602336b78010dabd30",
+  ".agents/skills/reversa-forward/SKILL.md": "aba33844cf81a501ae47ec57844aadb13b48fe701fdb6518c265f6a5f419f157",
   ".agents/skills/reversa-requirements/SKILL.md": "0c4e8461457d260884c6061bbf0351e5b6d4b054fcddf16c58d4732770cfe8fc",
   ".agents/skills/reversa-clarify/SKILL.md": "7bffa8e3b98a9a2b5d4775d51e3cd05b88a0d622576b14d1dafcdc071b6c4f31",
   ".agents/skills/reversa-plan/SKILL.md": "2ed03492dc89116fb9f18de63aee1343ec3dd69d81648e8237d082ddafc083be",
@@ -154,7 +154,6 @@
   ".reversa/hooks.yml": "786e8dfa1715e17c5d08111ffb19e8008fbf3a7ade250aa6cdc76c640dac5416",
   ".reversa/setup.json": "f7694bc3f9fedf6347ce06bba0b71b07f674a2861f5b256be38c5563ca68d695",
   ".reversa/config.user.toml": "59a1a98ae308ad6799e831e51fad9cc2af8941ef3cc08712c361544224ef5561",
-  ".reversa/version": "e9c2bcffc3e97f8df729023b9bd111a809b3141eece6faa18b0f8b6061249795",
   ".reversa/_config/manifest.yaml": "b0873e6a07b38a5db9954494f208d48d64bf373d8df30a2a1a2ad455407bd98e",
   ".agents/skills/reversa/agents/openai.yaml": "da2c1412392495b49fd91e9322075a973e69ce630f79de07c3af999aa596c065",
   ".agents/skills/reversa-add/SKILL.md": "b46c33fa01d83d2869426eaaefa4b871a8931393ff9f09ac3cbe89409f12a983",
@@ -259,7 +258,8 @@
   ".agents/skills/reversa-to-do/agents/openai.yaml": "51ddc8acd0097b69b5915ccb5b13f0a1b84985707f1921dd002092fba5ba0383",
   ".agents/skills/reversa-visor/agents/openai.yaml": "a44aa09fafb31200bf94678a3d2c23f345d73841780477b67545a208d8f5c7a1",
   ".agents/skills/reversa-writer/agents/openai.yaml": "2014192422bf080e006ccaaf97fd95d7de7e01791fbef8b57bf48f75882c6f0a",
-  ".reversa/reversa-config.json": "02802e2e1cb8ebfad14ef1a1cc58ecba41845c6b8ed32016c01846a64a85ffaa",
   ".reversa/hooks/README.md": "1c3fc644ee8cfbf2df76067bff21905a6fe6f746e208f1042d313785fc0deb24",
-  ".reversa/hooks/check-legacy-policy.mjs": "6c4f727e9d84d1b4b975e1f090ab28cb7f7495abbffadab43995caf6255bd4c2"
+  ".reversa/hooks/check-legacy-policy.mjs": "6c4f727e9d84d1b4b975e1f090ab28cb7f7495abbffadab43995caf6255bd4c2",
+  ".agents/skills/reversa-forward-autonomous/SKILL.md": "211986673ab8c9ea61a7f427df6f1619f36777ed9c3c18f027fcc53ee5b51284",
+  ".agents/skills/reversa-forward-autonomous/agents/openai.yaml": "66a5f494299fe6b27abedc823f96aeb6f33d8ae0f9ce44fc790c8f76b26e33d2"
 }

@@ -3,6 +3,7 @@
   "allowLegacyEdits": true,
   "allowedPaths": [
     "src/**",
-    "scripts/**"
+    "scripts/**",
+    "supabase/**"
   ]
 }

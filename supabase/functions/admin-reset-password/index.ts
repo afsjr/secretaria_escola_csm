@@ -82,7 +82,8 @@ serve(async (req) => {
       )
     }
 
-    if (userPerfil.perfil !== "admin" && userPerfil.perfil !== "secretaria" && userPerfil.perfil !== "coordenacao") {
+    const perfisAutorizados = ["admin", "master_admin", "secretaria", "coordenacao"]
+    if (!perfisAutorizados.includes(userPerfil.perfil)) {
       return new Response(
         JSON.stringify({ error: { message: "Acesso negado." } }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }

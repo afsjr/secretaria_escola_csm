@@ -1,0 +1,47 @@
+
+ RUN  v4.1.6 /Users/itouch/Documents/projetos_escola/secretaria_csm_tecnico/secretaria_escola_csm
+
+ ❯ src/views/professor-turmas-notas.test.ts (6 tests | 2 failed) 224ms
+     × exibe a media arredondada igual ao recalculo e bloqueia a Rec 13ms
+     × arredonda 5,733 para 6,0 e bloqueia a Rec 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/views/professor-turmas-notas.test.ts > renderLinhaAluno - regressao da media exibida (OPP-20261030-FZIH) > exibe a media arredondada igual ao recalculo e bloqueia a Rec
+AssertionError: expected '6.8' to be '7.0' // Object.is equality
+
+Expected: "7.0"
+Received: "6.8"
+
+ ❯ src/views/professor-turmas-notas.test.ts:109:27
+    107|   it('exibe a media arredondada igual ao recalculo e bloqueia a Rec', …
+    108|     const celulas = renderAluno({ n1: 7, n2: 7, n3: 6.4, rec: 0 }, 20.…
+    109|     expect(celulas.media).toBe('7.0')
+       |                           ^
+    110|     expect(celulas.final).toBe('7.0')
+    111|     expect(celulas.status).toBe('Aprovado')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/views/professor-turmas-notas.test.ts > renderLinhaAluno - regressao da media exibida (OPP-20261030-FZIH) > arredonda 5,733 para 6,0 e bloqueia a Rec
+AssertionError: expected '5.7' to be '6.0' // Object.is equality
+
+Expected: "6.0"
+Received: "5.7"
+
+ ❯ src/views/professor-turmas-notas.test.ts:117:27
+    115|   it('arredonda 5,733 para 6,0 e bloqueia a Rec', () => {
+    116|     const celulas = renderAluno({ n1: 5, n2: 6, n3: 6.2, rec: 0 }, 17.…
+    117|     expect(celulas.media).toBe('6.0')
+       |                           ^
+    118|     expect(celulas.final).toBe('6.0')
+    119|     expect(celulas.status).toBe('Aprovado')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  22:11:45
+   Duration  6.53s (transform 334ms, setup 104ms, import 314ms, tests 224ms, environment 5.32s)
+

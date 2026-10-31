@@ -1,0 +1,46 @@
+
+ RUN  v4.1.6 /Users/itouch/Documents/projetos_escola/secretaria_csm_tecnico/secretaria_escola_csm
+
+ ❯ src/views/professor-turmas-frequencia.test.ts (2 tests | 1 failed) 221ms
+     × cada card salva com a propria data e disciplina (OPP-20261030-F24H) 86ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/views/professor-turmas-frequencia.test.ts > loadFrequenciaAlunos - caracterizacao > cada card salva com a propria data e disciplina (OPP-20261030-F24H)
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'turma-b', 'disc-b', …(3) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "turma-b",
+-   "disc-b",
+-   "2026-10-30",
++   "disc-a",
++   "2026-10-29",
+    "prof-1",
+    [
+      "a1",
+    ],
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/views/professor-turmas-frequencia.test.ts:128:34
+    126|
+    127|     await vi.waitFor(() => expect(mockSalvarFrequencia).toHaveBeenCall…
+    128|     expect(mockSalvarFrequencia).toHaveBeenCalledWith(
+       |                                  ^
+    129|       'turma-b',
+    130|       'disc-b',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  21:59:02
+   Duration  9.15s (transform 350ms, setup 199ms, import 283ms, tests 221ms, environment 7.85s)
+

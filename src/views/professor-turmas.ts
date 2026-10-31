@@ -180,14 +180,14 @@ export async function ProfessorTurmasView(
 
                 <div class="pt-freq-grid">
                   <div class="form-group">
-                    <label class="label" for="freq-data">Data da Aula</label>
-                    <input type="date" id="freq-data" class="input" value="${
+                    <label class="label" for="freq-data-${turma.id || "sem-turma"}">Data da Aula</label>
+                    <input type="date" id="freq-data-${turma.id || "sem-turma"}" class="input freq-data-input" value="${
       new Date().toISOString().split("T")[0]
     }" required>
                   </div>
                   <div class="form-group">
-                    <label class="label" for="freq-disciplina">Disciplina</label>
-                    <select id="freq-disciplina" class="input" required>
+                    <label class="label" for="freq-disciplina-${turma.id || "sem-turma"}">Disciplina</label>
+                    <select id="freq-disciplina-${turma.id || "sem-turma"}" class="input freq-disc-input" required>
                       <option value="">Selecione</option>
                       ${
       turma.disciplinas.map((d) =>

@@ -1,0 +1,24 @@
+--- a/src/views/professor-turmas-notas.ts
++++ b/src/views/professor-turmas-notas.ts
+@@ -10,10 +10,11 @@
+ import { verificarAlertasBaixa } from "./professor-turmas-alertas";
+ 
+ export function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number, pendente = false): string {
++  const mediaExibida = arredondarNota(mediaParcial);
+   const mediaCalculada = calcularNotaFinal(mediaParcial, notas.rec || 0);
+   const status = calcularStatusAluno(mediaCalculada);
+   const statusClass = status === "Aprovado" ? "pt-status-ok" : "pt-status-fail";
+-  const recDisabled = mediaParcial >= 7 ? 'disabled title="Média já suficiente para aprovação direta"' : '';
++  const recDisabled = mediaExibida >= 7 ? 'disabled title="Média já suficiente para aprovação direta"' : '';
+   const badgeTardia = pendente
+     ? ' <span class="pt-badge-tardia" title="Matrícula tardia: matriculado após o fim da disciplina" style="font-size:0.7rem;color:#b45309;border:1px solid #b45309;border-radius:4px;padding:0 4px;white-space:nowrap;">matrícula tardia</span>'
+     : '';
+@@ -27,7 +28,7 @@
+       <td class="pt-td"><input type="number" class="input input-n1 pt-num-input" value="${notas.n1 || 0}" min="0" max="10" step="0.1"></td>
+       <td class="pt-td"><input type="number" class="input input-n2 pt-num-input" value="${notas.n2 || 0}" min="0" max="10" step="0.1"></td>
+       <td class="pt-td"><input type="number" class="input input-n3 pt-num-input" value="${notas.n3 || 0}" min="0" max="10" step="0.1"></td>
+-      <td class="pt-td-hl media-cell" data-media>${mediaParcial > 0 ? mediaParcial.toFixed(1) : "-"}</td>
++      <td class="pt-td-hl media-cell" data-media>${mediaExibida > 0 ? mediaExibida.toFixed(1) : "-"}</td>
+       <td class="pt-td"><input type="number" class="input input-rec pt-num-input" value="${notas.rec || 0}" min="0" max="10" step="0.1" ${recDisabled}></td>
+       <td class="pt-td-hl final-cell" data-final>${mediaCalculada > 0 ? mediaCalculada.toFixed(1) : "-"}</td>
+       <td class="pt-td-center status-cell" data-status>

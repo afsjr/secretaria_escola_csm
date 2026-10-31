@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { loadAlunosDaDisciplina } from './professor-turmas-notas'
+import { loadAlunosDaDisciplina, renderLinhaAluno } from './professor-turmas-notas'
 
 const { mockFrom, mockGetAlunosDaTurma, mockVerificarAlertas } = vi.hoisted(() => ({
   mockFrom: vi.fn(),
@@ -61,5 +61,62 @@ describe('loadAlunosDaDisciplina - matrícula tardia (BUG-20261001-MALE)', () =>
     expect(tbody.innerHTML).toContain('Aluno Tardio')
     expect(tbody.innerHTML.toLowerCase()).toContain('matrícula tardia')
     expect(tbody.innerHTML).not.toContain('Aluno Trancado')
+  })
+})
+
+function renderAluno(notas: any, mediaParcial: number) {
+  const container = document.createElement('div')
+  container.innerHTML = `<table><tbody>${renderLinhaAluno(
+    { id: 'a1', nome_completo: 'Aluno Teste' },
+    notas,
+    mediaParcial,
+  )}</tbody></table>`
+  return {
+    media: container.querySelector('[data-media]')?.textContent?.trim(),
+    final: container.querySelector('[data-final]')?.textContent?.trim(),
+    status: container.querySelector('[data-status]')?.textContent?.trim(),
+    recDisabled: (container.querySelector('.input-rec') as HTMLInputElement).disabled,
+  }
+}
+
+describe('renderLinhaAluno - caracterizacao (OPP-20261030-FZIH)', () => {
+  it('mantem media, final e status quando a media ja e multipla de 0,5', () => {
+    const celulas = renderAluno({ n1: 4, n2: 4, n3: 4, rec: 0 }, 4)
+    expect(celulas.media).toBe('4.0')
+    expect(celulas.final).toBe('4.0')
+    expect(celulas.status).toBe('Reprovado')
+    expect(celulas.recDisabled).toBe(false)
+  })
+
+  it('mantem o traco e o status quando nao ha nota', () => {
+    const celulas = renderAluno({ n1: 0, n2: 0, n3: 0, rec: 0 }, 0)
+    expect(celulas.media).toBe('-')
+    expect(celulas.final).toBe('-')
+    expect(celulas.status).toBe('Reprovado')
+  })
+
+  it('nao recalcula a recuperacao com a media arredondada', () => {
+    const celulas = renderAluno({ n1: 5, n2: 5, n3: 5, rec: 7 }, 5)
+    expect(celulas.media).toBe('5.0')
+    expect(celulas.final).toBe('6.0')
+    expect(celulas.status).toBe('Aprovado')
+  })
+})
+
+describe('renderLinhaAluno - regressao da media exibida (OPP-20261030-FZIH)', () => {
+  it('exibe a media arredondada igual ao recalculo e bloqueia a Rec', () => {
+    const celulas = renderAluno({ n1: 7, n2: 7, n3: 6.4, rec: 0 }, 20.4 / 3)
+    expect(celulas.media).toBe('7.0')
+    expect(celulas.final).toBe('7.0')
+    expect(celulas.status).toBe('Aprovado')
+    expect(celulas.recDisabled).toBe(true)
+  })
+
+  it('arredonda 5,733 para 6,0 sem bloquear a Rec', () => {
+    const celulas = renderAluno({ n1: 5, n2: 6, n3: 6.2, rec: 0 }, 17.2 / 3)
+    expect(celulas.media).toBe('6.0')
+    expect(celulas.final).toBe('6.0')
+    expect(celulas.status).toBe('Aprovado')
+    expect(celulas.recDisabled).toBe(false)
   })
 })

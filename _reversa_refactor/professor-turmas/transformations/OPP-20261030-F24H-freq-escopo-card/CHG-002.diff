@@ -1,0 +1,98 @@
+--- a/src/views/professor-turmas.ts
++++ b/src/views/professor-turmas.ts
+@@ -180,14 +180,14 @@
+ 
+                 <div class="pt-freq-grid">
+                   <div class="form-group">
+-                    <label class="label" for="freq-data">Data da Aula</label>
+-                    <input type="date" id="freq-data" class="input" value="${
++                    <label class="label" for="freq-data-${turma.id || "sem-turma"}">Data da Aula</label>
++                    <input type="date" id="freq-data-${turma.id || "sem-turma"}" class="input freq-data-input" value="${
+       new Date().toISOString().split("T")[0]
+     }" required>
+                   </div>
+                   <div class="form-group">
+-                    <label class="label" for="freq-disciplina">Disciplina</label>
+-                    <select id="freq-disciplina" class="input" required>
++                    <label class="label" for="freq-disciplina-${turma.id || "sem-turma"}">Disciplina</label>
++                    <select id="freq-disciplina-${turma.id || "sem-turma"}" class="input freq-disc-input" required>
+                       <option value="">Selecione</option>
+                       ${
+       turma.disciplinas.map((d) =>
+--- a/src/views/professor-turmas-frequencia.ts
++++ b/src/views/professor-turmas-frequencia.ts
+@@ -7,6 +7,19 @@
+ import { extrairPerfilPrimeiro } from "../lib/matricula-utils";
+ import type { TurmaGroup } from "./professor-turmas-types";
+ 
++function camposFrequencia(container: HTMLElement, turma: TurmaGroup) {
++  const freqList = container.querySelector(
++    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
++  ) as HTMLElement | null;
++  const escopo = (freqList?.closest(".turma-card") as HTMLElement | null) ?? container;
++
++  return {
++    freqList,
++    dataInput: escopo.querySelector(".freq-data-input") as HTMLInputElement | null,
++    discInput: escopo.querySelector(".freq-disc-input") as HTMLSelectElement | null,
++  };
++}
++
+ /**
+  * Carrega lista de alunos para registro de frequência
+  */
+@@ -15,9 +28,7 @@
+   container: HTMLElement,
+   professorId: string,
+ ): Promise<void> {
+-  const freqList = container.querySelector(
+-    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
+-  ) as HTMLElement;
++  const { freqList, dataInput: freqDataInput, discInput: freqDiscInput } = camposFrequencia(container, turma);
+   if (!freqList) return;
+ 
+   try {
+@@ -60,13 +71,6 @@
+       ".btn-salvar-frequencia",
+     ) as HTMLButtonElement;
+     btnSalvar.addEventListener("click", async () => {
+-      const freqDataInput = document.getElementById(
+-        "freq-data",
+-      ) as HTMLInputElement;
+-      const freqDiscInput = document.getElementById(
+-        "freq-disciplina",
+-      ) as HTMLSelectElement;
+-
+       const dataAula = freqDataInput
+         ? freqDataInput.value
+         : new Date().toISOString().split("T")[0];
+@@ -108,9 +112,6 @@
+     carregarFrequenciaExistente(turma, container);
+ 
+     // Recarregar ao mudar data ou disciplina
+-    const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
+-    const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
+-
+     if (freqDataInput) {
+       freqDataInput.addEventListener("change", () => carregarFrequenciaExistente(turma, container));
+     }
+@@ -128,16 +129,11 @@
+   turma: TurmaGroup,
+   container: HTMLElement,
+ ): Promise<void> {
+-  const freqList = container.querySelector(
+-    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
+-  ) as HTMLElement;
++  const { freqList, dataInput, discInput } = camposFrequencia(container, turma);
+   if (!freqList) return;
+ 
+-  const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
+-  const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
+-
+-  const data = freqDataInput?.value;
+-  const disciplinaId = freqDiscInput?.value;
++  const data = dataInput?.value;
++  const disciplinaId = discInput?.value;
+ 
+   if (!data || !disciplinaId) return;
+ 

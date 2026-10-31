@@ -7,6 +7,19 @@ import { escapeHTML } from "../lib/security";
 import { extrairPerfilPrimeiro } from "../lib/matricula-utils";
 import type { TurmaGroup } from "./professor-turmas-types";
 
+function camposFrequencia(container: HTMLElement, turma: TurmaGroup) {
+  const freqList = container.querySelector(
+    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
+  ) as HTMLElement | null;
+  const escopo = (freqList?.closest(".turma-card") as HTMLElement | null) ?? container;
+
+  return {
+    freqList,
+    dataInput: escopo.querySelector(".freq-data-input") as HTMLInputElement | null,
+    discInput: escopo.querySelector(".freq-disc-input") as HTMLSelectElement | null,
+  };
+}
+
 /**
  * Carrega lista de alunos para registro de frequência
  */
@@ -15,9 +28,7 @@ export async function loadFrequenciaAlunos(
   container: HTMLElement,
   professorId: string,
 ): Promise<void> {
-  const freqList = container.querySelector(
-    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
-  ) as HTMLElement;
+  const { freqList, dataInput: freqDataInput, discInput: freqDiscInput } = camposFrequencia(container, turma);
   if (!freqList) return;
 
   try {
@@ -60,13 +71,6 @@ export async function loadFrequenciaAlunos(
       ".btn-salvar-frequencia",
     ) as HTMLButtonElement;
     btnSalvar.addEventListener("click", async () => {
-      const freqDataInput = document.getElementById(
-        "freq-data",
-      ) as HTMLInputElement;
-      const freqDiscInput = document.getElementById(
-        "freq-disciplina",
-      ) as HTMLSelectElement;
-
       const dataAula = freqDataInput
         ? freqDataInput.value
         : new Date().toISOString().split("T")[0];
@@ -108,9 +112,6 @@ export async function loadFrequenciaAlunos(
     carregarFrequenciaExistente(turma, container);
 
     // Recarregar ao mudar data ou disciplina
-    const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
-    const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
-
     if (freqDataInput) {
       freqDataInput.addEventListener("change", () => carregarFrequenciaExistente(turma, container));
     }
@@ -128,16 +129,11 @@ export async function carregarFrequenciaExistente(
   turma: TurmaGroup,
   container: HTMLElement,
 ): Promise<void> {
-  const freqList = container.querySelector(
-    `.frequencia-list[data-turma-id="${turma.id || ""}"]`,
-  ) as HTMLElement;
+  const { freqList, dataInput, discInput } = camposFrequencia(container, turma);
   if (!freqList) return;
 
-  const freqDataInput = document.getElementById("freq-data") as HTMLInputElement;
-  const freqDiscInput = document.getElementById("freq-disciplina") as HTMLSelectElement;
-
-  const data = freqDataInput?.value;
-  const disciplinaId = freqDiscInput?.value;
+  const data = dataInput?.value;
+  const disciplinaId = discInput?.value;
 
   if (!data || !disciplinaId) return;
 

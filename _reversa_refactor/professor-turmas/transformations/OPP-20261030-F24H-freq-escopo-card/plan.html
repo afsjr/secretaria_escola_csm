@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261030-F24H - Plano de desacoplamento</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --bg:#f8fafc; --card:#ffffff; --red:#b91c1c; --redbg:#fef2f2; --green:#047857; --greenbg:#ecfdf5; --amber:#b45309; --amberbg:#fffbeb; --blue:#1d4ed8; --bluebg:#eff6ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--ink); font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing:-0.01em; }
+  h2 { font-size: 16px; margin: 28px 0 10px; text-transform: uppercase; letter-spacing:.06em; color:var(--muted); }
+  p { margin: 8px 0; }
+  .meta { color:var(--muted); font-size:13px; margin-bottom: 24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:12px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+  .metric { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .metric .n { display:block; font-size:28px; font-weight:700; line-height:1.1; }
+  .metric .l { color:var(--muted); font-size:12.5px; }
+  .before { border-left:4px solid var(--red); }
+  .after { border-left:4px solid var(--green); }
+  .tag { display:inline-block; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; }
+  .tag.red { color:var(--red); background:var(--redbg); }
+  .tag.green { color:var(--green); background:var(--greenbg); }
+  .tag.amber { color:var(--amber); background:var(--amberbg); }
+  .tag.blue { color:var(--blue); background:var(--bluebg); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { font-size: 12.5px; background:#f3f4f6; padding:1px 5px; border-radius:4px; }
+  pre { background:#0f172a; color:#e2e8f0; padding:14px 16px; border-radius:10px; overflow:auto; font-size:12.5px; line-height:1.5; }
+  pre .add { color:#86efac; }
+  pre .del { color:#fca5a5; }
+  pre .cmt { color:#94a3b8; }
+  ul { margin:8px 0 0 18px; padding:0; }
+  li { margin:5px 0; }
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px; }
+  .node { border:1px solid var(--line); background:#fff; border-radius:8px; padding:8px 10px; font-size:12.5px; }
+  .node.bad { border-color:#fecaca; background:var(--redbg); color:var(--red); }
+  .node.good { border-color:#a7f3d0; background:var(--greenbg); color:var(--green); }
+  .arrow { color:var(--muted); font-size:16px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .gate { border:2px solid var(--amber); background:var(--amberbg); }
+  .small { font-size:12.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>OPP-20261030-F24H <span class="tag red">decouple</span> <span class="tag amber">gate pendente</span></h1>
+  <p class="meta">Contexto: <code>professor-turmas</code> | Arquivos alvo: <code>src/views/professor-turmas.ts</code>, <code>src/views/professor-turmas-frequencia.ts</code> | Data: 2026-10-30</p>
+
+  <h2>1. Problema</h2>
+  <div class="card">
+    <p>O módulo de frequência não conhece o card da turma que está operando. Ele lê dois IDs fixos (<code>freq-data</code> e <code>freq-disciplina</code>) pelo <code>document</code> global. Como a view repete esses IDs em cada card, <code>getElementById</code> sempre devolve o primeiro card do documento.</p>
+    <div class="flow">
+      <span class="node bad">card Turma A: id freq-data</span>
+      <span class="arrow">e</span>
+      <span class="node bad">card Turma B: id freq-data (duplicado)</span>
+      <span class="arrow">-&gt;</span>
+      <span class="node bad">document.getElementById retorna sempre o card A</span>
+    </div>
+    <p class="small" style="margin-top:12px">Consequência: salvar a frequência do card B envia a data e a disciplina selecionadas no card A. Carregar frequência existente no card B também consulta a disciplina do card A.</p>
+  </div>
+
+  <h2>2. Acoplamento medido</h2>
+  <div class="grid">
+    <div class="metric before">
+      <span class="n" style="color:var(--red)">6</span>
+      <span class="l">chamadas a <code>document.getElementById</code> no módulo de frequência</span>
+    </div>
+    <div class="metric before">
+      <span class="n" style="color:var(--red)">2N</span>
+      <span class="l">IDs duplicados no documento (2 por card de turma)</span>
+    </div>
+    <div class="metric before">
+      <span class="n" style="color:var(--red)">2</span>
+      <span class="l">símbolos globais dos quais o módulo depende (<code>freq-data</code>, <code>freq-disciplina</code>)</span>
+    </div>
+    <div class="metric after">
+      <span class="n" style="color:var(--green)">0</span>
+      <span class="l">dependências globais depois da costura</span>
+    </div>
+    <div class="metric after">
+      <span class="n" style="color:var(--green)">0</span>
+      <span class="l">IDs duplicados depois da costura</span>
+    </div>
+    <div class="metric after">
+      <span class="n" style="color:var(--green)">1</span>
+      <span class="l">resolvedor escopado por card (<code>camposFrequencia</code>)</span>
+    </div>
+  </div>
+
+  <h2>3. Costura proposta</h2>
+  <div class="card">
+    <p>Criar uma função interna que resolve os campos a partir do <code>container</code> já recebido e do <code>turma.id</code> já recebido, subindo até o <code>.turma-card</code> correspondente. Nenhum novo import e nenhuma mudança no grafo de módulos.</p>
+    <pre><span class="cmt">// professor-turmas-frequencia.ts</span>
+<span class="add">function camposFrequencia(container: HTMLElement, turma: TurmaGroup) {</span>
+<span class="add">  const freqList = container.querySelector(`.frequencia-list[data-turma-id="${turma.id || ""}"]`) as HTMLElement | null;</span>
+<span class="add">  const card = freqList?.closest(".turma-card") as HTMLElement | null;</span>
+<span class="add">  return {</span>
+<span class="add">    freqList,</span>
+<span class="add">    dataInput: card?.querySelector(".freq-data-input") as HTMLInputElement | null,</span>
+<span class="add">    discInput: card?.querySelector(".freq-disc-input") as HTMLSelectElement | null,</span>
+<span class="add">  };</span>
+<span class="add">}</span></pre>
+    <p><span class="tag blue">view</span> Os campos ganham classes estáveis e IDs únicos por turma:</p>
+    <pre><span class="del">- &lt;label class="label" for="freq-data"&gt;Data da Aula&lt;/label&gt;</span>
+<span class="del">- &lt;input type="date" id="freq-data" class="input" ...&gt;</span>
+<span class="add">+ &lt;label class="label" for="freq-data-${chave}"&gt;Data da Aula&lt;/label&gt;</span>
+<span class="add">+ &lt;input type="date" id="freq-data-${chave}" class="input freq-data-input" ...&gt;</span>
+
+<span class="del">- &lt;label class="label" for="freq-disciplina"&gt;Disciplina&lt;/label&gt;</span>
+<span class="del">- &lt;select id="freq-disciplina" class="input" ...&gt;</span>
+<span class="add">+ &lt;label class="label" for="freq-disciplina-${chave}"&gt;Disciplina&lt;/label&gt;</span>
+<span class="add">+ &lt;select id="freq-disciplina-${chave}" class="input freq-disc-input" ...&gt;</span></pre>
+    <p class="small"><code>chave = turma.id || "sem-turma"</code>, calculada no início da iteração de <code>turmas.map</code>.</p>
+  </div>
+
+  <h2>4. Comportamento</h2>
+  <div class="card">
+    <p><span class="tag amber">atenção</span> Esta costura corrige um comportamento observável errado. O contrato preservado é: cada card usa os próprios campos, o mesmo <code>turma.id</code>, os mesmos alunos ativos e o mesmo fallback de data. O que muda é o alvo do card 2 em diante, que passa a ser o correto.</p>
+    <p>O gate precisa aprovar explicitamente essa correção. Sem isso, o especialista recusa a aplicação.</p>
+  </div>
+
+  <h2>5. Rede de segurança</h2>
+  <div class="card">
+    <p><span class="tag red">hoje</span> Não existe teste para frequência. Plano em duas etapas:</p>
+    <table>
+      <thead><tr><th>Etapa</th><th>Arquivo</th><th>Prova</th><th>Estado esperado</th></tr></thead>
+      <tbody>
+        <tr><td>CHG-001</td><td><code>src/views/professor-turmas-frequencia.test.ts</code></td><td>Caracterização: renderiza só alunos ativos, checkbox por aluno, salva <code>turma.id</code>, data padrão e ausentes marcados</td><td><span class="tag green">verde antes e depois</span></td></tr>
+        <tr><td>CHG-002</td><td><code>professor-turmas.ts</code> + <code>professor-turmas-frequencia.ts</code></td><td>Costura escopada ao card e IDs únicos</td><td><span class="tag red">diff com gate</span></td></tr>
+        <tr><td>CHG-003</td><td>teste de regressão no mesmo arquivo</td><td>Dois cards: salvar o card B usa a disciplina B</td><td><span class="tag green">verde depois</span></td></tr>
+      </tbody>
+    </table>
+    <p class="small">Rodar <code>npm test -- professor-turmas-frequencia</code> e <code>npm run type-check</code> antes e depois. Vermelho, reverter pelo diff.</p>
+  </div>
+
+  <h2>6. Escopo do change set</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>CHG</th><th>Arquivo</th><th>Propósito</th><th>Linhas estimadas</th></tr></thead>
+      <tbody>
+        <tr><td>CHG-001</td><td><code>src/views/professor-turmas-frequencia.test.ts</code> (novo)</td><td>Rede de caracterização</td><td>~70</td></tr>
+        <tr><td>CHG-002</td><td><code>src/views/professor-turmas.ts</code></td><td>Classes estáveis e IDs únicos por turma</td><td>~8</td></tr>
+        <tr><td>CHG-002</td><td><code>src/views/professor-turmas-frequencia.ts</code></td><td>Resolvedor escopado ao card, zero <code>getElementById</code></td><td>~25</td></tr>
+        <tr><td>CHG-003</td><td><code>src/views/professor-turmas-frequencia.test.ts</code></td><td>Regressão de dois cards</td><td>~35</td></tr>
+      </tbody>
+    </table>
+    <p class="small">Nenhum arquivo fora do escopo é tocado. <code>src/**</code> está liberado em <code>.reversa/reversa-config.json</code>.</p>
+  </div>
+
+  <h2>7. Gate</h2>
+  <div class="card gate">
+    <p><strong>Aprovar o plano</strong> autoriza a aplicar CHG-001 e rodar a caracterização verde. CHG-002 e CHG-003 voltam a este gate com diff completo antes de tocar produção.</p>
+    <p class="small">Alternativas: ajustar o escopo, adiar a correção, ou recusar. Recusa mantém a oportunidade em <code>proposed</code>.</p>
+  </div>
+</main>
+</body>
+</html>

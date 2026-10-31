@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261030-FZIH - Plano de simplificação</title>
+<style>
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --bg:#f8fafc; --card:#fff; --red:#b91c1c; --redbg:#fef2f2; --green:#047857; --greenbg:#ecfdf5; --amber:#b45309; --amberbg:#fffbeb; --blue:#1d4ed8; --bluebg:#eff6ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--ink); font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing:-0.01em; }
+  h2 { font-size: 16px; margin: 28px 0 10px; text-transform: uppercase; letter-spacing:.06em; color:var(--muted); }
+  p { margin: 8px 0; }
+  .meta { color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:12px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+  .metric { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .metric .n { display:block; font-size:28px; font-weight:700; line-height:1.1; }
+  .metric .l { color:var(--muted); font-size:12.5px; }
+  .before { border-left:4px solid var(--red); }
+  .after { border-left:4px solid var(--green); }
+  .tag { display:inline-block; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; }
+  .tag.red { color:var(--red); background:var(--redbg); }
+  .tag.green { color:var(--green); background:var(--greenbg); }
+  .tag.amber { color:var(--amber); background:var(--amberbg); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { font-size:12.5px; background:#f3f4f6; padding:1px 5px; border-radius:4px; }
+  pre { background:#0f172a; color:#e2e8f0; padding:14px 16px; border-radius:10px; overflow:auto; font-size:12.5px; line-height:1.5; }
+  pre .add { color:#86efac; }
+  pre .del { color:#fca5a5; }
+  pre .cmt { color:#94a3b8; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .gate { border:2px solid var(--amber); background:var(--amberbg); }
+  .small { font-size:12.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>OPP-20261030-FZIH <span class="tag red">simplify</span> <span class="tag amber">gate pendente</span></h1>
+  <p class="meta">Contexto: <code>professor-turmas</code> | Alvo: <code>src/views/professor-turmas-notas.ts</code> | Data: 2026-10-30</p>
+
+  <h2>1. Lógica atual e por que é complexa</h2>
+  <div class="card">
+    <p>A mesma média é exibida por dois caminhos com regras diferentes. O render inicial mostra o valor cru; o recálculo mostra o valor arredondado. A complexidade é acidental: não existe regra de negócio pedindo dois formatos, apenas duas implementações que ficaram desalinhadas após a mudança de <code>calcularMediaParcial</code>.</p>
+    <pre><span class="cmt">// renderLinhaAluno - inicial</span>
+<span class="del">- const mediaCalculada = calcularNotaFinal(mediaParcial, notas.rec || 0);</span>
+<span class="del">- const recDisabled = mediaParcial &gt;= 7 ? ...</span>
+<span class="del">- ... ${mediaParcial &gt; 0 ? mediaParcial.toFixed(1) : "-"}</span>
+
+<span class="cmt">// recalcularMedia - após edição</span>
+<span class="del">- const mediaParcial = arredondarNota(calcularMediaParcial(n1, n2, n3));</span>
+<span class="del">- ... ${media &gt; 0 ? media.toFixed(1) : "-"}</span></pre>
+    <p class="small">O PDF já faz o mesmo que o recálculo: <code>arredondarNota(calcularMediaParcial(...))</code> em <code>professor-turmas-pdf.ts:54</code>. O render inicial é o único dos três caminhos que não arredonda.</p>
+  </div>
+
+  <h2>2. Solução proposta</h2>
+  <div class="card">
+    <p>Aplicar o helper que já existe no render inicial, só para a coluna Média e para o bloqueio da Rec. A nota final continua calculada com a média crua, exatamente como hoje, para não alterar recuperação em nenhum caso.</p>
+    <pre><span class="cmt">// renderLinhaAluno</span>
+<span class="add">+ const mediaExibida = arredondarNota(mediaParcial);</span>
+  const mediaCalculada = calcularNotaFinal(mediaParcial, notas.rec || 0);
+<span class="del">- const recDisabled = mediaParcial &gt;= 7 ? ...</span>
+<span class="add">+ const recDisabled = mediaExibida &gt;= 7 ? ...</span>
+<span class="del">- ... ${mediaParcial &gt; 0 ? mediaParcial.toFixed(1) : "-"}</span>
+<span class="add">+ ... ${mediaExibida &gt; 0 ? mediaExibida.toFixed(1) : "-"}</span></pre>
+    <p class="small">Nenhuma mudança em <code>calcularNotaFinal</code>, <code>calcularStatusAluno</code> ou no recálculo. A regra passa de duas para uma.</p>
+  </div>
+
+  <h2>3. Prova de equivalência por caso</h2>
+  <div class="card">
+    <p>Média = coluna Média. Final e status são calculados com a média crua nos dois lados, então não mudam.</p>
+    <table>
+      <thead>
+        <tr><th>N1</th><th>N2</th><th>N3</th><th>Rec</th><th>Média crua</th><th>Média hoje</th><th>Média nova</th><th>Final</th><th>Status</th><th>Rec</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">7</td><td class="num">7</td><td class="num">6,4</td><td class="num">0</td><td class="num">6,8</td><td class="num" style="color:var(--red)">6,8</td><td class="num" style="color:var(--green)">7,0</td><td class="num">7,0</td><td>Aprovado</td><td class="num">habilita -&gt; bloqueia</td></tr>
+        <tr><td class="num">5</td><td class="num">6</td><td class="num">6,2</td><td class="num">0</td><td class="num">5,733</td><td class="num" style="color:var(--red)">5,7</td><td class="num" style="color:var(--green)">6,0</td><td class="num">6,0</td><td>Aprovado</td><td class="num">habilita</td></tr>
+        <tr><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">0</td><td class="num">4,0</td><td class="num">4,0</td><td class="num">4,0</td><td class="num">4,0</td><td>Reprovado</td><td class="num">habilita</td></tr>
+        <tr><td class="num">10</td><td class="num">10</td><td class="num">10</td><td class="num">0</td><td class="num">10,0</td><td class="num">10,0</td><td class="num">10,0</td><td class="num">10,0</td><td>Aprovado</td><td class="num">bloqueia</td></tr>
+        <tr><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td>Reprovado</td><td class="num">habilita</td></tr>
+        <tr><td class="num">5</td><td class="num">5</td><td class="num">5</td><td class="num">7</td><td class="num">5,0</td><td class="num">5,0</td><td class="num">5,0</td><td class="num">6,0</td><td>Aprovado</td><td class="num">habilita</td></tr>
+        <tr><td class="num">7</td><td class="num">7</td><td class="num">6,9</td><td class="num">0</td><td class="num">6,967</td><td class="num">7,0</td><td class="num">7,0</td><td class="num">7,0</td><td>Aprovado</td><td class="num">bloqueia</td></tr>
+      </tbody>
+    </table>
+    <p class="small">Casos de borda: média zero mostra <code>-</code> nos dois lados; médias já múltiplas de 0,5 não mudam; recuperação não é recalculada com a média arredondada.</p>
+  </div>
+
+  <h2>4. Impacto medido</h2>
+  <div class="grid">
+    <div class="metric before"><span class="n" style="color:var(--red)">2</span><span class="l">regras de exibição da média (crua no render, arredondada no recálculo)</span></div>
+    <div class="metric after"><span class="n" style="color:var(--green)">1</span><span class="l">regra, via <code>arredondarNota</code>, nos dois caminhos</span></div>
+    <div class="metric before"><span class="n" style="color:var(--red)">2</span><span class="l">divergências visuais (coluna Média e estado da Rec)</span></div>
+    <div class="metric after"><span class="n" style="color:var(--green)">0</span><span class="l">divergências entre render inicial e recálculo</span></div>
+  </div>
+
+  <h2>5. Rede de segurança</h2>
+  <div class="card">
+    <p>Estender <code>src/views/professor-turmas-notas.test.ts</code> com testes de <code>renderLinhaAluno</code> lendo as células do DOM. Duas famílias: caracterização do que não muda (nota final, status, média zero, médias já múltiplas de 0,5) verde antes e depois; regressão do que muda (média crua que arredonda e bloqueio da Rec) vermelha antes e verde depois. A tabela de casos acima é a fonte das asserções.</p>
+    <p class="small">Rodar <code>npm test -- professor-turmas-notas</code> e <code>npm run type-check</code> antes e depois.</p>
+  </div>
+
+  <h2>6. Gate</h2>
+  <div class="card gate">
+    <p><strong>Aprovar o plano</strong> autoriza aplicar CHG-001 (testes de render com os valores atuais) e CHG-002 (a linha de arredondamento). CHG-002 volta ao gate com diff antes de tocar produção.</p>
+    <p class="small">Escopo estrito: só coluna Média e <code>recDisabled</code>. Nota final e status intactos.</p>
+  </div>
+</main>
+</body>
+</html>

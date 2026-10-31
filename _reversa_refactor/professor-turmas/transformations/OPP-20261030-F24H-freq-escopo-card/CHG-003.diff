@@ -1,0 +1,29 @@
+--- a/src/views/professor-turmas-frequencia.test.ts
++++ b/src/views/professor-turmas-frequencia.test.ts
+@@ -111,4 +111,26 @@
+     )
+   })
+ 
++  it('cada card salva com a propria data e disciplina (OPP-20261030-F24H)', async () => {
++    const container = montarDoisCards()
++
++    await loadFrequenciaAlunos({ id: 'turma-a' } as any, container, 'prof-1')
++    await loadFrequenciaAlunos({ id: 'turma-b' } as any, container, 'prof-1')
++
++    const freqListB = container.querySelector('.frequencia-list[data-turma-id="turma-b"]') as HTMLElement
++    const checkbox = freqListB.querySelector('.freq-checkbox[data-aluno-id="a1"]') as HTMLInputElement
++    checkbox.checked = true
++
++    const btnSalvar = freqListB.querySelector('.btn-salvar-frequencia') as HTMLButtonElement
++    btnSalvar.click()
++
++    await vi.waitFor(() => expect(mockSalvarFrequencia).toHaveBeenCalledTimes(1))
++    expect(mockSalvarFrequencia).toHaveBeenCalledWith(
++      'turma-b',
++      'disc-b',
++      '2026-10-30',
++      'prof-1',
++      ['a1'],
++    )
++  })
+ })

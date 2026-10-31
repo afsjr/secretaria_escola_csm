@@ -1,0 +1,9 @@
+
+ RUN  v4.1.6 /Users/itouch/Documents/projetos_escola/secretaria_csm_tecnico/secretaria_escola_csm
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  22:13:10
+   Duration  8.58s (transform 1.38s, setup 486ms, import 1.45s, tests 1.38s, environment 12.71s)
+

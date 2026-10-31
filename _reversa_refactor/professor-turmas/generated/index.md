@@ -1,7 +1,7 @@
 # Índice de Oportunidades — professor-turmas
 
 > Contexto: `professor-turmas`
-> Última atualização: `2026-10-30T22:13:55-03:00`
+> Última atualização: `2026-10-30T22:39:04-03:00`
 
 ## Oportunidades
 
@@ -16,7 +16,7 @@
 | 7 | OPP-20260909-L3M4 | standardize | 79 estilos inline vs classes CSS padrão | 🟡 | Consistência visual e tema | medium | applied |
 | 8 | OPP-20260909-N5O6 | evolve | Conflitos de escrita multi-professor exigem realtime + merge | 🟡 | Perda de trabalho e divergência entre abas | high | proposed |
 | 9 | OPP-20261030-F24H | decouple | IDs globais de frequência colidem entre turmas | 🟡 | Lançamento de presença na disciplina errada com 2+ turmas | low | applied |
-| 10 | OPP-20261030-HX4X | decouple | Versões de notas em variável global window | 🟡 | Estado oculto, risco de versão obsoleta, trava OPP-8 | low | proposed |
+| 10 | OPP-20261030-HX4X | decouple | Versões de notas em variável global window | 🟡 | Estado oculto, risco de versão obsoleta, trava OPP-8 | low | applied |
 | 11 | OPP-20261030-4HGA | optimize | Salvar notas em lote refaz consultas por aluno | 🟢 | Latência linear no hotpath de gravação | low | proposed |
 | 12 | OPP-20261030-SIHI | restructure | Leitura e cálculo de linhas duplicados entre notas, PDF e alertas | 🟡 | Três cópias da regra propensas a divergir | medium | proposed |
 | 13 | OPP-20261030-FZIH | simplify | Média exibida diverge entre render inicial e recálculo | 🟢 | Coluna Média oscila de 6.8 para 7.0 sem edição de nota | low | applied |
@@ -37,7 +37,7 @@
 
 1. ~~**OPP-9** (frequência usa o card errado)~~ → **aplicado** com `/reversa-decouple` (2 testes novos, type-check verde)
 2. ~~**OPP-13** (média oscila na tela)~~ → **aplicado** com `/reversa-simplify` (1 regra de arredondamento, final e status intactos)
-3. **OPP-10** (estado global de versões) → `/reversa-decouple` — pré-requisito para encarar OPP-8
+3. ~~**OPP-10** (estado global de versões)~~ → **aplicado** com `/reversa-decouple` (contexto tipado, 2 testes novos)
 4. **OPP-11** (N+1 ao salvar notas) → `/reversa-optimize` — hotpath de escrita
 5. **OPP-15** (N+1 de alunos ao abrir) → `/reversa-optimize` — hotpath de leitura
 6. **OPP-12** (três cópias da leitura de linha) → `/reversa-restructure` — encadear após OPP-13
@@ -48,6 +48,6 @@
 
 - 7 oportunidades aplicadas na rodada anterior (2 prune, 2 simplify de bugs, 2 standardize, 1 modularize)
 - 1 evolve proposto para o ciclo forward (realtime/merge multi-professor)
-- 2 aplicadas nesta sessão: OPP-9 (frequência por card) e OPP-13 (média exibida)
-- 5 oportunidades novas propostas: 2 otimizações, 1 desacoplamento de estado global, 1 deduplicação de leitura, 1 padronização
+- 3 aplicadas nesta rodada: OPP-9 (frequência por card), OPP-13 (média exibida) e OPP-10 (contexto de versões)
+- 4 oportunidades novas propostas: 2 otimizações, 1 deduplicação de leitura, 1 padronização
 - Nenhuma alteração de regra de negócio registrada nesta rodada

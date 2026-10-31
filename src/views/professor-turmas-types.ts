@@ -34,6 +34,8 @@ export interface NotaExistente {
   status?: string | null;
 }
 
+export type NotasContexto = Map<string, Record<string, NotaExistente>>;
+
 export interface AlunoBaixaMedia {
   nome: string;
   media: number;

@@ -6,7 +6,7 @@ import { toast } from "../lib/toast";
 import { escapeHTML } from "../lib/security";
 import { arredondarNota, calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from "../lib/grades-utils";
 import { extrairPerfilPrimeiro } from "../lib/matricula-utils";
-import type { NotaExistente, TurmaGroup } from "./professor-turmas-types";
+import type { NotaExistente, NotasContexto, TurmaGroup } from "./professor-turmas-types";
 import { verificarAlertasBaixa } from "./professor-turmas-alertas";
 
 export function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number, pendente = false): string {
@@ -45,6 +45,7 @@ export async function loadAlunosDaDisciplina(
   disc: any,
   turma: TurmaGroup,
   container: HTMLElement,
+  contexto: NotasContexto,
 ): Promise<void> {
   const disciplinaId = disc.id; // ID da oferta
   const disciplinaNome = disc.nome;
@@ -86,8 +87,7 @@ export async function loadAlunosDaDisciplina(
     });
 
     // Armazenar versões para uso no salvamento
-    (window as any).__notasVersoes = (window as any).__notasVersoes || {};
-    (window as any).__notasVersoes[(disc as any).id] = notasMap;
+    contexto.set(disciplinaId, notasMap);
 
     // Filtrar alunos pendentes (matrícula tardia)
     const alunosPendentes = matriculas.filter((m: any) => {
@@ -209,7 +209,7 @@ export function recalcularMedia(tbody: HTMLElement, disciplinaId: string, contai
 /**
  * Liga os botões de salvar notas do container
  */
-export function bindSalvarNotas(container: HTMLElement): void {
+export function bindSalvarNotas(container: HTMLElement, contexto: NotasContexto): void {
   container.querySelectorAll(".btn-salvar-notas").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const ofertaId = (btn as HTMLButtonElement).getAttribute("data-disciplina-id")!;
@@ -225,8 +225,8 @@ export function bindSalvarNotas(container: HTMLElement): void {
         const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
         if (!alunoId) return;
 
-        // Recuperar versão correta do mapa global usando o ID da oferta
-        const notasVersoes = (window as any).__notasVersoes?.[ofertaId] || {};
+        // Recuperar versão correta do contexto usando o ID da oferta
+        const notasVersoes = contexto.get(ofertaId) ?? {};
         const notaExistente = notasVersoes[alunoId];
 
         const faltas = (row.querySelector(".input-faltas") as HTMLInputElement)?.value || "0";

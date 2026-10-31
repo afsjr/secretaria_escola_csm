@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261030-HX4X - Plano de desacoplamento</title>
+<style>
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --bg:#f8fafc; --card:#fff; --red:#b91c1c; --redbg:#fef2f2; --green:#047857; --greenbg:#ecfdf5; --amber:#b45309; --amberbg:#fffbeb; --blue:#1d4ed8; --bluebg:#eff6ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--ink); font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width:980px; margin:0 auto; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-0.01em; }
+  h2 { font-size:16px; margin:28px 0 10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  p { margin:8px 0; }
+  .meta { color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:12px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+  .metric { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .metric .n { display:block; font-size:28px; font-weight:700; line-height:1.1; }
+  .metric .l { color:var(--muted); font-size:12.5px; }
+  .before { border-left:4px solid var(--red); }
+  .after { border-left:4px solid var(--green); }
+  .tag { display:inline-block; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; }
+  .tag.red { color:var(--red); background:var(--redbg); }
+  .tag.green { color:var(--green); background:var(--greenbg); }
+  .tag.amber { color:var(--amber); background:var(--amberbg); }
+  .tag.blue { color:var(--blue); background:var(--bluebg); }
+  code, pre { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { font-size:12.5px; background:#f3f4f6; padding:1px 5px; border-radius:4px; }
+  pre { background:#0f172a; color:#e2e8f0; padding:14px 16px; border-radius:10px; overflow:auto; font-size:12.5px; line-height:1.5; }
+  pre .add { color:#86efac; }
+  pre .del { color:#fca5a5; }
+  pre .cmt { color:#94a3b8; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .gate { border:2px solid var(--amber); background:var(--amberbg); }
+  .small { font-size:12.5px; color:var(--muted); }
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px; }
+  .node { border:1px solid var(--line); background:#fff; border-radius:8px; padding:8px 10px; font-size:12.5px; }
+  .node.bad { border-color:#fecaca; background:var(--redbg); color:var(--red); }
+  .node.good { border-color:#a7f3d0; background:var(--greenbg); color:var(--green); }
+  .arrow { color:var(--muted); font-size:16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>OPP-20261030-HX4X <span class="tag red">decouple</span> <span class="tag amber">gate pendente</span></h1>
+  <p class="meta">Contexto: <code>professor-turmas</code> | Alvos: <code>professor-turmas-notas.ts</code>, <code>professor-turmas.ts</code>, <code>professor-turmas-types.ts</code> | Data: 2026-10-30</p>
+
+  <h2>1. Acoplamento atual</h2>
+  <div class="card">
+    <p>As versões carregadas do boletim são gravadas em uma propriedade mutável de <code>window</code> e lidas de lá no salvamento. O estado sobrevive ao ciclo de vida da view, não tem tipo e não tem limpeza.</p>
+    <div class="flow">
+      <span class="node bad">loadAlunosDaDisciplina</span>
+      <span class="arrow">-&gt;</span>
+      <span class="node bad">window.__notasVersoes[oferta]</span>
+      <span class="arrow">-&gt;</span>
+      <span class="node bad">bindSalvarNotas</span>
+    </div>
+    <pre><span class="cmt">// leitura e escrita globais</span>
+<span class="del">- (window as any).__notasVersoes = (window as any).__notasVersoes || {};</span>
+<span class="del">- (window as any).__notasVersoes[(disc as any).id] = notasMap;</span>
+<span class="del">- const notasVersoes = (window as any).__notasVersoes?.[ofertaId] || {};</span></pre>
+  </div>
+
+  <h2>2. Acoplamento medido</h2>
+  <div class="grid">
+    <div class="metric before"><span class="n" style="color:var(--red)">3</span><span class="l">acessos diretos a <code>window.__notasVersoes</code></span></div>
+    <div class="metric before"><span class="n" style="color:var(--red)">0</span><span class="l">contratos tipados para o estado de versões</span></div>
+    <div class="metric before"><span class="n" style="color:var(--red)">0</span><span class="l">limpezas de ciclo de vida</span></div>
+    <div class="metric after"><span class="n" style="color:var(--green)">0</span><span class="l">acessos a <code>window</code></span></div>
+    <div class="metric after"><span class="n" style="color:var(--green)">1</span><span class="l">tipo explícito <code>NotasContexto</code></span></div>
+    <div class="metric after"><span class="n" style="color:var(--green)">1</span><span class="l">dono do ciclo de vida: <code>ProfessorTurmasView</code></span></div>
+  </div>
+
+  <h2>3. Costura proposta</h2>
+  <div class="card">
+    <p>Criar um contexto tipado no módulo de tipos e passá-lo explicitamente da view para a carga e para o salvamento. Nenhum estado global.</p>
+    <pre><span class="cmt">// professor-turmas-types.ts</span>
+<span class="add">+ export type NotasContexto = Map<string, Record<string, NotaExistente>>;</span>
+
+<span class="cmt">// professor-turmas-notas.ts</span>
+<span class="del">- export async function loadAlunosDaDisciplina(disc, turma, container)</span>
+<span class="add">+ export async function loadAlunosDaDisciplina(disc, turma, container, contexto: NotasContexto)</span>
+<span class="del">- (window as any).__notasVersoes[(disc as any).id] = notasMap;</span>
+<span class="add">+ contexto.set(disciplinaId, notasMap);</span>
+
+<span class="del">- export function bindSalvarNotas(container: HTMLElement)</span>
+<span class="add">+ export function bindSalvarNotas(container: HTMLElement, contexto: NotasContexto)</span>
+<span class="del">- const notasVersoes = (window as any).__notasVersoes?.[ofertaId] || {};</span>
+<span class="add">+ const notasVersoes = contexto.get(ofertaId) ?? {};</span>
+
+<span class="cmt">// professor-turmas.ts</span>
+<span class="add">+ const notasContexto: NotasContexto = new Map();</span>
+<span class="add">+ loadAlunosDaDisciplina(disc, turma, container, notasContexto);</span>
+<span class="add">+ bindSalvarNotas(container, notasContexto);</span></pre>
+    <p class="small">O contexto nasce e morre com a view. Não há fallback global. A assinatura passa a exigir o contexto, então o compilador encontra qualquer chamador esquecido.</p>
+  </div>
+
+  <h2>4. Comportamento preservado</h2>
+  <div class="card">
+    <p>O payload de salvamento não muda: mesmo <code>aluno_id</code>, mesma <code>versao</code> carregada, mesmos valores de faltas e notas. A única diferença é o transporte do estado. A condição de corrida entre clicar em salvar antes da carga terminar já existe hoje e fica fora do escopo.</p>
+    <table>
+      <thead><tr><th>Caso</th><th>Antes</th><th>Depois</th></tr></thead>
+      <tbody>
+        <tr><td>Versão carregada por aluno</td><td><code>window.__notasVersoes</code></td><td><code>contexto.get(oferta)</code></td></tr>
+        <tr><td>Versão enviada ao salvar</td><td>a mesma do mapa</td><td>a mesma do mapa</td></tr>
+        <tr><td>Estado após sair da view</td><td>permanece em <code>window</code></td><td>coletado com a view</td></tr>
+        <tr><td>Chamador sem contexto</td><td>não se aplica</td><td>erro de tipo em tempo de compilação</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>5. Rede de segurança</h2>
+  <div class="card">
+    <p>Baseline atual: 357 testes passam, 4 falham por motivo pré-existente em <code>secretaria</code> e <code>GerenciarAlunosTab</code>, type-check verde.</p>
+    <table>
+      <thead><tr><th>Etapa</th><th>Teste</th><th>Estado esperado</th></tr></thead>
+      <tbody>
+        <tr><td>CHG-001</td><td>Caracterização: carregar e salvar envia a versão carregada por aluno</td><td><span class="tag green">verde antes e depois</span></td></tr>
+        <tr><td>CHG-001</td><td>Regressão: <code>window.__notasVersoes</code> não é criado</td><td><span class="tag red">vermelho antes</span></td></tr>
+        <tr><td>CHG-002</td><td>Contexto tipado e assinaturas atualizadas</td><td><span class="tag green">verde depois</span></td></tr>
+      </tbody>
+    </table>
+    <p class="small">Rodar <code>npm test -- professor-turmas-notas</code>, depois a suíte do alvo e <code>npm run type-check</code> em cada etapa.</p>
+  </div>
+
+  <h2>6. Gate</h2>
+  <div class="card gate">
+    <p><strong>Aprovar o plano</strong> autoriza CHG-001 (testes) e CHG-002 (contexto tipado), com o diff de CHG-002 mostrado antes de tocar produção.</p>
+  </div>
+</main>
+</body>
+</html>

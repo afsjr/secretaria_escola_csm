@@ -22,7 +22,7 @@ import { skeletonRowSpan, skeletonCard } from "../components/skeleton";
 import { toast } from "../lib/toast";
 import { createBadge, escapeHTML } from "../lib/security";
 import { UserProfile } from "../types";
-import type { TurmaGroup } from "./professor-turmas-types";
+import type { NotasContexto, TurmaGroup } from "./professor-turmas-types";
 import { loadAlunosDaDisciplina, bindSalvarNotas } from "./professor-turmas-notas";
 import { loadFrequenciaAlunos } from "./professor-turmas-frequencia";
 import { bindExportPdfButtons } from "./professor-turmas-pdf";
@@ -236,15 +236,17 @@ export async function ProfessorTurmasView(
     });
   });
 
+  const notasContexto: NotasContexto = new Map();
+
   // Load students for each discipline
   turmas.forEach((turma) => {
     turma.disciplinas.forEach((disc) => {
-      loadAlunosDaDisciplina(disc, turma, container);
+      loadAlunosDaDisciplina(disc, turma, container, notasContexto);
     });
   });
 
   // Save grades buttons
-  bindSalvarNotas(container);
+  bindSalvarNotas(container, notasContexto);
 
   // Load frequency for first discipline of each turma
   turmas.forEach((turma) => {

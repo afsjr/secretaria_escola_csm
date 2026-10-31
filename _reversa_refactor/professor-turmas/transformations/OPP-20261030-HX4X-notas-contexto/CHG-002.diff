@@ -1,0 +1,135 @@
+--- a/src/views/professor-turmas-types.ts
++++ b/src/views/professor-turmas-types.ts
+@@ -34,6 +34,8 @@
+   status?: string | null;
+ }
+ 
++export type NotasContexto = Map<string, Record<string, NotaExistente>>;
++
+ export interface AlunoBaixaMedia {
+   nome: string;
+   media: number;
+--- a/src/views/professor-turmas-notas.ts
++++ b/src/views/professor-turmas-notas.ts
+@@ -6,7 +6,7 @@
+ import { escapeHTML } from "../lib/security";
+ import { arredondarNota, calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from "../lib/grades-utils";
+ import { extrairPerfilPrimeiro } from "../lib/matricula-utils";
+-import type { NotaExistente, TurmaGroup } from "./professor-turmas-types";
++import type { NotaExistente, NotasContexto, TurmaGroup } from "./professor-turmas-types";
+ import { verificarAlertasBaixa } from "./professor-turmas-alertas";
+ 
+ export function renderLinhaAluno(aluno: any, notas: NotaExistente, mediaParcial: number, pendente = false): string {
+@@ -45,6 +45,7 @@
+   disc: any,
+   turma: TurmaGroup,
+   container: HTMLElement,
++  contexto: NotasContexto,
+ ): Promise<void> {
+   const disciplinaId = disc.id; // ID da oferta
+   const disciplinaNome = disc.nome;
+@@ -86,8 +87,7 @@
+     });
+ 
+     // Armazenar versões para uso no salvamento
+-    (window as any).__notasVersoes = (window as any).__notasVersoes || {};
+-    (window as any).__notasVersoes[(disc as any).id] = notasMap;
++    contexto.set(disciplinaId, notasMap);
+ 
+     // Filtrar alunos pendentes (matrícula tardia)
+     const alunosPendentes = matriculas.filter((m: any) => {
+@@ -209,7 +209,7 @@
+ /**
+  * Liga os botões de salvar notas do container
+  */
+-export function bindSalvarNotas(container: HTMLElement): void {
++export function bindSalvarNotas(container: HTMLElement, contexto: NotasContexto): void {
+   container.querySelectorAll(".btn-salvar-notas").forEach((btn) => {
+     btn.addEventListener("click", async () => {
+       const ofertaId = (btn as HTMLButtonElement).getAttribute("data-disciplina-id")!;
+@@ -225,8 +225,8 @@
+         const alunoId = (row as HTMLElement).getAttribute("data-aluno-id");
+         if (!alunoId) return;
+ 
+-        // Recuperar versão correta do mapa global usando o ID da oferta
+-        const notasVersoes = (window as any).__notasVersoes?.[ofertaId] || {};
++        // Recuperar versão correta do contexto usando o ID da oferta
++        const notasVersoes = contexto.get(ofertaId) ?? {};
+         const notaExistente = notasVersoes[alunoId];
+ 
+         const faltas = (row.querySelector(".input-faltas") as HTMLInputElement)?.value || "0";
+--- a/src/views/professor-turmas.ts
++++ b/src/views/professor-turmas.ts
+@@ -22,7 +22,7 @@
+ import { toast } from "../lib/toast";
+ import { createBadge, escapeHTML } from "../lib/security";
+ import { UserProfile } from "../types";
+-import type { TurmaGroup } from "./professor-turmas-types";
++import type { NotasContexto, TurmaGroup } from "./professor-turmas-types";
+ import { loadAlunosDaDisciplina, bindSalvarNotas } from "./professor-turmas-notas";
+ import { loadFrequenciaAlunos } from "./professor-turmas-frequencia";
+ import { bindExportPdfButtons } from "./professor-turmas-pdf";
+@@ -236,15 +236,17 @@
+     });
+   });
+ 
++  const notasContexto: NotasContexto = new Map();
++
+   // Load students for each discipline
+   turmas.forEach((turma) => {
+     turma.disciplinas.forEach((disc) => {
+-      loadAlunosDaDisciplina(disc, turma, container);
++      loadAlunosDaDisciplina(disc, turma, container, notasContexto);
+     });
+   });
+ 
+   // Save grades buttons
+-  bindSalvarNotas(container);
++  bindSalvarNotas(container, notasContexto);
+ 
+   // Load frequency for first discipline of each turma
+   turmas.forEach((turma) => {
+--- a/src/views/professor-turmas-notas.test.ts
++++ b/src/views/professor-turmas-notas.test.ts
+@@ -1,5 +1,6 @@
+ import { describe, it, expect, vi, beforeEach } from 'vitest'
+ import { bindSalvarNotas, loadAlunosDaDisciplina, renderLinhaAluno } from './professor-turmas-notas'
++import type { NotasContexto } from './professor-turmas-types'
+ 
+ const { mockFrom, mockGetAlunosDaTurma, mockVerificarAlertas, mockSalvarNotasEmLote } = vi.hoisted(() => ({
+   mockFrom: vi.fn(),
+@@ -64,7 +65,8 @@
+     `
+ 
+     const disc = { id: 'td1', nome: 'Psicologia Aplicada', disciplina_base_id: 'db1' }
+-    await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container)
++    const contexto: NotasContexto = new Map()
++    await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container, contexto)
+ 
+     const tbody = container.querySelector('.notas-tbody') as HTMLElement
+     expect(tbody.innerHTML).toContain('Aluno Normal')
+@@ -177,9 +179,10 @@
+     const container = montarContainerSalvar()
+     const disc = { id: 'td1', nome: 'Psicologia Aplicada', disciplina_base_id: 'db1' }
+ 
+-    await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container)
++    const contexto: NotasContexto = new Map()
++    await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container, contexto)
+     preencherLinha(container)
+-    bindSalvarNotas(container)
++    bindSalvarNotas(container, contexto)
+ 
+     ;(container.querySelector('.btn-salvar-notas') as HTMLButtonElement).click()
+ 
+@@ -195,8 +198,10 @@
+     const container = montarContainerSalvar()
+     const disc = { id: 'td1', nome: 'Psicologia Aplicada', disciplina_base_id: 'db1' }
+ 
+-    await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container)
++    const contexto: NotasContexto = new Map()
++    await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container, contexto)
+ 
+     expect((window as any).__notasVersoes).toBeUndefined()
++    expect(contexto.get('td1')?.['a1']?.versao).toBe(7)
+   })
+ })

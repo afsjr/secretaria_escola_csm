@@ -14,7 +14,9 @@ roi:
   impact: Acoplamento oculto e risco de versão obsoleta entre carregar e salvar. Dificulta teste do fluxo de salvamento e a futura feature de concorrência (OPP-8).
   cost: low
   est_return: Estado de versões explicitamente passado (ou encapsulado) em vez de global mutável, testável e sem vazamento entre telas.
-state: proposed
+state: applied
+applied_at: 2026-10-30T22:39:04-03:00
+transformation: "transformations/OPP-20261030-HX4X-notas-contexto/transformation.md"
 traceability:
   soul: []
   specs: ["professor/requirements.md#rf-05", "professor/requirements.md#rf-06"]

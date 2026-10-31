@@ -1,0 +1,47 @@
+
+ RUN  v4.1.6 /Users/itouch/Documents/projetos_escola/secretaria_csm_tecnico/secretaria_escola_csm
+
+ ❯ src/views/professor-turmas-notas.test.ts (8 tests | 1 failed) 307ms
+     × não deixa versões em window 22ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/views/professor-turmas-notas.test.ts > fluxo de versões (OPP-20261030-HX4X) > não deixa versões em window
+AssertionError: expected { td1: { a1: { …(9) } } } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "td1": {
+    "a1": {
+      "aluno_id": "a1",
+      "disciplina": "Psicologia Aplicada",
+      "faltas": 0,
+      "n1": 8,
+      "n2": 7,
+      "n3": 6,
+      "rec": 0,
+      "status": null,
+      "versao": 7,
+    },
+  },
+}
+
+ ❯ src/views/professor-turmas-notas.test.ts:200:44
+    198|     await loadAlunosDaDisciplina(disc, { id: 't1' } as any, container)
+    199|
+    200|     expect((window as any).__notasVersoes).toBeUndefined()
+       |                                            ^
+    201|   })
+    202| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  22:35:42
+   Duration  6.23s (transform 287ms, setup 128ms, import 237ms, tests 307ms, environment 4.62s)
+

@@ -35,6 +35,13 @@ Siga o `control_mode` do README (`gated` por padrão): análise, medição e pro
 
 Exija testes que fixem o comportamento dos componentes acoplados; sem cobertura, ofereça testes de caracterização (Feathers) verdes antes de introduzir costura ou abstração. Recusada a rede, rebaixe para 🔴 e registre a ausência de prova.
 
+## Escopo de DOM e estado
+
+1. Para seletor repetido, meça quantas instâncias compartilham o mesmo ID ou seletor.
+2. Prefira `container.querySelector` e ID único por instância; nunca `document.getElementById` para componentes repetidos.
+3. Se a correção mudar o alvo de uma escrita (ex.: card B lia o card A), trate como correção de bug: teste de regressão vermelho antes, gate explícito e registro em `transformation.md`.
+4. Não transporte estado entre módulos por `window.__...`; use parâmetro ou contexto tipado com ciclo de vida.
+
 ## Preservação de comportamento
 
 Consulte `<output_folder>/soul.md` e as specs confirmadas. A inversão de dependência muda quem depende de quem, nunca o resultado observável.

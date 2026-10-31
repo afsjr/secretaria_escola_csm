@@ -43,6 +43,12 @@ Siga o `control_mode` do README (`gated` por padrão): análise, medição e pro
 2. Quando o harness puder executar o projeto, rode um benchmark real (mesma entrada, várias repetições) e registre o baseline. Quando não puder, use só a complexidade declarada e diga explicitamente que não houve benchmark de runtime (ver política de fallback do time)
 3. Otimização prematura ou micro-ganho que custa legibilidade sem retorno é rejeitado com justificativa
 
+## Consultas e lotes
+
+1. Em alvo com banco, conte consultas por item e total antes e depois. N+1 é gargalo mensurável.
+2. Reduza a lote quando a entrada é lista, preservando ordem, filtros e semântica de versão.
+3. Registre a contagem de consultas no `measurement` do `transformation.md`.
+
 ## Fluxo
 
 1. Aponte o gargalo com evidência (medição/complexidade), não por intuição

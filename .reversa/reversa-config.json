@@ -4,6 +4,10 @@
   "allowedPaths": [
     "src/**",
     "scripts/**",
-    "supabase/**"
+    "supabase/**",
+    "tests/frequencia/e2e/**",
+    "_reversa_refactor/**",
+    "AGENTS.md",
+    ".agents/skills/**"
   ]
 }

@@ -39,6 +39,12 @@ Mover código quebra referências com facilidade. Exija testes que cubram o comp
 
 Consulte `<output_folder>/soul.md` e as specs confirmadas. **Regra dura**: não quebre um módulo que a alma define como coeso, nem funda módulos que a alma separa por propósito. A modularização segue o domínio, não a estética.
 
+## Pós-extração
+
+1. Rode testes do módulo novo, dos módulos extraídos e dos consumidores.
+2. Verifique imports, tipos e ordem de inicialização.
+3. Reexportação temporária precisa de registro e prazo.
+
 ## Fluxo
 
 1. Mapeie as responsabilidades misturadas no alvo e a fronteira de módulo proposta, com a responsabilidade única de cada parte declarada

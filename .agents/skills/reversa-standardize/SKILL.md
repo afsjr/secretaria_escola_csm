@@ -36,6 +36,12 @@ Siga o `control_mode` do README (`gated` por padrão): análise flui; todo passo
 2. Se não houver padrão dominante claro, apresente ao usuário as opções encontradas em menu e deixe ele declarar o padrão alvo
 3. Prefira ferramentas idempotentes já do ecossistema do projeto (formatadores, linters já configurados) quando existirem, em vez de reescrita manual
 
+## Varredura completa
+
+1. Antes de fechar, use grep para contar todas as ocorrências do padrão antigo no alvo.
+2. Padrão só está padronizado com zero ocorrências residuais no alvo.
+3. Se sobrar ocorrência por estar em outro template, registre nova oportunidade em vez de ignorar.
+
 ## Rede de segurança (proporcional)
 
 Padronização é cosmética e dispensa testes de caracterização, MAS renomeações precisam preservar todas as referências. Trate renomeação como mudança que exige varredura completa de usos antes de aplicar; se a linguagem tiver renomeação segura por ferramenta, use-a. Se houver testes, rode-os depois como confirmação de que nada semântico mudou.

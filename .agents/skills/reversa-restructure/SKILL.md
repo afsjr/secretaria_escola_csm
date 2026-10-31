@@ -41,6 +41,12 @@ Siga o `control_mode` do README (`gated` por padrão): leitura, análise e prova
 
 Consulte `<output_folder>/soul.md` e as specs confirmadas do contexto. Nenhuma regra de negócio confirmada pode virar regra ferida. A refatoração muda o COMO, nunca o O QUÊ.
 
+## Leitura duplicada
+
+1. Quando a mesma estrutura de DOM ou objeto é lida em mais de um módulo, extraia um leitor único.
+2. O leitor único retorna dados tipados, não HTML.
+3. Caracterize cada consumidor antes da troca.
+
 ## Fluxo
 
 1. Identifique os code smells do trecho e a refatoração Fowler nomeada para cada um (Extract Method, Rename, Decompose Conditional, Remove Duplication, Introduce Explaining Variable, ...)

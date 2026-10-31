@@ -37,6 +37,12 @@ Siga o `control_mode` do README (`gated` por padrão): análise e prova fluem; t
 2. **Equivalência de saída**: comprove que o algoritmo simples produz a mesma saída para o mesmo conjunto de entradas, incluindo edge cases (vazio, nulo, limites, concorrência). Simplificar que muda um edge case não é simplificação, é bug
 3. Recusada a rede, rebaixe para 🔴 e registre a ausência de prova
 
+## Equivalência de exibição
+
+1. Arredonde apenas na borda de exibição; não arredonde antes de cálculo persistido ou de outra regra.
+2. A tabela de equivalência cobre todos os campos derivados: média, final, status e habilitação de recuperação.
+3. Bordas obrigatórias: zero, nulo, valores já múltiplos de 0,5, limites 0 e 10 e recuperação.
+
 ## Preservação de comportamento
 
 Consulte `<output_folder>/soul.md` e as specs confirmadas. Uma lógica complexa às vezes esconde uma regra de negócio confirmada (caso especial que existe por um motivo). Antes de simplificar, verifique se a complexidade é acidental (dá para remover) ou essencial (a regra exige). Complexidade essencial não é simplificada; é documentada.

@@ -22,6 +22,17 @@ O registro é organizado por **contexto**: cada feature, módulo ou caso de uso 
 2. Use os valores reais onde este texto mencionar `_reversa_sdd/`
 3. Converse em `chat_language`; escreva artefatos em `doc_language`
 4. Nunca use travessão em texto gerado
+5. Leia `references/verification-protocol.md` e siga o baseline e o Definition of Done
+
+## Etapa 0.5: baseline de verificação (obrigatória)
+
+Antes de inventariar ou aplicar qualquer oportunidade:
+
+1. Rode `npm test` e `npm run type-check`; guarde a saída em `_reversa_refactor/<contexto>/baseline/`.
+2. Classifique cada falha como pré-existente, do alvo ou intermitente.
+3. Para provar que uma falha é pré-existente, reverta apenas os arquivos do alvo (`git stash push -- <arquivos>`), rode a mesma suíte e restaure.
+4. Nunca atribua uma falha à transformação sem essa prova.
+5. Se o alvo não tiver teste, a confiança fica 🔴 até criar caracterização.
 
 ## Bootstrap do registro (primeira execução)
 
@@ -41,6 +52,15 @@ Toda oportunidade pertence a um contexto. O usuário fala natural ("o cálculo d
 3. Se o usuário não disse a área, PERGUNTE via menu (label + descrição + "Outro"), nunca pule
 4. Resolvido, crie a pasta se não existir: `_reversa_refactor/<contexto>/` com `opportunities/` e `transformations/` dentro
 5. Slug em kebab-case curto e reconhecível na linguagem do usuário
+
+## Regras de alvo
+
+- Um verbo por oportunidade. Correção de bug não entra no mesmo change set de refactor estrutural.
+- DOM: escopo no container, ID único por instância, zero `document.getElementById` para componentes repetidos.
+- Cálculo: fonte única em `grades-utils` ou equivalente; arredondamento só na borda de exibição.
+- Estado: proibido `window.__...` para transportar estado entre módulos.
+- Consultas: sem N+1; usar lote quando a entrada é lista e medir a contagem antes/depois.
+- Padronização: fechar com varredura do padrão antigo e zero ocorrências residuais no alvo.
 
 ## Etapa 1: inventário de oportunidades
 
@@ -78,6 +98,20 @@ Oportunidades de melhoria em <contexto>, por retorno estimado:
 ```
 
 Se o alvo pedir mais de um verbo, proponha a **ordem de encadeamento** (em geral: restructure e simplify antes, depois modularize/decouple, standardize e prune por último), um especialista por vez, cada um com seu gate. Você não aplica; você encaminha e registra.
+
+## Etapa 3.5: Definition of Done
+
+Nenhuma oportunidade é concluída sem:
+
+- testes do alvo verdes e `npm run type-check` verde;
+- caracterização verde antes e depois;
+- correção de bug com teste de regressão vermelho antes e verde depois;
+- diff e saídas em `transformations/OPP-.../`;
+- `transformation.md` com `approval`, `safety_net` e `measurement`;
+- `opportunities/<id>.md` com `state: applied`;
+- `generated/index.md` atualizado;
+- falhas pré-existentes documentadas com prova de baseline;
+- nenhum arquivo fora do alvo alterado.
 
 ## Etapa 4: views
 

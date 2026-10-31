@@ -44,6 +44,12 @@ Classifique cada candidato:
 
 Para linguagens com forte entrada dinâmica (reflexão, meta-programação), eleve o rigor: na dúvida, é órfão suspeito, não morto.
 
+## Prova prática
+
+1. Busque referência estática, dinâmica (string, handler, eval) e no HTML.
+2. Remova logs de debug junto do código morto.
+3. Rode type-check e build. Sem prova, a oportunidade fica `proposed`.
+
 ## Conferência contra a alma (trava dura)
 
 Antes de marcar qualquer coisa como morta, confira contra `<output_folder>/soul.md` e as specs confirmadas. **Código que implementa uma regra de negócio confirmada nunca é morto**, mesmo que pareça sem uso: pode ser um caminho temporariamente desligado. Nesse caso, é órfão suspeito e o relatório aponta a regra que ele serve.

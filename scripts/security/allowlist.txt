@@ -37,3 +37,5 @@ csm1983#
 SUA_SENHA_AQUI
 # Senhas fictícias de teste (fixtures):
 senha123
+# Falso-positivo do bundle impeccable: concatenação de token em URL, não credencial:
+^token=' \+ (encodeURIComponent\()?TOKEN

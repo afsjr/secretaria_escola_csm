@@ -76,3 +76,15 @@ export function calcularStatusAluno(final: number): string {
   if (final >= 6) return 'Aprovado'
   return 'Reprovado'
 }
+
+/**
+ * Calcula o percentual de frequência a partir das faltas e da carga horária.
+ * Mesma regra da Ata: 100 - faltas * 100 / carga horária, limitado entre 0 e 100.
+ * Carga horária ausente ou menor ou igual a zero retorna 100.
+ */
+export function calcularPercentualFrequencia(faltas: number, cargaHoraria: number): number {
+  const faltasNum = Number(faltas) || 0
+  const cargaNum = Number(cargaHoraria) || 0
+  if (cargaNum <= 0) return 100
+  return Math.max(0, Math.min(100, Math.round(100 - (faltasNum * 100) / cargaNum)))
+}

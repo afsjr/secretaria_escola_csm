@@ -1,0 +1,14 @@
+{"ts": "2026-10-31T05:55:54-03:00", "action": "T001", "status": "done", "files": ["src/lib/grades-utils.ts"]}
+{"ts": "2026-10-31T05:55:54-03:00", "action": "T002", "status": "done", "files": ["src/types/domain.ts"]}
+{"ts": "2026-10-31T05:55:54-03:00", "action": "T003", "status": "done", "files": ["src/lib/academic-service.ts"]}
+{"ts": "2026-10-31T05:58:53-03:00", "action": "T004", "status": "done", "files": ["src/lib/grades.test.ts"]}
+{"ts": "2026-10-31T05:58:53-03:00", "action": "T005", "status": "done", "files": ["src/lib/academic-service.ts"]}
+{"ts": "2026-10-31T05:58:53-03:00", "action": "T006", "status": "done", "files": ["src/lib/academic-service-indicadores.test.ts"]}
+{"ts": "2026-10-31T06:00:01-03:00", "action": "T007", "status": "done", "files": ["src/views/gestao-turmas-indicadores.ts"]}
+{"ts": "2026-10-31T06:00:01-03:00", "action": "T008", "status": "done", "files": ["src/views/gestao-turmas-indicadores.test.ts"]}
+{"ts": "2026-10-31T06:01:41-03:00", "action": "T009", "status": "done", "files": ["src/views/gestao-turmas.ts"]}
+{"ts": "2026-10-31T06:01:41-03:00", "action": "T010", "status": "done", "files": ["src/views/gestao-turmas.ts"]}
+{"ts": "2026-10-31T06:01:41-03:00", "action": "T011", "status": "done", "files": ["src/views/gestao-turmas.ts"]}
+{"ts": "2026-10-31T06:01:41-03:00", "action": "T012", "status": "done", "files": ["src/styles/main.css"]}
+{"ts": "2026-10-31T06:04:02-03:00", "action": "T013", "status": "done", "files": ["src/lib/grades.test.ts", "src/lib/academic-service.test.ts", "src/lib/academic-service-indicadores.test.ts", "src/views/gestao-turmas-indicadores.test.ts"]}
+{"ts": "2026-10-31T06:04:02-03:00", "action": "T014", "status": "done", "files": ["_reversa_forward/013-indicadores-turma/regression-watch.md"]}

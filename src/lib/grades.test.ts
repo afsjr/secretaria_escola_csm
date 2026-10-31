@@ -9,7 +9,8 @@ import {
   arredondarNota, 
   calcularMediaParcial, 
   calcularNotaFinal, 
-  calcularStatusAluno 
+  calcularStatusAluno,
+  calcularPercentualFrequencia 
 } from './grades-utils'
 
 // As definições locais foram removidas para garantir que estamos testando o código real de grades-utils.ts.
@@ -262,5 +263,38 @@ describe('Cenários Reais de Notas', () => {
     expect(roundedMedia).toBe(10)
     expect(final).toBe(10)
     expect(status).toBe('Aprovado')
+  })
+})
+
+// =====================================================
+// TESTES: calcularPercentualFrequencia
+// =====================================================
+describe('calcularPercentualFrequencia', () => {
+  it('retorna 100 quando nao ha faltas', () => {
+    expect(calcularPercentualFrequencia(0, 40)).toBe(100)
+  })
+
+  it('calcula faltas parciais', () => {
+    expect(calcularPercentualFrequencia(4, 40)).toBe(90)
+  })
+
+  it('zera quando as faltas cobrem a carga horaria', () => {
+    expect(calcularPercentualFrequencia(40, 40)).toBe(0)
+  })
+
+  it('limita a 0 quando as faltas excedem a carga horaria', () => {
+    expect(calcularPercentualFrequencia(60, 40)).toBe(0)
+  })
+
+  it('limita a 100 quando as faltas sao negativas', () => {
+    expect(calcularPercentualFrequencia(-5, 40)).toBe(100)
+  })
+
+  it('retorna 100 quando a carga horaria e zero', () => {
+    expect(calcularPercentualFrequencia(4, 0)).toBe(100)
+  })
+
+  it('arredonda o percentual para inteiro', () => {
+    expect(calcularPercentualFrequencia(1, 30)).toBe(97)
   })
 })

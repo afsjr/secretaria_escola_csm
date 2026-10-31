@@ -2572,3 +2572,128 @@ html.dark .auth-brand-side {
   font-size: 0.85rem;
   color: var(--text-muted);
 }
+/* =====================================================
+   INDICADORES PEDAGÓGICOS DA TURMA
+   ===================================================== */
+
+.gt-indicadores-secao-titulo {
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gt-indicadores-secao-subtitulo {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.gt-indicadores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.gt-indicador-card {
+  background: var(--bg-card, var(--bg-app));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.gt-indicador-card-media { border-top: 3px solid var(--primary); }
+.gt-indicador-card-presenca { border-top: 3px solid var(--success); }
+.gt-indicador-card-alunos { border-top: 3px solid var(--accent); }
+.gt-indicador-card-disciplinas { border-top: 3px solid var(--text-muted); }
+
+.gt-indicador-titulo {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gt-indicador-valor {
+  color: var(--text-main);
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+
+.gt-indicador-rodape {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.gt-indicadores-tabela-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.gt-indicadores-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.gt-indicadores-tabela th {
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.7rem 0.75rem;
+}
+
+.gt-indicadores-tabela td {
+  padding: 0.7rem 0.75rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-main);
+  font-size: 0.88rem;
+}
+
+.gt-indicadores-td-disciplina {
+  font-weight: 600;
+}
+
+.gt-indicadores-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.gt-indicadores-vazio,
+.gt-indicadores-erro {
+  background: var(--bg-card, var(--bg-app));
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--text-muted);
+}
+
+.gt-indicadores-vazio strong {
+  color: var(--text-main);
+}
+
+.gt-indicadores-erro {
+  border-color: var(--danger);
+}
+
+.gt-indicadores-erro p {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.gt-indicadores-erro .btn {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}

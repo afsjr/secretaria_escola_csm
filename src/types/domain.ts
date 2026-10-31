@@ -193,6 +193,40 @@ export interface AtaResultadosData {
 }
 
 // =====================================================
+// INDICADORES PEDAGÓGICOS DA TURMA
+// =====================================================
+
+export interface IndicadorDisciplina {
+  disciplina_base_id: string
+  nome: string
+  modulo: string | null
+  carga_horaria: number
+  media: number | null
+  maior: number | null
+  menor: number | null
+  presenca_media: number | null
+  alunos_com_nota: number
+  alunos_com_boletim: number
+}
+
+export interface IndicadoresPedagogicosTurma {
+  turma_id: string
+  turma_nome: string
+  periodo: string
+  tipo_curso: string | null
+  total_alunos_ativos: number
+  alunos_com_dados: number
+  total_disciplinas: number
+  media_geral: number | null
+  media_maior: number | null
+  media_menor: number | null
+  presenca_geral: number | null
+  presenca_maior: number | null
+  presenca_menor: number | null
+  disciplinas: IndicadorDisciplina[]
+}
+
+// =====================================================
 // FREQUENCIA
 // =====================================================
 

@@ -6,7 +6,8 @@ import { AuditService } from '../lib/audit-service'
 import { toast } from '../lib/toast'
 import { escapeHTML, createOption, sanitizeFilename } from '../lib/security'
 import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno } from '../lib/grades-utils'
-import { skeletonLine, skeletonRowSpan, skeletonTable } from '../components/skeleton'
+import { skeletonLine, skeletonRowSpan, skeletonTable, skeletonCard } from '../components/skeleton'
+import { renderErroIndicadores, renderIndicadoresTurma } from './gestao-turmas-indicadores'
 import { ICONS } from '../lib/icons'
 import { PDFService } from '../lib/pdf-service'
 
@@ -141,6 +142,9 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
           <button type="button" class="tab-btn" data-tab="calendario" style="padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 500; cursor: pointer;">
             ${ICONS.calendar} Calendário
           </button>
+          <button type="button" class="tab-btn" data-tab="indicadores">
+            ${ICONS.chart} Indicadores
+          </button>
         </div>
 
         <!-- Seção: Alunos (Matrículas) -->
@@ -250,6 +254,18 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
                 <tr><td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-muted);">Selecione uma turma para ver o calendário.</td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- Seção: Indicadores Pedagógicos -->
+        <div id="tab-content-indicadores" style="display: none;">
+          <h3 class="gt-indicadores-secao-titulo">${ICONS.chart} Indicadores Pedagógicos</h3>
+          <p class="gt-indicadores-secao-subtitulo">Visão somente leitura da média, presença e amplitude das médias da turma.</p>
+          <div id="indicadores-conteudo">
+            <div class="gt-indicadores-vazio">
+              <strong>Selecione uma turma para ver os indicadores.</strong>
+              <span>Os dados aparecem para turmas de curso técnico.</span>
+            </div>
           </div>
         </div>
 
@@ -761,7 +777,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
 
     tabBtnsAll.forEach(btn => {
       const tab = btn.getAttribute('data-tab')
-      if (tab === 'grade' || tab === 'notas') {
+      if (tab === 'grade' || tab === 'notas' || tab === 'indicadores') {
         btn.style.display = isFormacao ? 'none' : ''
       }
     })
@@ -769,10 +785,12 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
     const gradeContent = container.querySelector('#tab-content-grade') as HTMLElement
     const notasContent = container.querySelector('#tab-content-notas') as HTMLElement
     const alunosContent = container.querySelector('#tab-content-alunos') as HTMLElement
+    const indicadoresContent = container.querySelector('#tab-content-indicadores') as HTMLElement
 
     if (isFormacao) {
       gradeContent.style.display = 'none'
       notasContent.style.display = 'none'
+      indicadoresContent.style.display = 'none'
       alunosContent.style.display = 'block'
 
       tabBtnsAll.forEach(b => {
@@ -798,6 +816,9 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       loadTurmaGrade(selectedTurmaId!)
       loadTurmaCalendario(selectedTurmaId!)
       toggleTabsPorTipo()
+      if (selectedCursoTipo !== 'formacao') {
+        loadTurmaIndicadores(selectedTurmaId!)
+      }
       
       // Rola a página suavemente para o painel de matrículas
       setTimeout(() => {
@@ -876,7 +897,7 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
   })
 
   // 3. Tabs (com animação fadeInScale via tab-enter)
-  const TABS = ['alunos', 'grade', 'notas', 'calendario'] as const
+  const TABS = ['alunos', 'grade', 'notas', 'calendario', 'indicadores'] as const
   const tabBtns = container.querySelectorAll('.tab-btn')
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -899,8 +920,27 @@ export async function GestaoTurmasView(profile?: { id: string; perfil: string })
       }
 
       if (tab === 'notas' && selectedTurmaId) loadDisciplinasDropdown(selectedTurmaId)
+      if (tab === 'indicadores' && selectedTurmaId) loadTurmaIndicadores(selectedTurmaId)
     })
   })
+
+  async function loadTurmaIndicadores(turmaId: string) {
+    const conteudo = container.querySelector('#indicadores-conteudo') as HTMLElement | null
+    if (!conteudo) return
+
+    conteudo.innerHTML = skeletonCard()
+
+    const { data, error } = await AcademicService.getIndicadoresPedagogicosTurma(turmaId)
+
+    if (error) {
+      conteudo.innerHTML = renderErroIndicadores(error.message || 'Erro ao carregar indicadores.')
+      const btnRecarregar = conteudo.querySelector('.btn-recarregar-indicadores') as HTMLButtonElement | null
+      btnRecarregar?.addEventListener('click', () => loadTurmaIndicadores(turmaId))
+      return
+    }
+
+    conteudo.innerHTML = renderIndicadoresTurma(data)
+  }
 
   async function loadDisciplinasDropdown(turmaId: string) {
     const sel = container.querySelector('#disciplina-select-notas') as HTMLSelectElement

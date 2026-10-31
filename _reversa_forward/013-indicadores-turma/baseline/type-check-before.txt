@@ -1,0 +1,4 @@
+
+> secretaria_escola_csm@1.0.0 type-check
+> tsc --noEmit
+

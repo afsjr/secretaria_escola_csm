@@ -1,0 +1,108 @@
+
+> secretaria_escola_csm@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.6 /Users/itouch/Documents/projetos_escola/secretaria_csm_tecnico/secretaria_escola_csm
+
+ ❯ src/components/Tabs/GerenciarAlunosTab.test.ts (4 tests | 3 failed) 2535ms
+     × deve filtrar alunos na busca 344ms
+     × deve abrir modal de edição com dados do aluno 1193ms
+     × deve chamar AdminService.matricularAluno ao confirmar matrícula 75ms
+ ❯ src/views/secretaria.test.ts (7 tests | 1 failed) 3237ms
+     × deve realizar o fluxo completo de lançamento de nota 1907ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/views/secretaria.test.ts > SecretariaView - Integração Estágio > deve realizar o fluxo completo de lançamento de nota
+TypeError: Cannot set properties of null (setting 'value')
+ ❯ src/views/secretaria.test.ts:89:17
+     87|
+     88|     // 1. Turma
+     89|     selectTurma.value = 'turma-1'
+       |                 ^
+     90|     selectTurma.dispatchEvent(new Event('change', { bubbles: true }))
+     91|     await vi.waitFor(() => expect(selectAluno.disabled).toBe(false))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/components/Tabs/GerenciarAlunosTab.test.ts > GerenciarAlunosTab > deve filtrar alunos na busca
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/components/Tabs/GerenciarAlunosTab.test.ts:57:32
+     55|       row => (row as HTMLElement).style.display !== 'none'
+     56|     )
+     57|     expect(visibleRows.length).toBe(1)
+       |                                ^
+     58|     expect(visibleRows[0].textContent).toContain('João Silva')
+     59|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/components/Tabs/GerenciarAlunosTab.test.ts > GerenciarAlunosTab > deve abrir modal de edição com dados do aluno
+TypeError: Cannot read properties of null (reading 'style')
+ ❯ src/components/Tabs/GerenciarAlunosTab.test.ts:72:20
+     70|     await vi.waitFor(() => {
+     71|       const modal = document.querySelector('#modal-editar-aluno') as H…
+     72|       expect(modal.style.display).toBe('flex')
+       |                    ^
+     73|       const inputNome = document.querySelector('#edit-nome') as HTMLIn…
+     74|       expect(inputNome.value).toBe('João Silva')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/components/Tabs/GerenciarAlunosTab.test.ts > GerenciarAlunosTab > deve chamar AdminService.matricularAluno ao confirmar matrícula
+TypeError: Cannot set properties of null (setting 'value')
+ ❯ src/components/Tabs/GerenciarAlunosTab.test.ts:90:17
+     88|     // Preencher e enviar
+     89|     const selectTurma = document.querySelector('#vincular-turma-id') a…
+     90|     selectTurma.value = 't1'
+       |                 ^
+     91|     const form = document.querySelector('#form-vincular-turma') as HTM…
+     92|     form.dispatchEvent(new Event('submit'))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: btn.scrollIntoView is not a function
+ ❯ HTMLButtonElement.<anonymous> src/views/secretaria.ts:122:29
+    120|       }
+    121|       // Garante que a aba ativa fica visível no scroll horizontal
+    122|       ;(btn as HTMLElement).scrollIntoView({ behavior: 'smooth', block…
+       |                             ^
+    123|     })
+    124|   })
+ ❯ HTMLButtonElement.callTheUserObjectsOperation node_modules/jsdom/lib/generated/idl/EventListener.js:26:30
+ ❯ innerInvokeEventListeners node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:360:16
+ ❯ invokeEventListeners node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:296:3
+ ❯ HTMLButtonElementImpl._dispatch node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:243:9
+ ❯ fireAnEvent node_modules/jsdom/lib/jsdom/living/helpers/events.js:18:36
+ ❯ HTMLButtonElementImpl.click node_modules/jsdom/lib/jsdom/living/nodes/HTMLElement-impl.js:85:5
+ ❯ HTMLButtonElement.click node_modules/jsdom/lib/generated/idl/HTMLElement.js:111:34
+ ❯ src/views/secretaria.test.ts:81:13
+ ❯ processTicksAndRejections node:internal/process/task_queues:103:5
+
+This error originated in "src/views/secretaria.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "deve realizar o fluxo completo de lançamento de nota". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  2 failed | 27 passed (29)
+      Tests  4 failed | 377 passed (381)
+     Errors  1 error
+   Start at  06:02:03
+   Duration  58.38s (transform 2.34s, setup 2.94s, import 6.53s, tests 12.10s, environment 131.73s)
+

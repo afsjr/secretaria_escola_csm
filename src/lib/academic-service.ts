@@ -1,8 +1,8 @@
 import { supabase } from "./supabase";
 import { CourseService } from "./course-service";
-import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno, disciplinaTemEstagio } from "./grades-utils";
+import { calcularMediaParcial, calcularNotaFinal, calcularStatusAluno, calcularPercentualFrequencia, disciplinaTemEstagio } from "./grades-utils";
 import { extrairPerfilPrimeiro } from "./matricula-utils";
-import type { AtaResultadosData, AtaAlunoResultado, AtaComponenteResultado, AtaSituacaoComponente, AtaStatusAluno } from "../types/domain";
+import type { AtaResultadosData, AtaAlunoResultado, AtaComponenteResultado, AtaSituacaoComponente, AtaStatusAluno, IndicadorDisciplina, IndicadoresPedagogicosTurma } from "../types/domain";
 
 interface TurmaData {
   nome: string;
@@ -451,6 +451,172 @@ export const AcademicService = {
     return { data, error: null };
   },
 
+  // Monta os indicadores pedagógicos de uma turma técnica.
+  // Somente leitura: usa as mesmas regras de média e frequência da Ata.
+  async getIndicadoresPedagogicosTurma(turmaId: string) {
+    const { data: turma, error: turmaError } = await supabase
+      .from("turmas")
+      .select("id, nome, periodo, curso_id, cursos(id, nome, tipo_curso)")
+      .eq("id", turmaId)
+      .single();
+
+    if (turmaError) return { data: null, error: turmaError };
+    if (!turma) return { data: null, error: { message: "Turma não encontrada." } };
+
+    const tipoCurso = (turma as any)?.cursos?.tipo_curso ?? null;
+    if (tipoCurso === "formacao") {
+      return {
+        data: null,
+        error: { message: "Indicadores pedagógicos disponíveis apenas para cursos técnicos." },
+      };
+    }
+
+    const { data: ofertas, error: ofertasError } = await supabase
+      .from("turma_disciplinas")
+      .select(`
+        id,
+        disciplina_base_id,
+        disciplinas_base (id, nome, modulo, ordem, carga_horaria)
+      `)
+      .eq("turma_id", turmaId);
+
+    if (ofertasError) return { data: null, error: ofertasError };
+
+    const disciplinasMap = new Map<string, IndicadorDisciplina>();
+    (ofertas || []).forEach((oferta: any) => {
+      const disc = oferta.disciplinas_base;
+      if (!disc?.id || disciplinasMap.has(disc.id)) return;
+      disciplinasMap.set(disc.id, {
+        disciplina_base_id: disc.id,
+        nome: disc.nome || "Disciplina",
+        modulo: disc.modulo ?? null,
+        carga_horaria: Number(disc.carga_horaria) || 0,
+        media: null,
+        maior: null,
+        menor: null,
+        presenca_media: null,
+        alunos_com_nota: 0,
+        alunos_com_boletim: 0,
+      });
+    });
+
+    const disciplinas = [...disciplinasMap.values()].sort((a, b) =>
+      String(a.modulo || "").localeCompare(String(b.modulo || ""), "pt-BR") ||
+      a.nome.localeCompare(b.nome, "pt-BR")
+    );
+
+    const { data: matriculas, error: matriculasError } = await supabase
+      .from("matriculas")
+      .select("aluno_id, status_aluno")
+      .eq("turma_id", turmaId)
+      .eq("status_aluno", "ativo");
+
+    if (matriculasError) return { data: null, error: matriculasError };
+
+    const alunoIds = [...new Set((matriculas || []).map((m: any) => m.aluno_id).filter(Boolean))];
+    const disciplinaIds = disciplinas.map((d) => d.disciplina_base_id);
+
+    let boletins: any[] = [];
+    if (alunoIds.length > 0 && disciplinaIds.length > 0) {
+      const { data: boletinsData, error: boletinsError } = await supabase
+        .from("boletim")
+        .select("aluno_id, disciplina_base_id, faltas, n1, n2, n3, rec, nota_estagio, status")
+        .in("aluno_id", alunoIds)
+        .in("disciplina_base_id", disciplinaIds);
+
+      if (boletinsError) return { data: null, error: boletinsError };
+      boletins = boletinsData || [];
+    }
+
+    const boletimPorAlunoDisciplina = new Map<string, any>();
+    boletins.forEach((b: any) => {
+      if (!b.aluno_id || !b.disciplina_base_id) return;
+      boletimPorAlunoDisciplina.set(`${b.aluno_id}:${b.disciplina_base_id}`, b);
+    });
+
+    const statsPorDisciplina = new Map<string, { notas: number[]; presencas: number[] }>();
+    disciplinas.forEach((d) => statsPorDisciplina.set(d.disciplina_base_id, { notas: [], presencas: [] }));
+
+    const mediasAlunos: number[] = [];
+    const presencasAlunos: number[] = [];
+    let alunosComDados = 0;
+
+    const media = (valores: number[]) => valores.reduce((soma, valor) => soma + valor, 0) / valores.length;
+    const arredondar1 = (valor: number) => Math.round(valor * 10) / 10;
+
+    for (const alunoId of alunoIds) {
+      const notasAluno: number[] = [];
+      const presencasAluno: number[] = [];
+      let alunoTemBoletim = false;
+
+      for (const disciplina of disciplinas) {
+        const boletim = boletimPorAlunoDisciplina.get(`${alunoId}:${disciplina.disciplina_base_id}`);
+        if (!boletim) continue;
+        alunoTemBoletim = true;
+
+        const stats = statsPorDisciplina.get(disciplina.disciplina_base_id)!;
+        const presenca = calcularPercentualFrequencia(boletim.faltas, disciplina.carga_horaria);
+        stats.presencas.push(presenca);
+        presencasAluno.push(presenca);
+
+        const n1 = Number(boletim.n1) || 0;
+        const n2 = Number(boletim.n2) || 0;
+        const n3 = Number(boletim.n3) || 0;
+        const rec = Number(boletim.rec) || 0;
+
+        if (n1 > 0 || n2 > 0 || n3 > 0) {
+          const notaFinal = calcularNotaFinal(calcularMediaParcial(n1, n2, n3), rec);
+          stats.notas.push(notaFinal);
+          notasAluno.push(notaFinal);
+          disciplina.alunos_com_nota++;
+        }
+        disciplina.alunos_com_boletim++;
+      }
+
+      if (alunoTemBoletim) alunosComDados++;
+      if (notasAluno.length > 0) mediasAlunos.push(arredondar1(media(notasAluno)));
+      if (presencasAluno.length > 0) presencasAlunos.push(Math.round(media(presencasAluno)));
+    }
+
+    disciplinas.forEach((disciplina) => {
+      const stats = statsPorDisciplina.get(disciplina.disciplina_base_id)!;
+      if (stats.notas.length > 0) {
+        disciplina.media = arredondar1(media(stats.notas));
+        disciplina.maior = arredondar1(Math.max(...stats.notas));
+        disciplina.menor = arredondar1(Math.min(...stats.notas));
+      }
+      if (stats.presencas.length > 0) {
+        disciplina.presenca_media = Math.round(media(stats.presencas));
+      }
+    });
+
+    const mediaGeral = mediasAlunos.length ? arredondar1(media(mediasAlunos)) : null;
+    const mediaMaior = mediasAlunos.length ? Math.max(...mediasAlunos) : null;
+    const mediaMenor = mediasAlunos.length ? Math.min(...mediasAlunos) : null;
+    const presencaGeral = presencasAlunos.length ? Math.round(media(presencasAlunos)) : null;
+    const presencaMaior = presencasAlunos.length ? Math.max(...presencasAlunos) : null;
+    const presencaMenor = presencasAlunos.length ? Math.min(...presencasAlunos) : null;
+
+    const data: IndicadoresPedagogicosTurma = {
+      turma_id: turma.id,
+      turma_nome: turma.nome,
+      periodo: turma.periodo,
+      tipo_curso: tipoCurso,
+      total_alunos_ativos: alunoIds.length,
+      alunos_com_dados: alunosComDados,
+      total_disciplinas: disciplinas.length,
+      media_geral: mediaGeral,
+      media_maior: mediaMaior,
+      media_menor: mediaMenor,
+      presenca_geral: presencaGeral,
+      presenca_maior: presencaMaior,
+      presenca_menor: presencaMenor,
+      disciplinas,
+    };
+
+    return { data, error: null };
+  },
+
   _extrairAnoLetivo(periodo: string): number {
     const m = String(periodo || "").match(/20\d{2}|19\d{2}/);
     return m ? parseInt(m[0], 10) : new Date().getFullYear();
@@ -472,9 +638,7 @@ export const AcademicService = {
       status = (calcularStatusAluno(notaFinal) as AtaSituacaoComponente) === "Aprovado" ? "Aprovado" : "Reprovado";
     }
 
-    const percentualFrequencia = cargaHoraria > 0
-      ? Math.max(0, Math.min(100, Math.round(100 - (faltas * 100) / cargaHoraria)))
-      : 100;
+    const percentualFrequencia = calcularPercentualFrequencia(faltas, cargaHoraria);
 
     const temEstagio = disciplinaTemEstagio(componente.nome, componente.modulo);
     const notaEstagio = temEstagio ? (boletim?.nota_estagio || null) : null;
